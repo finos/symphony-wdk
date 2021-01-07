@@ -1,0 +1,12 @@
+bdk:
+  host: devx3.symphony.com
+
+  bot:
+    username: workflow-bot
+    privateKey:
+      path: rsa/privatekey.pem
+
+logging:
+  level:
+    com.symphony: debug
+#    org.camunda: debug
