@@ -9,4 +9,5 @@ bdk:
 logging:
   level:
     com.symphony: debug
-#    org.camunda: debug
+    org.camunda: debug
+    org.camunda.engine.persistence: INFO

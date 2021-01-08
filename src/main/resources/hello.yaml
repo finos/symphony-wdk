@@ -1,0 +1,8 @@
+name: hello
+activities:
+  - on:
+      message: hello
+    reply: |
+      <messageML>
+          Hello human!
+      </messageML>

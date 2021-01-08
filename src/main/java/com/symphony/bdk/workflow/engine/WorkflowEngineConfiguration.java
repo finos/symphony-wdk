@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow;
+package com.symphony.bdk.workflow.engine;
 
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ManagementService;
@@ -8,10 +8,8 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -38,8 +36,7 @@ public class WorkflowEngineConfiguration {
 
     @Bean
     public SpringProcessEngineConfiguration engineConfiguration(DataSource dataSource,
-                                                                PlatformTransactionManager transactionManager,
-                                                                @Value("classpath*:*.bpmn") Resource[] deploymentResources) {
+                                                                PlatformTransactionManager transactionManager) {
         SpringProcessEngineConfiguration configuration = new SpringProcessEngineConfiguration();
 
         configuration.setProcessEngineName("engine");

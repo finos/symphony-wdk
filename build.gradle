@@ -20,4 +20,13 @@ dependencies {
 
     implementation platform('org.camunda.bpm:camunda-bom:7.14.0')
     implementation 'org.camunda.bpm:camunda-engine-spring'
+
+    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
