@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symphony.com/workflow.schema.json",
+  "title": "Workflow bot schema",
+  "description": "Schema for a Workflow describing file",
+  "default": {},
+  "type": "object",
+  "required": [
+    "name",
+    "activities"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "The name of the Workflow",
+      "description": "The name of the Workflow. It is not required to be unique",
+      "default": "Symphony bot Workflow - default name",
+      "examples": [
+        "Access Fintech Workflow",
+        "Symphony onboarding Workflow"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "title": "The version of the Workflow",
+      "description": "The version of the Workflow.",
+      "default": 0,
+      "examples": [
+        0
+      ]
+    },
+    "global": {
+      "type": "array",
+      "title": "Global variables",
+      "description": "Global variables to be shared with all steps in the Workflow. It should be written in a map format",
+      "default": [],
+      "examples": [
+        [
+          {
+            "roomName": "Best room ever",
+            "roomType": "IM"
+          }
+        ]
+      ],
+      "additionalItems": false,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "title": "Global variable declaration",
+            "description": "A global variable given by key and value.",
+            "default": {},
+            "examples": [
+              {
+                "roomName": "Best room ever"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "activities": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/create-room"
+          },
+          {
+            "$ref": "#/definitions/send-message"
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "create-room": {
+      "type": "object",
+      "properties": {
+        "create-room": {
+          "$ref": "#/definitions/create-room-inner"
+        }
+      },
+      "required": [
+        "create-room"
+      ]
+    },
+    "send-message": {
+      "type": "object",
+      "properties": {
+        "send-message": {
+          "$ref": "#/definitions/send-message-inner"
+        }
+      },
+      "required": [
+        "send-message"
+      ]
+    },
+    "slash": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "$ref": "#/definitions/slash-inner"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    },
+    "user-joined-event": {
+      "type": "object",
+      "properties": {
+        "user-joined": {
+          "$ref": "#/definitions/user-joined-event-inner"
+        }
+      },
+      "required": [
+        "user-joined"
+      ]
+    },
+    "user-joined-event-inner": {
+      "type": "object",
+      "properties": {
+        "streamId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "streamId"
+      ]
+    },
+    "slash-inner": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    },
+    "create-room-inner": {
+      "type": "object",
+      "anyOf": [
+        {
+          "required": [
+            "id",
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "id",
+            "uids"
+          ]
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "blabla"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "public": {
+          "type": "boolean"
+        },
+        "on": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/slash"
+            },
+            {
+              "$ref": "#/definitions/user-joined-event"
+            }
+          ]
+        },
+        "uids": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "send-message-inner": {
+      "type": "object",
+      "required": [
+        "id",
+        "streamId",
+        "message"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "blabla"
+        },
+        "description": {
+          "type": "string"
+        },
+        "streamId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "on": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/slash"
+            },
+            {
+              "$ref": "#/definitions/user-joined-event"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
