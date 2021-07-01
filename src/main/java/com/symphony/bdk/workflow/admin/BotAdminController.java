@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,7 @@ public class BotAdminController {
 
     private final MessageService messageService;
     private final WorkflowBuilder workflowBuilder;
+    private final Logger logger = LoggerFactory.getLogger(BotAdminController.class);
 
     public BotAdminController(MessageService messageService, WorkflowBuilder workflowBuilder) {
         this.messageService = messageService;
@@ -44,38 +47,18 @@ public class BotAdminController {
             ProcessingReport report = YamlValidator.validateYamlString(new String(decodedAttachment));
 
             if (report.isSuccess()) {
-                messageService.send(streamId,
-                    "<messageML>Yaml file is <b>VALID.</b></messageML>");
+                Workflow workflow = this.deserializeWorkflow(decodedAttachment);
+                workflowBuilder.addWorkflow(workflow);
+                this.logger.info("Yaml workflow file is valid");
             } else {
-                messageService.send(streamId,
-                    "<messageML>Yaml file is <b>NOT VALID!</b></messageML>");
+                this.logger.info("Yaml workflow file is not valid");
             }
-
-        }
-    }
-
-    /*public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws IOException {
-        // consider a message with an attachment as a workflow to run
-        if (!event.getSource().getMessage().getAttachments().isEmpty()) {
-            String streamId = event.getSource().getMessage().getStream().getStreamId();
-            String messageId = event.getSource().getMessage().getMessageId();
-            String attachmentId = event.getSource().getMessage().getAttachments().get(0).getId();
-
-            byte[] attachment = messageService.getAttachment(streamId, messageId, attachmentId);
-            byte[] decodedAttachment = Base64.getDecoder().decode(attachment);
-
-            Workflow workflow = deserializeWorkflow(decodedAttachment);
-            workflowBuilder.addWorkflow(workflow);
-
-            messageService.send(streamId,
-                    "<messageML>Ok, running workflow <b>" + workflow.getName() + "</b></messageML>");
         }
     }
 
     private Workflow deserializeWorkflow(byte[] workflow) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory()
-                .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true));
+            .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true));
         return mapper.readValue(workflow, Workflow.class);
-    }*/
-
+    }
 }

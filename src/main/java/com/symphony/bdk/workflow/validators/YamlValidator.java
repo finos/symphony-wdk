@@ -15,6 +15,10 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This class validates Yaml workflow content.
+ * It provides methods to validate a Yaml file and Yaml content as a string.
+ */
 public class YamlValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(YamlValidator.class);

@@ -1,6 +1,6 @@
 name: my-proposal
 version: 0
-global:
+variables:
   - roomName: "Best room ever"
 activities:
   - create-room: #has as output {"streamId": "AbcDEFgHiJK"}

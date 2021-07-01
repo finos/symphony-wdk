@@ -2,9 +2,9 @@ bdk:
   host: devx3.symphony.com
 
   bot:
-    username: SoufianeBot2
+    username: workflow-bot
     privateKey:
-      path: /Users/soufiane/.symphony/rsa-devx3/privatekey.pem
+      path: rsa/privatekey.pem
 
 logging:
   level:
