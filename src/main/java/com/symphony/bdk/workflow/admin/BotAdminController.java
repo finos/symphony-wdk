@@ -1,23 +1,26 @@
 package com.symphony.bdk.workflow.admin;
 
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
+import com.symphony.bdk.core.service.message.util.PresentationMLParser;
+import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowBuilder;
 import com.symphony.bdk.workflow.swadl.Workflow;
-import com.symphony.bdk.workflow.validators.YamlValidator;
+import com.symphony.bdk.workflow.validators.YAMLValidator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Component
@@ -34,24 +37,34 @@ public class BotAdminController {
 
     @EventListener
     public void onMessageSent(RealTimeEvent<V4MessageSent> event)
-        throws IOException, ProcessingException {
+        throws IOException, ProcessingException, PresentationMLParserException {
         // consider a message with an attachment as a workflow to run
-        if (!event.getSource().getMessage().getAttachments().isEmpty()) {
-            String streamId = event.getSource().getMessage().getStream().getStreamId();
-            String messageId = event.getSource().getMessage().getMessageId();
-            String attachmentId = event.getSource().getMessage().getAttachments().get(0).getId();
+        V4Message message = event.getSource().getMessage();
+        String text = PresentationMLParser.getTextContent(message.getMessage());
+        String streamId = message.getStream().getStreamId();
+        String messageId = message.getMessageId();
+        String attachmentId;
 
+        if (message.getAttachments() != null) {
+            attachmentId = message.getAttachments().get(0).getId();
+        } else {
+            return; // nothing to process if no attachment is found
+        }
+
+        if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
             byte[] attachment = messageService.getAttachment(streamId, messageId, attachmentId);
             byte[] decodedAttachment = Base64.getDecoder().decode(attachment);
 
-            ProcessingReport report = YamlValidator.validateYamlString(new String(decodedAttachment));
-
-            if (report.isSuccess()) {
-                Workflow workflow = this.deserializeWorkflow(decodedAttachment);
-                workflowBuilder.addWorkflow(workflow);
-                this.logger.info("Yaml workflow file is valid");
+            if (text.startsWith(YAMLValidator.YAML_VALIDATION_COMMAND)) {
+                YAMLValidator.validateYAMLString(new String(decodedAttachment, StandardCharsets.UTF_8));
+                Workflow workflow = deserializeWorkflow(decodedAttachment);
+                workflowBuilder.generateBPMNOutputFile(workflow);
             } else {
-                this.logger.info("Yaml workflow file is not valid");
+                Workflow workflow = deserializeWorkflow(decodedAttachment);
+                workflowBuilder.addWorkflow(workflow);
+
+                messageService.send(streamId,
+                    "<messageML>Ok, running workflow <b>" + workflow.getName() + "</b></messageML>");
             }
         }
     }

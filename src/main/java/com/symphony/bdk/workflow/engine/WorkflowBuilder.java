@@ -16,7 +16,6 @@ import org.camunda.bpm.model.xml.ModelValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -41,12 +40,12 @@ public class WorkflowBuilder {
         this.repositoryService = repositoryService;
     }
 
-    public void addWorkflow(Workflow workflow) throws IOException {
+    public void generateBPMNOutputFile(Workflow workflow) throws IOException {
         BpmnModelInstance instance = workflowToBpmn(workflow);
 
         File file = new File(OUTPUT_BPMN_FILE_NAME);
         if (file.exists()) {
-            this.logger.info("Output bpmn file {} already exists.", OUTPUT_BPMN_FILE_NAME);
+            this.logger.info("Output bpmn file {} already exists. It will be overridden.", OUTPUT_BPMN_FILE_NAME);
         } else {
             boolean successfullyCreated = file.createNewFile();
             String logMessage = successfullyCreated ?
@@ -57,17 +56,21 @@ public class WorkflowBuilder {
 
         try {
             Bpmn.writeModelToFile(file, instance);
+            logger.info("Output bpmn file {} is updated.",OUTPUT_BPMN_FILE_NAME);
         } catch (BpmnModelException | ModelValidationException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    public void addWorkflow(Workflow workflow) {
+        BpmnModelInstance instance = workflowToBpmn(workflow);
 
         if (deploy != null) {
             repositoryService.deleteDeployment(deploy.getId());
         }
-
         deploy = repositoryService.createDeployment()
-                .addModelInstance(workflow.getName() + ".bpmn", instance)
-                .deploy();
+            .addModelInstance(workflow.getName() + ".bpmn", instance)
+            .deploy();
     }
 
     /**
@@ -102,13 +105,6 @@ public class WorkflowBuilder {
         }
     }
 
-    /**
-     * This method returns workflow's activities in a map with the activity name as key,
-     * the activity itself as a value.
-     * Activities names change with a random suffix added in order to not override any existing map entry.
-     *
-     * @return Map associating each activity to its name
-     */
     private LinkedHashMap<String, Activity> activitiesToList(Workflow workflow) {
         LinkedHashMap<String, Activity> activities = new LinkedHashMap<>();
 

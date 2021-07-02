@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.validators;
 
+import com.symphony.bdk.workflow.exceptions.YAMLNotValidException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,31 +18,32 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This class validates Yaml workflow content.
- * It provides methods to validate a Yaml file and Yaml content as a string.
+ * This class validates YAML workflow content.
+ * It provides methods to validate a YAML file and YAML content as a string.
  */
-public class YamlValidator {
+public class YAMLValidator {
 
-  private static final Logger logger = LoggerFactory.getLogger(YamlValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(YAMLValidator.class);
   private static final String JSON_SCHEMA_FILE= "json-schema.json";
+  public static final String YAML_VALIDATION_COMMAND = "/validate";
   private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
   private static final JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
 
-  private YamlValidator() {}
+  private YAMLValidator() {}
 
-  public static ProcessingReport validateYamlFile(String yamlPath) throws IOException, ProcessingException {
+  public static ProcessingReport validateYAMLFile(String yamlPath) throws IOException, ProcessingException {
     final JsonNode schemaJson = objectMapper.readTree(
         loadResourceWithClassPath(JSON_SCHEMA_FILE));
-    final JsonNode yamlProposalOne = convertYamlFileToJsonNode(yamlPath);
+    final JsonNode yamlProposalOne = convertYAMLFileToJsonNode(yamlPath);
 
     return validate(yamlProposalOne, schemaJson);
   }
 
-  public static ProcessingReport validateYamlString(String yamlString) throws IOException, ProcessingException {
+  public static ProcessingReport validateYAMLString(String yamlString) throws IOException, ProcessingException {
     final JsonNode schemaJson = objectMapper.readTree(
         loadResourceWithClassPath(JSON_SCHEMA_FILE));
-    final JsonNode yamlProposalOne = convertYamlStringToJsonNode(yamlString);
+    final JsonNode yamlProposalOne = convertYAMLStringToJsonNode(yamlString);
 
     return validate(yamlProposalOne, schemaJson);
   }
@@ -52,49 +55,34 @@ public class YamlValidator {
    * @return Report with success/failure status
    */
   private static ProcessingReport validate(JsonNode jsonNode, JsonNode jsonSchema)
-      throws ProcessingException {
+      throws ProcessingException, YAMLNotValidException {
     final JsonSchema schema = factory.getJsonSchema(jsonSchema);
     ProcessingReport report = schema.validate(jsonNode);
 
     if (report.isSuccess()) {
-      logger.info("Yaml file VALID");
+      logger.info("YAML file is VALID");
     } else {
-      logger.info("Yaml file NOT VALID");
+      throw new YAMLNotValidException();
     }
 
     return report;
   }
 
-  /**
-   * This method loads file using class path
-   * @param filename: relative path to the resource file
-   */
   private static File loadResourceWithClassPath(String filename) throws IOException {
     return new ClassPathResource(filename).getFile();
   }
 
-  /**
-   * This method converts yaml file to {@link JsonNode}
-   * @param yamlFilename: relative path to yaml file
-   */
-  private static JsonNode convertYamlFileToJsonNode(String yamlFilename) throws IOException {
+  private static JsonNode convertYAMLFileToJsonNode(String yamlFilename) throws IOException {
     Object obj = yamlReader.readValue(
         loadResourceWithClassPath(yamlFilename), Object.class);
     return writeJsonNode(obj);
   }
 
-  /**
-   * This method converts yaml string to {@link JsonNode}
-   * @param yamlString: Yaml content as a string
-   */
-  private static JsonNode convertYamlStringToJsonNode(String yamlString) throws IOException {
+  private static JsonNode convertYAMLStringToJsonNode(String yamlString) throws IOException {
     return writeJsonNode(yamlReader.readValue(yamlString, Object.class));
 
   }
 
-  /**
-   * This method creates {@link JsonNode} from an {@link Object}
-   */
   private static JsonNode writeJsonNode(Object obj)
       throws JsonProcessingException {
     String jsonString = objectMapper.writeValueAsString(obj);
