@@ -8,7 +8,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowBuilder;
 import com.symphony.bdk.workflow.swadl.Workflow;
-import com.symphony.bdk.workflow.validators.YAMLValidator;
+import com.symphony.bdk.workflow.validators.YamlValidator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +28,7 @@ public class BotAdminController {
 
     private final MessageService messageService;
     private final WorkflowBuilder workflowBuilder;
-    private final Logger logger = LoggerFactory.getLogger(BotAdminController.class);
+    private static final Logger logger = LoggerFactory.getLogger(BotAdminController.class);
 
     public BotAdminController(MessageService messageService, WorkflowBuilder workflowBuilder) {
         this.messageService = messageService;
@@ -55,8 +55,8 @@ public class BotAdminController {
             byte[] attachment = messageService.getAttachment(streamId, messageId, attachmentId);
             byte[] decodedAttachment = Base64.getDecoder().decode(attachment);
 
-            if (text.startsWith(YAMLValidator.YAML_VALIDATION_COMMAND)) {
-                YAMLValidator.validateYAMLString(new String(decodedAttachment, StandardCharsets.UTF_8));
+            if (text.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
+                YamlValidator.validateYamlString(new String(decodedAttachment, StandardCharsets.UTF_8));
                 Workflow workflow = deserializeWorkflow(decodedAttachment);
                 workflowBuilder.generateBPMNOutputFile(workflow);
             } else {

@@ -73,14 +73,7 @@ public class WorkflowBuilder {
             .deploy();
     }
 
-    /**
-     * This method retrieves the command to start the workflow.
-     * If an activity has a triggering event with {@link Event#getContent()} field, its value is returned.
-     * If an activity has a triggering event with {@link Event#getStreamId()} field, its value is returned.
-     * If an activity has a triggering event with both fields, {@link Event#getContent()} value is returned.
-     *
-     * @return event's content value or streamId
-     */
+
     private String getCommandToStart(Workflow workflow) {
         Optional<LinkedHashMap<String, Activity>> first =
             workflow.getActivities().stream().findFirst();

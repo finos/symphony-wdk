@@ -5,7 +5,7 @@ import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.workflow.validators.YAMLValidator;
+import com.symphony.bdk.workflow.validators.YamlValidator;
 
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -28,7 +28,7 @@ public class DatafeedEventToMessage {
     @EventListener
     public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
         String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
-        if (!content.startsWith(YAMLValidator.YAML_VALIDATION_COMMAND)) {
+        if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
             // content being the command to start a workflow
             runtimeService.startProcessInstanceByMessage("message_" + content,
                 Collections.singletonMap("streamId",
