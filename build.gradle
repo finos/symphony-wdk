@@ -23,10 +23,11 @@ dependencies {
 
     implementation 'org.codehaus.groovy:groovy-all:3.0.7'
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly "org.projectlombok:lombok:1.16.16"
+    annotationProcessor 'org.projectlombok:lombok:1.16.16'
 
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0'
+    implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
