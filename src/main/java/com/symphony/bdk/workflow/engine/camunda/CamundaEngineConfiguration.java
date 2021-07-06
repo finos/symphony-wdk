@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.engine;
+package com.symphony.bdk.workflow.engine.camunda;
 
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ManagementService;
@@ -17,7 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-public class WorkflowEngineConfiguration {
+public class CamundaEngineConfiguration {
 
     @Bean
     public DataSource dataSource() {

@@ -1,9 +1,9 @@
-package com.symphony.bdk.workflow.engine;
+package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
-import com.symphony.bdk.workflow.activities.Reply;
-import com.symphony.bdk.workflow.swadl.Activity;
-import com.symphony.bdk.workflow.swadl.Event;
-import com.symphony.bdk.workflow.swadl.Workflow;
+import com.symphony.bdk.workflow.engine.camunda.activity.Reply;
+import com.symphony.bdk.workflow.lang.swadl.Activity;
+import com.symphony.bdk.workflow.lang.swadl.Event;
+import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
@@ -26,17 +26,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class WorkflowBuilder {
+public class CamundaBpmnBuilder {
 
     private static final String OUTPUT_BPMN_FILE_NAME = "build/resources/main/output.bpmn";
     private final RepositoryService repositoryService;
-    private final Logger logger = LoggerFactory.getLogger(WorkflowBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(CamundaBpmnBuilder.class);
 
     // run a single workflow at anytime
     private Deployment deploy;
 
     @Autowired
-    public WorkflowBuilder(RepositoryService repositoryService) {
+    public CamundaBpmnBuilder(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
     }
 
