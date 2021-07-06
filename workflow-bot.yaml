@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-bot
+  labels:
+    run: workflow-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: workflow-bot
+  template:
+    metadata:
+      labels:
+        run: workflow-bot
+    spec:
+      containers:
+      - image: gcr.io/sym-dev-plat/workflow-bot:latest
+        name: workflow-bot
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        volumeMounts:
+        - mountPath: /workspace/rsa
+          name: key
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: key
+        # Created with kubectl create secret generic workflow-bot-secret-key --from-file=privatekey.pem
+        secret:
+          defaultMode: 444
+          secretName: workflow-bot-secret-key
