@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.activities;
+package com.symphony.bdk.workflow.activity;
 
 import com.symphony.bdk.core.service.message.MessageService;
 

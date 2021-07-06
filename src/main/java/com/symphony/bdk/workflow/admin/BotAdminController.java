@@ -8,7 +8,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowBuilder;
 import com.symphony.bdk.workflow.swadl.Workflow;
-import com.symphony.bdk.workflow.validators.YamlValidator;
+import com.symphony.bdk.workflow.validator.YamlValidator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +59,7 @@ public class BotAdminController {
                 YamlValidator.validateYamlString(new String(decodedAttachment, StandardCharsets.UTF_8));
                 Workflow workflow = deserializeWorkflow(decodedAttachment);
                 workflowBuilder.generateBPMNOutputFile(workflow);
+                workflowBuilder.addWorkflow(workflow);
             } else {
                 Workflow workflow = deserializeWorkflow(decodedAttachment);
                 workflowBuilder.addWorkflow(workflow);

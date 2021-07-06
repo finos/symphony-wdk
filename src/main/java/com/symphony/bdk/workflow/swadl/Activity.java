@@ -1,21 +1,27 @@
 package com.symphony.bdk.workflow.swadl;
 
+import com.symphony.bdk.workflow.activity.CreateRoom;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.Optional;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity {
 
-    @JsonProperty("id")
-    private String id;
+  @JsonProperty("create-room")
+  private CreateRoom createRoom;
 
-    @JsonProperty("description")
-    private String description;
+  private String reply;
 
-    @JsonProperty("on")
-    private Event on;
-
-    private String reply;
+  public Optional<Event> getEvent() {
+    if (createRoom == null) {
+      return Optional.empty();
+    }
+    return Optional.of(createRoom.getOn());
+  }
 }
+

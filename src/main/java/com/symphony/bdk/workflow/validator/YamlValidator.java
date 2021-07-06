@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.validators;
+package com.symphony.bdk.workflow.validator;
 
 import com.symphony.bdk.workflow.exceptions.YamlNotValidException;
 

@@ -5,7 +5,7 @@ import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.workflow.validators.YamlValidator;
+import com.symphony.bdk.workflow.validator.YamlValidator;
 
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
