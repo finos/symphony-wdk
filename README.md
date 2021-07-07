@@ -10,7 +10,9 @@ The bot reacts to direct messages, executing the workflow attached to the messag
 
 Java 11 is required and Gradle is used to build the project.
 
-> ./gradlew build
+```shell
+./gradlew build
+``` 
 
 ## CI/CD
 

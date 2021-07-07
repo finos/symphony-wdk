@@ -51,6 +51,11 @@ public class CamundaEngine implements WorkflowEngine {
   }
 
   @Override
+  public void execute(Workflow workflow) {
+    bpmnBuilder.addWorkflow(workflow);
+  }
+
+  @Override
   public void messageReceived(String streamId, String content) {
     if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
       // content being the command to start a workflow
