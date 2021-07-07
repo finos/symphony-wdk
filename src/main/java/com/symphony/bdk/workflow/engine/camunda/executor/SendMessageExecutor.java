@@ -20,8 +20,10 @@ public class SendMessageExecutor implements JavaDelegate {
 
   @Override
   public void execute(DelegateExecution execution) {
-    LOGGER.info("Running send message");
+    LOGGER.info("Running send message to room with id {}",
+        execution.getVariable("roomId"));
     // TODO to be implemented
+    // This shows errors as it is not implemented yet
     messageService.send("123", "message");
   }
 }

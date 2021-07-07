@@ -2,11 +2,12 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.executor.CreateRoomExecutor;
 import com.symphony.bdk.workflow.engine.camunda.executor.SendMessageExecutor;
-import com.symphony.bdk.workflow.exceptions.NoCommandToStartException;
+import com.symphony.bdk.workflow.lang.exception.NoCommandToStartException;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
 import com.symphony.bdk.workflow.lang.swadl.Event;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.util.InputParameterUtils;
 
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
@@ -86,7 +87,7 @@ public class CamundaBpmnBuilder {
   private String getCommandToStart(Workflow workflow) {
     Optional<Event> startingEvent = getStartingEvent(workflow);
 
-    if (!startingEvent.isPresent()) {
+    if (startingEvent.isEmpty()) {
       throw new NoStartingEventException();
     }
 
@@ -110,12 +111,17 @@ public class CamundaBpmnBuilder {
         eventBuilder = eventBuilder.serviceTask()
             .camundaClass(CreateRoomExecutor.class)
             .name(activity.getCreateRoom().getName())
-            .camundaInputParameter("messageML", "<messageML>mocked reply</messageML>")
-            .camundaInputParameter("name", activity.getCreateRoom().getName())
-            .camundaInputParameter("public", activity.getCreateRoom().isPublic() + "")
-            .camundaInputParameter("description", activity.getCreateRoom().getDescription())
-            .camundaInputParameter("uids", String.valueOf(activity.getCreateRoom().getUids()));
-      } else if(activity.getSendMessage() != null) {
+            .camundaInputParameter("messageML",
+                "<messageML>mocked reply</messageML>")
+            .camundaInputParameter("name",
+                activity.getCreateRoom().getName())
+            .camundaInputParameter("public",
+                activity.getCreateRoom().isPublic() + "")
+            .camundaInputParameter("description",
+                activity.getCreateRoom().getRoomDescription())
+            .camundaInputParameter("uids",
+                InputParameterUtils.longListToString(activity.getCreateRoom().getUids()));
+      } else if (activity.getSendMessage() != null) {
         eventBuilder = eventBuilder.serviceTask()
             .camundaClass(SendMessageExecutor.class)
             .name(activity.getSendMessage().getName());

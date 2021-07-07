@@ -6,6 +6,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -23,9 +24,12 @@ public class DatafeedEventToWorkflowEvent {
 
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
-    String streamId = event.getSource().getMessage().getStream().getStreamId();
-    String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
-    workflowEngine.messageReceived(streamId, content);
+    if (!PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage())
+        .equals(YamlValidator.YAML_VALIDATE_COMMAND)) {
+      String streamId = event.getSource().getMessage().getStream().getStreamId();
+      String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
+      workflowEngine.messageReceived(streamId, content);
+    }
   }
 
   @EventListener

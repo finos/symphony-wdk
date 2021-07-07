@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.lang.validator;
 
-
 import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +24,7 @@ import java.io.IOException;
 public class YamlValidator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(YamlValidator.class);
+  public static final String YAML_VALIDATE_COMMAND = "/validate";
 
   private static final String JSON_SCHEMA_FILE = "json-schema.json";
   public static final String YAML_VALIDATION_COMMAND = "/validate";
@@ -43,12 +43,12 @@ public class YamlValidator {
     return validate(yamlProposalOne, schemaJson);
   }
 
-  public static ProcessingReport validateYamlString(String yamlString) throws IOException, ProcessingException {
+  public static void validateYamlString(String yamlString) throws IOException, ProcessingException {
     final JsonNode schemaJson = objectMapper.readTree(
         loadResourceWithClassPath(JSON_SCHEMA_FILE));
     final JsonNode yamlProposalOne = convertYamlStringToJsonNode(yamlString);
 
-    return validate(yamlProposalOne, schemaJson);
+    validate(yamlProposalOne, schemaJson);
   }
 
   /**

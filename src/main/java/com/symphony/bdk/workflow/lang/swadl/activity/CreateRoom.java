@@ -10,19 +10,13 @@ import java.util.List;
 @Data
 public class CreateRoom {
 
-  @JsonProperty("id")
   private String id;
-
-  @JsonProperty("description")
   private String description;
 
-  @JsonProperty("name")
+  @JsonProperty("room-description")
+  private String roomDescription;
   private String name;
-
-  @JsonProperty("uids")
   private List<Long> uids;
-
-  @JsonProperty("on")
   private Event on;
 
   @JsonProperty("public")

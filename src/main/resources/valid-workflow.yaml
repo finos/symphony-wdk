@@ -9,14 +9,16 @@ activities:
       on:
         message:
           content: "/create-room"
-      name: "roomNameName"  #optional if uids is set
-      uids:  #optional if name is set
-        - 1234
-        - 4567
-        - 7890
-      public: false
+      name: "room testing create-room"  #optional if uids is set
+      uids: #optional if name is set
+        - 13056700579871
+        - 13056700582923
+        - 13056700579841
+        - 13056700581149
+      room-description: "this is room description"
+      public: true
 
-  - send-message:  #has as output {"messageId": "LmNOpqrStUVw"}
+  - send-message: #has as output {"messageId": "LmNOpqrStUVw"}
       id: "send-message-id-1"
       description: "activity to send simple message"
       streamId: "streamIdID"
