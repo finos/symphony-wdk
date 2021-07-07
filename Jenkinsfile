@@ -10,7 +10,7 @@ def k8sUtils = new K8sUtils()
 node {
     def symCliRepo = env.PROJECT_REPO ?: "workflow-bot"
     def symCliOrg = env.PROJECT_ORG ?: "SymphonyOSF"
-    def symCliBranch = env.BRANCH_NAME ?: "main"
+    def symCliBranch = env.BRANCH_NAME ?: "master"
 
     withEnv(["PROJECT_TYPE=java",
              "GIT_REPO=${symCliRepo}",
