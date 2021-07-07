@@ -23,7 +23,7 @@ node {
         }
 
         stage('Build Project') {
-            sh './gradlew build jacocoTestReport jacocoTestCoverageVerification'
+            sh './gradlew check'
         }
 
         stage("Publish and deploy") {

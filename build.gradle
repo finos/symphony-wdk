@@ -60,6 +60,9 @@ jacocoTestCoverageVerification {
     }
 }
 
+test.finalizedBy jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
+
 bootBuildImage {
     imageName = "workflow-bot"
     builder = "gcr.io/buildpacks/builder"
