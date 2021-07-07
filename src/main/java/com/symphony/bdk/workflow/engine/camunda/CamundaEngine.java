@@ -9,16 +9,10 @@ import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.validator.YamlValidator;
-
-import com.symphony.bdk.workflow.util.AttachmentsUtils;
-
-import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Map;
 
@@ -29,9 +23,6 @@ public class CamundaEngine implements WorkflowEngine {
 
   @Autowired
   private RuntimeService runtimeService;
-
-  @Autowired
-  private RepositoryService repositoryService;
 
   @Autowired
   private CamundaBpmnBuilder bpmnBuilder;
@@ -45,10 +36,12 @@ public class CamundaEngine implements WorkflowEngine {
     if (attachmentId != null && !attachmentId.isEmpty()) {
       if (message.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
         bpmnBuilder.generateBPMNOutputFile(workflowContext.getWorkflow());
+
+        return getSuccessBpmnMessageML(workflowContext.getWorkflow().getName());
       } else {
         bpmnBuilder.addWorkflow(workflowContext.getWorkflow());
 
-        return getSuccessMessageML(workflowContext.getWorkflow().getName());
+        return getSuccessWorkflowMessageML(workflowContext.getWorkflow().getName());
       }
     }
 
@@ -78,7 +71,11 @@ public class CamundaEngine implements WorkflowEngine {
     return mapper.readValue(workflow, Workflow.class);
   }
 
-  private String getSuccessMessageML(String workflowName){
+  private String getSuccessBpmnMessageML(String workflowName){
+    return "<messageML>Ok, validated <b>" + workflowName + "</b></messageML>";
+  }
+
+  private String getSuccessWorkflowMessageML(String workflowName){
     return "<messageML>Ok, running workflow <b>" + workflowName + "</b></messageML>";
   }
 
