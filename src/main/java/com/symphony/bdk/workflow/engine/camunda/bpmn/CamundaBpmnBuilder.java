@@ -1,9 +1,9 @@
-package com.symphony.bdk.workflow.engine;
+package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
-import com.symphony.bdk.workflow.activities.Reply;
-import com.symphony.bdk.workflow.swadl.Activity;
-import com.symphony.bdk.workflow.swadl.Event;
-import com.symphony.bdk.workflow.swadl.Workflow;
+import com.symphony.bdk.workflow.engine.camunda.activity.Reply;
+import com.symphony.bdk.workflow.lang.swadl.Activity;
+import com.symphony.bdk.workflow.lang.swadl.Event;
+import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
@@ -26,9 +26,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public class WorkflowBuilder {
+public class CamundaBpmnBuilder {
 
-  private static final Logger logger = LoggerFactory.getLogger(WorkflowBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CamundaBpmnBuilder.class);
 
   private static final String OUTPUT_BPMN_FILE_NAME = "build/resources/main/output.bpmn";
 
@@ -38,7 +38,7 @@ public class WorkflowBuilder {
   private Deployment deploy;
 
   @Autowired
-  public WorkflowBuilder(RepositoryService repositoryService) {
+  public CamundaBpmnBuilder(RepositoryService repositoryService) {
     this.repositoryService = repositoryService;
   }
 
@@ -47,20 +47,20 @@ public class WorkflowBuilder {
 
     File file = new File(OUTPUT_BPMN_FILE_NAME);
     if (file.exists()) {
-      this.logger.info("Output bpmn file {} already exists. It will be overridden.", OUTPUT_BPMN_FILE_NAME);
+      LOGGER.info("Output bpmn file {} already exists. It will be overridden.", OUTPUT_BPMN_FILE_NAME);
     } else {
       boolean successfullyCreated = file.createNewFile();
       String logMessage = successfullyCreated
           ? String.format("Output bpmn file %s is created.", OUTPUT_BPMN_FILE_NAME)
           : String.format("Output bpmn file %s is NOT created.", OUTPUT_BPMN_FILE_NAME);
-      this.logger.info(logMessage);
+      LOGGER.info(logMessage);
     }
 
     try {
       Bpmn.writeModelToFile(file, instance);
-      logger.info("Output bpmn file {} is updated.", OUTPUT_BPMN_FILE_NAME);
+      LOGGER.info("Output bpmn file {} is updated.", OUTPUT_BPMN_FILE_NAME);
     } catch (BpmnModelException | ModelValidationException e) {
-      logger.error(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
   }
 

@@ -1,6 +1,6 @@
-package com.symphony.bdk.workflow.validators;
+package com.symphony.bdk.workflow.lang.validator;
 
-import com.symphony.bdk.workflow.exceptions.YamlNotValidException;
+import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
