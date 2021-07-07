@@ -19,30 +19,30 @@ import java.util.Map;
 @Component
 public class DatafeedEventToMessage {
 
-    @Autowired
-    private RuntimeService runtimeService;
+  @Autowired
+  private RuntimeService runtimeService;
 
-    @Autowired
-    private RepositoryService repositoryService;
+  @Autowired
+  private RepositoryService repositoryService;
 
-    @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
-        String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
-        if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
-            // content being the command to start a workflow
-            runtimeService.startProcessInstanceByMessage("message_" + content,
-                Collections.singletonMap("streamId",
-                    event.getSource().getMessage().getStream().getStreamId()));
-        }
+  @EventListener
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
+    String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
+    if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
+      // content being the command to start a workflow
+      runtimeService.startProcessInstanceByMessage("message_" + content,
+          Collections.singletonMap("streamId",
+              event.getSource().getMessage().getStream().getStreamId()));
     }
+  }
 
-    @EventListener
-    public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {
-        Map<String, Object> formReplies = (Map<String, Object>) event.getSource().getFormValues();
-        runtimeService.createMessageCorrelation("formReply")
-                .processInstanceId(event.getSource().getFormId())
-                .setVariables(formReplies)
-                .correlate();
-    }
+  @EventListener
+  public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {
+    Map<String, Object> formReplies = (Map<String, Object>) event.getSource().getFormValues();
+    runtimeService.createMessageCorrelation("formReply")
+        .processInstanceId(event.getSource().getFormId())
+        .setVariables(formReplies)
+        .correlate();
+  }
 
 }

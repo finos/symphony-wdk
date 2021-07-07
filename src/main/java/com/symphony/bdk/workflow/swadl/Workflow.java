@@ -10,15 +10,15 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Workflow {
-    @JsonProperty("name")
-    private String name;
+  @JsonProperty("name")
+  private String name;
 
-    @JsonProperty("version")
-    private int version;
+  @JsonProperty("version")
+  private int version;
 
-    @JsonProperty("global")
-    private List<Variable> global;
+  @JsonProperty("global")
+  private List<Variable> global;
 
-    @JsonProperty("activities")
-    private List<LinkedHashMap<String, Activity>> activities;
+  @JsonProperty("activities")
+  private List<LinkedHashMap<String, Activity>> activities;
 }
