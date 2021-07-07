@@ -1,10 +1,5 @@
 package com.symphony.bdk.workflow.context;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -13,6 +8,11 @@ import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 import com.symphony.bdk.workflow.util.AttachmentsUtils;
 import com.symphony.bdk.workflow.util.MessageUtils;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -27,10 +27,10 @@ public class WorkflowContextBuilder {
   @Autowired
   private MessageService messageService;
 
-  public WorkflowContextBuilder(){
+  public WorkflowContextBuilder() {
   }
 
-  public WorkflowContextBuilder fromEvent(RealTimeEvent<V4MessageSent> event){
+  public WorkflowContextBuilder fromEvent(RealTimeEvent<V4MessageSent> event) {
     this.event = event;
     return this;
   }
@@ -57,7 +57,7 @@ public class WorkflowContextBuilder {
     return mapper.readValue(attachment, Workflow.class);
   }
 
-  private byte[] getDecodedAttachments(String streamId, String messageId, String attachmentsId){
+  private byte[] getDecodedAttachments(String streamId, String messageId, String attachmentsId) {
     byte[] attachment = messageService.getAttachment(streamId,
         messageId, attachmentsId);
 

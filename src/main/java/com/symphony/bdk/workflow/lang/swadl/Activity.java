@@ -8,14 +8,14 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity {
 
-    @JsonProperty("id")
-    private String id;
+  @JsonProperty("id")
+  private String id;
 
-    @JsonProperty("description")
-    private String description;
+  @JsonProperty("description")
+  private String description;
 
-    @JsonProperty("on")
-    private Event on;
+  @JsonProperty("on")
+  private Event on;
 
-    private String reply;
+  private String reply;
 }

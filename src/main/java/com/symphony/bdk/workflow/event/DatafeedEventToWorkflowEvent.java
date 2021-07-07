@@ -6,6 +6,8 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.lang.validator.YamlValidator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -15,25 +17,26 @@ import java.util.Map;
 @Component
 public class DatafeedEventToWorkflowEvent {
 
-    @Autowired
-    private WorkflowEngine workflowEngine;
+  private static final String FORM_REPLY = "formReply";
 
-    private final String FORM_REPLY = "formReply";
+  @Autowired
+  private WorkflowEngine workflowEngine;
 
-    @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
-        String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
-        String streamId = event.getSource().getMessage().getStream().getStreamId();
-
-        workflowEngine.messageReceived(streamId, content);
+  @EventListener
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
+    String streamId = event.getSource().getMessage().getStream().getStreamId();
+    String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
+    if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
+      // content being the command to start a workflow
+      workflowEngine.messageReceived(streamId, content);
     }
+  }
 
-    @EventListener
-    public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {
-        Map<String, Object> formReplies = (Map<String, Object>) event.getSource().getFormValues();
-        String formId = event.getSource().getFormId();
-
-        workflowEngine.formReceived(FORM_REPLY, formId, formReplies);
-    }
+  @EventListener
+  public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {
+    Map<String, Object> formReplies = (Map<String, Object>) event.getSource().getFormValues();
+    String formId = event.getSource().getFormId();
+    workflowEngine.formReceived(FORM_REPLY, formId, formReplies);
+  }
 
 }
