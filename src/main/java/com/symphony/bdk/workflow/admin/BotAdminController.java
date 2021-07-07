@@ -26,52 +26,52 @@ import java.util.Base64;
 @Component
 public class BotAdminController {
 
-    private final MessageService messageService;
-    private final WorkflowBuilder workflowBuilder;
-    private static final Logger logger = LoggerFactory.getLogger(BotAdminController.class);
+  private final MessageService messageService;
+  private final WorkflowBuilder workflowBuilder;
+  private static final Logger logger = LoggerFactory.getLogger(BotAdminController.class);
 
-    public BotAdminController(MessageService messageService, WorkflowBuilder workflowBuilder) {
-        this.messageService = messageService;
-        this.workflowBuilder = workflowBuilder;
+  public BotAdminController(MessageService messageService, WorkflowBuilder workflowBuilder) {
+    this.messageService = messageService;
+    this.workflowBuilder = workflowBuilder;
+  }
+
+  @EventListener
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event)
+      throws IOException, ProcessingException, PresentationMLParserException {
+    // consider a message with an attachment as a workflow to run
+    V4Message message = event.getSource().getMessage();
+    String text = PresentationMLParser.getTextContent(message.getMessage());
+    String streamId = message.getStream().getStreamId();
+    String messageId = message.getMessageId();
+    String attachmentId;
+
+    if (message.getAttachments() != null) {
+      attachmentId = message.getAttachments().get(0).getId();
+    } else {
+      return; // nothing to process if no attachment is found
     }
 
-    @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event)
-        throws IOException, ProcessingException, PresentationMLParserException {
-        // consider a message with an attachment as a workflow to run
-        V4Message message = event.getSource().getMessage();
-        String text = PresentationMLParser.getTextContent(message.getMessage());
-        String streamId = message.getStream().getStreamId();
-        String messageId = message.getMessageId();
-        String attachmentId;
+    if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+      byte[] attachment = messageService.getAttachment(streamId, messageId, attachmentId);
+      byte[] decodedAttachment = Base64.getDecoder().decode(attachment);
 
-        if (message.getAttachments() != null) {
-            attachmentId = message.getAttachments().get(0).getId();
-        } else {
-            return; // nothing to process if no attachment is found
-        }
+      if (text.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
+        YamlValidator.validateYamlString(new String(decodedAttachment, StandardCharsets.UTF_8));
+        Workflow workflow = deserializeWorkflow(decodedAttachment);
+        workflowBuilder.generateBpmnOutputFile(workflow);
+      } else {
+        Workflow workflow = deserializeWorkflow(decodedAttachment);
+        workflowBuilder.addWorkflow(workflow);
 
-        if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
-            byte[] attachment = messageService.getAttachment(streamId, messageId, attachmentId);
-            byte[] decodedAttachment = Base64.getDecoder().decode(attachment);
-
-            if (text.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
-                YamlValidator.validateYamlString(new String(decodedAttachment, StandardCharsets.UTF_8));
-                Workflow workflow = deserializeWorkflow(decodedAttachment);
-                workflowBuilder.generateBPMNOutputFile(workflow);
-            } else {
-                Workflow workflow = deserializeWorkflow(decodedAttachment);
-                workflowBuilder.addWorkflow(workflow);
-
-                messageService.send(streamId,
-                    "<messageML>Ok, running workflow <b>" + workflow.getName() + "</b></messageML>");
-            }
-        }
+        messageService.send(streamId,
+            "<messageML>Ok, running workflow <b>" + workflow.getName() + "</b></messageML>");
+      }
     }
+  }
 
-    private Workflow deserializeWorkflow(byte[] workflow) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory()
-            .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true));
-        return mapper.readValue(workflow, Workflow.class);
-    }
+  private Workflow deserializeWorkflow(byte[] workflow) throws IOException {
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory()
+        .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true));
+    return mapper.readValue(workflow, Workflow.class);
+  }
 }
