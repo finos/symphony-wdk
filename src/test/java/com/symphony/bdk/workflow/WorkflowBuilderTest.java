@@ -19,7 +19,7 @@ class WorkflowBuilderTest {
                 .done();
 
         System.out.println(Bpmn.convertToString(hello));
-        File file = new File("/Users/yassine.amounane/Downloads/test.bpmn");
-        Bpmn.writeModelToFile(file, hello);
+//        File file = new File("/Users/yassine.amounane/Downloads/test.bpmn");
+//        Bpmn.writeModelToFile(file, hello);
     }
 }
