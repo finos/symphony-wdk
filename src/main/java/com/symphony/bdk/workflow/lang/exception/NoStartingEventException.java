@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.exceptions;
+package com.symphony.bdk.workflow.lang.exception;
 
 public class NoStartingEventException extends RuntimeException {
   public NoStartingEventException() {

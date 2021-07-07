@@ -10,7 +10,7 @@ def k8sUtils = new K8sUtils()
 node {
     def symCliRepo = env.PROJECT_REPO ?: "workflow-bot"
     def symCliOrg = env.PROJECT_ORG ?: "SymphonyOSF"
-    def symCliBranch = env.BRANCH_NAME ?: "main"
+    def symCliBranch = env.BRANCH_NAME ?: "master"
 
     withEnv(["PROJECT_TYPE=java",
              "GIT_REPO=${symCliRepo}",
@@ -23,11 +23,13 @@ node {
         }
 
         stage('Build Project') {
-            sh './gradlew build jacocoTestReport jacocoTestCoverageVerification'
+            sh './gradlew check'
         }
 
-        stage("Publish and deploy"){
-            if(!isPullRequest){
+        stage("Publish and deploy") {
+            if (isPullRequest) {
+                println "Nothing to deploy, this is a pull request"
+            } else {
                 k8sUtils.activateGceCreds("/usr/share/service-account-for-sym-dev-plat", "sym-dev-plat")
                 sh "./build-image.sh"
             }

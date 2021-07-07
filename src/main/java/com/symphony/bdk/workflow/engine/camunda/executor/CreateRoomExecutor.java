@@ -1,11 +1,10 @@
-package com.symphony.bdk.workflow.executor;
+package com.symphony.bdk.workflow.engine.camunda.executor;
 
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.workflow.activity.CreateRoom;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +20,7 @@ import java.util.stream.Collectors;
 public class CreateRoomExecutor implements JavaDelegate {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateRoomExecutor.class);
+  
   private final StreamService streamService;
   private final MessageService messageService;
 
@@ -33,11 +32,11 @@ public class CreateRoomExecutor implements JavaDelegate {
   @Override
   public void execute(DelegateExecution execution) {
     List<String> uidsAsString = Arrays.asList(
-            ((String) execution.getVariable("uids"))
-                .replace("[", "")
-                .replace("]", "")
-                .replaceAll("\\s+","")
-                .split(","));
+        ((String) execution.getVariable("uids"))
+            .replace("[", "")
+            .replace("]", "")
+            .replaceAll("\\s+", "")
+            .split(","));
 
     List<Long> uids = uidsAsString.stream().map(Long::valueOf).collect(Collectors.toList());
 

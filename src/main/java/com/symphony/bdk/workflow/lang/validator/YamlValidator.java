@@ -1,6 +1,7 @@
-package com.symphony.bdk.workflow.validator;
+package com.symphony.bdk.workflow.lang.validator;
 
-import com.symphony.bdk.workflow.exceptions.YamlNotValidException;
+
+import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,14 +24,16 @@ import java.io.IOException;
  */
 public class YamlValidator {
 
-  private static final Logger logger = LoggerFactory.getLogger(YamlValidator.class);
-  private static final String JSON_SCHEMA_FILE= "json-schema.json";
+  private static final Logger LOGGER = LoggerFactory.getLogger(YamlValidator.class);
+
+  private static final String JSON_SCHEMA_FILE = "json-schema.json";
   public static final String YAML_VALIDATION_COMMAND = "/validate";
   private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
   private static final JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
 
-  private YamlValidator() {}
+  private YamlValidator() {
+  }
 
   public static ProcessingReport validateYamlFile(String yamlPath) throws IOException, ProcessingException {
     final JsonNode schemaJson = objectMapper.readTree(
@@ -49,9 +52,10 @@ public class YamlValidator {
   }
 
   /**
-   * This method validates a {@link JsonNode} against a json schema
-   * @param jsonNode: json to be validated
-   * @param jsonSchema: schema to use for validation
+   * This method validates a {@link JsonNode} against a json schema.
+   *
+   * @param jsonNode   json to be validated
+   * @param jsonSchema schema to use for validation
    * @return Report with success/failure status
    */
   private static ProcessingReport validate(JsonNode jsonNode, JsonNode jsonSchema)
@@ -60,7 +64,7 @@ public class YamlValidator {
     ProcessingReport report = schema.validate(jsonNode);
 
     if (report.isSuccess()) {
-      logger.info("YAML file is VALID");
+      LOGGER.info("YAML file is VALID");
     } else {
       throw new YamlNotValidException();
     }

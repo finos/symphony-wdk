@@ -1,6 +1,6 @@
-package com.symphony.bdk.workflow.swadl;
+package com.symphony.bdk.workflow.lang.swadl;
 
-import com.symphony.bdk.workflow.activity.CreateRoom;
+import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

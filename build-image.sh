@@ -16,5 +16,5 @@ docker -- push ${gcp_image}
 echo "[workflow-bot] Image ${gcp_image} pushed to GCP"
 
 echo "[workflow-bot] Deploying into Kubernetes cluster"
-gcloud container clusters get-credentials devx-autopilot-cluster --zone us-central1-b --project sym-dev-plat
+gcloud container clusters get-credentials devx-autopilot-private-cluster --zone us-central1-b --project sym-dev-plat
 kubectl -n dev set image deployment/workflow-bot workflow-bot-1=${gcp_image}

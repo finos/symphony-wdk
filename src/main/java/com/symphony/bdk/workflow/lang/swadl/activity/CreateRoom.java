@@ -1,8 +1,10 @@
-package com.symphony.bdk.workflow.activity;
+package com.symphony.bdk.workflow.lang.swadl.activity;
 
-import com.symphony.bdk.workflow.swadl.Event;
+import com.symphony.bdk.workflow.lang.swadl.Event;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
 import java.util.List;
 
 @Data
@@ -26,6 +28,4 @@ public class CreateRoom {
   @JsonProperty("public")
   private boolean isPublic;
 }
-
-
 
