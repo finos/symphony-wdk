@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.executor;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 
-public interface ActivityExecutorContext {
+public interface ActivityExecutorContext<T> {
   String getVariable(String name);
 
   void setVariable(String name, String value);
@@ -11,5 +11,7 @@ public interface ActivityExecutorContext {
   MessageService messages();
 
   StreamService streams();
+
+  T getActivity();
 
 }

@@ -3,37 +3,26 @@ package com.symphony.bdk.workflow.engine.executor;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
+import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class CreateRoomExecutor implements ActivityExecutor {
+public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateRoomExecutor.class);
 
   private static final String OUTPUT_ROOM_ID_KEY = "roomId";
-  
+
   @Override
-  public void execute(ActivityExecutorContext execution) {
-    String uidsAsString = execution.getVariable("uids");
-    List<Long> uids = new ArrayList<>();
-    if (!StringUtils.isEmpty(uidsAsString)) {
-      List<String> uidsStringList = Arrays.asList(
-          execution.getVariable("uids")
-              .split(","));
-
-      uids = uidsStringList.stream().map(Long::valueOf).collect(Collectors.toList());
-    }
-
-    String name = execution.getVariable("name");
-    String description = execution.getVariable("description");
-    boolean isPublic = Boolean.parseBoolean(execution.getVariable("public"));
+  public void execute(ActivityExecutorContext<CreateRoom> execution) {
+    CreateRoom activity = execution.getActivity();
+    List<Long> uids = activity.getUids();
+    String name = activity.getName();
+    String description = activity.getRoomDescription();
+    boolean isPublic = activity.isPublic();
 
     final String createdRoomId;
     if (!uids.isEmpty()) {

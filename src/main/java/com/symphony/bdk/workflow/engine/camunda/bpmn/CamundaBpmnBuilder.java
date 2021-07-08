@@ -1,15 +1,15 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
-import com.symphony.bdk.workflow.engine.executor.CreateRoomExecutor;
-import com.symphony.bdk.workflow.engine.executor.SendMessageExecutor;
 import com.symphony.bdk.workflow.lang.exception.NoCommandToStartException;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
 import com.symphony.bdk.workflow.lang.swadl.Event;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
-import com.symphony.bdk.workflow.util.InputParameterUtils;
+import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 @Component
@@ -101,6 +103,7 @@ public class CamundaBpmnBuilder {
     throw new NoCommandToStartException();
   }
 
+  @SneakyThrows
   private BpmnModelInstance workflowToBpmn(Workflow workflow) {
     ProcessBuilder process = Bpmn.createExecutableProcess(workflow.getName());
 
@@ -108,26 +111,17 @@ public class CamundaBpmnBuilder {
     AbstractFlowNodeBuilder eventBuilder = process.startEvent().message("message_" + commandToStart);
 
     for (Activity activity : workflow.getActivities()) {
-      if (activity.getCreateRoom() != null) {
+      Optional<BaseActivity<?>> maybeActivity = activity.getActivity();
+      if (maybeActivity.isPresent()) {
+        BaseActivity<?> baseActivity = maybeActivity.get();
+
+        Type executorType =
+            ((ParameterizedType) (baseActivity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
         eventBuilder = eventBuilder.serviceTask()
             .camundaClass(CamundaExecutor.class)
-            .name(activity.getCreateRoom().getName())
-            .camundaInputParameter(CamundaExecutor.IMPL, CreateRoomExecutor.class.getName())
-            .camundaInputParameter("messageML",
-                "<messageML>mocked reply</messageML>")
-            .camundaInputParameter("name",
-                activity.getCreateRoom().getName())
-            .camundaInputParameter("public",
-                activity.getCreateRoom().isPublic() + "")
-            .camundaInputParameter("description",
-                activity.getCreateRoom().getRoomDescription())
-            .camundaInputParameter("uids",
-                InputParameterUtils.longListToString(activity.getCreateRoom().getUids()));
-      } else if (activity.getSendMessage() != null) {
-        eventBuilder = eventBuilder.serviceTask()
-            .camundaClass(CamundaExecutor.class)
-            .name(activity.getSendMessage().getName())
-            .camundaInputParameter(CamundaExecutor.IMPL, SendMessageExecutor.class.getName());
+            .name(baseActivity.getName())
+            .camundaInputParameter(CamundaExecutor.IMPL, executorType.getTypeName())
+            .camundaInputParameter(CamundaExecutor.ACTIVITY, new ObjectMapper().writeValueAsString(baseActivity));
       }
     }
 

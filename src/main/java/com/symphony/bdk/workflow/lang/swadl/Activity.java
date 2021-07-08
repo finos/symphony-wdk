@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.lang.swadl;
 
+import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
 import com.symphony.bdk.workflow.lang.swadl.activity.SendMessage;
 
@@ -19,15 +20,17 @@ public class Activity {
   @JsonProperty("send-message")
   private SendMessage sendMessage;
 
-  private String reply;
-
-  public Optional<Event> getEvent() {
+  public Optional<BaseActivity<?>> getActivity() {
     if (createRoom != null) {
-      return Optional.of(createRoom.getOn());
+      return Optional.of(createRoom);
     } else if (sendMessage != null) {
-      return Optional.of(sendMessage.getOn());
+      return Optional.of(sendMessage);
     }
     return Optional.empty();
+  }
+
+  public Optional<Event> getEvent() {
+    return getActivity().map(BaseActivity::getOn);
   }
 }
 
