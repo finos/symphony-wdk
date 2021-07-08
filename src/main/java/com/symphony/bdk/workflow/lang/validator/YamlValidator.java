@@ -24,8 +24,6 @@ import java.io.IOException;
 public class YamlValidator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(YamlValidator.class);
-  public static final String YAML_VALIDATE_COMMAND = "/validate";
-
   private static final String JSON_SCHEMA_FILE = "json-schema.json";
   public static final String YAML_VALIDATION_COMMAND = "/validate";
   private static final ObjectMapper objectMapper = new ObjectMapper();
