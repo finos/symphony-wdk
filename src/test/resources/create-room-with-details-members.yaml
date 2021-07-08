@@ -1,0 +1,15 @@
+name: create-mim-with-details-members-workflow
+activities:
+  - create-room:
+      id: "create-room-with-details-members"
+      description: "activity to create room when receiving /create-room slash command"
+      on:
+        message:
+          content: "/create-room-members"
+      uids:
+        - 666
+        - 777
+        - 999
+      name: "The best room ever"
+      room-description: "this is room description"
+      public: false

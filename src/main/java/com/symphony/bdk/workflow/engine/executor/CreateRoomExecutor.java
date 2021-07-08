@@ -27,35 +27,35 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     final String createdRoomId;
 
     if (uids != null && !uids.isEmpty() && !StringUtils.isEmpty(name) && !StringUtils.isEmpty(description)) {
-      createdRoomId = this.createStream(execution, uids, name, description, isPublic);
+      createdRoomId = this.createRoom(execution, uids, name, description, isPublic);
       LOGGER.info("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
     } else if (uids != null && !uids.isEmpty()) {
-      createdRoomId = this.createStream(execution, uids);
+      createdRoomId = this.createRoom(execution, uids);
       LOGGER.info("MIM created with {} users, id={}", uids.size(), createdRoomId);
     } else {
-      createdRoomId = this.createStream(execution, name, description, isPublic);
+      createdRoomId = this.createRoom(execution, name, description, isPublic);
       LOGGER.info("Stream {} created, id={}", name, createdRoomId);
     }
 
     execution.setVariable(OUTPUT_ROOM_ID_KEY, createdRoomId);
   }
 
-  private String createStream(ActivityExecutorContext execution, List<Long> uids) {
+  private String createRoom(ActivityExecutorContext execution, List<Long> uids) {
     Stream stream = execution.streams().create(uids);
     return stream.getId();
   }
 
-  private String createStream(ActivityExecutorContext execution, String name, String description, boolean isPublic) {
+  private String createRoom(ActivityExecutorContext execution, String name, String description, boolean isPublic) {
     V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
     v3RoomAttributes.name(name).description(description)._public(isPublic);
     V3RoomDetail v3RoomDetail = execution.streams().create(v3RoomAttributes);
     return v3RoomDetail.getRoomSystemInfo().getId();
   }
 
-  private String createStream(ActivityExecutorContext execution, List<Long> uids, String name, String description,
+  private String createRoom(ActivityExecutorContext execution, List<Long> uids, String name, String description,
       boolean isPublic) {
-    String streamId = createStream(execution, name, description, isPublic);
-    uids.forEach(uid -> execution.streams().addMemberToRoom(uid, streamId));
-    return streamId;
+    String roomId = createRoom(execution, name, description, isPublic);
+    uids.forEach(uid -> execution.streams().addMemberToRoom(uid, roomId));
+    return roomId;
   }
 }
