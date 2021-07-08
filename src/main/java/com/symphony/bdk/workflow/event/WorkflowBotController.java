@@ -8,15 +8,12 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
 import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 import com.symphony.bdk.workflow.util.AttachmentsUtils;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +30,15 @@ import java.util.Optional;
 public class WorkflowBotController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowBotController.class);
+  private final ObjectMapper objectMapper;
   private final WorkflowEngine workflowEngine;
-  private final CamundaBpmnBuilder camundaBpmnBuilder;
   private final MessageService messageService;
 
-  public WorkflowBotController(WorkflowEngine workflowEngine,
-      CamundaBpmnBuilder camundaBpmnBuilder,
-      MessageService messageService) {
+  public WorkflowBotController(WorkflowEngine workflowEngine, MessageService messageService,
+      ObjectMapper objectMapper) {
     this.workflowEngine = workflowEngine;
     this.messageService = messageService;
-    this.camundaBpmnBuilder = camundaBpmnBuilder;
+    this.objectMapper = objectMapper;
   }
 
   @EventListener
@@ -53,11 +49,10 @@ public class WorkflowBotController {
     String text = PresentationMLParser.getTextContent(message.getMessage());
     String streamId = message.getStream().getStreamId();
 
-    if (text.startsWith(YamlValidator.YAML_VALIDATE_COMMAND)) {
+    if (text.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
       String attachmentId = getFirstAttachmentIdFrom(AttachmentsUtils.getAttachmentsFrom(event));
       try {
         Workflow workflow = this.buildWorkflow(streamId, messageId, attachmentId);
-        this.camundaBpmnBuilder.generateBpmnOutputFile(workflow);
         this.workflowEngine.execute(workflow);
         messageService.send(streamId,
             String.format("<messageML>Ok, validated <b>%s</b></messageML>", workflow.getName()));
@@ -74,10 +69,7 @@ public class WorkflowBotController {
     byte[] attachment = getDecodedAttachments(streamId, messageId, attachmentsId);
     YamlValidator.validateYamlString(new String(attachment, StandardCharsets.UTF_8));
 
-    ObjectMapper mapper = new ObjectMapper(new YAMLFactory()
-        .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true));
-
-    return mapper.readValue(attachment, Workflow.class);
+    return this.objectMapper.readValue(attachment, Workflow.class);
   }
 
   private byte[] getDecodedAttachments(String streamId, String messageId, String attachmentsId) {

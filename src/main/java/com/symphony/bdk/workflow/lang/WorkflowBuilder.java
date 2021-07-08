@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class WorkflowBuilder {
+
+  private WorkflowBuilder() {
+
+  }
+
   public static Workflow fromYaml(InputStream yaml) throws IOException, ProcessingException {
     // TODO remove camunda dependency
     String yamlString = IoUtil.inputStreamAsString(yaml);

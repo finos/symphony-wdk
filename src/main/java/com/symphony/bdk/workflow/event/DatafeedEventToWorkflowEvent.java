@@ -25,7 +25,7 @@ public class DatafeedEventToWorkflowEvent {
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
     if (!PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage())
-        .equals(YamlValidator.YAML_VALIDATE_COMMAND)) {
+        .equals(YamlValidator.YAML_VALIDATION_COMMAND)) {
       String streamId = event.getSource().getMessage().getStream().getStreamId();
       String content = PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage());
       workflowEngine.messageReceived(streamId, content);
