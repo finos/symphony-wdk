@@ -1,7 +1,8 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
-import com.symphony.bdk.workflow.engine.camunda.executor.CreateRoomExecutor;
-import com.symphony.bdk.workflow.engine.camunda.executor.SendMessageExecutor;
+import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
+import com.symphony.bdk.workflow.engine.executor.CreateRoomExecutor;
+import com.symphony.bdk.workflow.engine.executor.SendMessageExecutor;
 import com.symphony.bdk.workflow.lang.exception.NoCommandToStartException;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
@@ -109,8 +110,9 @@ public class CamundaBpmnBuilder {
     for (Activity activity : workflow.getActivities()) {
       if (activity.getCreateRoom() != null) {
         eventBuilder = eventBuilder.serviceTask()
-            .camundaClass(CreateRoomExecutor.class)
+            .camundaClass(CamundaExecutor.class)
             .name(activity.getCreateRoom().getName())
+            .camundaInputParameter(CamundaExecutor.IMPL, CreateRoomExecutor.class.getName())
             .camundaInputParameter("messageML",
                 "<messageML>mocked reply</messageML>")
             .camundaInputParameter("name",
@@ -123,8 +125,9 @@ public class CamundaBpmnBuilder {
                 InputParameterUtils.longListToString(activity.getCreateRoom().getUids()));
       } else if (activity.getSendMessage() != null) {
         eventBuilder = eventBuilder.serviceTask()
-            .camundaClass(SendMessageExecutor.class)
-            .name(activity.getSendMessage().getName());
+            .camundaClass(CamundaExecutor.class)
+            .name(activity.getSendMessage().getName())
+            .camundaInputParameter(CamundaExecutor.IMPL, SendMessageExecutor.class.getName());
       }
     }
 
