@@ -8,7 +8,6 @@ import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.Deployment;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class CamundaEngine implements WorkflowEngine {
 
   @Override
   public void execute(Workflow workflow) throws IOException {
-    BpmnModelInstance instance = bpmnBuilder.addWorkflow(workflow);
+    bpmnBuilder.addWorkflow(workflow);
   }
 
   @Override

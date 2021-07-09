@@ -31,7 +31,7 @@ dependencies {
     runtimeOnly 'ch.qos.logback:logback-classic'
 
     implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
-    implementation 'org.camunda.bpm:camunda-engine-spring'
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter'
 
     implementation 'org.codehaus.groovy:groovy-all:3.0.8'
 

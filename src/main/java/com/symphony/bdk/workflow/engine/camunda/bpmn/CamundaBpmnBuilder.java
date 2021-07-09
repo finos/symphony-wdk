@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class CamundaBpmnBuilder {
@@ -59,13 +61,13 @@ public class CamundaBpmnBuilder {
 
   private void debugWorkflow(Workflow workflow, BpmnModelInstance instance) {
     Bpmn.writeModelToFile(new File(workflow.getName() + ".bpmn"), instance);
-    LOGGER.debug("Failed to process BPMN, file generated to ./{}.bpmn", workflow.getName());
+    LOGGER.debug("BPMN file generated to ./{}.bpmn", workflow.getName());
     try {
       // uses https://github.com/bpmn-io/bpmn-to-image
       Runtime.getRuntime().exec(
           String.format("bpmn-to-image --title %s-%s %s.bpmn:%s.png",
               workflow.getName(), Instant.now(), workflow.getName(), workflow.getName()));
-      LOGGER.debug("Failed to process BPMN, image file generated to ./{}.png", workflow.getName());
+      LOGGER.debug("BPMN, image file generated to ./{}.png", workflow.getName());
     } catch (IOException ioException) {
       LOGGER.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
           ioException);
@@ -101,7 +103,10 @@ public class CamundaBpmnBuilder {
     ProcessBuilder process = Bpmn.createExecutableProcess(workflow.getName() + "-" + UUID.randomUUID());
 
     String commandToStart = getCommandToStart(workflow);
-    AbstractFlowNodeBuilder eventBuilder = process.startEvent().message("message_" + commandToStart);
+    AbstractFlowNodeBuilder eventBuilder = process
+        .startEvent()
+        .message("message_" + commandToStart)
+        .name(commandToStart);
 
     boolean hasSubProcess = false;
     for (Activity activity : workflow.getActivities()) {
@@ -121,30 +126,51 @@ public class CamundaBpmnBuilder {
             - waiting for reply with an event sub process that is running for each reply
            */
           SubProcessBuilder subProcess = eventBuilder.subProcess();
-          subProcess.embeddedSubProcess()
+          eventBuilder = subProcess.embeddedSubProcess()
               .startEvent()
-              .intermediateCatchEvent().timerWithDuration("PT5S")
-              // TODO add expiration activity there
-              .endEvent()
+              .intermediateCatchEvent().timerWithDuration(baseActivity.getOn().getTimeout());
+
+          List<? extends BaseActivity<?>> expirationActivities = workflow.getActivities().stream()
+              .map(Activity::getActivity)
+              .filter(Optional::isPresent)
+              .map(Optional::get)
+              .filter(a -> a.getOn() != null && a.getOn().getActivityExpired() != null)
+              .filter(a -> a.getOn().getActivityExpired().getId().equals(baseActivity.getId()))
+              .collect(Collectors.toList());
+          for (BaseActivity<?> expirationActivity : expirationActivities) {
+            Type expirationActType =
+                ((ParameterizedType) (expirationActivity.getClass()
+                    .getGenericSuperclass())).getActualTypeArguments()[0];
+            eventBuilder = eventBuilder.serviceTask()
+                .id(expirationActivity.getId())
+                .name(Objects.toString(expirationActivity.getName(), expirationActivity.getId()))
+                .camundaClass(CamundaExecutor.class)
+                .camundaInputParameter(CamundaExecutor.EXECUTOR, expirationActType.getTypeName())
+                .camundaInputParameter(CamundaExecutor.ACTIVITY,
+                    CamundaExecutor.OBJECT_MAPPER.writeValueAsString(expirationActivity));
+          }
+          eventBuilder.endEvent()
               .subProcessDone();
 
           // we add the form reply event sub process inside the subprocess
           eventBuilder = subProcess.embeddedSubProcess().eventSubProcess()
               .startEvent()
               .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-              .message("formReply_" + baseActivity.getOn().getFormReply().getId());
+              .message("formReply_" + baseActivity.getOn().getFormReply().getId())
+              .name("formReply");
 
           hasSubProcess = true;
         }
 
-        eventBuilder = eventBuilder.serviceTask()
-            .id(baseActivity.getId())
-            .name(Objects.toString(baseActivity.getName(), baseActivity.getId()))
-            .camundaClass(CamundaExecutor.class)
-            .camundaInputParameter(CamundaExecutor.EXECUTOR, executorType.getTypeName())
-            .camundaInputParameter(CamundaExecutor.ACTIVITY,
-                CamundaExecutor.OBJECT_MAPPER.writeValueAsString(baseActivity));
-
+        if (baseActivity.getOn() == null || baseActivity.getOn().getActivityExpired() == null) {
+          eventBuilder = eventBuilder.serviceTask()
+              .id(baseActivity.getId())
+              .name(Objects.toString(baseActivity.getName(), baseActivity.getId()))
+              .camundaClass(CamundaExecutor.class)
+              .camundaInputParameter(CamundaExecutor.EXECUTOR, executorType.getTypeName())
+              .camundaInputParameter(CamundaExecutor.ACTIVITY,
+                  CamundaExecutor.OBJECT_MAPPER.writeValueAsString(baseActivity));
+        }
       }
     }
 

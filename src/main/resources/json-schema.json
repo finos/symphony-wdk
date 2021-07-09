@@ -107,6 +107,23 @@
                 "message"
             ]
         },
+        "on": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/slash"
+                },
+                {
+                    "$ref": "#/definitions/user-joined-event"
+                },
+                {
+                    "$ref": "#/definitions/form-reply-event"
+                },
+                {
+                    "$ref": "#/definitions/activity-expired-event"
+                }
+            ]
+        },
         "user-joined-event": {
             "type": "object",
             "properties": {
@@ -129,6 +146,17 @@
                 "form-reply"
             ]
         },
+        "activity-expired-event": {
+            "type": "object",
+            "properties": {
+                "form-reply": {
+                    "$ref": "#/definitions/activity-expired-event-inner"
+                }
+            },
+            "required": [
+                "activity-expired"
+            ]
+        },
         "user-joined-event-inner": {
             "type": "object",
             "properties": {
@@ -144,6 +172,20 @@
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id"
+            ]
+        },
+        "activity-expired-event-inner": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "timeout": {
                     "type": "string"
                 }
             },
@@ -197,17 +239,7 @@
                     "type": "boolean"
                 },
                 "on": {
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/slash"
-                        },
-                        {
-                            "$ref": "#/definitions/user-joined-event"
-                        },
-                        {
-                            "$ref": "#/definitions/form-reply-event"
-                        }
-                    ]
+                    "$ref": "#/definitions/on"
                 },
                 "uids": {
                     "type": "array",
@@ -239,17 +271,7 @@
                     "type": "string"
                 },
                 "on": {
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/slash"
-                        },
-                        {
-                            "$ref": "#/definitions/user-joined-event"
-                        },
-                        {
-                            "$ref": "#/definitions/form-reply-event"
-                        }
-                    ]
+                    "$ref": "#/definitions/on"
                 }
             }
         }

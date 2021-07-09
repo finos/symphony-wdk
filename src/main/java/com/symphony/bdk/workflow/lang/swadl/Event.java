@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.lang.swadl;
 
+import com.symphony.bdk.workflow.lang.swadl.event.ActivityExpiredEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.FormReplyEvent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -12,6 +13,8 @@ import java.util.Optional;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
+  private String timeout = "PT5S";
+
   @JsonProperty("message")
   private LinkedHashMap<String, String> content;
 
@@ -20,6 +23,9 @@ public class Event {
 
   @JsonProperty("form-reply")
   private FormReplyEvent formReply;
+
+  @JsonProperty("activity-expired")
+  private ActivityExpiredEvent activityExpired;
 
   public Optional<String> getCommand() {
     if (content != null && content.get("content") != null) {

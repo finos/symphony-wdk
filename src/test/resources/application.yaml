@@ -6,3 +6,8 @@ logging:
     com.symphony: DEBUG
     org.camunda: DEBUG
     org.camunda.bpmn.engine.persistence: INFO
+
+camunda:
+  bpm:
+    job-execution:
+      wait-time-in-millis: 1000

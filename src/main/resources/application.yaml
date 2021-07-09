@@ -8,6 +8,12 @@ bdk:
 
 logging:
   level:
-    com.symphony: debug
-    org.camunda: debug
+
+    com.symphony: DEBUG
+    org.camunda: DEBUG
     org.camunda.engine.persistence: INFO
+
+camunda:
+  bpm:
+    job-execution:
+      wait-time-in-millis: 1000
