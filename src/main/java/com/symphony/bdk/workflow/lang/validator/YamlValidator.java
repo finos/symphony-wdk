@@ -64,7 +64,7 @@ public class YamlValidator {
     if (report.isSuccess()) {
       LOGGER.info("YAML file is VALID");
     } else {
-      throw new YamlNotValidException();
+      throw new YamlNotValidException(report.toString());
     }
 
     return report;

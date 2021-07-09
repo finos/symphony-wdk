@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.lang.swadl;
 
+import com.symphony.bdk.workflow.lang.swadl.event.FormReplyEvent;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -15,6 +17,9 @@ public class Event {
 
   @JsonProperty("user-joined")
   private LinkedHashMap<String, String> streamId;
+
+  @JsonProperty("form-reply")
+  private FormReplyEvent formReply;
 
   public Optional<String> getCommand() {
     if (content != null && content.get("content") != null) {

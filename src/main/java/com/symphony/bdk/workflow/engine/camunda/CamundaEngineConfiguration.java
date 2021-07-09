@@ -43,7 +43,7 @@ public class CamundaEngineConfiguration {
     configuration.setDataSource(dataSource);
     configuration.setTransactionManager(transactionManager);
     configuration.setDatabaseSchemaUpdate("true");
-    configuration.setJobExecutorActivate(false);
+    configuration.setJobExecutorActivate(true);
 
     return configuration;
   }

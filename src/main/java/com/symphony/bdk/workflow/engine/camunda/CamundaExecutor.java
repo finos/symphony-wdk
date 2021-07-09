@@ -16,8 +16,10 @@ import java.lang.reflect.Type;
 @Component
 public class CamundaExecutor implements JavaDelegate {
 
-  public static final String IMPL = "impl";
+  public static final String EXECUTOR = "executor";
   public static final String ACTIVITY = "activity";
+
+  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final MessageService messageService;
   private final StreamService streamService;
@@ -29,14 +31,14 @@ public class CamundaExecutor implements JavaDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    Class<?> implClass = Class.forName((String) execution.getVariable(IMPL));
+    Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
     ActivityExecutor<?> executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
 
     Type type =
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
 
     String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
-    Object activity = new ObjectMapper().readValue(activityAsJsonString, Class.forName(type.getTypeName()));
+    Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
     executor.execute(new CamundaActivityExecutorContext(execution, activity));
   }
@@ -56,7 +58,7 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public void setVariable(String name, String value) {
+    public void setVariable(String name, Object value) {
       execution.setVariable(name, value);
     }
 

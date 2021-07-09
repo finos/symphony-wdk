@@ -6,7 +6,7 @@ import com.symphony.bdk.core.service.stream.StreamService;
 public interface ActivityExecutorContext<T> {
   String getVariable(String name);
 
-  void setVariable(String name, String value);
+  void setVariable(String name, Object value);
 
   MessageService messages();
 

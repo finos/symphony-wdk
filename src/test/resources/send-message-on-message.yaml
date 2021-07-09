@@ -1,4 +1,4 @@
-name: my-proposal
+name: send-message-on-message
 activities:
   - send-message:
       id: "send-message-id-1"
@@ -7,5 +7,5 @@ activities:
         message:
           content: "/message"
       streamId: "123"
-      message: |
+      content: |
         <messageML>Hello!</messageML>

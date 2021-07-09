@@ -7,4 +7,6 @@ import lombok.Data;
 // TODO to implement part of PLAT-11085
 @Data
 public class SendMessage extends BaseActivity<SendMessageExecutor> {
+  private String streamId;
+  private String content;
 }

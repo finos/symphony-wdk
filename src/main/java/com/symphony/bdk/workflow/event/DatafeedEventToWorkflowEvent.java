@@ -36,7 +36,7 @@ public class DatafeedEventToWorkflowEvent {
   public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {
     Map<String, Object> formReplies = (Map<String, Object>) event.getSource().getFormValues();
     String formId = event.getSource().getFormId();
-    workflowEngine.formReceived(FORM_REPLY, formId, formReplies);
+    workflowEngine.formReceived(event.getSource().getFormMessageId(), formId, formReplies);
   }
 
 }
