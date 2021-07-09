@@ -15,17 +15,24 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
 public class CamundaBpmnBuilder {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CamundaBpmnBuilder.class);
 
   private final RepositoryService repositoryService;
 
@@ -37,11 +44,32 @@ public class CamundaBpmnBuilder {
   public BpmnModelInstance addWorkflow(Workflow workflow) {
     BpmnModelInstance instance = workflowToBpmn(workflow);
 
-    repositoryService.createDeployment()
-        .addModelInstance(workflow.getName() + ".bpmn", instance)
-        .deploy();
+    try {
+      repositoryService.createDeployment()
+          .addModelInstance(workflow.getName() + ".bpmn", instance)
+          .deploy();
+    } finally {
+      if (LOGGER.isDebugEnabled()) {
+        debugWorkflow(workflow, instance);
+      }
+    }
 
     return instance;
+  }
+
+  private void debugWorkflow(Workflow workflow, BpmnModelInstance instance) {
+    Bpmn.writeModelToFile(new File(workflow.getName() + ".bpmn"), instance);
+    LOGGER.debug("Failed to process BPMN, file generated to ./{}.bpmn", workflow.getName());
+    try {
+      // uses https://github.com/bpmn-io/bpmn-to-image
+      Runtime.getRuntime().exec(
+          String.format("bpmn-to-image --title %s-%s %s.bpmn:%s.png",
+              workflow.getName(), Instant.now(), workflow.getName(), workflow.getName()));
+      LOGGER.debug("Failed to process BPMN, image file generated to ./{}.png", workflow.getName());
+    } catch (IOException ioException) {
+      LOGGER.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
+          ioException);
+    }
   }
 
   private Optional<Event> getStartingEvent(Workflow workflow) {
@@ -75,6 +103,7 @@ public class CamundaBpmnBuilder {
     String commandToStart = getCommandToStart(workflow);
     AbstractFlowNodeBuilder eventBuilder = process.startEvent().message("message_" + commandToStart);
 
+    boolean hasSubProcess = false;
     for (Activity activity : workflow.getActivities()) {
 
       Optional<BaseActivity<?>> maybeActivity = activity.getActivity();
@@ -84,7 +113,7 @@ public class CamundaBpmnBuilder {
         Type executorType =
             ((ParameterizedType) (baseActivity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
 
-        if (baseActivity.getOn().getFormReply() != null) {
+        if (baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null) {
           /*
             A form reply is a dedicated sub process doing 2 things:
             - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
@@ -104,6 +133,8 @@ public class CamundaBpmnBuilder {
               .startEvent()
               .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
               .message("formReply_" + baseActivity.getOn().getFormReply().getId());
+
+          hasSubProcess = true;
         }
 
         eventBuilder = eventBuilder.serviceTask()
@@ -114,11 +145,11 @@ public class CamundaBpmnBuilder {
             .camundaInputParameter(CamundaExecutor.ACTIVITY,
                 CamundaExecutor.OBJECT_MAPPER.writeValueAsString(baseActivity));
 
-        if (baseActivity.getOn().getFormReply() != null) {
-          // TODO if we have subsequent activities after each reply we will have to change this
-          eventBuilder = eventBuilder.endEvent().subProcessDone();
-        }
       }
+    }
+
+    if (hasSubProcess) { // works for simple cases only
+      eventBuilder = eventBuilder.endEvent().subProcessDone();
     }
 
     return eventBuilder.done();

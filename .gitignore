@@ -89,3 +89,6 @@ nb-configuration.xml
 
 rsa/
 datafeed.id
+
+*.bpmn
+*.png

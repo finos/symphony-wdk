@@ -8,16 +8,12 @@ import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.Deployment;
-import org.camunda.bpm.model.bpmn.Bpmn;
-import org.camunda.bpm.model.bpmn.BpmnModelException;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.xml.ModelValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -41,34 +37,12 @@ public class CamundaEngine implements WorkflowEngine {
   @Override
   public void execute(Workflow workflow) throws IOException {
     BpmnModelInstance instance = bpmnBuilder.addWorkflow(workflow);
-    this.generateBpmnOutputFile(instance, workflow);
   }
 
   @Override
   public void stopAll() {
     for (Deployment deployment : repositoryService.createDeploymentQuery().list()) {
       repositoryService.deleteDeployment(deployment.getId(), true);
-    }
-  }
-
-  private void generateBpmnOutputFile(BpmnModelInstance instance, Workflow workflow) throws IOException {
-    String outputBpmnFilename = String.format("./%s.bpmn", workflow.getName());
-    File file = new File(outputBpmnFilename);
-    if (file.exists()) {
-      LOGGER.info("Output bpmn file {} already exists. It will be overridden.", outputBpmnFilename);
-    } else {
-      boolean successfullyCreated = file.createNewFile();
-      String logMessage = successfullyCreated
-          ? String.format("Output bpmn file %s is created.", outputBpmnFilename)
-          : String.format("Output bpmn file %s is NOT created.", outputBpmnFilename);
-      LOGGER.info(logMessage);
-    }
-
-    try {
-      Bpmn.writeModelToFile(file, instance);
-      LOGGER.info("Output bpmn file {} is updated.", outputBpmnFilename);
-    } catch (BpmnModelException | ModelValidationException e) {
-      LOGGER.error(e.getMessage());
     }
   }
 

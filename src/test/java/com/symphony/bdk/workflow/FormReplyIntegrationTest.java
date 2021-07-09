@@ -18,9 +18,6 @@ import java.util.Collections;
 class FormReplyIntegrationTest extends IntegrationTest {
 
 
-  // send form, wait for reply 1-1 scenario / ping pong
-  // same with a follow up task
-  // same with multiple users
   // expiration scenario / timeout
   //
 
@@ -64,5 +61,26 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
     // bot should send my reply back
     verify(messageService, timeout(5000).times(2)).send(eq("123"), contains("My message"));
+  }
+
+  @Test
+  void sendFormSendMessageOnReply_followUpActivity() throws Exception {
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply-followup-activity.yaml"));
+    engine.execute(workflow);
+
+    V4Message message = new V4Message();
+    message.setMessageId("msgId");
+    when(messageService.send(anyString(), anyString())).thenReturn(message);
+
+    // trigger workflow execution
+    engine.messageReceived("123", "/message");
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+
+    // user 1 replies to form
+    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+
+    // bot should send my reply back
+    verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
+    verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
   }
 }
