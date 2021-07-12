@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.lang.swadl.Event;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.SneakyThrows;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -75,11 +76,7 @@ public class CamundaBpmnBuilder {
   }
 
   private Optional<Event> getStartingEvent(Workflow workflow) {
-    if (workflow.getFirstActivity().isPresent()) {
-      Activity firstActivity = workflow.getFirstActivity().get();
-      return firstActivity.getEvent();
-    }
-    return Optional.empty();
+    return workflow.getFirstActivity().flatMap(Activity::getEvent);
   }
 
   private String getCommandToStart(Workflow workflow) {
@@ -115,10 +112,7 @@ public class CamundaBpmnBuilder {
       if (maybeActivity.isPresent()) {
         BaseActivity<?> baseActivity = maybeActivity.get();
 
-        Type executorType =
-            ((ParameterizedType) (baseActivity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
-
-        if (baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null) {
+        if (isFormReply(baseActivity)) {
           /*
             A form reply is a dedicated sub process doing 2 things:
             - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
@@ -130,25 +124,11 @@ public class CamundaBpmnBuilder {
               .startEvent()
               .intermediateCatchEvent().timerWithDuration(baseActivity.getOn().getTimeout());
 
-          List<? extends BaseActivity<?>> expirationActivities = workflow.getActivities().stream()
-              .map(Activity::getActivity)
-              .filter(Optional::isPresent)
-              .map(Optional::get)
-              .filter(a -> a.getOn() != null && a.getOn().getActivityExpired() != null)
-              .filter(a -> a.getOn().getActivityExpired().getId().equals(baseActivity.getId()))
-              .collect(Collectors.toList());
+          List<? extends BaseActivity<?>> expirationActivities = collectOnExpirationActivities(workflow, baseActivity);
           for (BaseActivity<?> expirationActivity : expirationActivities) {
-            Type expirationActType =
-                ((ParameterizedType) (expirationActivity.getClass()
-                    .getGenericSuperclass())).getActualTypeArguments()[0];
-            eventBuilder = eventBuilder.serviceTask()
-                .id(expirationActivity.getId())
-                .name(Objects.toString(expirationActivity.getName(), expirationActivity.getId()))
-                .camundaClass(CamundaExecutor.class)
-                .camundaInputParameter(CamundaExecutor.EXECUTOR, expirationActType.getTypeName())
-                .camundaInputParameter(CamundaExecutor.ACTIVITY,
-                    CamundaExecutor.OBJECT_MAPPER.writeValueAsString(expirationActivity));
+            eventBuilder = addServiceTask(eventBuilder, expirationActivity);
           }
+
           eventBuilder.endEvent()
               .subProcessDone();
 
@@ -163,13 +143,7 @@ public class CamundaBpmnBuilder {
         }
 
         if (baseActivity.getOn() == null || baseActivity.getOn().getActivityExpired() == null) {
-          eventBuilder = eventBuilder.serviceTask()
-              .id(baseActivity.getId())
-              .name(Objects.toString(baseActivity.getName(), baseActivity.getId()))
-              .camundaClass(CamundaExecutor.class)
-              .camundaInputParameter(CamundaExecutor.EXECUTOR, executorType.getTypeName())
-              .camundaInputParameter(CamundaExecutor.ACTIVITY,
-                  CamundaExecutor.OBJECT_MAPPER.writeValueAsString(baseActivity));
+          eventBuilder = addServiceTask(eventBuilder, baseActivity);
         }
       }
     }
@@ -179,6 +153,35 @@ public class CamundaBpmnBuilder {
     }
 
     return eventBuilder.done();
+  }
+
+  private boolean isFormReply(BaseActivity<?> baseActivity) {
+    return baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null;
+  }
+
+  private List<? extends BaseActivity<?>> collectOnExpirationActivities(Workflow workflow,
+      BaseActivity<?> targetActivity) {
+    return workflow.getActivities().stream()
+        .map(Activity::getActivity)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .filter(a -> a.getOn() != null && a.getOn().getActivityExpired() != null)
+        .filter(a -> a.getOn().getActivityExpired().getId().equals(targetActivity.getId()))
+        .collect(Collectors.toList());
+  }
+
+  private AbstractFlowNodeBuilder addServiceTask(AbstractFlowNodeBuilder eventBuilder, BaseActivity<?> activity)
+      throws JsonProcessingException {
+    Type executorType =
+        ((ParameterizedType) (activity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
+    eventBuilder = eventBuilder.serviceTask()
+        .id(activity.getId())
+        .name(Objects.toString(activity.getName(), activity.getId()))
+        .camundaClass(CamundaExecutor.class)
+        .camundaInputParameter(CamundaExecutor.EXECUTOR, executorType.getTypeName())
+        .camundaInputParameter(CamundaExecutor.ACTIVITY,
+            CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
+    return eventBuilder;
   }
 
 }

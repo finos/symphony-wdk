@@ -11,6 +11,9 @@ public interface WorkflowEngine {
 
   void messageReceived(String streamId, String content);
 
+  /**
+   * @param messageId The form's message id (created when the form is submitted)
+   */
   void formReceived(String messageId, String formId, Map<String, Object> formReplies);
 
   void stopAll();

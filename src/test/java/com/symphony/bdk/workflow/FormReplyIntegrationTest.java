@@ -17,10 +17,6 @@ import java.util.Collections;
 
 class FormReplyIntegrationTest extends IntegrationTest {
 
-
-  // expiration scenario / timeout
-  //
-
   @Test
   void sendFormSendMessageOnReply() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));

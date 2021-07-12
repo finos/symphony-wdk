@@ -58,8 +58,6 @@ public class CamundaEngine implements WorkflowEngine {
   public void formReceived(String messageId, String formId, Map<String, Object> formReplies) {
     // we expect the activity id to be the same as the form id to work
     // correlation across processes is based on the message id tha was created to send the form
-
-    // how do we correlate a sub process
     runtimeService.createMessageCorrelation(FORM_REPLY_PREFIX + formId)
         .processInstanceVariableEquals(formId + ".msgId", messageId)
         .setVariables(Collections.singletonMap(formId, formReplies))
