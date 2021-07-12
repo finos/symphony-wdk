@@ -116,7 +116,7 @@ public class CamundaBpmnBuilder {
           /*
             A form reply is a dedicated sub process doing 2 things:
             - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
-              and replies are not longer used
+              and replies are no longer used
             - waiting for reply with an event sub process that is running for each reply
            */
           SubProcessBuilder subProcess = eventBuilder.subProcess();

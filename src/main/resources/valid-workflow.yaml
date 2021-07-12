@@ -21,8 +21,9 @@ activities:
   - send-message: #has as output {"messageId": "LmNOpqrStUVw"}
       id: "send-message-id-1"
       description: "activity to send simple message"
-      streamId: "streamIdID"
-      message: |
+      to:
+        streamId: "AbFHu_blQ-qrU__t"
+      content: |
         <messageML>
           <p>Hello people in $global.$roomName .</p>
         </messageML>
@@ -33,5 +34,6 @@ activities:
       on:
         user-joined:
           streamId: "streamIdID"
-      streamId: "streamIdID"
-      message: <messageML><p>Welcome joining user!</p></messageML>
+      to:
+        streamId: "streamIdID"
+      content: <messageML><p>Welcome joining user!</p></messageML>

@@ -28,7 +28,9 @@ import java.util.List;
 class CreateRoomIntegrationTest extends IntegrationTest {
 
   @Test
-  @DisplayName("create-room can create a new MIM with only user ids when only uids field is defined")
+  @DisplayName(
+      "Given create-room activity with only user ids fields, when the message is received, "
+          + "then an MIM is created with the given users")
   void createRoomWithUids() throws Exception {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-mim-with-uids.yaml"));
     final List<Long> uids = Arrays.asList(666L, 777L, 999L);
@@ -42,7 +44,9 @@ class CreateRoomIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  @DisplayName("create-room can create a new room with details such as name and description when no uids field defined")
+  @DisplayName(
+      "Given create-room activity with only required room details such as name and description, "
+          + "when the message is received, then a room with the given details is created")
   void createRoomWithDetails() throws Exception {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-with-details.yaml"));
@@ -66,7 +70,8 @@ class CreateRoomIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  @DisplayName("create-room can create a new room with details and members when all fields are defined")
+  @DisplayName("Given create-room activity with uids and required room details, when the message is received,"
+      + "then a room with given details and members is created")
   void createRoomWithDetailsAndMembers() throws Exception {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-with-details-members.yaml"));
@@ -93,7 +98,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
   }
 
   @Test()
-  @DisplayName("create-room should have uids or name fields")
+  @DisplayName("Given an invalid create-room activity, when the message is received, then an error is thrown")
   void createRoomInvalidWorkflow() {
     assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
         getClass().getResourceAsStream("/create-room-invalid-workflow.yaml"))).isInstanceOf(

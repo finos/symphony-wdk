@@ -37,7 +37,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
       LOGGER.info("Stream {} created, id={}", name, createdRoomId);
     }
 
-    execution.setVariable(OUTPUT_ROOM_ID_KEY, createdRoomId);
+    execution.setOutputVariable(activity.getId(), OUTPUT_ROOM_ID_KEY, createdRoomId);
   }
 
   private String createRoom(ActivityExecutorContext execution, List<Long> uids) {

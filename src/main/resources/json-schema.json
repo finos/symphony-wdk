@@ -253,7 +253,7 @@
             "type": "object",
             "required": [
                 "id",
-                "streamId",
+                "to",
                 "content"
             ],
             "properties": {
@@ -264,8 +264,8 @@
                 "description": {
                     "type": "string"
                 },
-                "streamId": {
-                    "type": "string"
+                "to": {
+                    "$ref": "#/definitions/to"
                 },
                 "content": {
                     "type": "string"
@@ -274,6 +274,18 @@
                     "$ref": "#/definitions/on"
                 }
             }
+        },
+        "to": {
+            "type": "object",
+            "properties": {
+                "streamId": {
+                    "type": "string",
+                    "title": "Stream ID to send the message",
+                    "description": "Stream ID where to send the message",
+                    "examples": ["zQUH2Qz-Gw3__oV0"]
+                }
+            },
+            "required": ["streamId"]
         }
     }
 }

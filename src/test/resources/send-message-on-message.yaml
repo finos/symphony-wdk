@@ -6,6 +6,6 @@ activities:
       on:
         message:
           content: "/message"
-      streamId: "123"
-      content: |
-        <messageML>Hello!</messageML>
+      to:
+        streamId: "123"
+      content: <messageML>Hello!</messageML>

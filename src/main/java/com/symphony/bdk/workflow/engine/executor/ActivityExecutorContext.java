@@ -8,6 +8,9 @@ public interface ActivityExecutorContext<T> {
 
   void setVariable(String name, Object value);
 
+  //TODO: replace the method above with this one
+  void setOutputVariable(String activityId, String name, Object value);
+
   MessageService messages();
 
   StreamService streams();

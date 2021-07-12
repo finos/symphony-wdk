@@ -5,7 +5,8 @@ activities:
       on:
         message:
           content: "/message"
-      streamId: "123"
+      to:
+        streamId: "123"
       content: |
         <messageML>
           <form id="sendForm">
@@ -20,7 +21,8 @@ activities:
       on:
         form-reply:
           id: sendForm
-      streamId: "123"
+      to:
+        streamId: "123"
       content: |
         <messageML>
           ${sendForm.aField}

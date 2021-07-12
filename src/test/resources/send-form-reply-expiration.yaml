@@ -5,7 +5,8 @@ activities:
       on:
         message:
           content: "/message"
-      streamId: "123"
+      to:
+        streamId: "123"
       content: |
         <messageML>
           <form id="sendForm">
@@ -21,7 +22,8 @@ activities:
         timeout: PT1S
         form-reply:
           id: sendForm
-      streamId: "123"
+      to:
+        streamId: "123"
       content: |
         <messageML>
           ${sendForm.aField}
@@ -32,7 +34,8 @@ activities:
       on:
         activity-expired:
           id: pongReply
-      streamId: "123"
+      to:
+        streamId: "123"
       content: |
         <messageML>
           Form expired!
