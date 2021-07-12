@@ -24,10 +24,18 @@ abstract class IntegrationTest {
   @MockBean
   MessageService messageService;
 
+  // make sure we start the test with a clean engine to avoid the same /command to be registered
   @AfterEach
-  void tearDown() throws InterruptedException {
-    Thread.sleep(1000);
-    engine.stopAll(); // make sure we start the test with a clean engine to avoid the same /command to be registered
+  void removeAllWorkflows() throws InterruptedException {
+    for (int i = 0; i < 5; i++) {
+      try {
+        engine.stopAll();
+        return;
+      } catch (Exception e) {
+        // this might fail if processes are running at the same time, wait a bit a retry one more time
+        Thread.sleep(100); // NOSONAR
+      }
+    }
   }
 
 }
