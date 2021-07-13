@@ -38,5 +38,4 @@ public class DatafeedEventToWorkflowEvent {
     String formId = event.getSource().getFormId();
     workflowEngine.formReceived(event.getSource().getFormMessageId(), formId, formReplies);
   }
-
 }

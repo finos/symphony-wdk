@@ -19,7 +19,7 @@ activities:
   - send-message:
       id: pongReply
       on:
-        form-reply:
+        form-replied:
           id: sendForm
       to:
         streamId: "123"

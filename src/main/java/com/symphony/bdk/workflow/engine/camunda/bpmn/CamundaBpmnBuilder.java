@@ -148,7 +148,7 @@ public class CamundaBpmnBuilder {
           eventBuilder = subProcess.embeddedSubProcess().eventSubProcess()
               .startEvent()
               .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-              .message("formReply_" + baseActivity.getOn().getFormReply().getId())
+              .message("formReply_" + baseActivity.getOn().getFormReplied().getId())
               .name("formReply");
 
           hasSubProcess = true;
@@ -168,7 +168,7 @@ public class CamundaBpmnBuilder {
   }
 
   private boolean isFormReply(BaseActivity<?> baseActivity) {
-    return baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null;
+    return baseActivity.getOn() != null && baseActivity.getOn().getFormReplied() != null;
   }
 
   private List<? extends BaseActivity<?>> collectOnExpirationActivities(Workflow workflow,

@@ -20,7 +20,7 @@ activities:
       id: pongReply
       on:
         timeout: PT1S
-        form-reply:
+        form-replied:
           id: sendForm
       to:
         streamId: "123"

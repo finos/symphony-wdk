@@ -117,7 +117,7 @@
                     "$ref": "#/definitions/user-joined-event"
                 },
                 {
-                    "$ref": "#/definitions/form-reply-event"
+                    "$ref": "#/definitions/form-replied-event"
                 },
                 {
                     "$ref": "#/definitions/activity-expired-event"
@@ -135,21 +135,21 @@
                 "user-joined"
             ]
         },
-        "form-reply-event": {
+        "form-replied-event": {
             "type": "object",
             "properties": {
-                "form-reply": {
-                    "$ref": "#/definitions/form-reply-event-inner"
+                "form-replied": {
+                    "$ref": "#/definitions/form-replied-event-inner"
                 }
             },
             "required": [
-                "form-reply"
+                "form-replied"
             ]
         },
         "activity-expired-event": {
             "type": "object",
             "properties": {
-                "form-reply": {
+                "form-replied": {
                     "$ref": "#/definitions/activity-expired-event-inner"
                 }
             },
@@ -168,7 +168,7 @@
                 "streamId"
             ]
         },
-        "form-reply-event-inner": {
+        "form-replied-event-inner": {
             "type": "object",
             "properties": {
                 "id": {
