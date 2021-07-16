@@ -51,8 +51,14 @@ public class CamundaEngine implements WorkflowEngine {
     if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
       // content being the command to start a workflow
       runtimeService.startProcessInstanceByMessage(MESSAGE_PREFIX + content,
-          Collections.singletonMap(STREAM_ID, streamId));
+          buildMapFor(STREAM_ID, streamId));
     }
+  }
+
+  @Override
+  public void messageSent(String streamId, String content) {
+    runtimeService.startProcessInstanceByMessage(MESSAGE_PREFIX + content,
+        buildMapFor(STREAM_ID, streamId));
   }
 
   @Override
@@ -63,6 +69,10 @@ public class CamundaEngine implements WorkflowEngine {
         .processInstanceVariableEquals(formId + ".msgId", messageId)
         .setVariables(Collections.singletonMap(formId, formReplies))
         .correlate();
+  }
+
+  private Map<String, Object> buildMapFor(String key, String value) {
+    return Collections.singletonMap(key, value);
   }
 
 }
