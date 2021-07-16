@@ -61,8 +61,8 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_followUpActivity() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/send-form-reply-followup-activity.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass()
+        .getResourceAsStream("/send-form-reply-followup-activity.yaml"));
     engine.execute(workflow);
 
     V4Message message = new V4Message();

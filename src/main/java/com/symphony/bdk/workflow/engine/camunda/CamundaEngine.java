@@ -27,6 +27,7 @@ public class CamundaEngine implements WorkflowEngine {
 
   @Autowired
   private RuntimeService runtimeService;
+
   @Autowired
   private RepositoryService repositoryService;
 

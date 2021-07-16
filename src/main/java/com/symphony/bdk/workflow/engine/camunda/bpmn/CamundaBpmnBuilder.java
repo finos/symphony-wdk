@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
+import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
 import com.symphony.bdk.workflow.lang.exception.NoCommandToStartException;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
@@ -9,13 +10,17 @@ import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaExecutionListener;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +44,8 @@ public class CamundaBpmnBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(CamundaBpmnBuilder.class);
 
   private final RepositoryService repositoryService;
+
+  private final String VARIABLES_NAME = "variables";
 
   @Autowired
   public CamundaBpmnBuilder(RepositoryService repositoryService) {
@@ -100,19 +108,23 @@ public class CamundaBpmnBuilder {
     ProcessBuilder process = Bpmn.createExecutableProcess(workflow.getName() + "-" + UUID.randomUUID());
 
     String commandToStart = getCommandToStart(workflow);
+
     AbstractFlowNodeBuilder eventBuilder = process
         .startEvent()
         .message("message_" + commandToStart)
         .name(commandToStart);
 
     boolean hasSubProcess = false;
-    for (Activity activity : workflow.getActivities()) {
 
+    for (Activity activity : workflow.getActivities()) {
       Optional<BaseActivity<?>> maybeActivity = activity.getActivity();
       if (maybeActivity.isPresent()) {
         BaseActivity<?> baseActivity = maybeActivity.get();
 
-        if (isFormReply(baseActivity)) {
+        Type executorType =
+            ((ParameterizedType) (baseActivity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
+
+        if (baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null) {
           /*
             A form reply is a dedicated sub process doing 2 things:
             - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
@@ -152,7 +164,7 @@ public class CamundaBpmnBuilder {
       eventBuilder = eventBuilder.endEvent().subProcessDone();
     }
 
-    return eventBuilder.done();
+    return addWorkflowVariablesListener(eventBuilder.done(), process, workflow.getVariables());
   }
 
   private boolean isFormReply(BaseActivity<?> baseActivity) {
@@ -184,4 +196,31 @@ public class CamundaBpmnBuilder {
     return eventBuilder;
   }
 
+  private BpmnModelInstance addWorkflowVariablesListener(BpmnModelInstance instance,
+      ProcessBuilder process, List<Map<String, Object>> variables) throws JsonProcessingException {
+    if(variables != null && !variables.isEmpty()) {
+      CamundaExecutionListener listener = instance.newInstance(CamundaExecutionListener.class);
+      listener.setCamundaEvent(ExecutionListener.EVENTNAME_START);
+      listener.setCamundaClass(VariablesListener.class.getName());
+      CamundaField field = instance.newInstance(CamundaField.class);
+      field.setCamundaName(VARIABLES_NAME);
+      field.setCamundaStringValue(variablesAsJsonString(variables));
+      listener.getCamundaFields().add(field);
+
+      process.addExtensionElement(listener);
+    }
+    return instance;
+  }
+
+  private String variablesAsJsonString(List<Map<String, Object>> variables) throws JsonProcessingException {
+    ObjectNode variablesNode = CamundaExecutor.OBJECT_MAPPER.createObjectNode();
+
+    for (Map<String, Object> variableMap : variables) {
+      for (Map.Entry<String, Object> entry : variableMap.entrySet()) {
+        variablesNode.put(entry.getKey(), entry.getValue().toString());
+      }
+    }
+
+    return CamundaExecutor.OBJECT_MAPPER.writeValueAsString(variablesNode);
+  }
 }

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.lang;
 
+
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 

@@ -29,7 +29,7 @@
                 0
             ]
         },
-        "global": {
+        "variables": {
             "type": "array",
             "title": "Global variables",
             "description": "Global variables to be shared with all steps in the Workflow. It should be written in a map format",

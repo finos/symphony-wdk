@@ -9,7 +9,6 @@ import java.util.List;
 
 @Data
 public class CreateRoom extends BaseActivity<CreateRoomExecutor> {
-
   @JsonProperty("room-description")
   private String roomDescription;
   private List<Long> uids;

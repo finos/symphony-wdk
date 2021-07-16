@@ -45,7 +45,6 @@ public class YamlValidator {
     final JsonNode schemaJson = objectMapper.readTree(
         loadResourceWithClassPath(JSON_SCHEMA_FILE));
     final JsonNode yamlProposalOne = convertYamlStringToJsonNode(yamlString);
-
     validate(yamlProposalOne, schemaJson);
   }
 
@@ -82,7 +81,6 @@ public class YamlValidator {
 
   private static JsonNode convertYamlStringToJsonNode(String yamlString) throws IOException {
     return writeJsonNode(yamlReader.readValue(yamlString, Object.class));
-
   }
 
   private static JsonNode writeJsonNode(Object obj)
