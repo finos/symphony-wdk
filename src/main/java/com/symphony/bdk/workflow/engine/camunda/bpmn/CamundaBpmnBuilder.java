@@ -124,7 +124,7 @@ public class CamundaBpmnBuilder {
         Type executorType =
             ((ParameterizedType) (baseActivity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
 
-        if (baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null) {
+        if (baseActivity.getOn() != null && baseActivity.getOn().getFormReplied() != null) {
           /*
             A form reply is a dedicated sub process doing 2 things:
             - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
