@@ -10,8 +10,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -21,9 +20,9 @@ import java.io.IOException;
  * This class validates YAML workflow content.
  * It provides methods to validate a YAML file and YAML content as a string.
  */
+@Slf4j
 public class YamlValidator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(YamlValidator.class);
   private static final String JSON_SCHEMA_FILE = "json-schema.json";
   public static final String YAML_VALIDATION_COMMAND = "/validate";
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -53,7 +52,7 @@ public class YamlValidator {
     ProcessingReport report = schema.validate(jsonNode);
 
     if (report.isSuccess()) {
-      LOGGER.info("YAML file is VALID");
+      log.info("YAML file is VALID");
     } else {
       throw new YamlNotValidException(report.toString());
     }

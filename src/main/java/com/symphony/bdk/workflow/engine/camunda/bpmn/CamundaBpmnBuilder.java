@@ -13,6 +13,7 @@ import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -22,8 +23,6 @@ import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaExecutionListener;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,10 +38,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class CamundaBpmnBuilder {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CamundaBpmnBuilder.class);
 
   private static final String VARIABLES_NAME = "variables";
 
@@ -62,7 +60,7 @@ public class CamundaBpmnBuilder {
           .addModelInstance(workflow.getName() + ".bpmn", instance)
           .deploy();
     } finally {
-      if (LOGGER.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
         debugWorkflow(workflow, instance);
       }
     }
@@ -72,15 +70,15 @@ public class CamundaBpmnBuilder {
 
   private void debugWorkflow(Workflow workflow, BpmnModelInstance instance) {
     Bpmn.writeModelToFile(new File(workflow.getName() + ".bpmn"), instance);
-    LOGGER.debug("BPMN file generated to ./{}.bpmn", workflow.getName());
+    log.debug("BPMN file generated to ./{}.bpmn", workflow.getName());
     try {
       // uses https://github.com/bpmn-io/bpmn-to-image
       Runtime.getRuntime().exec(
           String.format("bpmn-to-image --title %s-%s %s.bpmn:%s.png",
               workflow.getName(), Instant.now(), workflow.getName(), workflow.getName()));
-      LOGGER.debug("BPMN, image file generated to ./{}.png", workflow.getName());
+      log.debug("BPMN, image file generated to ./{}.png", workflow.getName());
     } catch (IOException ioException) {
-      LOGGER.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
+      log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
           ioException);
     }
   }

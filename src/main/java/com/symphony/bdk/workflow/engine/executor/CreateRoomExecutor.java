@@ -5,15 +5,14 @@ import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+@Slf4j
 public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CreateRoomExecutor.class);
   private static final String OUTPUT_ROOM_ID_KEY = "roomId";
 
   @Override
@@ -28,13 +27,13 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
 
     if (uids != null && !uids.isEmpty() && !StringUtils.isEmpty(name) && !StringUtils.isEmpty(description)) {
       createdRoomId = this.createRoom(execution, uids, name, description, isPublic);
-      LOGGER.info("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
+      log.info("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
     } else if (uids != null && !uids.isEmpty()) {
       createdRoomId = this.createRoom(execution, uids);
-      LOGGER.info("MIM created with {} users, id={}", uids.size(), createdRoomId);
+      log.info("MIM created with {} users, id={}", uids.size(), createdRoomId);
     } else {
       createdRoomId = this.createRoom(execution, name, description, isPublic);
-      LOGGER.info("Stream {} created, id={}", name, createdRoomId);
+      log.info("Stream {} created, id={}", name, createdRoomId);
     }
 
     execution.setOutputVariable(activity.getId(), OUTPUT_ROOM_ID_KEY, createdRoomId);

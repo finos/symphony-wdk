@@ -16,8 +16,7 @@ import com.symphony.bdk.workflow.util.AttachmentsUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.Generated;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -27,11 +26,11 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Generated // for debugging only
 @Component
 public class WorkflowBotController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowBotController.class);
   private final ObjectMapper objectMapper;
   private final WorkflowEngine workflowEngine;
   private final MessageService messageService;
@@ -59,7 +58,7 @@ public class WorkflowBotController {
         messageService.send(streamId,
             String.format("<messageML>Ok, validated <b>%s</b></messageML>", workflow.getName()));
       } catch (YamlNotValidException yamlNotValidException) {
-        LOGGER.info(yamlNotValidException.getMessage());
+        log.info(yamlNotValidException.getMessage());
         messageService.send(streamId, "<messageML>YAML file is not valid</messageML>");
       }
     }
