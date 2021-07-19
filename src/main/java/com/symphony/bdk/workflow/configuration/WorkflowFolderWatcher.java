@@ -5,6 +5,7 @@ import com.symphony.bdk.workflow.lang.WorkflowBuilder;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ import javax.annotation.PreDestroy;
  * Will automatically add workflows present at startup and update workflows on the fly while running
  * (stopping and redeploying them).
  */
+@Generated // slow tests
 @Slf4j
 @Service
 @ConditionalOnProperty(value = "workflows.folder")

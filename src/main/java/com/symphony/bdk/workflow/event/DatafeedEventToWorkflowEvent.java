@@ -17,8 +17,6 @@ import java.util.Map;
 @Component
 public class DatafeedEventToWorkflowEvent {
 
-  private static final String FORM_REPLY = "formReply";
-
   @Autowired
   private WorkflowEngine workflowEngine;
 

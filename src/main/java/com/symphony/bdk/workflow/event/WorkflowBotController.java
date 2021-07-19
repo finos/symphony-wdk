@@ -15,6 +15,7 @@ import com.symphony.bdk.workflow.util.AttachmentsUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import lombok.Generated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -26,6 +27,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+@Generated // for debugging only
 @Component
 public class WorkflowBotController {
 

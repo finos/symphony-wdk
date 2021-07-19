@@ -33,14 +33,6 @@ public class YamlValidator {
   private YamlValidator() {
   }
 
-  public static ProcessingReport validateYamlFile(String yamlPath) throws IOException, ProcessingException {
-    final JsonNode schemaJson = objectMapper.readTree(
-        loadResourceWithClassPath(JSON_SCHEMA_FILE));
-    final JsonNode yamlProposalOne = convertYamlFileToJsonNode(yamlPath);
-
-    return validate(yamlProposalOne, schemaJson);
-  }
-
   public static void validateYamlString(String yamlString) throws IOException, ProcessingException {
     final JsonNode schemaJson = objectMapper.readTree(
         loadResourceWithClassPath(JSON_SCHEMA_FILE));
@@ -71,12 +63,6 @@ public class YamlValidator {
 
   private static File loadResourceWithClassPath(String filename) throws IOException {
     return new ClassPathResource(filename).getFile();
-  }
-
-  private static JsonNode convertYamlFileToJsonNode(String yamlFilename) throws IOException {
-    Object obj = yamlReader.readValue(
-        loadResourceWithClassPath(yamlFilename), Object.class);
-    return writeJsonNode(obj);
   }
 
   private static JsonNode convertYamlStringToJsonNode(String yamlString) throws IOException {

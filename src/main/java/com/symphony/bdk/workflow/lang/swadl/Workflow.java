@@ -16,10 +16,6 @@ public class Workflow {
   private List<Activity> activities;
 
   public Optional<Activity> getFirstActivity() {
-    if (activities.isEmpty()) {
-      return Optional.empty();
-    }
-
-    return Optional.of(activities.get(0));
+    return activities.stream().findFirst();
   }
 }
