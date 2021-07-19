@@ -7,5 +7,5 @@ activities:
         message:
           content: "/message"
       to:
-        streamId: "123"
+        stream-id: "123"
       content: <messageML>Hello!</messageML>

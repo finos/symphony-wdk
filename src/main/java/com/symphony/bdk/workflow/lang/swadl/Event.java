@@ -21,10 +21,8 @@ public class Event {
   @JsonProperty("user-joined")
   private LinkedHashMap<String, String> streamId;
 
-  @JsonProperty("form-reply")
   private FormReplyEvent formReply;
 
-  @JsonProperty("activity-expired")
   private ActivityExpiredEvent activityExpired;
 
   public Optional<String> getCommand() {

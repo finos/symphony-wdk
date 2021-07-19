@@ -16,5 +16,5 @@ activities:
       id: sendmessageid
       description: "activity to send simple message"
       to:
-        streamId: ${createRoom.outputs.roomId}
+        stream-id: ${createRoom.outputs.roomId}
       content: <messageML><p>Hello!</p></messageML>

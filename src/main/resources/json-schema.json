@@ -174,12 +174,12 @@
         "user-joined-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
+                "stream-id": {
                     "type": "string"
                 }
             },
             "required": [
-                "streamId"
+                "stream-id"
             ]
         },
         "form-reply-event-inner": {
@@ -317,7 +317,7 @@
         "to": {
             "type": "object",
             "properties": {
-                "streamId": {
+                "stream-id": {
                     "type": "string",
                     "title": "Stream ID to send the message",
                     "description": "Stream ID where to send the message",
@@ -327,7 +327,7 @@
                 }
             },
             "required": [
-                "streamId"
+                "stream-id"
             ]
         }
     }

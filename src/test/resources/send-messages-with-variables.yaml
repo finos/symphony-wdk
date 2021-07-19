@@ -9,6 +9,6 @@ activities:
         message:
           content: "/send"
       to:
-        streamId: ${variables.streamId}
+        stream-id: ${variables.streamId}
       content: |
         <messageML>Have a nice day !</messageML>

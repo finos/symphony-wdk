@@ -6,7 +6,6 @@ import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
 import com.symphony.bdk.workflow.lang.swadl.activity.SendMessage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Optional;
@@ -15,13 +14,10 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity {
 
-  @JsonProperty("create-room")
   private CreateRoom createRoom;
 
-  @JsonProperty("send-message")
   private SendMessage sendMessage;
 
-  @JsonProperty("execute-script")
   private ExecuteScript executeScript;
 
   public Optional<BaseActivity<?>> getActivity() {

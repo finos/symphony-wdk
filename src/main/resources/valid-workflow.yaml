@@ -23,7 +23,7 @@ activities:
       id: "send-message-id-1"
       description: "activity to send simple message"
       to:
-        streamId: "AbFHu_blQ-qrU__t"
+        stream-id: "AbFHu_blQ-qrU__t"
       content: |
         <messageML>
           <p>Hello people in $global.$roomName .</p>
@@ -34,7 +34,7 @@ activities:
       description: "activity to send a message when a user join the room"
       on:
         user-joined:
-          streamId: "streamIdID"
+          stream-id: "streamIdID"
       to:
-        streamId: "streamIdID"
+        stream-id: "streamIdID"
       content: <messageML><p>Welcome joining user!</p></messageML>

@@ -39,11 +39,11 @@ dependencies {
     implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
 
     implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'commons-io:commons-io:2.11.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'org.assertj:assertj-core:3.20.2'
-    testImplementation 'commons-io:commons-io:2.11.0'
 
 }
 

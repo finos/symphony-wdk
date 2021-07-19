@@ -6,7 +6,7 @@ activities:
         message:
           content: "/message"
       to:
-        streamId: "123"
+        stream-id: "123"
       content: |
         <messageML>
           <form id="sendForm">
@@ -22,7 +22,7 @@ activities:
         form-reply:
           id: sendForm
       to:
-        streamId: "123"
+        stream-id: "123"
       content: |
         <messageML>
           First reply: ${sendForm.aField}
@@ -32,7 +32,7 @@ activities:
       id: pongReply2
       description: Should be triggered for each reply we receive, it is a dependency of pongReply
       to:
-        streamId: "123"
+        stream-id: "123"
       content: |
         <messageML>
           Second reply: ${sendForm.aField}
