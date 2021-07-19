@@ -27,7 +27,7 @@ public class VariablesListener implements ExecutionListener {
 
       if (variablesAsMap != null && !variablesAsMap.isEmpty()) {
 
-        LOGGER.debug("Loading workflow variable to execution context [{}]", variablesAsMap);
+        LOGGER.debug("Loading workflow variable to execution context [{}]", variablesAsMap.keySet());
         execution.setVariable("variables", variablesAsMap);
 
       }
