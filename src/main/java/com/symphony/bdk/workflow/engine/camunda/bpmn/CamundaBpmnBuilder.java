@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.lang.swadl.Activity;
 import com.symphony.bdk.workflow.lang.swadl.Event;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
+import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -43,9 +44,9 @@ public class CamundaBpmnBuilder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CamundaBpmnBuilder.class);
 
-  private final RepositoryService repositoryService;
+  private static final String VARIABLES_NAME = "variables";
 
-  private final String VARIABLES_NAME = "variables";
+  private final RepositoryService repositoryService;
 
   @Autowired
   public CamundaBpmnBuilder(RepositoryService repositoryService) {
@@ -121,10 +122,7 @@ public class CamundaBpmnBuilder {
       if (maybeActivity.isPresent()) {
         BaseActivity<?> baseActivity = maybeActivity.get();
 
-        Type executorType =
-            ((ParameterizedType) (baseActivity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
-
-        if (baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null) {
+        if (isFormReply(baseActivity)) {
           /*
             A form reply is a dedicated sub process doing 2 things:
             - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
@@ -138,7 +136,7 @@ public class CamundaBpmnBuilder {
 
           List<? extends BaseActivity<?>> expirationActivities = collectOnExpirationActivities(workflow, baseActivity);
           for (BaseActivity<?> expirationActivity : expirationActivities) {
-            eventBuilder = addServiceTask(eventBuilder, expirationActivity);
+            eventBuilder = addTask(eventBuilder, expirationActivity);
           }
 
           eventBuilder.endEvent()
@@ -155,7 +153,7 @@ public class CamundaBpmnBuilder {
         }
 
         if (baseActivity.getOn() == null || baseActivity.getOn().getActivityExpired() == null) {
-          eventBuilder = addServiceTask(eventBuilder, baseActivity);
+          eventBuilder = addTask(eventBuilder, baseActivity);
         }
       }
     }
@@ -182,8 +180,27 @@ public class CamundaBpmnBuilder {
         .collect(Collectors.toList());
   }
 
-  private AbstractFlowNodeBuilder addServiceTask(AbstractFlowNodeBuilder eventBuilder, BaseActivity<?> activity)
+  private AbstractFlowNodeBuilder addTask(AbstractFlowNodeBuilder eventBuilder, BaseActivity<?> activity)
       throws JsonProcessingException {
+    // hardcoded so we can rely on Camunda's script task instead of a service task
+    if (activity instanceof ExecuteScript) {
+      return addScriptTask(eventBuilder, (ExecuteScript) activity);
+    } else {
+      return addServiceTask(eventBuilder, activity);
+    }
+  }
+
+  private AbstractFlowNodeBuilder addScriptTask(AbstractFlowNodeBuilder eventBuilder, ExecuteScript scriptActivity) {
+    eventBuilder.scriptTask()
+        .id(scriptActivity.getId())
+        .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
+        .scriptText(scriptActivity.getScript())
+        .scriptFormat(ExecuteScript.SCRIPT_ENGINE);
+    return eventBuilder;
+  }
+
+  private AbstractFlowNodeBuilder addServiceTask(AbstractFlowNodeBuilder eventBuilder,
+      BaseActivity<?> activity) throws JsonProcessingException {
     Type executorType =
         ((ParameterizedType) (activity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
     eventBuilder = eventBuilder.serviceTask()
@@ -198,7 +215,7 @@ public class CamundaBpmnBuilder {
 
   private BpmnModelInstance addWorkflowVariablesListener(BpmnModelInstance instance,
       ProcessBuilder process, List<Map<String, Object>> variables) throws JsonProcessingException {
-    if(variables != null && !variables.isEmpty()) {
+    if (variables != null && !variables.isEmpty()) {
       CamundaExecutionListener listener = instance.newInstance(CamundaExecutionListener.class);
       listener.setCamundaEvent(ExecutionListener.EVENTNAME_START);
       listener.setCamundaClass(VariablesListener.class.getName());

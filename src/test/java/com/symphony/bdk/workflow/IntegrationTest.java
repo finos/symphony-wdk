@@ -19,9 +19,11 @@ abstract class IntegrationTest {
   // Mock the BDK
   @MockBean
   AuthSession botSession;
-  @MockBean
+
+  @MockBean(name = "streamService")
   StreamService streamService;
-  @MockBean
+
+  @MockBean(name = "messageService")
   MessageService messageService;
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered

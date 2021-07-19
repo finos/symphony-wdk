@@ -30,7 +30,7 @@ class VariablesIntegrationTest extends IntegrationTest {
     engine.messageReceived("9999", "/send");
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-    verify(messageService, timeout(5000)).send( argumentCaptor.capture(), anyString());
+    verify(messageService, timeout(5000)).send(argumentCaptor.capture(), anyString());
     final String captorStreamId = argumentCaptor.getValue();
 
     assertThat(captorStreamId).isEqualTo("1234");

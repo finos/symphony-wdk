@@ -22,7 +22,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
   @Test
   @DisplayName(
-      "Given a send-message with a streamId, when the triggering message is received, then the provided message should be sent to the room")
+      "Given a send-message with a streamId, when the triggering message is received, "
+          + "then the provided message should be sent to the room")
   void sendMessageOnMessage() throws Exception {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.yaml"));
     final V4Message message = new V4Message();

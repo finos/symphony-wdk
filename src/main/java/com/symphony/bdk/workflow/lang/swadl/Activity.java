@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.lang.swadl;
 
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
+import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
 import com.symphony.bdk.workflow.lang.swadl.activity.SendMessage;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,12 +21,20 @@ public class Activity {
   @JsonProperty("send-message")
   private SendMessage sendMessage;
 
+  @JsonProperty("execute-script")
+  private ExecuteScript executeScript;
+
   public Optional<BaseActivity<?>> getActivity() {
     if (createRoom != null) {
       return Optional.of(createRoom);
+
     } else if (sendMessage != null) {
       return Optional.of(sendMessage);
+
+    } else if (executeScript != null) {
+      return Optional.of(executeScript);
     }
+
     return Optional.empty();
   }
 

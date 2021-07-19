@@ -68,6 +68,9 @@
                     },
                     {
                         "$ref": "#/definitions/send-message"
+                    },
+                    {
+                        "$ref": "#/definitions/execute-script"
                     }
                 ]
             }
@@ -94,6 +97,17 @@
             },
             "required": [
                 "send-message"
+            ]
+        },
+        "execute-script": {
+            "type": "object",
+            "properties": {
+                "execute-script": {
+                    "$ref": "#/definitions/execute-script-inner"
+                }
+            },
+            "required": [
+                "execute-script"
             ]
         },
         "slash": {
@@ -224,7 +238,7 @@
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "blabla"
+                    "description": "Activity id"
                 },
                 "description": {
                     "type": "string"
@@ -259,7 +273,7 @@
             "properties": {
                 "id": {
                     "type": "string",
-                    "description": "blabla"
+                    "description": "Activity id"
                 },
                 "description": {
                     "type": "string"
@@ -275,6 +289,31 @@
                 }
             }
         },
+        "execute-script-inner": {
+            "type": "object",
+            "required": [
+                "id",
+                "script"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "on": {
+                    "$ref": "#/definitions/on"
+                },
+                "script": {
+                    "type": "string",
+                    "description": "The script to execute (Groovy only is supported)"
+                }
+            }
+        },
         "to": {
             "type": "object",
             "properties": {
@@ -282,10 +321,14 @@
                     "type": "string",
                     "title": "Stream ID to send the message",
                     "description": "Stream ID where to send the message",
-                    "examples": ["zQUH2Qz-Gw3__oV0"]
+                    "examples": [
+                        "zQUH2Qz-Gw3__oV0"
+                    ]
                 }
             },
-            "required": ["streamId"]
+            "required": [
+                "streamId"
+            ]
         }
     }
 }
