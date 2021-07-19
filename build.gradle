@@ -74,6 +74,14 @@ checkstyle {
     configDirectory = rootProject.projectDir
 }
 
+// Avoid dependency warnings caused by Checkstyle
+checkstyleMain.dependsOn compileTestJava
+checkstyleMain.dependsOn processTestResources
+checkstyleMain.dependsOn jacocoTestCoverageVerification
+checkstyleMain.dependsOn spotbugsMain
+checkstyleMain.dependsOn spotbugsTest
+checkstyleTest.dependsOn checkstyleMain
+
 // Enable HTML report for spotbugs
 tasks.matching {task -> task.name.startsWith('spotbugs')}.forEach {
     it.reports {
