@@ -58,6 +58,7 @@ public class CamundaBpmnBuilder {
 
     try {
       repositoryService.createDeployment()
+          .name(workflow.getName())
           .addModelInstance(workflow.getName() + ".bpmn", instance)
           .deploy();
     } finally {

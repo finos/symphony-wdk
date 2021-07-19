@@ -16,5 +16,7 @@ public interface WorkflowEngine {
    */
   void formReceived(String messageId, String formId, Map<String, Object> formReplies);
 
+  void stop(String workflowName);
+
   void stopAll();
 }
