@@ -4,8 +4,6 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
-import com.symphony.bdk.workflow.engine.executor.SendMessageExecutor;
-import com.symphony.bdk.workflow.lang.swadl.activity.SendMessage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -44,20 +42,7 @@ public class CamundaExecutor implements JavaDelegate {
     String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
     Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
-    if (type.getTypeName().equals(SendMessage.class.getTypeName())) {
-      this.handleSendMessageActivity((SendMessage) activity,
-          (String) execution.getVariable(SendMessageExecutor.INPUT_ROOM_ID_KEY));
-    }
-
     executor.execute(new CamundaActivityExecutorContext(execution, activity));
-  }
-
-  private void handleSendMessageActivity(SendMessage sendMessage, String streamId) {
-    if (streamId != null) {
-      SendMessage.To to = new SendMessage.To();
-      to.setStreamId(streamId);
-      sendMessage.setTo(to);
-    }
   }
 
   private class CamundaActivityExecutorContext<T> implements ActivityExecutorContext<T> {
@@ -70,20 +55,12 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public String getVariable(String name) {
-      return (String) execution.getVariable(name);
-    }
-
-    @Override
-    public void setVariable(String name, Object value) {
-      execution.setVariable(name, value);
-    }
-
-    @Override
     public void setOutputVariable(String activityId, String name, Object value) {
       Map<String, Object> innerMap = Collections.singletonMap(name, value);
       Map<String, Object> outerMap = Collections.singletonMap("outputs", innerMap);
       execution.setVariable(activityId, outerMap);
+      // flatten it too for message correlation
+      execution.setVariable(activityId + ".outputs." + name, value);
     }
 
     @Override

@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
-  public static final String INPUT_ROOM_ID_KEY = "roomId";
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
 
   @Override
@@ -19,6 +18,6 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
     V4Message message = execution.messages().send(activity.getTo().getStreamId(), activity.getContent());
 
-    execution.setVariable(activity.getId() + "." + OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    execution.setOutputVariable(activity.getId(), OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
 }

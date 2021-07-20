@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import static java.util.Collections.singletonMap;
+
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
@@ -60,7 +62,7 @@ public class CamundaEngine implements WorkflowEngine {
     if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
       // content being the command to start a workflow
       runtimeService.startProcessInstanceByMessage(MESSAGE_PREFIX + content,
-          Collections.singletonMap(STREAM_ID, streamId));
+          singletonMap(STREAM_ID, streamId));
     }
   }
 
@@ -69,7 +71,7 @@ public class CamundaEngine implements WorkflowEngine {
     // we expect the activity id to be the same as the form id to work
     // correlation across processes is based on the message id tha was created to send the form
     runtimeService.createMessageCorrelation(FORM_REPLY_PREFIX + formId)
-        .processInstanceVariableEquals(formId + ".msgId", messageId)
+        .processInstanceVariableEquals(formId + ".outputs.msgId", messageId)
         .setVariables(Collections.singletonMap(formId, formReplies))
         .correlate();
   }

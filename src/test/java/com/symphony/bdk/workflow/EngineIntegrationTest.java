@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.lang.WorkflowBuilder;
+import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -16,11 +17,25 @@ import java.io.IOException;
 class EngineIntegrationTest extends IntegrationTest {
 
   @Test
-  void stop() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.yaml"));
+  void workflowWithoutStartCommand() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/no-start-command.yaml"));
+
     final V4Message message = new V4Message();
     message.setMessageId("msgId");
+    final String streamId = "123";
+    final String content = "<messageML>Hello!</messageML>";
+    when(messageService.send(streamId, content)).thenReturn(message);
 
+    assertThrows(NoStartingEventException.class,
+        () -> engine.execute(workflow));
+  }
+
+  @Test
+  void stop() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.yaml"));
+
+    final V4Message message = new V4Message();
+    message.setMessageId("msgId");
     final String streamId = "123";
     final String content = "<messageML>Hello!</messageML>";
     when(messageService.send(streamId, content)).thenReturn(message);

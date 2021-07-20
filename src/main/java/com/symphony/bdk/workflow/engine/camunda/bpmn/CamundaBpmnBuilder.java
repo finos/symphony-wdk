@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
-import com.symphony.bdk.workflow.lang.exception.NoCommandToStartException;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
 import com.symphony.bdk.workflow.lang.swadl.Event;
@@ -83,24 +82,11 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  private Optional<Event> getStartingEvent(Workflow workflow) {
-    return workflow.getFirstActivity().flatMap(Activity::getEvent);
-  }
-
   private String getCommandToStart(Workflow workflow) {
-    Optional<Event> startingEvent = getStartingEvent(workflow);
-
-    if (startingEvent.isEmpty()) {
-      throw new NoStartingEventException();
-    }
-
-    Optional<String> commandToStart = startingEvent.get().getCommand();
-
-    if (commandToStart.isPresent()) {
-      return commandToStart.get();
-    }
-
-    throw new NoCommandToStartException();
+    return workflow.getFirstActivity()
+        .flatMap(Activity::getEvent)
+        .flatMap(Event::getCommand)
+        .orElseThrow(NoStartingEventException::new);
   }
 
   @SneakyThrows
