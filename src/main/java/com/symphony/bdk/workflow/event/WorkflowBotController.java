@@ -8,20 +8,20 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.lang.WorkflowBuilder;
 import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 import com.symphony.bdk.workflow.util.AttachmentsUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -31,15 +31,12 @@ import java.util.Optional;
 @Component
 public class WorkflowBotController {
 
-  private final ObjectMapper objectMapper;
   private final WorkflowEngine workflowEngine;
   private final MessageService messageService;
 
-  public WorkflowBotController(WorkflowEngine workflowEngine, MessageService messageService,
-      ObjectMapper objectMapper) {
+  public WorkflowBotController(WorkflowEngine workflowEngine, MessageService messageService) {
     this.workflowEngine = workflowEngine;
     this.messageService = messageService;
-    this.objectMapper = objectMapper;
   }
 
   @EventListener
@@ -66,11 +63,10 @@ public class WorkflowBotController {
 
   private Workflow buildWorkflow(String streamId, String messageId, String attachmentsId)
       throws IOException, ProcessingException {
-
     byte[] attachment = getDecodedAttachments(streamId, messageId, attachmentsId);
-    YamlValidator.validateYamlString(new String(attachment, StandardCharsets.UTF_8));
-
-    return this.objectMapper.readValue(attachment, Workflow.class);
+    try (ByteArrayInputStream yaml = new ByteArrayInputStream(attachment)) {
+      return WorkflowBuilder.fromYaml(yaml);
+    }
   }
 
   private byte[] getDecodedAttachments(String streamId, String messageId, String attachmentsId) {
