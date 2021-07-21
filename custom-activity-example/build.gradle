@@ -1,0 +1,35 @@
+plugins {
+    id 'java-library'
+    id 'distribution'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // this will be provided by the workflow-bot application
+    compileOnly project(':workflow-language')
+
+    // a third party library used by the custom activity
+    // it will be packaged along with this project
+    implementation 'org.apache.commons:commons-text:1.9'
+}
+
+// package the activity and its dependencies so it can be added to a workflow-bot application
+distributions {
+    main {
+        contents {
+            into('lib') {
+                from jar
+                from(project.configurations.runtimeClasspath)
+            }
+        }
+    }
+}

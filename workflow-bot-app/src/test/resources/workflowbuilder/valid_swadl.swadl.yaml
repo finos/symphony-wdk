@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=/Users/youri.bonnaffe/src/workflow-bot/workflow-language/src/main/resources/json-schema.json
+name: my-proposal
+variables:
+  - var1: "variable1"
+  - var2: "variable2"
+activities:
+  - execute-script:
+      id: abc
+      script: ""
+
+  - send-message:
+      id: "123"
+      description: "activity to send a message when a /command is sent to the bot"
+      on:
+        message:
+          content: "/message"
+      to:
+        stream-id: "123"
+      content: |
+        <messageML>Hello!</messageML>
