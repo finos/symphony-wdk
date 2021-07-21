@@ -10,6 +10,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ActivityRegistry {
@@ -17,11 +18,15 @@ public class ActivityRegistry {
   private static Set<Class<? extends BaseActivity>> activityTypes;
 
   static {
+    log.info(ClasspathHelper.forClassLoader().toString());
     Reflections reflections = new Reflections(new ConfigurationBuilder()
         .setScanners(new SubTypesScanner(false))
-        // TODO how to make it work for everybody and fast
-        .addUrls(ClasspathHelper.forPackage("com.symphony"))
-        .addUrls(ClasspathHelper.forPackage("org.acme")));
+        // this is a bit ugly but it works faster than scanning the entire classpath and for all contexts (JAR, tests)
+        .addUrls(ClasspathHelper.forClassLoader().stream()
+            // avoid bot's dependencies / pick only lib/ folder
+            .filter(a -> a.toString().contains("lib/") && !a.toString().contains("BOOT-INF"))
+            .collect(Collectors.toList()))
+        .addUrls(ClasspathHelper.forPackage("com.symphony.bdk.workflow")));
     activityTypes = reflections.getSubTypesOf(BaseActivity.class);
 
     log.info("Found these activities: {}", activityTypes);
