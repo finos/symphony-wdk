@@ -20,5 +20,6 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     V4Message message = execution.messages().send(activity.getTo().getStreamId(), activity.getContent());
 
     execution.setVariable(activity.getId() + "." + OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    execution.setVariable(activity.getId() + "." + EVENT, execution.getVariable(EVENT));
   }
 }

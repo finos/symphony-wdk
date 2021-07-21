@@ -17,4 +17,6 @@ public interface ActivityExecutorContext<T> {
 
   T getActivity();
 
+  T getEvent();
+
 }

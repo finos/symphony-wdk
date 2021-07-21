@@ -38,6 +38,8 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     }
 
     execution.setOutputVariable(activity.getId(), OUTPUT_ROOM_ID_KEY, createdRoomId);
+    execution.setVariable(activity.getId() + "." + EVENT, execution.getVariable(EVENT));
+
   }
 
   private String createRoom(ActivityExecutorContext execution, List<Long> uids) {

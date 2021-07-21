@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DatafeedMessageEventToWorkflowEvent extends DatafeedEventToWorkflowEvent {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DatafeedMessageEventToWorkflowEvent.class);
-
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
     if (!PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage())
@@ -33,18 +31,18 @@ public class DatafeedMessageEventToWorkflowEvent extends DatafeedEventToWorkflow
   @EventListener
   public void onMessageSuppressed(RealTimeEvent<V4MessageSuppressed> event) {
     LOGGER.info("Triggered message suppressed event {}", event.getSource().getStream().getStreamId());
-    workflowEngine.messageSuppressed(event);
+    workflowEngine.onEvent(event);
   }
 
   @EventListener
   public void onSharedPost(RealTimeEvent<V4SharedPost> event) {
     LOGGER.info("Triggered shared post event {}", event.getSource().getMessage().getMessageId());
-    workflowEngine.postReceived(event);
+    workflowEngine.onEvent(event);
   }
 
   @EventListener
   public void onInstantMessageCreated(RealTimeEvent<V4InstantMessageCreated> event) {
     LOGGER.info("Triggered IM created event {}", event.getSource().getStream().getStreamId());
-    workflowEngine.IMReceived(event);
+    workflowEngine.onEvent(event);
   }
 }

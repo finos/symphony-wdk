@@ -22,6 +22,8 @@ public class CamundaExecutor implements JavaDelegate {
 
   public static final String EXECUTOR = "executor";
   public static final String ACTIVITY = "activity";
+  public static final String EVENT = "event";
+  public static final String EVENT_TYPE_NAME = "eventTypeName";
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -42,14 +44,18 @@ public class CamundaExecutor implements JavaDelegate {
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
 
     String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
+    String eventTypeName = (String) execution.getVariable(EVENT_TYPE_NAME);
+    String eventAsJson = (String) execution.getVariable(EVENT);
+
     Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
+    Object event = OBJECT_MAPPER.readValue(eventAsJson, Class.forName(eventTypeName));
 
     if (type.getTypeName().equals(SendMessage.class.getTypeName())) {
       this.handleSendMessageActivity((SendMessage) activity,
           (String) execution.getVariable(SendMessageExecutor.INPUT_ROOM_ID_KEY));
     }
 
-    executor.execute(new CamundaActivityExecutorContext(execution, activity));
+    executor.execute(new CamundaActivityExecutorContext(execution, activity, event));
   }
 
   private void handleSendMessageActivity(SendMessage sendMessage, String streamId) {
@@ -60,13 +66,15 @@ public class CamundaExecutor implements JavaDelegate {
     }
   }
 
-  private class CamundaActivityExecutorContext<T> implements ActivityExecutorContext<T> {
+  private class CamundaActivityExecutorContext<T, S> implements ActivityExecutorContext<T> {
     private final DelegateExecution execution;
     private final T activity;
+    private final S event;
 
-    public CamundaActivityExecutorContext(DelegateExecution execution, T activity) {
+    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, S event) {
       this.execution = execution;
       this.activity = activity;
+      this.event = event;
     }
 
     @Override
@@ -99,6 +107,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public T getActivity() {
       return activity;
+    }
+
+    @Override
+    public T getEvent() {
+      return null;
     }
   }
 }
