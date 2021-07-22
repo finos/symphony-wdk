@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
+import com.symphony.bdk.workflow.lang.ActivityRegistry;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
 import com.symphony.bdk.workflow.lang.swadl.Event;
@@ -27,8 +28,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +101,7 @@ public class CamundaBpmnBuilder {
 
     String commandToStart = getCommandToStart(workflow);
 
-    AbstractFlowNodeBuilder eventBuilder = process
+    AbstractFlowNodeBuilder<?,?> eventBuilder = process
         .startEvent()
         .message("message_" + commandToStart)
         .name(commandToStart);
@@ -110,7 +109,7 @@ public class CamundaBpmnBuilder {
     boolean hasSubProcess = false;
 
     for (Activity activity : workflow.getActivities()) {
-      BaseActivity<?> baseActivity = activity.getActivity();
+      BaseActivity baseActivity = activity.getActivity();
 
       if (isFormReply(baseActivity)) {
         /*
@@ -124,8 +123,8 @@ public class CamundaBpmnBuilder {
             .startEvent()
             .intermediateCatchEvent().timerWithDuration(baseActivity.getOn().getTimeout());
 
-        List<? extends BaseActivity<?>> expirationActivities = collectOnExpirationActivities(workflow, baseActivity);
-        for (BaseActivity<?> expirationActivity : expirationActivities) {
+        List<? extends BaseActivity> expirationActivities = collectOnExpirationActivities(workflow, baseActivity);
+        for (BaseActivity expirationActivity : expirationActivities) {
           eventBuilder = addTask(eventBuilder, expirationActivity);
         }
 
@@ -154,12 +153,12 @@ public class CamundaBpmnBuilder {
     return addWorkflowVariablesListener(eventBuilder.done(), process, workflow.getVariables());
   }
 
-  private boolean isFormReply(BaseActivity<?> baseActivity) {
+  private boolean isFormReply(BaseActivity baseActivity) {
     return baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null;
   }
 
-  private List<? extends BaseActivity<?>> collectOnExpirationActivities(Workflow workflow,
-      BaseActivity<?> targetActivity) {
+  private List<BaseActivity> collectOnExpirationActivities(Workflow workflow,
+      BaseActivity targetActivity) {
     return workflow.getActivities().stream()
         .map(Activity::getActivity)
         .filter(a -> a.getOn() != null && a.getOn().getActivityExpired() != null)
@@ -167,7 +166,7 @@ public class CamundaBpmnBuilder {
         .collect(Collectors.toList());
   }
 
-  private AbstractFlowNodeBuilder addTask(AbstractFlowNodeBuilder eventBuilder, BaseActivity<?> activity)
+  private AbstractFlowNodeBuilder<?,?> addTask(AbstractFlowNodeBuilder<?,?> eventBuilder, BaseActivity activity)
       throws JsonProcessingException {
     // hardcoded so we can rely on Camunda's script task instead of a service task
     if (activity instanceof ExecuteScript) {
@@ -177,7 +176,7 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  private AbstractFlowNodeBuilder addScriptTask(AbstractFlowNodeBuilder eventBuilder, ExecuteScript scriptActivity) {
+  private AbstractFlowNodeBuilder<?,?> addScriptTask(AbstractFlowNodeBuilder<?,?> eventBuilder, ExecuteScript scriptActivity) {
     eventBuilder.scriptTask()
         .id(scriptActivity.getId())
         .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
@@ -186,15 +185,13 @@ public class CamundaBpmnBuilder {
     return eventBuilder;
   }
 
-  private AbstractFlowNodeBuilder addServiceTask(AbstractFlowNodeBuilder eventBuilder,
-      BaseActivity<?> activity) throws JsonProcessingException {
-    Type executorType =
-        ((ParameterizedType) (activity.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
+  private AbstractFlowNodeBuilder<?,?> addServiceTask(AbstractFlowNodeBuilder<?,?> eventBuilder,
+      BaseActivity activity) throws JsonProcessingException {
     eventBuilder = eventBuilder.serviceTask()
         .id(activity.getId())
         .name(Objects.toString(activity.getName(), activity.getId()))
         .camundaClass(CamundaExecutor.class)
-        .camundaInputParameter(CamundaExecutor.EXECUTOR, executorType.getTypeName())
+        .camundaInputParameter(CamundaExecutor.EXECUTOR, ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())
         .camundaInputParameter(CamundaExecutor.ACTIVITY,
             CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
     return eventBuilder;

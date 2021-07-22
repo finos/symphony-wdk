@@ -45,7 +45,7 @@ public class ActivityDeserializer extends StdDeserializer<Activity> {
             "Found multiple activity types(" + matchingActivityTypes + ") for name: " + activityType);
       }
 
-      BaseActivity<?> baseActivity = mapper.treeToValue(node.get(activityType), matchingActivityTypes.get(0));
+      BaseActivity baseActivity = mapper.treeToValue(node.get(activityType), matchingActivityTypes.get(0));
 
       Activity activity = new Activity();
       activity.setImplementation(baseActivity);

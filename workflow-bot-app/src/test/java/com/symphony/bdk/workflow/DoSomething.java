@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class DoSomething extends BaseActivity<DoSomethingExecutor> {
+public class DoSomething extends BaseActivity {
   private String myParameter;
 }

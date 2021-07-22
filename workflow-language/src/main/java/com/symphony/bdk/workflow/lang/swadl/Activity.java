@@ -24,9 +24,9 @@ import java.util.Optional;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Activity {
 
-  private BaseActivity<?> implementation;
+  private BaseActivity implementation;
 
-  public BaseActivity<?> getActivity() {
+  public BaseActivity getActivity() {
     return implementation;
   }
 

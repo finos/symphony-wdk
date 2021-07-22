@@ -15,7 +15,7 @@ class that provides common attributes for an activity such as its id or its star
 
 [MyActivityExecutor](../custom-activity-example/src/main/java/org/acme/workflow/MyActivityExecutor.java) implements the
 `ActivityExecutor` interface and gives access to the activity definition, variables, outputs and BDK services during the
-activity execution.
+activity execution. `ActivityExecutor` is a generic interface that holds the corresponding activity type.
 
 Those 2 classes are part of a project that could live on its own and only needs a compileOnly(Gradle)/provided(Maven)
 dependency on the `workflow-language` module. In the example a third-party dependency is used by the custom activity.

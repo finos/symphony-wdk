@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.lang.swadl.activity;
 
-import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.lang.swadl.Event;
 
 import lombok.Data;
@@ -8,10 +7,9 @@ import lombok.Data;
 /**
  * Base implementation of an activity providing data shared across all activities.
  *
- * @param <T> The corresponding executor called when this activity is executed.
  */
 @Data
-public abstract class BaseActivity<T extends ActivityExecutor<?>> {
+public abstract class BaseActivity {
   /**
    * A unique identifier for an activity. Using camelCase.
    */
