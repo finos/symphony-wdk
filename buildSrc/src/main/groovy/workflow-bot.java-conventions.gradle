@@ -39,18 +39,8 @@ test.finalizedBy jacocoTestReport
 check.dependsOn jacocoTestCoverageVerification
 
 checkstyle {
-    configDirectory = rootProject.projectDir
+    configFile = rootProject.file("checkstyle.xml")
 }
-
-// Avoid dependency warnings caused by Checkstyle
-checkstyleMain.dependsOn compileTestJava
-checkstyleMain.dependsOn processTestResources
-checkstyleMain.dependsOn jacocoTestCoverageVerification
-checkstyleMain.dependsOn jacocoTestReport
-checkstyleMain.dependsOn spotbugsMain
-checkstyleMain.dependsOn spotbugsTest
-checkstyleTest.dependsOn checkstyleMain
-checkstyleTest.dependsOn jacocoTestReport
 
 // Enable HTML report for spotbugs
 tasks.matching {task -> task.name.startsWith('spotbugs')}.forEach {
