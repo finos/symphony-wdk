@@ -83,7 +83,11 @@ public class WorkflowFolderWatcher {
       WatchKey key;
       while ((key = watchService.take()) != null) {
         for (WatchEvent<?> event : key.pollEvents()) {
-          handleFileEvent(path, event);
+          try {
+            handleFileEvent(path, event);
+          } catch (Exception e) {
+            log.error("Failed to update workflow for file change event {}", event);
+          }
         }
         key.reset();
       }
