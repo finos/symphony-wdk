@@ -34,7 +34,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/message");
+    engine.onEvent(message("/message"));
 
     verify(messageService, timeout(5000)).send(streamId, content);
   }
@@ -54,7 +54,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.send("0000", content)).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/create-room");
+    engine.onEvent(message("/create-room"));
 
     verify(streamService, times(1)).create(uids);
     verify(messageService, times(1)).send(anyString(), eq(content));

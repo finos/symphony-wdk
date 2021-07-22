@@ -6,7 +6,7 @@ activities:
   - execute-script:
       id: doIt
       on:
-        message:
+        message-received:
           content: "/send"
       script: |
         assert variables.aString instanceof String

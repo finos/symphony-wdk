@@ -23,7 +23,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("9999", "/execute");
+    engine.onEvent(message("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");
   }
@@ -38,7 +38,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("9999", "/execute");
+    engine.onEvent(message("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");
   }

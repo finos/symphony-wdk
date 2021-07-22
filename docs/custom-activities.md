@@ -56,7 +56,7 @@ activities:
   - my-activity:
       id: first
       on:
-        message:
+        message-received:
           content: /go
       my-parameter: "camel case"
   - send-message:

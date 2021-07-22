@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.IntegrationTest.message;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -32,7 +33,7 @@ class VariablesIntegrationTest extends IntegrationTest {
 
     when(messageService.send("1234", content)).thenReturn(message);
     engine.execute(workflow);
-    engine.messageReceived("9999", "/send");
+    engine.onEvent(message("/send"));
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
     verify(messageService, timeout(5000)).send(argumentCaptor.capture(), anyString());
@@ -47,7 +48,7 @@ class VariablesIntegrationTest extends IntegrationTest {
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/typed-variables.yaml"));
 
     engine.execute(workflow);
-    String processId = engine.messageReceived("9999", "/send").get();
+    String processId = engine.onEvent(message("/send")).get();
 
     await().atMost(5, SECONDS).until(() -> processIsCompleted(processId));
   }

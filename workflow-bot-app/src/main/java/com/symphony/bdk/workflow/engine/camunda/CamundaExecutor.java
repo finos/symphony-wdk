@@ -4,8 +4,8 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
-import com.symphony.bdk.workflow.lang.swadl.event.BaseEvent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -23,7 +23,6 @@ public class CamundaExecutor implements JavaDelegate {
   public static final String EXECUTOR = "executor";
   public static final String ACTIVITY = "activity";
   public static final String EVENT = "event";
-  public static final String EVENT_TYPE_NAME = "eventTypeName";
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -44,11 +43,10 @@ public class CamundaExecutor implements JavaDelegate {
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
 
     String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
-    Class eventTypeName = (Class) execution.getVariable(EVENT_TYPE_NAME);
-    String eventAsJson = (String) execution.getVariable(EVENT);
-
     Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
-    Object event = OBJECT_MAPPER.readValue(eventAsJson, eventTypeName);
+
+    String eventAsJsonString = (String) execution.getVariable(EVENT);
+    EventHolder event = OBJECT_MAPPER.readValue(eventAsJsonString, EventHolder.class);
 
     executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
   }
@@ -56,12 +54,12 @@ public class CamundaExecutor implements JavaDelegate {
   private class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {
     private final DelegateExecution execution;
     private final T activity;
-    private final BaseEvent event = null;
+    private final EventHolder<Object> event;
 
-    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, Object event) {
+    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event) {
       this.execution = execution;
       this.activity = activity;
-      //this.event = event;
+      this.event = event;
     }
 
     @Override
@@ -71,7 +69,7 @@ public class CamundaExecutor implements JavaDelegate {
       String activityId = getActivity().getId();
       execution.setVariable(activityId, outerMap);
       // flatten it too for message correlation
-      execution.setVariable(activityId + ".outputs." + name, value);
+      execution.setVariable(activityId + ".outputs." + name, value); // TODO move "outputs" to constants
     }
 
     @Override
@@ -90,7 +88,7 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public BaseEvent getEvent() {
+    public EventHolder<Object> getEvent() {
       return event;
     }
   }

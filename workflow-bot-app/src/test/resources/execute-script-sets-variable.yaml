@@ -3,7 +3,7 @@ activities:
   - execute-script:
       id: setVariable
       on:
-        message:
+        message-received:
           content: /execute
       # variables can be set
       script: |

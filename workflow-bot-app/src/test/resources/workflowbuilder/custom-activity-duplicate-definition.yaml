@@ -3,6 +3,6 @@ activities:
   - duplicate-custom-activity:
       id: doIt
       on:
-        message:
+        message-received:
           content: /execute
       my-parameter: abc

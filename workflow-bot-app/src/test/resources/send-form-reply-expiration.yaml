@@ -3,7 +3,7 @@ activities:
   - send-message:
       id: sendForm
       on:
-        message:
+        message-received:
           content: "/message"
       to:
         stream-id: "123"

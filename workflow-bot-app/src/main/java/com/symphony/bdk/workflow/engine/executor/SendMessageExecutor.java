@@ -16,6 +16,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     SendMessage activity = execution.getActivity();
     log.info("Running activity {} to send message to room {}", activity.getId(), activity.getTo().getStreamId());
 
+    // TODO if stream id not set, then pickup the current event if it is a message
     V4Message message = execution.messages().send(activity.getTo().getStreamId(), activity.getContent());
 
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());

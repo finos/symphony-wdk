@@ -102,88 +102,86 @@
                 "execute-script"
             ]
         },
-        "slash": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "$ref": "#/definitions/slash-inner"
-                }
-            },
-            "required": [
-                "message"
-            ]
-        },
         "on": {
             "type": "object",
-            "oneOf": [
+            "allOf": [
                 {
-                    "$ref": "#/definitions/slash"
+                    "type": "object",
+                    "properties": {
+                        "timeout": {
+                            "type": "string"
+                        }
+                    }
                 },
                 {
-                    "$ref": "#/definitions/user-joined-event"
-                },
-                {
-                    "$ref": "#/definitions/form-replied-event"
-                },
-                {
-                    "$ref": "#/definitions/activity-expired-event"
-                },
-                {
-                    "$ref": "#/definitions/message-received-event"
-                },
-                {
-                    "$ref": "#/definitions/message-suppressed-event"
-                },
-                {
-                    "$ref": "#/definitions/post-shared-event"
-                },
-                {
-                    "$ref": "#/definitions/im-created-event"
-                },
-                {
-                    "$ref": "#/definitions/room-created-event"
-                },
-                {
-                    "$ref": "#/definitions/room-updated-event"
-                },
-                {
-                    "$ref": "#/definitions/room-deactivated-event"
-                },
-                {
-                    "$ref": "#/definitions/room-reactivated-event"
-                },
-                {
-                    "$ref": "#/definitions/room-member-promoted-to-owner-event"
-                },
-                {
-                    "$ref": "#/definitions/room-member-demoted-from-owner-event"
-                },
-                {
-                    "$ref": "#/definitions/user-joined-room-event"
-                },
-                {
-                    "$ref": "#/definitions/user-left-room-event"
-                },
-                {
-                    "$ref": "#/definitions/user-requested-join-room-event"
-                },
-                {
-                    "$ref": "#/definitions/connection-requested-event"
-                },
-                {
-                    "$ref": "#/definitions/connection-accepted-event"
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/user-joined-event"
+                        },
+                        {
+                            "$ref": "#/definitions/form-replied-event"
+                        },
+                        {
+                            "$ref": "#/definitions/activity-expired-event"
+                        },
+                        {
+                            "$ref": "#/definitions/message-received-event"
+                        },
+                        {
+                            "$ref": "#/definitions/message-suppressed-event"
+                        },
+                        {
+                            "$ref": "#/definitions/post-shared-event"
+                        },
+                        {
+                            "$ref": "#/definitions/im-created-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-created-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-updated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-deactivated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-reactivated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-joined-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-left-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-requested-join-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/connection-requested-event"
+                        },
+                        {
+                            "$ref": "#/definitions/connection-accepted-event"
+                        }
+                    ]
                 }
             ]
         },
         "user-joined-event": {
             "type": "object",
             "properties": {
-                "user-joined": {
+                "user-joined-room": {
                     "$ref": "#/definitions/user-joined-event-inner"
                 }
             },
             "required": [
-                "user-joined"
+                "user-joined-room"
             ]
         },
         "form-replied-event": {
@@ -365,7 +363,7 @@
         "activity-expired-event": {
             "type": "object",
             "properties": {
-                "form-replied": {
+                "activity-expired": {
                     "$ref": "#/definitions/activity-expired-event-inner"
                 }
             },
@@ -398,13 +396,10 @@
         "message-received-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
+                "content": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "message-suppressed-event-inner": {
             "type": "object",
@@ -565,24 +560,10 @@
             "properties": {
                 "id": {
                     "type": "string"
-                },
-                "timeout": {
-                    "type": "string"
                 }
             },
             "required": [
                 "id"
-            ]
-        },
-        "slash-inner": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "content"
             ]
         },
         "basic-activity-inner": {

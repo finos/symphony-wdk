@@ -13,6 +13,7 @@ public class DatafeedEventUtil {
 
   public static <T> String buildMessageNameFrom(RealTimeEvent<T> event, DatafeedEventType eventType) {
     if (V4MessageSent.class.equals(event.getSource().getClass())) {
+      // TODO presentation ML parsing
       return ((RealTimeEvent<V4MessageSent>) event).getSource().getMessage().getMessage();
 //      case MESSAGE_SUPPRESSED:
 //        return ((RealTimeEvent<V4MessageSuppressed>) event).getSource().getMessageId();

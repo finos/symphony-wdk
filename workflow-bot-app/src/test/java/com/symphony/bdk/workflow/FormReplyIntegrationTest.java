@@ -27,11 +27,11 @@ class FormReplyIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(message("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // reply to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
     // bot should send my reply back
     verify(messageService, timeout(5000)).send(eq("123"), contains("My message"));
@@ -47,13 +47,14 @@ class FormReplyIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(message("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user 1 replies to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+
     // user 2 replies to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
     // bot should send my reply back
     verify(messageService, timeout(5000).times(2)).send(eq("123"), contains("My message"));
@@ -70,11 +71,11 @@ class FormReplyIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(message("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user 1 replies to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
     // bot should send my reply back
     verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
@@ -92,7 +93,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(message("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user never replies

@@ -43,7 +43,7 @@ class EngineIntegrationTest extends IntegrationTest {
     when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/message");
+    engine.onEvent(message("/message"));
 
     verify(messageService, timeout(5000)).send(streamId, content);
   }
@@ -62,6 +62,8 @@ class EngineIntegrationTest extends IntegrationTest {
     engine.stop(workflow.getName());
 
     assertThrows(MismatchingMessageCorrelationException.class,
-        () -> engine.messageReceived("123", "/message"));
+        () -> {
+          engine.onEvent(message("/message"));
+        });
   }
 }
