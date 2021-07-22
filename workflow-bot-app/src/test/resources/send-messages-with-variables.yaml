@@ -1,6 +1,6 @@
 name: send-message-on-message
 variables:
-  - streamId: "1234"
+  streamId: "1234"
 activities:
   - send-message:
       id: "sendmessageid"

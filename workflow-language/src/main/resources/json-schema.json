@@ -29,34 +29,9 @@
             ]
         },
         "variables": {
-            "type": "array",
+            "type": "object",
             "title": "Global variables",
-            "description": "Global variables to be shared with all steps in the Workflow. It should be written in a map format",
-            "default": [],
-            "examples": [
-                [
-                    {
-                        "roomName": "Best room ever",
-                        "roomType": "IM"
-                    }
-                ]
-            ],
-            "additionalItems": false,
-            "items": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "title": "Global variable declaration",
-                        "description": "A global variable given by key and value.",
-                        "default": {},
-                        "examples": [
-                            {
-                                "roomName": "Best room ever"
-                            }
-                        ]
-                    }
-                ]
-            }
+            "description": "Global variables to be shared with all steps in the Workflow. It should be written in a map format"
         },
         "activities": {
             "type": "array",

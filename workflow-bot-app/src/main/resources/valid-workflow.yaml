@@ -1,8 +1,8 @@
 name: my-proposal
 version: 0
 variables:
-  - roomName: "Best room ever"
-  - sendMessageActivityId: "send-message-id-1"
+  roomName: "Best room ever"
+  sendMessageActivityId: "send-message-id-1"
 activities:
   - create-room: #has as output {"streamId": "AbcDEFgHiJK"}
       id: "create-room-id-1"

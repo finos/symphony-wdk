@@ -13,7 +13,7 @@ import java.util.Optional;
 public class Workflow {
   private String name;
   private int version;
-  private List<Map<String, Object>> variables = Collections.emptyList();
+  private Map<String, Object> variables = Collections.emptyMap();
   private List<Activity> activities;
 
   public Optional<Activity> getFirstActivity() {

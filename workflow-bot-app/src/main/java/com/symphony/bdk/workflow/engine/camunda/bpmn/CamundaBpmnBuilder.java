@@ -11,7 +11,6 @@ import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
@@ -205,7 +204,7 @@ public class CamundaBpmnBuilder {
   }
 
   private BpmnModelInstance addWorkflowVariablesListener(BpmnModelInstance instance,
-      ProcessBuilder process, List<Map<String, Object>> variables) throws JsonProcessingException {
+      ProcessBuilder process, Map<String, Object> variables) throws JsonProcessingException {
     if (variables != null) {
       CamundaExecutionListener listener = instance.newInstance(CamundaExecutionListener.class);
       listener.setCamundaEvent(ExecutionListener.EVENTNAME_START);
@@ -220,15 +219,7 @@ public class CamundaBpmnBuilder {
     return instance;
   }
 
-  private String variablesAsJsonString(List<Map<String, Object>> variables) throws JsonProcessingException {
-    ObjectNode variablesNode = CamundaExecutor.OBJECT_MAPPER.createObjectNode();
-
-    for (Map<String, Object> variableMap : variables) {
-      for (Map.Entry<String, Object> entry : variableMap.entrySet()) {
-        variablesNode.put(entry.getKey(), entry.getValue().toString());
-      }
-    }
-
-    return CamundaExecutor.OBJECT_MAPPER.writeValueAsString(variablesNode);
+  private String variablesAsJsonString(Map<String, Object> variables) throws JsonProcessingException {
+    return CamundaExecutor.OBJECT_MAPPER.writeValueAsString(variables);
   }
 }

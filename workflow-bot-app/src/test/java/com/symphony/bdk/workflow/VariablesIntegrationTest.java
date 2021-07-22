@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -10,9 +12,12 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.lang.WorkflowBuilder;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.List;
 
 class VariablesIntegrationTest extends IntegrationTest {
   @Test
@@ -34,5 +39,26 @@ class VariablesIntegrationTest extends IntegrationTest {
     final String captorStreamId = argumentCaptor.getValue();
 
     assertThat(captorStreamId).isEqualTo("1234");
+  }
+
+  @Test
+  void variablesAreTyped() throws Exception {
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/typed-variables.yaml"));
+
+    engine.execute(workflow);
+    String processId = engine.messageReceived("9999", "/send").get();
+
+    await().atMost(5, SECONDS).until(() -> processIsCompleted(processId));
+  }
+
+  private Boolean processIsCompleted(String processId) {
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+        .processInstanceId(processId).list();
+    if (!processes.isEmpty()) {
+      HistoricProcessInstance processInstance = processes.get(0);
+      return processInstance.getState().equals("COMPLETED");
+    }
+    return false;
   }
 }

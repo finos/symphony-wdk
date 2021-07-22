@@ -1,7 +1,7 @@
 name: my-proposal
 variables:
-  - var1: "variable1"
-  - var2: "variable2"
+  var1: "variable1"
+  var2: "variable2"
 activities:
   - send-message:
       id: "sendmessageid1"

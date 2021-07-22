@@ -4,12 +4,13 @@ import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 public interface WorkflowEngine {
 
   void execute(Workflow workflow) throws IOException;
 
-  void messageReceived(String streamId, String content);
+  Optional<String> messageReceived(String streamId, String content);
 
   /**
    * @param messageId The form's message id (created when the form is submitted)

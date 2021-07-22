@@ -1,6 +1,6 @@
 name: execute-sends-a-message
 variables:
-  - foo: bar
+  foo: bar
 activities:
   - execute-script:
       id: aScriptSendingAMessage

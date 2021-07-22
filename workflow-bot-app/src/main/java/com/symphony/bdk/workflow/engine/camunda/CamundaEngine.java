@@ -11,12 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.Deployment;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -58,12 +60,14 @@ public class CamundaEngine implements WorkflowEngine {
   }
 
   @Override
-  public void messageReceived(String streamId, String content) {
+  public Optional<String> messageReceived(String streamId, String content) {
     if (!content.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
       // content being the command to start a workflow
-      runtimeService.startProcessInstanceByMessage(MESSAGE_PREFIX + content,
+      ProcessInstance instance = runtimeService.startProcessInstanceByMessage(MESSAGE_PREFIX + content,
           singletonMap(STREAM_ID, streamId));
+      return Optional.of(instance.getId());
     }
+    return Optional.empty();
   }
 
   @Override

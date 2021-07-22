@@ -1,8 +1,9 @@
 package com.symphony.bdk.workflow.engine.camunda.listener;
 
+import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
@@ -13,6 +14,7 @@ import java.util.Map;
 @Slf4j
 public class VariablesListener implements ExecutionListener {
 
+  // automatically injected by Camunda
   private Expression variables;
 
   @Override
@@ -30,7 +32,7 @@ public class VariablesListener implements ExecutionListener {
   }
 
   private Map<String, Object> convertJsonStringToMap(String variableAsString) throws JsonProcessingException {
-    return new ObjectMapper().readValue(variableAsString, new TypeReference<>() {});
+    return CamundaExecutor.OBJECT_MAPPER.readValue(variableAsString, new TypeReference<>() {});
   }
 
 }

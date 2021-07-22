@@ -5,6 +5,7 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 
+import org.camunda.bpm.engine.HistoryService;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,9 @@ abstract class IntegrationTest {
 
   @Autowired
   WorkflowEngine engine;
+
+  @Autowired
+  HistoryService historyService;
 
   // Mock the BDK
   @MockBean
