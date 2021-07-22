@@ -67,14 +67,22 @@ public class CamundaBpmnBuilder {
   }
 
   private void debugWorkflow(Workflow workflow, BpmnModelInstance instance) {
-    Bpmn.writeModelToFile(new File(workflow.getName() + ".bpmn"), instance);
-    log.debug("BPMN file generated to ./{}.bpmn", workflow.getName());
+    // avoid polluting current folder in dev, keep it working for deployment/Docker
+    File outputFolder = new File("./build");
+    if (!outputFolder.exists() || !outputFolder.isDirectory()) {
+      outputFolder = new File(".");
+    }
+
+    File bpmnFile = new File(outputFolder, workflow.getName() + ".bpmn");
+    Bpmn.writeModelToFile(bpmnFile, instance);
+    log.debug("BPMN file generated to {}", bpmnFile);
     try {
       // uses https://github.com/bpmn-io/bpmn-to-image
+      File pngFile = new File(outputFolder, workflow.getName() + ".png");
       Runtime.getRuntime().exec(
-          String.format("bpmn-to-image --title %s-%s %s.bpmn:%s.png",
-              workflow.getName(), Instant.now(), workflow.getName(), workflow.getName()));
-      log.debug("BPMN, image file generated to ./{}.png", workflow.getName());
+          String.format("bpmn-to-image --title %s-%s %s:%s",
+              workflow.getName(), Instant.now(), bpmnFile, pngFile));
+      log.debug("BPMN, image outputFolder generated to {}", pngFile);
     } catch (IOException ioException) {
       log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
           ioException);
