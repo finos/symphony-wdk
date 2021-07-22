@@ -69,7 +69,8 @@ public final class ActivityRegistry {
     return new HashSet<>(activityTypes);
   }
 
-  public static Map<Class<? extends BaseActivity>, Class<? extends ActivityExecutor<? extends BaseActivity>>> getActivityExecutors() {
+  public static Map<Class<? extends BaseActivity>,
+      Class<? extends ActivityExecutor<? extends BaseActivity>>> getActivityExecutors() {
     return activityExecutors;
   }
 }

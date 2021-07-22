@@ -55,7 +55,6 @@ public class ActivityDeserializer extends StdDeserializer<Activity> {
     }
   }
 
-  // TODO do we move to an annotation based matching?
   private boolean classNameMatches(String property, Class<? extends BaseActivity> activityClass) {
     // property is kebab-case
     return activityClass.getSimpleName().toLowerCase().equals(StringUtils.remove(property, '-'));

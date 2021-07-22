@@ -101,7 +101,7 @@ public class CamundaBpmnBuilder {
 
     String commandToStart = getCommandToStart(workflow);
 
-    AbstractFlowNodeBuilder<?,?> eventBuilder = process
+    AbstractFlowNodeBuilder<?, ?> eventBuilder = process
         .startEvent()
         .message("message_" + commandToStart)
         .name(commandToStart);
@@ -166,7 +166,7 @@ public class CamundaBpmnBuilder {
         .collect(Collectors.toList());
   }
 
-  private AbstractFlowNodeBuilder<?,?> addTask(AbstractFlowNodeBuilder<?,?> eventBuilder, BaseActivity activity)
+  private AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)
       throws JsonProcessingException {
     // hardcoded so we can rely on Camunda's script task instead of a service task
     if (activity instanceof ExecuteScript) {
@@ -176,7 +176,8 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  private AbstractFlowNodeBuilder<?,?> addScriptTask(AbstractFlowNodeBuilder<?,?> eventBuilder, ExecuteScript scriptActivity) {
+  private AbstractFlowNodeBuilder<?, ?> addScriptTask(AbstractFlowNodeBuilder<?, ?> eventBuilder,
+      ExecuteScript scriptActivity) {
     eventBuilder.scriptTask()
         .id(scriptActivity.getId())
         .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
@@ -185,13 +186,14 @@ public class CamundaBpmnBuilder {
     return eventBuilder;
   }
 
-  private AbstractFlowNodeBuilder<?,?> addServiceTask(AbstractFlowNodeBuilder<?,?> eventBuilder,
+  private AbstractFlowNodeBuilder<?, ?> addServiceTask(AbstractFlowNodeBuilder<?, ?> eventBuilder,
       BaseActivity activity) throws JsonProcessingException {
     eventBuilder = eventBuilder.serviceTask()
         .id(activity.getId())
         .name(Objects.toString(activity.getName(), activity.getId()))
         .camundaClass(CamundaExecutor.class)
-        .camundaInputParameter(CamundaExecutor.EXECUTOR, ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())
+        .camundaInputParameter(CamundaExecutor.EXECUTOR,
+            ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())
         .camundaInputParameter(CamundaExecutor.ACTIVITY,
             CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
     return eventBuilder;
