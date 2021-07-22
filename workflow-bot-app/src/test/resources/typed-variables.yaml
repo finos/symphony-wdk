@@ -1,0 +1,13 @@
+name: typed-variables
+variables:
+  aString: abc
+  aNumber: 123
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        message:
+          content: "/send"
+      script: |
+        assert variables.aString instanceof String
+        assert variables.aNumber instanceof Integer

@@ -1,0 +1,7 @@
+name: no-start-command
+activities:
+  - send-message:
+      id: "send-message-id-1"
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>

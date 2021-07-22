@@ -1,0 +1,52 @@
+plugins {
+    id 'workflow-bot.java-conventions'
+    id 'org.springframework.boot' version '2.5.2'
+}
+
+dependencies {
+    implementation project(':workflow-language')
+    implementation project(':custom-activity-example')
+
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.8')
+
+    implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    runtimeOnly 'com.h2database:h2'
+
+    implementation 'org.slf4j:slf4j-api'
+    runtimeOnly 'ch.qos.logback:logback-classic'
+
+    implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
+    implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter'
+
+    implementation 'org.codehaus.groovy:groovy-all:3.0.8'
+
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.3'
+    implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
+
+    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation('org.reflections:reflections:0.9.11') {
+        version {
+            strictly("0.9.11") // https://github.com/ronmamo/reflections/issues/277
+        }
+    }
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation 'org.assertj:assertj-core:3.20.2'
+    testImplementation 'org.awaitility:awaitility:4.1.0'
+}
+
+bootBuildImage {
+    imageName = "workflow-bot"
+    builder = "gcr.io/buildpacks/builder"
+}
+
+bootJar {
+    manifest {
+        // to be able to use loader.path to add custom activities to the workflow bot
+        attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
+    }
+}

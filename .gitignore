@@ -87,8 +87,8 @@ nb-configuration.xml
 ##############################
 .DS_Store
 
-rsa/
-datafeed.id
+workflow-bot-app/rsa/
+workflow-bot-app/datafeed.id
 
-*.bpmn
-*.png
+workflow-bot-app/*.bpmn
+workflow-bot-app/*.png
