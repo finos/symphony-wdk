@@ -1,0 +1,12 @@
+plugins {
+    id 'workflow-bot.java-conventions'
+    id 'java-library'
+}
+
+dependencies {
+    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.8')
+
+    api 'org.finos.symphony.bdk:symphony-bdk-core'
+
+    api 'com.fasterxml.jackson.core:jackson-annotations:2.12.3'
+}

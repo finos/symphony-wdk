@@ -1,0 +1,15 @@
+name: my-proposal
+variables:
+  - var1: "variable1"
+  - var2: "variable2"
+activities:
+  - send-message:
+      id: "sendmessageid1"
+      description: "activity to send a message when a /command is sent to the bot"
+      on:
+        message:
+          content: "/message"
+      to:
+        stream-id: "123"
+      content: |
+        <messageML>Hello!</messageML>

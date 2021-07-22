@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok'
+    id 'jacoco'
+
+    // code quality
+    id 'checkstyle'
+    id 'com.github.spotbugs'
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'BUNDLE'
+        }
+    }
+}
+
+test.finalizedBy jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
+
+checkstyle {
+    configFile = rootProject.file("checkstyle.xml")
+}
+
+// Enable HTML report for spotbugs
+tasks.matching {task -> task.name.startsWith('spotbugs')}.forEach {
+    it.reports {
+        html.enabled = true
+        xml.enabled = false
+    }
+}

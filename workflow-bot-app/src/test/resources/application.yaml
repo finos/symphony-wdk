@@ -1,0 +1,14 @@
+#bdk:
+#  datafeed:
+#    enabled: false
+logging:
+  level:
+    com.symphony: DEBUG
+    org.camunda: DEBUG
+    org.camunda.bpmn.engine.persistence: INFO
+  register-shutdown-hook: true # to avoid shutdown hooks logs in console with Gradle
+
+camunda:
+  bpm:
+    job-execution:
+      wait-time-in-millis: 1000
