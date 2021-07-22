@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.gen.api.model.V4Message;
@@ -28,6 +30,22 @@ class EngineIntegrationTest extends IntegrationTest {
 
     assertThrows(NoStartingEventException.class,
         () -> engine.execute(workflow));
+  }
+
+  @Test
+  void workflowWithSpaceInName() throws Exception {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/workflow-name-space.yaml"));
+    final V4Message message = new V4Message();
+    message.setMessageId("msgId");
+
+    final String streamId = "123";
+    final String content = "<messageML>Hello!</messageML>";
+    when(messageService.send(streamId, content)).thenReturn(message);
+
+    engine.execute(workflow);
+    engine.messageReceived("123", "/message");
+
+    verify(messageService, timeout(5000)).send(streamId, content);
   }
 
   @Test

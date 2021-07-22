@@ -97,7 +97,7 @@ public class CamundaBpmnBuilder {
 
   @SneakyThrows
   private BpmnModelInstance workflowToBpmn(Workflow workflow) {
-    ProcessBuilder process = Bpmn.createExecutableProcess(workflow.getName() + "-" + UUID.randomUUID());
+    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow));
 
     String commandToStart = getCommandToStart(workflow);
 
@@ -151,6 +151,11 @@ public class CamundaBpmnBuilder {
     }
 
     return addWorkflowVariablesListener(eventBuilder.done(), process, workflow.getVariables());
+  }
+
+  private String createUniqueProcessId(Workflow workflow) {
+    // spaces are not supported in BPMN here
+    return workflow.getName().replaceAll("\\s+", "_") + "-" + UUID.randomUUID();
   }
 
   private boolean isFormReply(BaseActivity baseActivity) {
