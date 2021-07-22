@@ -20,25 +20,17 @@ public class VariablesListener implements ExecutionListener {
     if (variables != null && variables.getValue(execution) != null) {
 
       log.info("Setting variables for execution {}", execution.getId());
-
       Map<String, Object> variablesAsMap = convertJsonStringToMap(variables.getValue(execution).toString());
 
-      if (variablesAsMap != null && !variablesAsMap.isEmpty()) {
-
+      if (variablesAsMap != null) {
         log.debug("Loading workflow variable to execution context [{}]", variablesAsMap);
         execution.setVariable("variables", variablesAsMap);
-
       }
     }
   }
 
   private Map<String, Object> convertJsonStringToMap(String variableAsString) throws JsonProcessingException {
-    return new ObjectMapper().readValue(variableAsString, new TypeReference<Map<String, Object>>(){});
+    return new ObjectMapper().readValue(variableAsString, new TypeReference<>() {});
   }
-
-
-
-
-
 
 }

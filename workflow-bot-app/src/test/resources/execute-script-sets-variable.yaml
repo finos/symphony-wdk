@@ -1,0 +1,15 @@
+name: execute-script-sets-variable
+activities:
+  - execute-script:
+      id: setVariable
+      on:
+        message:
+          content: /execute
+      # variables can be set
+      script: |
+        variables.foo = "bar"
+  - execute-script:
+      id: useVariable
+      # BDK beans are available in the script directly, context variables as well
+      script: |
+        messageService.send("123", variables.foo)

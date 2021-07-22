@@ -206,7 +206,7 @@ public class CamundaBpmnBuilder {
 
   private BpmnModelInstance addWorkflowVariablesListener(BpmnModelInstance instance,
       ProcessBuilder process, List<Map<String, Object>> variables) throws JsonProcessingException {
-    if (variables != null && !variables.isEmpty()) {
+    if (variables != null) {
       CamundaExecutionListener listener = instance.newInstance(CamundaExecutionListener.class);
       listener.setCamundaEvent(ExecutionListener.EVENTNAME_START);
       listener.setCamundaClass(VariablesListener.class.getName());

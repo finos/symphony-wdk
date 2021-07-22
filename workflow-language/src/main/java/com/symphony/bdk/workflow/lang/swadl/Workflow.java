@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.lang.swadl;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +13,7 @@ import java.util.Optional;
 public class Workflow {
   private String name;
   private int version;
-  private List<Map<String, Object>> variables;
+  private List<Map<String, Object>> variables = Collections.emptyList();
   private List<Activity> activities;
 
   public Optional<Activity> getFirstActivity() {

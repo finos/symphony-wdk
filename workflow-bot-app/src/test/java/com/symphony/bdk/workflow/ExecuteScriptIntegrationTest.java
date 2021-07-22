@@ -27,4 +27,19 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
 
     verify(messageService, timeout(5000)).send("123", "bar");
   }
+
+  @Test
+  void executeScript_setsVariable() throws Exception {
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.yaml"));
+
+    final V4Message message = new V4Message();
+    message.setMessageId("msgId");
+    when(messageService.send(anyString(), anyString())).thenReturn(message);
+
+    engine.execute(workflow);
+    engine.messageReceived("9999", "/execute");
+
+    verify(messageService, timeout(5000)).send("123", "bar");
+  }
 }

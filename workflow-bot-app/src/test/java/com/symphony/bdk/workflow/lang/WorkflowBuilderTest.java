@@ -35,7 +35,7 @@ class WorkflowBuilderTest {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass()
         .getResourceAsStream("/workflowbuilder/invalid_swadl.yaml"));
 
-    assertThat(workflow.getVariables()).isNull();
+    assertThat(workflow.getVariables()).isEmpty();
   }
 
   @Test
