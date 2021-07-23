@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
@@ -40,6 +41,9 @@ abstract class IntegrationTest {
 
   @MockBean(name = "messageService")
   MessageService messageService;
+
+  @MockBean(name = "sessionService")
+  SessionService sessionService;
 
   protected static V4Message message(String msgId) {
     final V4Message message = new V4Message();

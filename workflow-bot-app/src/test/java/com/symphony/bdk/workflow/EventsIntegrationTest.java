@@ -8,6 +8,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
 import com.symphony.bdk.gen.api.model.V4Initiator;
@@ -48,6 +49,37 @@ class EventsIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("123", "/execute"));
 
     verify(messageService, timeout(5000)).send("123", "/execute");
+  }
+
+  @Test
+  void onMessageReceived_botMention() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/events/on-message-received-bot-mention.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+    UserV2 bot = new UserV2();
+    bot.setDisplayName("myBot");
+    when(sessionService.getSession()).thenReturn(bot);
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("123", "@myBot /execute"));
+
+    verify(messageService, timeout(5000)).send("123", "ok");
+  }
+
+  @Test
+  void onMessageReceived_botMention_notMentioned() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/events/on-message-received-bot-mention.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+    UserV2 bot = new UserV2();
+    bot.setDisplayName("myBot");
+    when(sessionService.getSession()).thenReturn(bot);
+
+    engine.execute(workflow);
+    Optional<String> process = engine.onEvent(messageReceived("123", "/execute"));
+
+    // no process started if the bot is not mentioned
+    assertThat(process).isEmpty();
   }
 
   @Test

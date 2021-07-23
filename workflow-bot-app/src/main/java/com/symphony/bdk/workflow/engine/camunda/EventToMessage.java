@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.core.service.message.util.PresentationMLParser;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
 import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
@@ -57,9 +58,20 @@ public class EventToMessage {
   @Autowired
   private RuntimeService runtimeService;
 
-  public static Optional<String> toMessageName(Event event) {
+  @Autowired
+  private SessionService sessionService;
+
+  public Optional<String> toMessageName(Event event) {
     if (event.getMessageReceived() != null) {
-      return Optional.of(MESSAGE_PREFIX + event.getMessageReceived().getContent());
+      if (event.getMessageReceived().isRequiresBotMention()) {
+        // this is super fragile, extra spaces, bot changing names are not handled
+        // SlashCommand in the BDK does it this way though
+        String displayName = sessionService.getSession().getDisplayName();
+        return Optional.of(
+            String.format("%s@%s %s", MESSAGE_PREFIX, displayName, event.getMessageReceived().getContent()));
+      } else {
+        return Optional.of(MESSAGE_PREFIX + event.getMessageReceived().getContent());
+      }
 
     } else if (event.getMessageSuppressed() != null) {
       return Optional.of(MESSAGE_SUPPRESSED);

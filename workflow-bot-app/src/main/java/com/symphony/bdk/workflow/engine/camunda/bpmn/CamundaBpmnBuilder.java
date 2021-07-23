@@ -39,10 +39,13 @@ import java.util.stream.Collectors;
 public class CamundaBpmnBuilder {
 
   private final RepositoryService repositoryService;
+  private final EventToMessage eventToMessage;
 
   @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService) {
+  public CamundaBpmnBuilder(RepositoryService repositoryService,
+      EventToMessage eventToMessage) {
     this.repositoryService = repositoryService;
+    this.eventToMessage = eventToMessage;
   }
 
   public BpmnModelInstance addWorkflow(Workflow workflow) {
@@ -88,7 +91,7 @@ public class CamundaBpmnBuilder {
   private String getCommandToStart(Workflow workflow) {
     return workflow.getFirstActivity()
         .flatMap(Activity::getEvent)
-        .flatMap(EventToMessage::toMessageName)
+        .flatMap(eventToMessage::toMessageName)
         .orElseThrow(NoStartingEventException::new);
   }
 

@@ -7,5 +7,4 @@ public class MessageReceivedEvent {
   private String id;
   private String content;
   private boolean requiresBotMention = false;
-  // TODO add mention flag
 }

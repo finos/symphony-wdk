@@ -392,6 +392,10 @@
             "properties": {
                 "content": {
                     "type": "string"
+                },
+                "requires-bot-mention": {
+                    "type": "boolean",
+                    "default": false
                 }
             }
         },
