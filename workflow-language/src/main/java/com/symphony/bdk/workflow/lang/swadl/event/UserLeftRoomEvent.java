@@ -4,5 +4,4 @@ import lombok.Data;
 
 @Data
 public class UserLeftRoomEvent {
-  private String id;
 }

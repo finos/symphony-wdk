@@ -1,0 +1,8 @@
+name: on-room-member-demoted-from-owner
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        room-member-demoted-from-owner: { }
+      script: |
+        assert event.source.stream.streamId == "123"

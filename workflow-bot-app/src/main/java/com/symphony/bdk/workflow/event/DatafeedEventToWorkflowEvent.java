@@ -22,11 +22,13 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.lang.validator.YamlValidator;
 
+import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@Generated // not interesting to test
 public class DatafeedEventToWorkflowEvent {
 
   @Autowired

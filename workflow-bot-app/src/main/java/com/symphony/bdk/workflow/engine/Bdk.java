@@ -11,10 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class Bdk {
 
-  public String escape(String s) {
-    return s.replace("\"", "\\\"");
-  }
-
   @SneakyThrows
   public String text(String presentationMl) {
     return PresentationMLParser.getTextContent(presentationMl);

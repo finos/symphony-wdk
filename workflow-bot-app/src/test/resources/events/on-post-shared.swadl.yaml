@@ -1,0 +1,8 @@
+name: on-post-shared
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        post-shared: { }
+      script: |
+        assert event.source.sharedMessage.messageId == "123"

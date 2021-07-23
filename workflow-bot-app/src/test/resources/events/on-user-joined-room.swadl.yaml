@@ -1,0 +1,8 @@
+name: on-user-joined-roon
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        user-joined-room: { }
+      script: |
+        assert event.source.stream.streamId == "123"

@@ -4,7 +4,7 @@ import com.symphony.bdk.workflow.lang.swadl.event.ActivityExpiredEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.ConnectionAcceptedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.ConnectionRequestedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.FormRepliedEvent;
-import com.symphony.bdk.workflow.lang.swadl.event.IMCreatedEvent;
+import com.symphony.bdk.workflow.lang.swadl.event.ImCreatedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.MessageReceivedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.MessageSuppressedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.PostSharedEvent;
@@ -42,7 +42,7 @@ public class Event {
   private PostSharedEvent postShared;
 
   @JsonProperty("im-created")
-  private IMCreatedEvent imCreated;
+  private ImCreatedEvent imCreated;
 
   @JsonProperty("room-created")
   private RoomCreatedEvent roomCreated;
@@ -58,6 +58,9 @@ public class Event {
 
   @JsonProperty("room-member-promoted-to-owner")
   private RoomMemberPromotedToOwnerEvent roomMemberPromotedToOwner;
+
+  @JsonProperty("room-member-demoted-from-owner")
+  private RoomMemberPromotedToOwnerEvent roomMemberDemotedFromOwner;
 
   @JsonProperty("user-joined-room")
   private UserJoinedRoomEvent userJoinedRoom;

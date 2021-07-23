@@ -305,7 +305,7 @@
         "user-joined-room-event": {
             "type": "object",
             "properties": {
-                "user-joined-room-owner": {
+                "user-joined-room": {
                     "$ref": "#/definitions/user-joined-room-event-inner"
                 }
             },
@@ -316,7 +316,7 @@
         "user-left-room-event": {
             "type": "object",
             "properties": {
-                "user-left-room-owner": {
+                "user-left-room": {
                     "$ref": "#/definitions/user-left-room-event-inner"
                 }
             },
@@ -327,7 +327,7 @@
         "user-requested-join-room-event": {
             "type": "object",
             "properties": {
-                "user-requested-join-room-owner": {
+                "user-requested-join-room": {
                     "$ref": "#/definitions/user-requested-join-room-event-inner"
                 }
             },
@@ -398,155 +398,77 @@
         "message-suppressed-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "post-shared-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "im-created-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "room-created-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
             }
         },
         "room-updated-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
             }
         },
         "room-deactivated-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
             }
         },
         "room-reactivated-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
             }
         },
         "room-member-promoted-to-owner-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "room-member-demoted-from-owner-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "user-joined-room-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "user-left-room-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "user-requested-join-room-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "connection-requested-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "connection-accepted-event-inner": {
             "type": "object",
             "properties": {
-                "streamId": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "activity-expired-event-inner": {
             "type": "object",
             "properties": {
-                "activity-id": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "activity-id"
-            ]
+            }
         },
         "basic-activity-inner": {
             "type": "object",

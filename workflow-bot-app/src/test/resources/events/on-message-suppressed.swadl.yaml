@@ -1,0 +1,8 @@
+name: on-message-suppressed
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        message-suppressed: { }
+      script: |
+        assert event.source.messageId == "123"

@@ -4,5 +4,4 @@ import lombok.Data;
 
 @Data
 public class ConnectionAcceptedEvent {
-  private String id;
 }
