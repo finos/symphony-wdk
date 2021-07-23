@@ -29,7 +29,10 @@ import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -119,7 +122,7 @@ public class EventToMessage {
     return Optional.empty();
   }
 
-  public <T> MessageCorrelationBuilder toMessage(RealTimeEvent<T> event)
+  public <T> List<MessageCorrelationBuilder> toMessage(RealTimeEvent<T> event)
       throws PresentationMLParserException {
     MessageCorrelationBuilder messageCorrelation = null;
 
@@ -127,23 +130,10 @@ public class EventToMessage {
     processVariables.put(ActivityExecutorContext.EVENT, new EventHolder<>(event.getInitiator(), event.getSource()));
 
     if (event.getSource() instanceof V4SymphonyElementsAction) {
-      // we expect the activity id to be the same as the form id to work
-      // correlation across processes is based on the message id tha was created to send the form
-      V4SymphonyElementsAction implEvent = (V4SymphonyElementsAction) event.getSource();
-      Map<String, Object> formReplies = (Map<String, Object>) implEvent.getFormValues();
-      String formId = implEvent.getFormId();
-      processVariables.put(formId, formReplies);
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.FORM_REPLY_PREFIX + formId)
-          .processInstanceVariableEquals(formId + ".outputs.msgId", implEvent.getFormMessageId())
-          .setVariables(processVariables);
+      messageCorrelation = formReplyToMessage(event, processVariables);
 
     } else if (event.getSource() instanceof V4MessageSent) {
-      RealTimeEvent<V4MessageSent> implEvent = (RealTimeEvent<V4MessageSent>) event;
-      String presentationMl = implEvent.getSource().getMessage().getMessage();
-      String textContent = PresentationMLParser.getTextContent(presentationMl);
-
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.MESSAGE_PREFIX + textContent)
-          .setVariables(processVariables);
+      return messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
 
     } else if (event.getSource() instanceof V4RoomCreated) {
       messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_CREATED)
@@ -201,6 +191,36 @@ public class EventToMessage {
       messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.CONNECTION_ACCEPTED)
           .setVariables(processVariables);
     }
+    return Collections.singletonList(messageCorrelation);
+  }
+
+  private <T> MessageCorrelationBuilder formReplyToMessage(RealTimeEvent<T> event,
+      Map<String, Object> processVariables) {
+    MessageCorrelationBuilder messageCorrelation;
+    // we expect the activity id to be the same as the form id to work
+    // correlation across processes is based on the message id tha was created to send the form
+    V4SymphonyElementsAction implEvent = (V4SymphonyElementsAction) event.getSource();
+    Map<String, Object> formReplies = (Map<String, Object>) implEvent.getFormValues();
+    String formId = implEvent.getFormId();
+    processVariables.put(formId, formReplies);
+    messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.FORM_REPLY_PREFIX + formId)
+        .processInstanceVariableEquals(formId + ".outputs.msgId", implEvent.getFormMessageId())
+        .setVariables(processVariables);
     return messageCorrelation;
+  }
+
+  private List<MessageCorrelationBuilder> messageSentToMessage(RealTimeEvent<V4MessageSent> event,
+      Map<String, Object> processVariables) throws PresentationMLParserException {
+    String presentationMl = event.getSource().getMessage().getMessage();
+    String textContent = PresentationMLParser.getTextContent(presentationMl);
+
+    List<MessageCorrelationBuilder> messages = new ArrayList<>();
+    messages.add(runtimeService.createMessageCorrelation(EventToMessage.MESSAGE_PREFIX + textContent)
+        .setVariables(processVariables));
+    // we send 2 messages to correlate if a content is set or not
+    // this will change with the generalization of event filtering
+    messages.add(runtimeService.createMessageCorrelation(EventToMessage.MESSAGE_PREFIX)
+        .setVariables(processVariables));
+    return messages;
   }
 }

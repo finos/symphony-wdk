@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,12 +58,11 @@ public class CamundaEngine implements WorkflowEngine {
   @SneakyThrows
   @Override
   public <T> Optional<String> onEvent(RealTimeEvent<T> event) {
-    MessageCorrelationBuilder messageCorrelation = eventToMessage.toMessage(event);
+    List<MessageCorrelationBuilder> messageCorrelations = eventToMessage.toMessage(event);
 
-    List<MessageCorrelationResult> messageCorrelationResult = messageCorrelation.correlateAllWithResult();
-
-    log.info("Event {} resulted in {}", event, messageCorrelationResult);
-    return messageCorrelationResult.stream()
+    return messageCorrelations.stream()
+        .map(MessageCorrelationBuilder::correlateAllWithResult)
+        .flatMap(Collection::stream)
         .findFirst()
         .map(MessageCorrelationResult::getProcessInstance)
         .map(Execution::getId);

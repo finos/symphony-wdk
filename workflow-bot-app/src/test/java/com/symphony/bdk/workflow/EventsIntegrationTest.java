@@ -83,6 +83,18 @@ class EventsIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void onMessageReceived_anyContent() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/events/on-message-received-any-content.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("123", "/anything"));
+
+    verify(messageService, timeout(5000)).send("123", "ok");
+  }
+
+  @Test
   void onRoomCreated() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
         "/events/on-room-created.swadl.yaml"));
