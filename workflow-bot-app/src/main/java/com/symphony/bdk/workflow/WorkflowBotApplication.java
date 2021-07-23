@@ -8,9 +8,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @Generated // not tested
-public class BotApplication {
+public class WorkflowBotApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(BotApplication.class, args);
+    SpringApplication.run(WorkflowBotApplication.class, args);
   }
 }

@@ -39,7 +39,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
     when(streamService.create(uids)).thenReturn(stream);
 
     engine.execute(workflow);
-    engine.onEvent(message("/create-mim"));
+    engine.onEvent(messageReceived("/create-mim"));
     verify(streamService, timeout(5000)).create(uids);
   }
 
@@ -58,7 +58,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.execute(workflow);
-    engine.onEvent(IntegrationTest.message("/create-room"));
+    engine.onEvent(IntegrationTest.messageReceived("/create-room"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(streamService, timeout(5000)).create(argumentCaptor.capture());
@@ -84,7 +84,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.execute(workflow);
-    engine.onEvent(IntegrationTest.message("/create-room-members"));
+    engine.onEvent(IntegrationTest.messageReceived("/create-room-members"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(streamService, timeout(5000)).create(argumentCaptor.capture());

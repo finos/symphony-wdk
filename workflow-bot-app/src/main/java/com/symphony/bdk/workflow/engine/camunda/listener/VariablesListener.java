@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda.listener;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -14,6 +15,8 @@ import java.util.Map;
 @Slf4j
 public class VariablesListener implements ExecutionListener {
 
+  public static final String VARIABLES_FIELD = "variables";
+
   // automatically injected by Camunda
   private Expression variables;
 
@@ -26,7 +29,7 @@ public class VariablesListener implements ExecutionListener {
 
       if (variablesAsMap != null) {
         log.debug("Loading workflow variable to execution context [{}]", variablesAsMap.keySet());
-        execution.setVariable("variables", variablesAsMap);
+        execution.setVariable(ActivityExecutorContext.VARIABLES, variablesAsMap);
       }
     }
   }

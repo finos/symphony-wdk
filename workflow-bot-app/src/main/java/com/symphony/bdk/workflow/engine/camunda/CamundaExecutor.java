@@ -22,7 +22,6 @@ public class CamundaExecutor implements JavaDelegate {
 
   public static final String EXECUTOR = "executor";
   public static final String ACTIVITY = "activity";
-  public static final String EVENT = "event";
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -45,8 +44,7 @@ public class CamundaExecutor implements JavaDelegate {
     String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
     Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
-    String eventAsJsonString = (String) execution.getVariable(EVENT);
-    EventHolder event = OBJECT_MAPPER.readValue(eventAsJsonString, EventHolder.class);
+    EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);
 
     executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
   }
@@ -65,11 +63,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public void setOutputVariable(String name, Object value) {
       Map<String, Object> innerMap = Collections.singletonMap(name, value);
-      Map<String, Object> outerMap = Collections.singletonMap("outputs", innerMap);
+      Map<String, Object> outerMap = Collections.singletonMap(ActivityExecutorContext.OUTPUTS, innerMap);
       String activityId = getActivity().getId();
       execution.setVariable(activityId, outerMap);
       // flatten it too for message correlation
-      execution.setVariable(activityId + ".outputs." + name, value); // TODO move "outputs" to constants
+      execution.setVariable(String.format("%s.%s.%s", activityId, ActivityExecutorContext.OUTPUTS, name), value);
     }
 
     @Override

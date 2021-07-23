@@ -21,8 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.Optional;
-
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
@@ -75,13 +73,4 @@ public class Event {
 
   @JsonProperty("connection-accepted")
   private ConnectionAcceptedEvent connectionAccepted;
-
-  public Optional<String> getCommand() {
-    if (messageReceived != null) {
-      return Optional.of(messageReceived.getContent());
-    }
-
-    return Optional.empty();
-  }
-
 }

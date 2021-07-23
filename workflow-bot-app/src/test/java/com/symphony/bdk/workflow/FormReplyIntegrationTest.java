@@ -22,12 +22,11 @@ class FormReplyIntegrationTest extends IntegrationTest {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.onEvent(message("/message"));
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // reply to form
@@ -42,12 +41,11 @@ class FormReplyIntegrationTest extends IntegrationTest {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.onEvent(message("/message"));
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user 1 replies to form
@@ -66,12 +64,11 @@ class FormReplyIntegrationTest extends IntegrationTest {
         .getResourceAsStream("/send-form-reply-followup-activity.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.onEvent(message("/message"));
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user 1 replies to form
@@ -88,12 +85,11 @@ class FormReplyIntegrationTest extends IntegrationTest {
         getClass().getResourceAsStream("/send-form-reply-expiration.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.onEvent(message("/message"));
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user never replies

@@ -66,7 +66,11 @@ public class WorkflowFolderWatcher {
     if (existingFiles != null) {
       for (File file : existingFiles) {
         if (isYaml(file.toPath())) {
-          addWorkflow(file.toPath());
+          try {
+            addWorkflow(file.toPath());
+          } catch (Exception e) {
+            log.error("Failed to add workflow for file {}", file, e);
+          }
         }
       }
     }
@@ -86,7 +90,7 @@ public class WorkflowFolderWatcher {
           try {
             handleFileEvent(path, event);
           } catch (Exception e) {
-            log.error("Failed to update workflow for file change event {}", event);
+            log.error("Failed to update workflow for file change event {}", event.context(), e);
           }
         }
         key.reset();
@@ -130,7 +134,9 @@ public class WorkflowFolderWatcher {
   }
 
   private void removeWorkflow(Path workflowFile) {
-    workflowEngine.stop(deployedWorkflows.get(workflowFile));
+    if (deployedWorkflows.containsKey(workflowFile)) {
+      workflowEngine.stop(deployedWorkflows.get(workflowFile));
+    }
     deployedWorkflows.remove(workflowFile);
   }
 

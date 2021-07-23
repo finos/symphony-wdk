@@ -1,0 +1,10 @@
+name: on-message-received
+activities:
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /execute
+      # to is omitted so reply is sent to the same stream as the originating event
+      content:
+        ${bdk.text(event.source.message.message)}

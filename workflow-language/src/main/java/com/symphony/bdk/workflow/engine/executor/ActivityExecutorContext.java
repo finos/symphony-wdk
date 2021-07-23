@@ -7,6 +7,22 @@ import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 public interface ActivityExecutorContext<T extends BaseActivity> {
 
   /**
+   * ${activityId.outputs.myOutput}
+   */
+  String OUTPUTS = "outputs";
+
+  /**
+   * ${variables.myVariable}
+   */
+  String VARIABLES = "variables";
+
+  /**
+   * ${event.source....}
+   * ${event.initiator....}
+   */
+  String EVENT = "event";
+
+  /**
    * Define an output variable that can be retrieved later with ${activityId.outputs.name}.
    */
   void setOutputVariable(String name, Object value);

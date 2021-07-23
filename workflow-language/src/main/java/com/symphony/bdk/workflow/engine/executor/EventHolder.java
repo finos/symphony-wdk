@@ -15,5 +15,5 @@ public class EventHolder<T> {
 
   // to preserve the generic typing while serializing/deserializing
   @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@eventImpl")
-  private T event;
+  private T source;
 }

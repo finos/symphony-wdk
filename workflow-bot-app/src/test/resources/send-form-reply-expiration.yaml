@@ -33,7 +33,7 @@ activities:
       id: expiration
       on:
         activity-expired:
-          id: pongReply
+          activity-id: pongReply
       to:
         stream-id: "123"
       content: |

@@ -116,9 +116,6 @@
                 {
                     "oneOf": [
                         {
-                            "$ref": "#/definitions/user-joined-event"
-                        },
-                        {
                             "$ref": "#/definitions/form-replied-event"
                         },
                         {
@@ -377,10 +374,7 @@
                 "stream-id": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "stream-id"
-            ]
+            }
         },
         "form-replied-event-inner": {
             "type": "object",
@@ -440,10 +434,7 @@
                 "streamId": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "room-updated-event-inner": {
             "type": "object",
@@ -451,10 +442,7 @@
                 "streamId": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "room-deactivated-event-inner": {
             "type": "object",
@@ -462,10 +450,7 @@
                 "streamId": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "room-reactivated-event-inner": {
             "type": "object",
@@ -473,10 +458,7 @@
                 "streamId": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "streamId"
-            ]
+            }
         },
         "room-member-promoted-to-owner-event-inner": {
             "type": "object",
@@ -558,12 +540,12 @@
         "activity-expired-event-inner": {
             "type": "object",
             "properties": {
-                "id": {
+                "activity-id": {
                     "type": "string"
                 }
             },
             "required": [
-                "id"
+                "activity-id"
             ]
         },
         "basic-activity-inner": {
@@ -635,7 +617,6 @@
             "type": "object",
             "required": [
                 "id",
-                "to",
                 "content"
             ],
             "properties": {
