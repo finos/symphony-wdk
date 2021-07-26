@@ -18,12 +18,11 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script.yaml"));
 
-    final V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    final V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("9999", "/execute");
+    engine.onEvent(messageReceived("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");
   }
@@ -33,12 +32,11 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.yaml"));
 
-    final V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    final V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("9999", "/execute");
+    engine.onEvent(messageReceived("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");
   }

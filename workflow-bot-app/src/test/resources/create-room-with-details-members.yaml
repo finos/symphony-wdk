@@ -4,7 +4,7 @@ activities:
       id: "create-room-with-details-members"
       description: "activity to create room when receiving /create-room slash command"
       on:
-        message:
+        message-received:
           content: "/create-room-members"
       uids:
         - 666

@@ -19,6 +19,10 @@ dependencies {
 
     implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
     implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter'
+    // used to serializable objects as variables
+    implementation 'org.camunda.bpm:camunda-engine-plugin-spin'
+    implementation 'org.camunda.spin:camunda-spin-core'
+    implementation 'org.camunda.spin:camunda-spin-dataformat-json-jackson'
 
     implementation 'org.codehaus.groovy:groovy-all:3.0.8'
 

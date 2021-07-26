@@ -1,0 +1,8 @@
+name: on-im-created
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        im-created: { }
+      script: |
+        assert event.source.stream.streamId == "123"

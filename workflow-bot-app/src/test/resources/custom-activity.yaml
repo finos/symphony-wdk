@@ -3,6 +3,6 @@ activities:
   - do-something:
       id: doIt
       on:
-        message:
+        message-received:
           content: /execute
       my-parameter: abc

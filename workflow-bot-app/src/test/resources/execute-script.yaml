@@ -5,7 +5,7 @@ activities:
   - execute-script:
       id: aScriptSendingAMessage
       on:
-        message:
+        message-received:
           content: /execute
       # BDK beans are available in the script directly, context variables as well
       script: |

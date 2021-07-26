@@ -1,7 +1,7 @@
 name: hello
 activities:
   - on:
-      message: hello
+      message-received: hello
     reply: |
       <messageML>
           Hello human!

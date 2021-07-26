@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class ActivityExpiredEvent {
-  private String id;
+  private String activityId;
 }

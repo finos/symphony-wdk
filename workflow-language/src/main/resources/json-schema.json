@@ -102,60 +102,265 @@
                 "execute-script"
             ]
         },
-        "slash": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "$ref": "#/definitions/slash-inner"
-                }
-            },
-            "required": [
-                "message"
-            ]
-        },
         "on": {
             "type": "object",
-            "oneOf": [
+            "allOf": [
                 {
-                    "$ref": "#/definitions/slash"
+                    "type": "object",
+                    "properties": {
+                        "timeout": {
+                            "type": "string"
+                        }
+                    }
                 },
                 {
-                    "$ref": "#/definitions/user-joined-event"
-                },
-                {
-                    "$ref": "#/definitions/form-reply-event"
-                },
-                {
-                    "$ref": "#/definitions/activity-expired-event"
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/form-replied-event"
+                        },
+                        {
+                            "$ref": "#/definitions/activity-expired-event"
+                        },
+                        {
+                            "$ref": "#/definitions/message-received-event"
+                        },
+                        {
+                            "$ref": "#/definitions/message-suppressed-event"
+                        },
+                        {
+                            "$ref": "#/definitions/post-shared-event"
+                        },
+                        {
+                            "$ref": "#/definitions/im-created-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-created-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-updated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-deactivated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-reactivated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-joined-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-left-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-requested-join-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/connection-requested-event"
+                        },
+                        {
+                            "$ref": "#/definitions/connection-accepted-event"
+                        }
+                    ]
                 }
             ]
         },
         "user-joined-event": {
             "type": "object",
             "properties": {
-                "user-joined": {
+                "user-joined-room": {
                     "$ref": "#/definitions/user-joined-event-inner"
                 }
             },
             "required": [
-                "user-joined"
+                "user-joined-room"
             ]
         },
-        "form-reply-event": {
+        "form-replied-event": {
             "type": "object",
             "properties": {
-                "form-reply": {
-                    "$ref": "#/definitions/form-reply-event-inner"
+                "form-replied": {
+                    "$ref": "#/definitions/form-replied-event-inner"
                 }
             },
             "required": [
-                "form-reply"
+                "form-replied"
+            ]
+        },
+        "message-received-event": {
+            "type": "object",
+            "properties": {
+                "message-received": {
+                    "$ref": "#/definitions/message-received-event-inner"
+                }
+            },
+            "required": [
+                "message-received"
+            ]
+        },
+        "message-suppressed-event": {
+            "type": "object",
+            "properties": {
+                "message-suppressed": {
+                    "$ref": "#/definitions/message-suppressed-event-inner"
+                }
+            },
+            "required": [
+                "message-suppressed"
+            ]
+        },
+        "post-shared-event": {
+            "type": "object",
+            "properties": {
+                "post-shared": {
+                    "$ref": "#/definitions/post-shared-event-inner"
+                }
+            },
+            "required": [
+                "post-shared"
+            ]
+        },
+        "im-created-event": {
+            "type": "object",
+            "properties": {
+                "im-created": {
+                    "$ref": "#/definitions/im-created-event-inner"
+                }
+            },
+            "required": [
+                "im-created"
+            ]
+        },
+        "room-created-event": {
+            "type": "object",
+            "properties": {
+                "room-created": {
+                    "$ref": "#/definitions/room-created-event-inner"
+                }
+            },
+            "required": [
+                "room-created"
+            ]
+        },
+        "room-updated-event": {
+            "type": "object",
+            "properties": {
+                "room-updated": {
+                    "$ref": "#/definitions/room-updated-event-inner"
+                }
+            },
+            "required": [
+                "room-updated"
+            ]
+        },
+        "room-deactivated-event": {
+            "type": "object",
+            "properties": {
+                "room-deactivated": {
+                    "$ref": "#/definitions/room-deactivated-event-inner"
+                }
+            },
+            "required": [
+                "room-deactivated"
+            ]
+        },
+        "room-reactivated-event": {
+            "type": "object",
+            "properties": {
+                "room-reactivated": {
+                    "$ref": "#/definitions/room-reactivated-event-inner"
+                }
+            },
+            "required": [
+                "room-reactivated"
+            ]
+        },
+        "room-member-promoted-to-owner-event": {
+            "type": "object",
+            "properties": {
+                "room-member-promoted-to-owner": {
+                    "$ref": "#/definitions/room-member-promoted-to-owner-event-inner"
+                }
+            },
+            "required": [
+                "room-member-promoted-to-owner"
+            ]
+        },
+        "room-member-demoted-from-owner-event": {
+            "type": "object",
+            "properties": {
+                "room-member-demoted-from-owner": {
+                    "$ref": "#/definitions/room-member-demoted-from-owner-event-inner"
+                }
+            },
+            "required": [
+                "room-member-demoted-from-owner"
+            ]
+        },
+        "user-joined-room-event": {
+            "type": "object",
+            "properties": {
+                "user-joined-room": {
+                    "$ref": "#/definitions/user-joined-room-event-inner"
+                }
+            },
+            "required": [
+                "user-joined-room"
+            ]
+        },
+        "user-left-room-event": {
+            "type": "object",
+            "properties": {
+                "user-left-room": {
+                    "$ref": "#/definitions/user-left-room-event-inner"
+                }
+            },
+            "required": [
+                "user-left-room"
+            ]
+        },
+        "user-requested-join-room-event": {
+            "type": "object",
+            "properties": {
+                "user-requested-join-room": {
+                    "$ref": "#/definitions/user-requested-join-room-event-inner"
+                }
+            },
+            "required": [
+                "user-requested-join-room"
+            ]
+        },
+        "connection-requested-event": {
+            "type": "object",
+            "properties": {
+                "connection-requested": {
+                    "$ref": "#/definitions/connection-requested-event-inner"
+                }
+            },
+            "required": [
+                "connection-requested"
+            ]
+        },
+        "connection-accepted-event": {
+            "type": "object",
+            "properties": {
+                "connection-accepted": {
+                    "$ref": "#/definitions/connection-accepted-event-inner"
+                }
+            },
+            "required": [
+                "connection-accepted"
             ]
         },
         "activity-expired-event": {
             "type": "object",
             "properties": {
-                "form-reply": {
+                "activity-expired": {
                     "$ref": "#/definitions/activity-expired-event-inner"
                 }
             },
@@ -169,12 +374,9 @@
                 "stream-id": {
                     "type": "string"
                 }
-            },
-            "required": [
-                "stream-id"
-            ]
+            }
         },
-        "form-reply-event-inner": {
+        "form-replied-event-inner": {
             "type": "object",
             "properties": {
                 "id": {
@@ -185,30 +387,92 @@
                 "id"
             ]
         },
-        "activity-expired-event-inner": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "timeout": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "id"
-            ]
-        },
-        "slash-inner": {
+        "message-received-event-inner": {
             "type": "object",
             "properties": {
                 "content": {
                     "type": "string"
+                },
+                "requires-bot-mention": {
+                    "type": "boolean",
+                    "default": false
                 }
-            },
-            "required": [
-                "content"
-            ]
+            }
+        },
+        "message-suppressed-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "post-shared-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "im-created-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-created-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-updated-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-deactivated-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-reactivated-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-member-promoted-to-owner-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-member-demoted-from-owner-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "user-joined-room-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "user-left-room-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "user-requested-join-room-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "connection-requested-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "connection-accepted-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "activity-expired-event-inner": {
+            "type": "object",
+            "properties": {
+            }
         },
         "basic-activity-inner": {
             "type": "object",
@@ -279,7 +543,6 @@
             "type": "object",
             "required": [
                 "id",
-                "to",
                 "content"
             ],
             "properties": {

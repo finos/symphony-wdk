@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,26 +44,30 @@ public class CamundaExecutor implements JavaDelegate {
     String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
     Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
-    executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity));
+    EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);
+
+    executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
   }
 
   private class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {
     private final DelegateExecution execution;
     private final T activity;
+    private final EventHolder<Object> event;
 
-    public CamundaActivityExecutorContext(DelegateExecution execution, T activity) {
+    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event) {
       this.execution = execution;
       this.activity = activity;
+      this.event = event;
     }
 
     @Override
     public void setOutputVariable(String name, Object value) {
       Map<String, Object> innerMap = Collections.singletonMap(name, value);
-      Map<String, Object> outerMap = Collections.singletonMap("outputs", innerMap);
+      Map<String, Object> outerMap = Collections.singletonMap(ActivityExecutorContext.OUTPUTS, innerMap);
       String activityId = getActivity().getId();
       execution.setVariable(activityId, outerMap);
       // flatten it too for message correlation
-      execution.setVariable(activityId + ".outputs." + name, value);
+      execution.setVariable(String.format("%s.%s.%s", activityId, ActivityExecutorContext.OUTPUTS, name), value);
     }
 
     @Override
@@ -78,6 +83,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public T getActivity() {
       return activity;
+    }
+
+    @Override
+    public EventHolder<Object> getEvent() {
+      return event;
     }
   }
 }

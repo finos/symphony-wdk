@@ -6,7 +6,7 @@ activities:
       id: "sendmessageid"
       description: "send message"
       on:
-        message:
+        message-received:
           content: "/send"
       to:
         stream-id: ${variables.streamId}

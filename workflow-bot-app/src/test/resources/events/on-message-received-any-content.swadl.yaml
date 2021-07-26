@@ -1,0 +1,9 @@
+name: on-message-received
+activities:
+  - send-message:
+      id: echo
+      on:
+        message-received: { }
+        # no content set so it should match any message
+      # to is omitted so reply is sent to the same stream as the originating event
+      content: ok

@@ -1,0 +1,10 @@
+name: on-message-received
+activities:
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /execute
+          requires-bot-mention: true
+      # to is omitted so reply is sent to the same stream as the originating event
+      content: ok

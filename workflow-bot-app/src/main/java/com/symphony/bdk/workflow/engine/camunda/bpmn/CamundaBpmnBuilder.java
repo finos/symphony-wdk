@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
+import com.symphony.bdk.workflow.engine.camunda.EventToMessage;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
 import com.symphony.bdk.workflow.lang.ActivityRegistry;
 import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.lang.swadl.Activity;
-import com.symphony.bdk.workflow.lang.swadl.Event;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
@@ -38,13 +38,14 @@ import java.util.stream.Collectors;
 @Component
 public class CamundaBpmnBuilder {
 
-  private static final String VARIABLES_NAME = "variables";
-
   private final RepositoryService repositoryService;
+  private final EventToMessage eventToMessage;
 
   @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService) {
+  public CamundaBpmnBuilder(RepositoryService repositoryService,
+      EventToMessage eventToMessage) {
     this.repositoryService = repositoryService;
+    this.eventToMessage = eventToMessage;
   }
 
   public BpmnModelInstance addWorkflow(Workflow workflow) {
@@ -90,7 +91,7 @@ public class CamundaBpmnBuilder {
   private String getCommandToStart(Workflow workflow) {
     return workflow.getFirstActivity()
         .flatMap(Activity::getEvent)
-        .flatMap(Event::getCommand)
+        .flatMap(eventToMessage::toMessageName)
         .orElseThrow(NoStartingEventException::new);
   }
 
@@ -102,7 +103,7 @@ public class CamundaBpmnBuilder {
 
     AbstractFlowNodeBuilder<?, ?> eventBuilder = process
         .startEvent()
-        .message("message_" + commandToStart)
+        .message(commandToStart)
         .name(commandToStart);
 
     boolean hasSubProcess = false;
@@ -134,7 +135,7 @@ public class CamundaBpmnBuilder {
         eventBuilder = subProcess.embeddedSubProcess().eventSubProcess()
             .startEvent()
             .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-            .message("formReply_" + baseActivity.getOn().getFormReply().getId())
+            .message("formReply_" + baseActivity.getOn().getFormReplied().getId())
             .name("formReply");
 
         hasSubProcess = true;
@@ -158,7 +159,7 @@ public class CamundaBpmnBuilder {
   }
 
   private boolean isFormReply(BaseActivity baseActivity) {
-    return baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null;
+    return baseActivity.getOn() != null && baseActivity.getOn().getFormReplied() != null;
   }
 
   private List<BaseActivity> collectOnExpirationActivities(Workflow workflow,
@@ -166,7 +167,7 @@ public class CamundaBpmnBuilder {
     return workflow.getActivities().stream()
         .map(Activity::getActivity)
         .filter(a -> a.getOn() != null && a.getOn().getActivityExpired() != null)
-        .filter(a -> a.getOn().getActivityExpired().getId().equals(targetActivity.getId()))
+        .filter(a -> a.getOn().getActivityExpired().getActivityId().equals(targetActivity.getId()))
         .collect(Collectors.toList());
   }
 
@@ -210,7 +211,7 @@ public class CamundaBpmnBuilder {
       listener.setCamundaEvent(ExecutionListener.EVENTNAME_START);
       listener.setCamundaClass(VariablesListener.class.getName());
       CamundaField field = instance.newInstance(CamundaField.class);
-      field.setCamundaName(VARIABLES_NAME);
+      field.setCamundaName(VariablesListener.VARIABLES_FIELD);
       field.setCamundaStringValue(variablesAsJsonString(variables));
       listener.getCamundaFields().add(field);
 

@@ -4,7 +4,7 @@ activities:
       id: "send-message-id-1"
       description: "activity to send a message when a /command is sent to the bot"
       on:
-        message:
+        message-received:
           content: "/message"
       to:
         stream-id: "123"

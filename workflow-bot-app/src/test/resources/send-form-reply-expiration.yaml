@@ -3,7 +3,7 @@ activities:
   - send-message:
       id: sendForm
       on:
-        message:
+        message-received:
           content: "/message"
       to:
         stream-id: "123"
@@ -20,7 +20,7 @@ activities:
       id: pongReply
       on:
         timeout: PT1S
-        form-reply:
+        form-replied:
           id: sendForm
       to:
         stream-id: "123"
@@ -33,7 +33,7 @@ activities:
       id: expiration
       on:
         activity-expired:
-          id: pongReply
+          activity-id: pongReply
       to:
         stream-id: "123"
       content: |

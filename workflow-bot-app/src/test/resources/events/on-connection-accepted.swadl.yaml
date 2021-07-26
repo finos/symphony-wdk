@@ -1,0 +1,8 @@
+name: on-im-created
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        connection-accepted: { }
+      script: |
+        assert event.source.fromUser.userId == 123

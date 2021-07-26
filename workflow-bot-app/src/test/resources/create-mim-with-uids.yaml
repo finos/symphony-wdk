@@ -4,7 +4,7 @@ activities:
       id: "create-mim-with-uids-id"
       description: "activity to create a an mim with user ids"
       on:
-        message:
+        message-received:
           content: "/create-mim"
       uids:
         - 666

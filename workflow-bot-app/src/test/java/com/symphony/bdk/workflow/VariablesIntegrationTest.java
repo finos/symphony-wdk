@@ -12,12 +12,9 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.lang.WorkflowBuilder;
 import com.symphony.bdk.workflow.lang.swadl.Workflow;
 
-import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.util.List;
 
 class VariablesIntegrationTest extends IntegrationTest {
   @Test
@@ -32,7 +29,7 @@ class VariablesIntegrationTest extends IntegrationTest {
 
     when(messageService.send("1234", content)).thenReturn(message);
     engine.execute(workflow);
-    engine.messageReceived("9999", "/send");
+    engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
     verify(messageService, timeout(5000)).send(argumentCaptor.capture(), anyString());
@@ -47,18 +44,9 @@ class VariablesIntegrationTest extends IntegrationTest {
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/typed-variables.yaml"));
 
     engine.execute(workflow);
-    String processId = engine.messageReceived("9999", "/send").get();
+    String processId = engine.onEvent(messageReceived("/send")).get();
 
     await().atMost(5, SECONDS).until(() -> processIsCompleted(processId));
   }
 
-  private Boolean processIsCompleted(String processId) {
-    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
-        .processInstanceId(processId).list();
-    if (!processes.isEmpty()) {
-      HistoricProcessInstance processInstance = processes.get(0);
-      return processInstance.getState().equals("COMPLETED");
-    }
-    return false;
-  }
 }

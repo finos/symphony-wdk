@@ -26,15 +26,14 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then the provided message should be sent to the room")
   void sendMessageOnMessage() throws Exception {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.yaml"));
-    final V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    final V4Message message = message("msgId");
 
     final String streamId = "123";
     final String content = "<messageML>Hello!</messageML>";
     when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/message");
+    engine.onEvent(messageReceived("/message"));
 
     verify(messageService, timeout(5000)).send(streamId, content);
   }
@@ -54,7 +53,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.send("0000", content)).thenReturn(message);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/create-room");
+    engine.onEvent(messageReceived("/create-room"));
 
     verify(streamService, times(1)).create(uids);
     verify(messageService, times(1)).send(anyString(), eq(content));

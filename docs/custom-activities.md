@@ -32,7 +32,7 @@ The workflow bot being a Spring Boot based application, it can be executed as st
 
 cd workflow-bot-app
 # Copy the custom activity JARs
-cp ../custom-activity-example/build/install/custom-activity-example/lib .
+cp -r ../custom-activity-example/build/install/custom-activity-example/lib .
 
 # Build and start the workflow bot
 ../gradlew bootJar
@@ -56,7 +56,7 @@ activities:
   - my-activity:
       id: first
       on:
-        message:
+        message-received:
           content: /go
       my-parameter: "camel case"
   - send-message:
