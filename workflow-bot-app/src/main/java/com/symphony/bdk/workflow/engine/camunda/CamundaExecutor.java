@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,10 @@ public class CamundaExecutor implements JavaDelegate {
   public static final String ACTIVITY = "activity";
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  static {
+    OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+  }
 
   private final MessageService messageService;
   private final StreamService streamService;
