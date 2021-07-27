@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -107,7 +108,15 @@ public class CamundaBpmnBuilder {
         .name(commandToStart);
 
     boolean hasSubProcess = false;
-
+    // TODO do we need a first pass to add all the implicit events
+    // then build up an execution graph
+    // and navigate it in order to facilitate the fluent api usage
+    // TODO what if I use activity finished to by pass sequential order?
+    // i.e declare tasks in the wrong order?
+    boolean newGateway = false; // should be a stack?
+    String lastActivity = "";
+    Map<String, AbstractFlowNodeBuilder<?, ?>> gateways = new HashMap<>();
+    Map<String, String> gatewayLasts = new HashMap<>();
     for (Activity activity : workflow.getActivities()) {
       BaseActivity baseActivity = activity.getActivity();
 
@@ -142,8 +151,47 @@ public class CamundaBpmnBuilder {
       }
 
       if (baseActivity.getOn() == null || baseActivity.getOn().getActivityExpired() == null) {
+
+        if (baseActivity.getIfCondition() != null) {
+          // has an on/activity -> find the node to start with
+          if (baseActivity.getOn() != null && baseActivity.getOn().getActivityFinished() != null) {
+            eventBuilder = gateways.get(baseActivity.getOn().getActivityFinished().getActivityId());
+            eventBuilder = eventBuilder.moveToLastGateway()
+                .condition("if", baseActivity.getIfCondition());
+            newGateway = false;
+          } else {
+            // a new branch
+            eventBuilder = eventBuilder.exclusiveGateway()
+                .condition("if", baseActivity.getIfCondition());
+            newGateway = true;
+            gatewayLasts.put(baseActivity.getId(), lastActivity); // TODO hard coded case, not generic
+          }
+        }
+
+        if (baseActivity.getElseCondition() != null) {
+          if (baseActivity.getOn() != null && baseActivity.getOn().getActivityFinished() != null) {
+            eventBuilder = gateways.get(baseActivity.getOn().getActivityFinished().getActivityId());
+            eventBuilder = eventBuilder.moveToLastGateway();
+            gateways.remove(baseActivity.getOn().getActivityFinished().getActivityId());
+          } else {
+            eventBuilder = eventBuilder.moveToLastGateway();
+            gateways.remove(gatewayLasts.get(lastActivity));
+            // we need to remove a gateway here too
+            newGateway = false;
+          }
+        }
+
         eventBuilder = addTask(eventBuilder, baseActivity);
+
+        if (baseActivity.getIfCondition() != null && newGateway) {
+          gateways.put(lastActivity, eventBuilder);
+        }
+        lastActivity = baseActivity.getId();
       }
+    }
+
+    for (AbstractFlowNodeBuilder<?, ?> end : gateways.values()) {
+      end.moveToLastGateway().endEvent();
     }
 
     if (hasSubProcess) { // works for simple cases only
@@ -183,7 +231,7 @@ public class CamundaBpmnBuilder {
 
   private AbstractFlowNodeBuilder<?, ?> addScriptTask(AbstractFlowNodeBuilder<?, ?> eventBuilder,
       ExecuteScript scriptActivity) {
-    eventBuilder.scriptTask()
+    eventBuilder = eventBuilder.scriptTask()
         .id(scriptActivity.getId())
         .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
         .scriptText(scriptActivity.getScript())

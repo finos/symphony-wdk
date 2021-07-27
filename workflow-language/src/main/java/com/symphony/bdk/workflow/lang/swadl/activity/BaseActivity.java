@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.lang.swadl.activity;
 
 import com.symphony.bdk.workflow.lang.swadl.Event;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -30,4 +31,10 @@ public abstract class BaseActivity {
    * if not set the activity is triggered automatically once the activity before it finishes.
    */
   private Event on;
+
+  @JsonProperty("if")
+  private String ifCondition;
+
+  @JsonProperty("else")
+  private Object elseCondition;
 }

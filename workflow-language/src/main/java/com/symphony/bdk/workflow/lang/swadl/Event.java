@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.lang.swadl;
 
 import com.symphony.bdk.workflow.lang.swadl.event.ActivityExpiredEvent;
+import com.symphony.bdk.workflow.lang.swadl.event.ActivityFinishedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.ConnectionAcceptedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.ConnectionRequestedEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.FormRepliedEvent;
@@ -18,7 +19,6 @@ import com.symphony.bdk.workflow.lang.swadl.event.UserLeftRoomEvent;
 import com.symphony.bdk.workflow.lang.swadl.event.UserRequestedToJoinRoomEvent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -26,54 +26,39 @@ import lombok.Data;
 public class Event {
   private String timeout = "PT5S";
 
-  @JsonProperty("form-replied")
   private FormRepliedEvent formReplied;
 
-  @JsonProperty("activity-expired")
   private ActivityExpiredEvent activityExpired;
 
-  @JsonProperty("message-received")
+  private ActivityFinishedEvent activityFinished;
+
   private MessageReceivedEvent messageReceived;
 
-  @JsonProperty("message-suppressed")
   private MessageSuppressedEvent messageSuppressed;
 
-  @JsonProperty("post-shared")
   private PostSharedEvent postShared;
 
-  @JsonProperty("im-created")
   private ImCreatedEvent imCreated;
 
-  @JsonProperty("room-created")
   private RoomCreatedEvent roomCreated;
 
-  @JsonProperty("room-updated")
   private RoomUpdatedEvent roomUpdated;
 
-  @JsonProperty("room-deactivated")
   private RoomDeactivatedEvent roomDeactivated;
 
-  @JsonProperty("room-reactivated")
   private RoomReactivatedEvent roomReactived;
 
-  @JsonProperty("room-member-promoted-to-owner")
   private RoomMemberPromotedToOwnerEvent roomMemberPromotedToOwner;
 
-  @JsonProperty("room-member-demoted-from-owner")
   private RoomMemberPromotedToOwnerEvent roomMemberDemotedFromOwner;
 
-  @JsonProperty("user-joined-room")
   private UserJoinedRoomEvent userJoinedRoom;
 
-  @JsonProperty("user-left-room")
   private UserLeftRoomEvent userLeftRoom;
 
-  @JsonProperty("user-requested-join-room")
   private UserRequestedToJoinRoomEvent userRequestedJoinRoom;
 
-  @JsonProperty("connection-requested")
   private ConnectionRequestedEvent connectionRequested;
 
-  @JsonProperty("connection-accepted")
   private ConnectionAcceptedEvent connectionAccepted;
 }

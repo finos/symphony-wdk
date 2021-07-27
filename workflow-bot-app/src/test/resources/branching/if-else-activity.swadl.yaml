@@ -1,0 +1,28 @@
+name: if-nested
+variables:
+  foo: bar
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: |
+        println "act1"
+  - execute-script:
+      id: act2
+      # will not be executed because of the if
+      if: ${variables.foo == "foo"}
+      script: |
+        println "act2"
+  - execute-script:
+      # will be executed
+      id: act3
+      on:
+        activity-finished:
+          activity-id: act1
+      else: {} # implicitly connect with the activity before
+      # TODO at a test with an explicit one, we need to make it explicit to stand to our principle of sequentiallity
+      script: |
+        println "act3"
+

@@ -122,6 +122,9 @@
                             "$ref": "#/definitions/activity-expired-event"
                         },
                         {
+                            "$ref": "#/definitions/activity-finished-event"
+                        },
+                        {
                             "$ref": "#/definitions/message-received-event"
                         },
                         {
@@ -368,6 +371,17 @@
                 "activity-expired"
             ]
         },
+        "activity-finished-event": {
+            "type": "object",
+            "properties": {
+                "activity-finished": {
+                    "$ref": "#/definitions/activity-expired-event-inner"
+                }
+            },
+            "required": [
+                "activity-finished"
+            ]
+        },
         "user-joined-event-inner": {
             "type": "object",
             "properties": {
@@ -472,6 +486,17 @@
         "activity-expired-event-inner": {
             "type": "object",
             "properties": {
+                "activity-id": {
+                    "type": "string"
+                }
+            }
+        },
+        "activity-finished-event-inner": {
+            "type": "object",
+            "properties": {
+                "activity-id": {
+                    "type": "string"
+                }
             }
         },
         "basic-activity-inner": {
@@ -578,6 +603,9 @@
                     "type": "string"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "if": {
                     "type": "string"
                 },
                 "on": {
