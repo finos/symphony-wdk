@@ -94,7 +94,7 @@ public class EventToMessage {
     } else if (event.getRoomDeactivated() != null) {
       return Optional.of(ROOM_DEACTIVATED);
 
-    } else if (event.getRoomReactived() != null) {
+    } else if (event.getRoomReactivated() != null) {
       return Optional.of(ROOM_REACTIVATED);
 
     } else if (event.getRoomMemberPromotedToOwner() != null) {

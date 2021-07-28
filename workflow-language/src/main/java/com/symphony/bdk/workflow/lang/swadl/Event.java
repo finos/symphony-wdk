@@ -50,7 +50,7 @@ public class Event {
 
   private RoomDeactivatedEvent roomDeactivated;
 
-  private RoomReactivatedEvent roomReactived;
+  private RoomReactivatedEvent roomReactivated;
 
   private RoomMemberPromotedToOwnerEvent roomMemberPromotedToOwner;
 
