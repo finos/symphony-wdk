@@ -168,6 +168,9 @@
                         },
                         {
                             "$ref": "#/definitions/connection-accepted-event"
+                        },
+                        {
+                            "$ref": "#/definitions/one-of-event"
                         }
                     ]
                 }
@@ -375,11 +378,80 @@
             "type": "object",
             "properties": {
                 "activity-finished": {
-                    "$ref": "#/definitions/activity-expired-event-inner"
+                    "$ref": "#/definitions/activity-finished-event-inner"
                 }
             },
             "required": [
                 "activity-finished"
+            ]
+        },
+        "one-of-event": {
+            "type": "object",
+            "properties": {
+                "one-of": {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/form-replied-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-expired-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-finished-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-received-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-suppressed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/post-shared-event"
+                            },
+                            {
+                                "$ref": "#/definitions/im-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-updated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-deactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-reactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-joined-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-left-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-requested-join-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-requested-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-accepted-event"
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "one-of"
             ]
         },
         "user-joined-event-inner": {

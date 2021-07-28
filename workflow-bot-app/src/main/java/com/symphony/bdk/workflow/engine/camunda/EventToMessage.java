@@ -117,6 +117,9 @@ public class EventToMessage {
 
     } else if (event.getConnectionAccepted() != null) {
       return Optional.of(CONNECTION_ACCEPTED);
+
+    } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
+      return toMessageName(event.getOneOf().get(0));
     }
 
     return Optional.empty();

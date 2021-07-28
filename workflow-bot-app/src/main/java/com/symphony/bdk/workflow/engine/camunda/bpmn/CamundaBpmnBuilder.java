@@ -18,6 +18,7 @@ import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaExecutionListener;
@@ -90,6 +91,7 @@ public class CamundaBpmnBuilder {
   }
 
   private String getCommandToStart(Workflow workflow) {
+
     return workflow.getFirstActivity()
         .flatMap(Activity::getEvent)
         .flatMap(eventToMessage::toMessageName)
@@ -117,6 +119,9 @@ public class CamundaBpmnBuilder {
     String lastActivity = "";
     Map<String, AbstractFlowNodeBuilder<?, ?>> gateways = new HashMap<>();
     Map<String, String> gatewayLasts = new HashMap<>();
+
+    Map<String, BaseActivity> toConnects = new HashMap<>();
+
     for (Activity activity : workflow.getActivities()) {
       BaseActivity baseActivity = activity.getActivity();
 
@@ -188,6 +193,26 @@ public class CamundaBpmnBuilder {
         }
         lastActivity = baseActivity.getId();
       }
+
+      // collect activities to connect later on
+      if (baseActivity.getOn() != null && baseActivity.getOn().getOneOf() != null) {
+        toConnects.put(baseActivity.getOn().getOneOf().get(1).getActivityFinished().getActivityId(), baseActivity);
+      }
+
+      // do we need to connect an activity that was spotted earlier
+      if (toConnects.containsKey(baseActivity.getId())) {
+        String loopId = "loop_" + baseActivity.getId();
+        eventBuilder = eventBuilder.exclusiveGateway().id(loopId)
+            .condition("if",
+                toConnects.get(baseActivity.getId()).getOn().getOneOf().get(1).getActivityFinished().getIfCondition())
+            .connectTo(toConnects.get(baseActivity.getId()).getId())
+            .moveToNode(loopId);
+      }
+    }
+
+    if (eventBuilder instanceof ExclusiveGatewayBuilder) {
+      // close the potential loop / open gateway without a default activity
+      eventBuilder = eventBuilder.endEvent();
     }
 
     for (AbstractFlowNodeBuilder<?, ?> end : gateways.values()) {

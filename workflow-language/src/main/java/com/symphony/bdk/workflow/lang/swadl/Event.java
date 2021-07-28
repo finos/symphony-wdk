@@ -21,10 +21,14 @@ import com.symphony.bdk.workflow.lang.swadl.event.UserRequestedToJoinRoomEvent;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
   private String timeout = "PT5S";
+
+  private List<Event> oneOf;
 
   private FormRepliedEvent formReplied;
 
