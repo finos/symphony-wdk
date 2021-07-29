@@ -3,8 +3,8 @@ package com.symphony.bdk.workflow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
 

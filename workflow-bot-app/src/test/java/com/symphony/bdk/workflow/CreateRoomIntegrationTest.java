@@ -14,9 +14,9 @@ import com.symphony.bdk.gen.api.model.RoomSystemInfo;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor;
 
-import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 /**
  * Implement this interface to define your own activities.

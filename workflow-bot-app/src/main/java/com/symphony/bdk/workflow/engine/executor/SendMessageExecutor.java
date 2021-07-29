@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.executor;
 
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
-import com.symphony.bdk.workflow.lang.swadl.activity.SendMessage;
+import com.symphony.bdk.workflow.swadl.v1.activity.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
 

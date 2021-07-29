@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

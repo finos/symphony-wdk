@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;

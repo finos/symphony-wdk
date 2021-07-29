@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

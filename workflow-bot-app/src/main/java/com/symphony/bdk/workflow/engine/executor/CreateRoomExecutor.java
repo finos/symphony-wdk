@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.executor;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
+import com.symphony.bdk.workflow.swadl.v1.activity.CreateRoom;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

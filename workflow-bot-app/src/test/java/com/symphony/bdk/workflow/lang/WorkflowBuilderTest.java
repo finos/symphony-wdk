@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.symphony.bdk.workflow.DoSomething;
-import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
