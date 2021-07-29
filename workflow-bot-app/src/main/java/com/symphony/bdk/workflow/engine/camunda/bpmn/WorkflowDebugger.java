@@ -26,8 +26,7 @@ public final class WorkflowDebugger {
     File bpmnFile = generateBpmn(workflowName, instance, outputFolder);
     logFileAsDataUri("text/xml", bpmnFile);
 
-    File imageFile = generateImage(workflowName, outputFolder, bpmnFile);
-    logFileAsDataUri("image/png", imageFile);
+    generateImage(workflowName, outputFolder, bpmnFile);
   }
 
   private static File generateBpmn(String workflowName, BpmnModelInstance instance, File outputFolder) {
@@ -57,17 +56,14 @@ public final class WorkflowDebugger {
     try {
       // uses https://github.com/bpmn-io/bpmn-to-image
       File pngFile = new File(outputFolder, workflowName + ".png");
-      Process exec = Runtime.getRuntime().exec(
+      Runtime.getRuntime().exec(
           String.format("bpmn-to-image --title %s-%s %s:%s",
               workflowName, Instant.now(), bpmnFile, pngFile));
-      exec.waitFor();
       log.debug("BPMN, image outputFolder generated to {}", pngFile);
       return pngFile;
     } catch (IOException ioException) {
       log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
           ioException);
-    } catch (InterruptedException ioException) {
-      Thread.currentThread().interrupt();
     }
     return outputFolder;
   }

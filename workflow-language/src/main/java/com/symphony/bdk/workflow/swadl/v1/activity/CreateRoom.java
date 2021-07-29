@@ -20,6 +20,9 @@ public class CreateRoom extends BaseActivity {
   // to support the usage of variables
   @JsonIgnore
   public List<Long> getUuidsAsLongs() {
+    if (uids == null) {
+      return null;
+    }
     return uids.stream().map(Long::parseLong).collect(Collectors.toList());
   }
 }
