@@ -31,6 +31,9 @@ activities:
         println "act2-2"
   - execute-script:
       id: act2-3
+      on:
+        activity-finished:
+          activity-id: act2
       else: { }
       script: |
         println "act2-3"
