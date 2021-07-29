@@ -17,6 +17,7 @@ camunda:
   bpm:
     job-execution:
       wait-time-in-millis: 1000
+      max-wait: 1000
 
 workflows:
   folder: ./workflows

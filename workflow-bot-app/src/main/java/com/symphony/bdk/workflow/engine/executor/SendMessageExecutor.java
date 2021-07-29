@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor;
 
 
+import com.symphony.bdk.core.service.stream.util.StreamUtil;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.workflow.swadl.v1.activity.SendMessage;
@@ -18,6 +19,9 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     String streamId = resolveStreamId(execution, activity);
     log.info("Running activity {} to send message to room {}", activity.getId(), streamId);
 
+    if (streamId.endsWith("=")) { // TODO should be done in the BDK
+      streamId = StreamUtil.toUrlSafeStreamId(streamId);
+    }
     V4Message message = execution.messages().send(streamId, activity.getContent());
 
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());

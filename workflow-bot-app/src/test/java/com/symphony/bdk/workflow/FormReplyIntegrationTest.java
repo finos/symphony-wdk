@@ -19,7 +19,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -38,7 +38,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_multipleUsers() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -61,7 +61,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_followUpActivity() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass()
-        .getResourceAsStream("/send-form-reply-followup-activity.yaml"));
+        .getResourceAsStream("/form/send-form-reply-followup-activity.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -82,7 +82,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_expiration() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/send-form-reply-expiration.yaml"));
+        getClass().getResourceAsStream("/form/send-form-reply-expiration.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -96,5 +96,26 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
     // bot should run the on/activity-expired activity after 1s
     verify(messageService, timeout(5000)).send(eq("123"), contains("Form expired"));
+  }
+
+  @Test
+  void sendFormNested() throws Exception {
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/form/send-form-reply-nested.swadl.yaml"));
+    engine.execute(workflow);
+
+    V4Message message = message("msgId");
+    when(messageService.send(anyString(), anyString())).thenReturn(message);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("abc"), contains("form"));
+
+    // reply to first form
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("question", "My message")));
+
+    // bot should not run the on/activity-expired activity after 1s because it is attached to the second form that
+    // has not been replied to
+    verify(messageService, timeout(5000)).send(eq("abc"), contains("expiration-outer"));
   }
 }
