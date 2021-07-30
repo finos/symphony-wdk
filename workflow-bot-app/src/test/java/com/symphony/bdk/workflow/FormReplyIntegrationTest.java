@@ -19,7 +19,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -38,7 +38,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_multipleUsers() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -61,7 +61,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_followUpActivity() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass()
-        .getResourceAsStream("/form/send-form-reply-followup-activity.yaml"));
+        .getResourceAsStream("/form/send-form-reply-followup-activity.swadl.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");
@@ -82,7 +82,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_expiration() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/form/send-form-reply-expiration.yaml"));
+        getClass().getResourceAsStream("/form/send-form-reply-expiration.swadl.yaml"));
     engine.execute(workflow);
 
     V4Message message = message("msgId");

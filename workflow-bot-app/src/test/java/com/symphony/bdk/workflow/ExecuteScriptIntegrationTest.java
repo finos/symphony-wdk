@@ -16,7 +16,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
   @Test
   void executeScript() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script.swadl.yaml"));
 
     final V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
@@ -30,7 +30,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
   @Test
   void executeScript_setsVariable() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.swadl.yaml"));
 
     final V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);

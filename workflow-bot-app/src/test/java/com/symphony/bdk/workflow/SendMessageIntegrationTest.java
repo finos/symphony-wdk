@@ -25,7 +25,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
       "Given a send-message with a streamId, when the triggering message is received, "
           + "then the provided message should be sent to the room")
   void sendMessageOnMessage() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.yaml"));
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.swadl.yaml"));
     final V4Message message = message("msgId");
 
     final String streamId = "123";
@@ -43,7 +44,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
       "Given two activities: create-room and send-message, when the room is created, then a message is sent to it")
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-and-send-message.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-and-send-message.swadl.yaml"));
     final V4Message message = new V4Message().messageId("msgId");
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");

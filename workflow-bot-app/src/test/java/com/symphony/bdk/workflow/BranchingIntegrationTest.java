@@ -52,6 +52,7 @@ class BranchingIntegrationTest extends IntegrationTest {
         .processInstanceId(process.get())
         .activityType("scriptTask")
         .orderByHistoricActivityInstanceStartTime().asc()
+        .orderByActivityName().asc()
         .list();
 
     assertThat(processes)

@@ -12,7 +12,7 @@ class CustomActivityIntegrationTest extends IntegrationTest {
 
   @Test
   void customActivity() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/custom-activity.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/custom-activity.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(messageReceived("/execute"));

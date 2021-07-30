@@ -20,7 +20,7 @@ class EngineIntegrationTest extends IntegrationTest {
 
   @Test
   void workflowWithoutStartCommand() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/no-start-command.yaml"));
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/no-start-command.swadl.yaml"));
 
     final V4Message message = message("msgId");
     final String streamId = "123";
@@ -33,7 +33,8 @@ class EngineIntegrationTest extends IntegrationTest {
 
   @Test
   void workflowWithSpaceInName() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/workflow-name-space.yaml"));
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/workflow-name-space.swadl.yaml"));
     final V4Message message = message("msgId");
 
     final String streamId = "123";
@@ -48,7 +49,8 @@ class EngineIntegrationTest extends IntegrationTest {
 
   @Test
   void stop() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.yaml"));
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.swadl.yaml"));
 
     final V4Message message = message("msgId");
     final String streamId = "123";

@@ -67,7 +67,7 @@ class WorkflowFolderWatcherTest {
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     verify(engine, timeout(5_000)).execute(any());
 
-    FileUtils.forceDelete(new File(workflowsFolder, "workflow.yaml"));
+    FileUtils.forceDelete(new File(workflowsFolder, "workflow.swadl.yaml"));
     verify(engine, timeout(10_000)).stop(any());
 
     watcher.stopMonitoring();
@@ -104,7 +104,7 @@ class WorkflowFolderWatcherTest {
   }
 
   private void copyWorkflow() throws IOException {
-    FileOutputStream destination = new FileOutputStream(new File(workflowsFolder, "workflow.yaml"));
-    IOUtils.copy(getClass().getResourceAsStream("workflow.yaml"), destination);
+    FileOutputStream destination = new FileOutputStream(new File(workflowsFolder, "workflow.swadl.yaml"));
+    IOUtils.copy(getClass().getResourceAsStream("workflow.swadl.yaml"), destination);
   }
 }
