@@ -122,7 +122,7 @@
                             "$ref": "#/definitions/activity-expired-event"
                         },
                         {
-                            "$ref": "#/definitions/activity-finished-event"
+                            "$ref": "#/definitions/activity-completed-event"
                         },
                         {
                             "$ref": "#/definitions/message-received-event"
@@ -374,15 +374,15 @@
                 "activity-expired"
             ]
         },
-        "activity-finished-event": {
+        "activity-completed-event": {
             "type": "object",
             "properties": {
-                "activity-finished": {
-                    "$ref": "#/definitions/activity-finished-event-inner"
+                "activity-completed": {
+                    "$ref": "#/definitions/activity-completed-event-inner"
                 }
             },
             "required": [
-                "activity-finished"
+                "activity-completed"
             ]
         },
         "one-of-event": {
@@ -399,7 +399,7 @@
                                 "$ref": "#/definitions/activity-expired-event"
                             },
                             {
-                                "$ref": "#/definitions/activity-finished-event"
+                                "$ref": "#/definitions/activity-completed-event"
                             },
                             {
                                 "$ref": "#/definitions/message-received-event"
@@ -563,7 +563,7 @@
                 }
             }
         },
-        "activity-finished-event-inner": {
+        "activity-completed-event-inner": {
             "type": "object",
             "properties": {
                 "activity-id": {

@@ -8,7 +8,7 @@ activities:
         one-of:
           - message-received:
               content: /execute
-          - activity-finished:
+          - activity-completed:
               activity-id: act3
               if: ${variables.execution <= 1}
       script: |

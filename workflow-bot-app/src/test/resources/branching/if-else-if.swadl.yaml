@@ -18,7 +18,7 @@ activities:
   - execute-script:
       id: act3
       on:
-        activity-finished:
+        activity-completed:
           activity-id: act1
       # will be executed because of the if
       if: ${variables.foo == "foo"}
@@ -27,7 +27,7 @@ activities:
   - execute-script:
       id: act4
       on:
-        activity-finished:
+        activity-completed:
           activity-id: act1
       # will be executed because of the if
       else: { }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ActivityFinishedEvent {
+public class ActivityCompletedEvent {
   private String activityId;
   @JsonProperty("if")
   private String ifCondition;

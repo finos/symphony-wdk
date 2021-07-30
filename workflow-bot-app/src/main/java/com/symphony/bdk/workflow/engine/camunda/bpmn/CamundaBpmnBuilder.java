@@ -106,8 +106,8 @@ public class CamundaBpmnBuilder {
       } else {
         // add the activity in the normal flow
 
-        if (activity.getOn() != null && activity.getOn().getActivityFinished() != null) {
-          parentActivities.put(activity.getId(), activity.getOn().getActivityFinished().getActivityId());
+        if (activity.getOn() != null && activity.getOn().getActivityCompleted() != null) {
+          parentActivities.put(activity.getId(), activity.getOn().getActivityCompleted().getActivityId());
         } else {
           // implicit parent activity is the one declared before
           parentActivities.put(activity.getId(), lastActivity);
@@ -143,8 +143,8 @@ public class CamundaBpmnBuilder {
       // store loop flows to build later
       if (activity.getOn() != null && activity.getOn().getOneOf() != null) {
         for (Event event : activity.getOn().getOneOf()) {
-          if (event.getActivityFinished() != null) {
-            flowsToCreate.put(event.getActivityFinished().getActivityId(), Pair.of(activity, event));
+          if (event.getActivityCompleted() != null) {
+            flowsToCreate.put(event.getActivityCompleted().getActivityId(), Pair.of(activity, event));
           }
         }
       }
@@ -154,7 +154,7 @@ public class CamundaBpmnBuilder {
         String loopId = "loop_" + activity.getId();
         builder = builder.exclusiveGateway().id(loopId)
             .condition("if",
-                flowsToCreate.get(activity.getId()).getRight().getActivityFinished().getIfCondition())
+                flowsToCreate.get(activity.getId()).getRight().getActivityCompleted().getIfCondition())
             .connectTo(flowsToCreate.get(activity.getId()).getLeft().getId())
             .moveToNode(loopId);
       }
@@ -184,8 +184,8 @@ public class CamundaBpmnBuilder {
 
   private boolean onConditional(BaseActivity activity) {
     return activity.getIfCondition() != null
-        || (activity.getOn() != null && activity.getOn().getActivityFinished() != null
-        && activity.getOn().getActivityFinished().getIfCondition() != null);
+        || (activity.getOn() != null && activity.getOn().getActivityCompleted() != null
+        && activity.getOn().getActivityCompleted().getIfCondition() != null);
   }
 
   private static String createUniqueProcessId(Workflow workflow) {

@@ -19,7 +19,7 @@ activities:
       # will be executed
       id: act3
       on:
-        activity-finished:
+        activity-completed:
           activity-id: act1
       else: {} # implicitly connect with the activity before
       # TODO at a test with an explicit one, we need to make it explicit to stand to our principle of sequentiallity
