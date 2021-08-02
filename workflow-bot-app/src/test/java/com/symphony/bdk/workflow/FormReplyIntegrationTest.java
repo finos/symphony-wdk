@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,19 +19,18 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // reply to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
     // bot should send my reply back
     verify(messageService, timeout(5000)).send(eq("123"), contains("My message"));
@@ -39,21 +38,21 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_multipleUsers() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-form-reply.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user 1 replies to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+
     // user 2 replies to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
     // bot should send my reply back
     verify(messageService, timeout(5000).times(2)).send(eq("123"), contains("My message"));
@@ -62,19 +61,18 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_followUpActivity() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass()
-        .getResourceAsStream("/send-form-reply-followup-activity.yaml"));
+        .getResourceAsStream("/form/send-form-reply-followup-activity.swadl.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user 1 replies to form
-    engine.formReceived("msgId", "sendForm", Collections.singletonMap("aField", "My message"));
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
     // bot should send my reply back
     verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
@@ -84,20 +82,40 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_expiration() throws Exception {
     Workflow workflow = WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/send-form-reply-expiration.yaml"));
+        getClass().getResourceAsStream("/form/send-form-reply-expiration.swadl.yaml"));
     engine.execute(workflow);
 
-    V4Message message = new V4Message();
-    message.setMessageId("msgId");
+    V4Message message = message("msgId");
     when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
-    engine.messageReceived("123", "/message");
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // user never replies
 
     // bot should run the on/activity-expired activity after 1s
     verify(messageService, timeout(5000)).send(eq("123"), contains("Form expired"));
+  }
+
+  @Test
+  void sendFormNested() throws Exception {
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/form/send-form-reply-nested.swadl.yaml"));
+    engine.execute(workflow);
+
+    V4Message message = message("msgId");
+    when(messageService.send(anyString(), anyString())).thenReturn(message);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("abc"), contains("form"));
+
+    // reply to first form
+    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("question", "My message")));
+
+    // bot should not run the on/activity-expired activity after 1s because it is attached to the second form that
+    // has not been replied to
+    verify(messageService, timeout(5000)).send(eq("abc"), contains("expiration-outer"));
   }
 }

@@ -1,0 +1,14 @@
+name: welcome
+activities:
+  - create-room:
+      id: createOneToOne
+      on:
+        user-joined-room: { }
+      uids:
+        - ${event.initiator.user.userId}
+  - send-message:
+      id: welcomeMessage
+      to:
+        stream-id: ${createOneToOne.outputs.roomId}
+      content: |
+        Welcome to this new room! Please be nice to each other! <emoji shortcode="nerd_face"/>

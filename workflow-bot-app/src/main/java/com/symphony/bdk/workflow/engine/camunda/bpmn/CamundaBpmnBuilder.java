@@ -1,51 +1,47 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
+import com.symphony.bdk.workflow.engine.camunda.EventToMessage;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
-import com.symphony.bdk.workflow.lang.ActivityRegistry;
-import com.symphony.bdk.workflow.lang.exception.NoStartingEventException;
-import com.symphony.bdk.workflow.lang.swadl.Activity;
-import com.symphony.bdk.workflow.lang.swadl.Event;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
-import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
-import com.symphony.bdk.workflow.lang.swadl.activity.ExecuteScript;
+import com.symphony.bdk.workflow.swadl.ActivityRegistry;
+import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
+import com.symphony.bdk.workflow.swadl.v1.Activity;
+import com.symphony.bdk.workflow.swadl.v1.Event;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.ExecuteScript;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaExecutionListener;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class CamundaBpmnBuilder {
 
-  private static final String VARIABLES_NAME = "variables";
-
   private final RepositoryService repositoryService;
+  private final EventToMessage eventToMessage;
 
   @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService) {
+  public CamundaBpmnBuilder(RepositoryService repositoryService,
+      EventToMessage eventToMessage) {
     this.repositoryService = repositoryService;
+    this.eventToMessage = eventToMessage;
   }
 
   public BpmnModelInstance addWorkflow(Workflow workflow) {
@@ -58,112 +54,175 @@ public class CamundaBpmnBuilder {
           .deploy();
     } finally {
       if (log.isDebugEnabled()) {
-        debugWorkflow(workflow, instance);
+        WorkflowDebugger.generateDebugFiles(workflow.getName(), instance);
       }
     }
-
     return instance;
   }
 
-  private void debugWorkflow(Workflow workflow, BpmnModelInstance instance) {
-    // avoid polluting current folder in dev, keep it working for deployment/Docker
-    File outputFolder = new File("./build");
-    if (!outputFolder.exists() || !outputFolder.isDirectory()) {
-      outputFolder = new File(".");
-    }
-
-    File bpmnFile = new File(outputFolder, workflow.getName() + ".bpmn");
-    Bpmn.writeModelToFile(bpmnFile, instance);
-    log.debug("BPMN file generated to {}", bpmnFile);
-    try {
-      // uses https://github.com/bpmn-io/bpmn-to-image
-      File pngFile = new File(outputFolder, workflow.getName() + ".png");
-      Runtime.getRuntime().exec(
-          String.format("bpmn-to-image --title %s-%s %s:%s",
-              workflow.getName(), Instant.now(), bpmnFile, pngFile));
-      log.debug("BPMN, image outputFolder generated to {}", pngFile);
-    } catch (IOException ioException) {
-      log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
-          ioException);
-    }
-  }
-
-  private String getCommandToStart(Workflow workflow) {
+  private String getStartingEventName(Workflow workflow) {
     return workflow.getFirstActivity()
         .flatMap(Activity::getEvent)
-        .flatMap(Event::getCommand)
+        .flatMap(eventToMessage::toMessageName)
         .orElseThrow(NoStartingEventException::new);
   }
 
   @SneakyThrows
   private BpmnModelInstance workflowToBpmn(Workflow workflow) {
-    ProcessBuilder process = Bpmn.createExecutableProcess(workflow.getName() + "-" + UUID.randomUUID());
+    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow));
 
-    String commandToStart = getCommandToStart(workflow);
-
-    AbstractFlowNodeBuilder<?, ?> eventBuilder = process
+    // a workflow starts with a message event
+    String startingEventName = getStartingEventName(workflow);
+    AbstractFlowNodeBuilder<?, ?> builder = process
         .startEvent()
-        .message("message_" + commandToStart)
-        .name(commandToStart);
+        .message(startingEventName)
+        .name(startingEventName);
 
-    boolean hasSubProcess = false;
+    // we have to carry a bit of state while processing the activities
+    String lastActivity = "";
+    Map<String, String> parentActivities = new HashMap<>();
 
-    for (Activity activity : workflow.getActivities()) {
-      BaseActivity baseActivity = activity.getActivity();
+    Map<String, AbstractFlowNodeBuilder<?, ?>> formExpirations = new HashMap<>();
+    Map<String, AbstractFlowNodeBuilder<?, ?>> gateways = new HashMap<>();
+    Map<String, Pair<BaseActivity, Event>> flowsToCreate = new HashMap<>();
 
-      if (isFormReply(baseActivity)) {
-        /*
-          A form reply is a dedicated sub process doing 2 things:
-          - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
-            and replies are no longer used
-          - waiting for reply with an event sub process that is running for each reply
-         */
-        SubProcessBuilder subProcess = eventBuilder.subProcess();
-        eventBuilder = subProcess.embeddedSubProcess()
-            .startEvent()
-            .intermediateCatchEvent().timerWithDuration(baseActivity.getOn().getTimeout());
+    // then each activity is processed
+    for (Activity activityContainer : workflow.getActivities()) {
+      BaseActivity activity = activityContainer.getActivity();
 
-        List<? extends BaseActivity> expirationActivities = collectOnExpirationActivities(workflow, baseActivity);
-        for (BaseActivity expirationActivity : expirationActivities) {
-          eventBuilder = addTask(eventBuilder, expirationActivity);
+      // process events starting the activity
+      if (onFormRepliedEvent(activity)) {
+        builder = formReply(builder, activity, formExpirations);
+      }
+
+      if (onActivityExpired(activity)) {
+        // add the activity as a form expiration
+        AbstractFlowNodeBuilder<?, ?> formExpirationBuilder =
+            formExpirations.get(activity.getOn().getActivityExpired().getActivityId());
+        formExpirationBuilder = addTask(formExpirationBuilder, activity);
+        // update it for the next activities
+        formExpirations.put(activity.getOn().getActivityExpired().getActivityId(), formExpirationBuilder);
+
+      } else {
+        // add the activity in the normal flow
+
+        if (activity.getOn() != null && activity.getOn().getActivityCompleted() != null) {
+          parentActivities.put(activity.getId(), activity.getOn().getActivityCompleted().getActivityId());
+        } else {
+          // implicit parent activity is the one declared before
+          parentActivities.put(activity.getId(), lastActivity);
         }
 
-        eventBuilder.endEvent()
-            .subProcessDone();
+        if (onConditional(activity)) {
+          if (gateways.containsKey(parentActivities.get(activity.getId()))) {
+            // we already opened a gateway, so it is an 'else if'
+            builder = gateways.get(parentActivities.get(activity.getId()));
+            builder = builder.moveToLastGateway();
+          } else {
+            // otherwise, it is a new 'if'
+            builder = builder.exclusiveGateway();
+          }
+          builder = builder.condition("if", activity.getIfCondition());
+        }
 
-        // we add the form reply event sub process inside the subprocess
-        eventBuilder = subProcess.embeddedSubProcess().eventSubProcess()
-            .startEvent()
-            .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-            .message("formReply_" + baseActivity.getOn().getFormReply().getId())
-            .name("formReply");
+        if (activity.getElseCondition() != null) {
+          builder = gateways.get(parentActivities.get(activity.getId()));
+          builder = builder.moveToLastGateway();
+          // this condition is now closed, remove it
+          gateways.remove(parentActivities.get(activity.getId()));
+        }
 
-        hasSubProcess = true;
+        builder = addTask(builder, activity);
+
+        if (onConditional(activity)) {
+          // store it to continue other conditional flows (else if, else)
+          gateways.put(parentActivities.get(activity.getId()), builder);
+        }
       }
 
-      if (baseActivity.getOn() == null || baseActivity.getOn().getActivityExpired() == null) {
-        eventBuilder = addTask(eventBuilder, baseActivity);
+      // store loop flows to build later
+      if (activity.getOn() != null && activity.getOn().getOneOf() != null) {
+        for (Event event : activity.getOn().getOneOf()) {
+          if (event.getActivityCompleted() != null) {
+            flowsToCreate.put(event.getActivityCompleted().getActivityId(), Pair.of(activity, event));
+          }
+        }
       }
+
+      // do we need to create a flow for this activity?
+      if (flowsToCreate.containsKey(activity.getId())) {
+        String loopId = "loop_" + activity.getId();
+        builder = builder.exclusiveGateway().id(loopId)
+            .condition("if",
+                flowsToCreate.get(activity.getId()).getRight().getActivityCompleted().getIfCondition())
+            .connectTo(flowsToCreate.get(activity.getId()).getLeft().getId())
+            .moveToNode(loopId);
+      }
+
+      lastActivity = activity.getId();
     }
 
-    if (hasSubProcess) { // works for simple cases only
-      eventBuilder = eventBuilder.endEvent().subProcessDone();
+    for (AbstractFlowNodeBuilder<?, ?> subProcessBuilder : formExpirations.values()) {
+      // finish all subprocesses handling form replies
+      subProcessBuilder.endEvent().subProcessDone();
     }
 
-    return addWorkflowVariablesListener(eventBuilder.done(), process, workflow.getVariables());
+    // closed conditions without an else, adding a default end flow
+    for (AbstractFlowNodeBuilder<?, ?> gatewayWithoutElse : gateways.values()) {
+      gatewayWithoutElse.moveToLastGateway().endEvent();
+    }
+
+    if (builder instanceof ExclusiveGatewayBuilder) {
+      // we have a flow/loop left open, without any default flow, set one
+      builder = builder.endEvent();
+    }
+
+    BpmnModelInstance model = builder.done();
+    process.addExtensionElement(VariablesListener.create(model, workflow.getVariables()));
+    return model;
   }
 
-  private boolean isFormReply(BaseActivity baseActivity) {
-    return baseActivity.getOn() != null && baseActivity.getOn().getFormReply() != null;
+  private boolean onConditional(BaseActivity activity) {
+    return activity.getIfCondition() != null
+        || (activity.getOn() != null && activity.getOn().getActivityCompleted() != null
+        && activity.getOn().getActivityCompleted().getIfCondition() != null);
   }
 
-  private List<BaseActivity> collectOnExpirationActivities(Workflow workflow,
-      BaseActivity targetActivity) {
-    return workflow.getActivities().stream()
-        .map(Activity::getActivity)
-        .filter(a -> a.getOn() != null && a.getOn().getActivityExpired() != null)
-        .filter(a -> a.getOn().getActivityExpired().getId().equals(targetActivity.getId()))
-        .collect(Collectors.toList());
+  private static String createUniqueProcessId(Workflow workflow) {
+    // spaces are not supported in BPMN here
+    return workflow.getName().replaceAll("\\s+", "_") + "-" + UUID.randomUUID();
+  }
+
+  private static boolean onFormRepliedEvent(BaseActivity baseActivity) {
+    return baseActivity.getOn() != null && baseActivity.getOn().getFormReplied() != null;
+  }
+
+  private static boolean onActivityExpired(BaseActivity activity) {
+    return activity.getOn() != null && activity.getOn().getActivityExpired() != null;
+  }
+
+  /*
+    A form reply is a dedicated sub process doing 2 things:
+      - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
+        and replies are no longer used
+      - waiting for reply with an event sub process that is running for each reply
+   */
+  private AbstractFlowNodeBuilder<?, ?> formReply(AbstractFlowNodeBuilder<?, ?> builder, BaseActivity activity,
+      Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies) {
+    SubProcessBuilder subProcess = builder.subProcess();
+
+    AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
+        .startEvent()
+        .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
+    formReplies.put(activity.getId(), formExpirationBuilder);
+
+    // we add the form reply event sub process inside the subprocess
+    builder = subProcess.embeddedSubProcess().eventSubProcess()
+        .startEvent()
+        .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
+        .message("formReply_" + activity.getOn().getFormReplied().getId())
+        .name("formReply");
+    return builder;
   }
 
   private AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)
@@ -178,7 +237,7 @@ public class CamundaBpmnBuilder {
 
   private AbstractFlowNodeBuilder<?, ?> addScriptTask(AbstractFlowNodeBuilder<?, ?> eventBuilder,
       ExecuteScript scriptActivity) {
-    eventBuilder.scriptTask()
+    eventBuilder = eventBuilder.scriptTask()
         .id(scriptActivity.getId())
         .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
         .scriptText(scriptActivity.getScript())
@@ -199,31 +258,4 @@ public class CamundaBpmnBuilder {
     return eventBuilder;
   }
 
-  private BpmnModelInstance addWorkflowVariablesListener(BpmnModelInstance instance,
-      ProcessBuilder process, List<Map<String, Object>> variables) throws JsonProcessingException {
-    if (variables != null && !variables.isEmpty()) {
-      CamundaExecutionListener listener = instance.newInstance(CamundaExecutionListener.class);
-      listener.setCamundaEvent(ExecutionListener.EVENTNAME_START);
-      listener.setCamundaClass(VariablesListener.class.getName());
-      CamundaField field = instance.newInstance(CamundaField.class);
-      field.setCamundaName(VARIABLES_NAME);
-      field.setCamundaStringValue(variablesAsJsonString(variables));
-      listener.getCamundaFields().add(field);
-
-      process.addExtensionElement(listener);
-    }
-    return instance;
-  }
-
-  private String variablesAsJsonString(List<Map<String, Object>> variables) throws JsonProcessingException {
-    ObjectNode variablesNode = CamundaExecutor.OBJECT_MAPPER.createObjectNode();
-
-    for (Map<String, Object> variableMap : variables) {
-      for (Map.Entry<String, Object> entry : variableMap.entrySet()) {
-        variablesNode.put(entry.getKey(), entry.getValue().toString());
-      }
-    }
-
-    return CamundaExecutor.OBJECT_MAPPER.writeValueAsString(variablesNode);
-  }
 }

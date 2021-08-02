@@ -1,0 +1,8 @@
+name: on-room-created
+activities:
+  - execute-script:
+      id: doIt
+      on:
+        room-created: { }
+      script: |
+        assert event.source.stream.streamId == "123"

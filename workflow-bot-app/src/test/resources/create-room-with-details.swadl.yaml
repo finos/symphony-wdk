@@ -1,0 +1,11 @@
+name: create-room-with-details-workflow
+activities:
+  - create-room:
+      id: "create-room-with-details"
+      description: "activity to create room when receiving /create-room slash command"
+      on:
+        message-received:
+          content: "/create-room"
+      name: "The best room ever"
+      room-description: "this is room description"
+      public: true

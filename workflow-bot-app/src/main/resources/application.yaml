@@ -2,7 +2,7 @@ bdk:
   host: devx3.symphony.com
 
   bot:
-    username: daneel-bot
+    username: workflow-bot
     privateKey:
       path: rsa/privatekey.pem
 
@@ -17,6 +17,7 @@ camunda:
   bpm:
     job-execution:
       wait-time-in-millis: 1000
+      max-wait: 1000
 
 workflows:
   folder: ./workflows

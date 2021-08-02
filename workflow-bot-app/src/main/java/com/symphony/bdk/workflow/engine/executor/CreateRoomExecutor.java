@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.executor;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.workflow.lang.swadl.activity.CreateRoom;
+import com.symphony.bdk.workflow.swadl.v1.activity.CreateRoom;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +18,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
   @Override
   public void execute(ActivityExecutorContext<CreateRoom> execution) {
     CreateRoom activity = execution.getActivity();
-    List<Long> uids = activity.getUids();
+    List<Long> uids = activity.getUuidsAsLongs();
     String name = activity.getName();
     String description = activity.getRoomDescription();
     boolean isPublic = activity.isPublic();

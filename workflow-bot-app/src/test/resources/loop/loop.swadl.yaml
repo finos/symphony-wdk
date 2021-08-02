@@ -1,0 +1,20 @@
+name: loop
+variables:
+  execution: 0
+activities:
+  - execute-script:
+      id: act1
+      on:
+        one-of:
+          - message-received:
+              content: /execute
+          - activity-completed:
+              activity-id: act2
+              if: ${variables.execution <= 1}
+      script: |
+        println "act1"
+  - execute-script:
+      id: act2
+      script: |
+        variables.execution++
+

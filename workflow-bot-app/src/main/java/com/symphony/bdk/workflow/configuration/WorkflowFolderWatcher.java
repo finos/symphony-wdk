@@ -1,8 +1,8 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.Generated;
@@ -66,7 +66,11 @@ public class WorkflowFolderWatcher {
     if (existingFiles != null) {
       for (File file : existingFiles) {
         if (isYaml(file.toPath())) {
-          addWorkflow(file.toPath());
+          try {
+            addWorkflow(file.toPath());
+          } catch (Exception e) {
+            log.error("Failed to add workflow for file {}", file, e);
+          }
         }
       }
     }
@@ -83,7 +87,11 @@ public class WorkflowFolderWatcher {
       WatchKey key;
       while ((key = watchService.take()) != null) {
         for (WatchEvent<?> event : key.pollEvents()) {
-          handleFileEvent(path, event);
+          try {
+            handleFileEvent(path, event);
+          } catch (Exception e) {
+            log.error("Failed to update workflow for file change event {}", event.context(), e);
+          }
         }
         key.reset();
       }
@@ -126,7 +134,9 @@ public class WorkflowFolderWatcher {
   }
 
   private void removeWorkflow(Path workflowFile) {
-    workflowEngine.stop(deployedWorkflows.get(workflowFile));
+    if (deployedWorkflows.containsKey(workflowFile)) {
+      workflowEngine.stop(deployedWorkflows.get(workflowFile));
+    }
     deployedWorkflows.remove(workflowFile);
   }
 

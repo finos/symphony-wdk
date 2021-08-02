@@ -1,0 +1,47 @@
+name: if-else-nested
+variables:
+  foo: foo
+#  act1
+#  if foo == foo
+#    act2
+#    if foo == foo
+#     act2-2
+#    else
+#     act2-3
+#  else
+#   act3
+
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: |
+        println "act1"
+  - execute-script:
+      id: act2
+      if: ${variables.foo == "foo"}
+      script: |
+        println "act2"
+  - execute-script:
+      id: act2-2
+      if: ${variables.foo == "bar"}
+      script: |
+        println "act2-2"
+  - execute-script:
+      id: act2-3
+      on:
+        activity-completed:
+          activity-id: act2
+      else: { }
+      script: |
+        println "act2-3"
+  - execute-script:
+      id: act3
+      on:
+        activity-completed:
+          activity-id: act1
+      else: { }
+      script: |
+        println "act3"

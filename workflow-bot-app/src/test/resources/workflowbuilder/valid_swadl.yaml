@@ -1,13 +1,13 @@
 name: my-proposal
 variables:
-  - var1: "variable1"
-  - var2: "variable2"
+  var1: "variable1"
+  var2: "variable2"
 activities:
   - send-message:
       id: "sendmessageid1"
       description: "activity to send a message when a /command is sent to the bot"
       on:
-        message:
+        message-received:
           content: "/message"
       to:
         stream-id: "123"

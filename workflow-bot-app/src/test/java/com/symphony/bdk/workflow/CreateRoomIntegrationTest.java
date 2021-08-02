@@ -14,9 +14,9 @@ import com.symphony.bdk.gen.api.model.RoomSystemInfo;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.workflow.lang.WorkflowBuilder;
-import com.symphony.bdk.workflow.lang.exception.YamlNotValidException;
-import com.symphony.bdk.workflow.lang.swadl.Workflow;
+import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,14 +32,15 @@ class CreateRoomIntegrationTest extends IntegrationTest {
       "Given create-room activity with only user ids fields, when the message is received, "
           + "then an MIM is created with the given users")
   void createRoomWithUids() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-mim-with-uids.yaml"));
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-mim-with-uids.swadl.yaml"));
     final List<Long> uids = Arrays.asList(666L, 777L, 999L);
     final Stream stream = new Stream();
     stream.setId("0000");
     when(streamService.create(uids)).thenReturn(stream);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/create-mim");
+    engine.onEvent(messageReceived("/create-mim"));
     verify(streamService, timeout(5000)).create(uids);
   }
 
@@ -49,7 +50,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
           + "when the message is received, then a room with the given details is created")
   void createRoomWithDetails() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-with-details.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-with-details.swadl.yaml"));
     final String roomName = "The best room ever";
     final String roomDescription = "this is room description";
     final boolean isRoomPublic = true;
@@ -58,7 +59,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/create-room");
+    engine.onEvent(IntegrationTest.messageReceived("/create-room"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(streamService, timeout(5000)).create(argumentCaptor.capture());
@@ -74,7 +75,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
       + "then a room with given details and members is created")
   void createRoomWithDetailsAndMembers() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-with-details-members.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-with-details-members.swadl.yaml"));
     final String roomName = "The best room ever";
     final String roomDescription = "this is room description";
     final boolean isRoomPublic = false;
@@ -84,7 +85,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.execute(workflow);
-    engine.messageReceived("123", "/create-room-members");
+    engine.onEvent(IntegrationTest.messageReceived("/create-room-members"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(streamService, timeout(5000)).create(argumentCaptor.capture());
@@ -101,7 +102,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
   @DisplayName("Given an invalid create-room activity, when the message is received, then an error is thrown")
   void createRoomInvalidWorkflow() {
     assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/create-room-invalid-workflow.yaml"))).isInstanceOf(
+        getClass().getResourceAsStream("/create-room-invalid-workflow.swadl.yaml"))).isInstanceOf(
         YamlNotValidException.class);
   }
 

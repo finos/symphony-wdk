@@ -1,0 +1,20 @@
+name: my-proposal
+version: 0
+activities:
+  - create-room: #has as output {"streamId": "AbcDEFgHiJK"}
+      id: createRoom
+      description: "activity to create room when receiving /create-room slash command"
+      on:
+        message-received:
+          content: "/create-room"
+      uids: #optional if name is set
+        - 1234
+        - 5678
+      public: true
+
+  - send-message: #has as output {"messageId": "LmNOpqrStUVw"}
+      id: sendmessageid
+      description: "activity to send simple message"
+      to:
+        stream-id: ${createRoom.outputs.roomId}
+      content: <messageML><p>Hello!</p></messageML>

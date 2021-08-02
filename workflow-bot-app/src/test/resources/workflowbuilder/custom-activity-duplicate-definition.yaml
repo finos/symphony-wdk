@@ -1,8 +1,0 @@
-name: custom-activity
-activities:
-  - duplicate-custom-activity:
-      id: doIt
-      on:
-        message:
-          content: /execute
-      my-parameter: abc

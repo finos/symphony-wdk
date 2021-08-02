@@ -1,0 +1,58 @@
+name: send-form-reply-nested
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        message-received:
+          content: /message
+      to:
+        stream-id: abc
+      content: |
+        <messageML>
+            <form id="sendForm">
+              <text-field name="question" placeholder="Question" required="true"/>
+              <button name="send-answers" type="action">Send</button>
+            </form>
+        </messageML>
+
+  - send-message:
+      id: sendSecondForm
+      on:
+        timeout: PT1S
+        form-replied:
+          id: sendForm
+      to:
+        stream-id: abc
+      content: |
+        <messageML>
+          <form id="sendSecondForm">
+            <text-field name="question" placeholder="Question" required="true"/>
+            <button name="send-answers" type="action">Send</button>
+          </form>
+        </messageML>
+
+  - execute-script:
+      id: collect-replies
+      on:
+        timeout: PT1S
+        form-replied:
+          id: sendSecondForm
+      script: println "collect"
+
+  - send-message:
+      id: expiration-nested
+      on:
+        activity-expired:
+          activity-id: collect-replies
+      to:
+        stream-id: abc
+      content: expiration-nested
+
+  - send-message:
+      id: expiration
+      on:
+        activity-expired:
+          activity-id: sendSecondForm
+      to:
+        stream-id: abc
+      content: expiration-outer

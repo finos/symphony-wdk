@@ -1,0 +1,18 @@
+name: if-else-end
+variables:
+  foo: bar
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: |
+        println "act1"
+  - execute-script:
+      id: act2
+      # will not be executed because of the if
+      if: ${variables.foo == "foo"}
+      script: |
+        println "act2"
+

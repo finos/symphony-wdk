@@ -1,6 +1,6 @@
 package org.acme.workflow;
 
-import com.symphony.bdk.workflow.lang.swadl.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 public class MyActivity extends BaseActivity {
   private String myParameter;

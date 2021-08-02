@@ -1,0 +1,35 @@
+name: if-else-if
+variables:
+  foo: foo
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: |
+        println "act1"
+  - execute-script:
+      id: act2
+      # will not be executed because of the if
+      if: ${variables.foo == "bar"}
+      script: |
+        println "act2"
+  - execute-script:
+      id: act3
+      on:
+        activity-completed:
+          activity-id: act1
+      # will be executed because of the if
+      if: ${variables.foo == "foo"}
+      script: |
+        println "act3"
+  - execute-script:
+      id: act4
+      on:
+        activity-completed:
+          activity-id: act1
+      # will be executed because of the if
+      else: { }
+      script: |
+        println "act4"

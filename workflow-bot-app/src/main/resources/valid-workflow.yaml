@@ -1,14 +1,14 @@
 name: my-proposal
 version: 0
 variables:
-  - roomName: "Best room ever"
-  - sendMessageActivityId: "send-message-id-1"
+  roomName: "Best room ever"
+  sendMessageActivityId: "send-message-id-1"
 activities:
   - create-room: #has as output {"streamId": "AbcDEFgHiJK"}
       id: "create-room-id-1"
       description: "activity to create room when receiving /create-room slash command"
       on:
-        message:
+        message-received:
           content: "/create-room"
       name: "room testing create-room"  #optional if uids is set
       uids: #optional if name is set
@@ -33,7 +33,7 @@ activities:
       id: "send-message-id-2"
       description: "activity to send a message when a user join the room"
       on:
-        user-joined:
+        user-joined-room:
           stream-id: "streamIdID"
       to:
         stream-id: "streamIdID"
