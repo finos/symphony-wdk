@@ -25,7 +25,6 @@ public final class ActivityRegistry {
       activityExecutors;
 
   static {
-    log.info(ClasspathHelper.forClassLoader().toString());
     Reflections reflections = new Reflections(new ConfigurationBuilder()
         .setScanners(new SubTypesScanner(false))
         // this is a bit ugly but it works faster than scanning the entire classpath and for all contexts (JAR, tests)

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.ParameterizedType;
@@ -25,6 +26,10 @@ public class CamundaExecutor implements JavaDelegate {
   public static final String ACTIVITY = "activity";
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  // set MDC entries so that executors can produce log that we can contextualize
+  private static final String MDC_PROCESS_ID = "PROCESS_ID";
+  private static final String MDC_ACTIVITY_ID = "ACTIVITY_ID";
 
   static {
     OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -51,7 +56,22 @@ public class CamundaExecutor implements JavaDelegate {
 
     EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);
 
-    executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+    try {
+      setMdc(execution);
+      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+    } finally {
+      clearMdc();
+    }
+  }
+
+  private void setMdc(DelegateExecution execution) {
+    MDC.put(MDC_PROCESS_ID, execution.getProcessInstanceId());
+    MDC.put(MDC_ACTIVITY_ID, execution.getActivityInstanceId());
+  }
+
+  private void clearMdc() {
+    MDC.remove(MDC_PROCESS_ID);
+    MDC.remove(MDC_ACTIVITY_ID);
   }
 
   private class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {
