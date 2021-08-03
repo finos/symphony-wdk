@@ -76,7 +76,9 @@ abstract class IntegrationTest {
 
   public static RealTimeEvent<V4MessageSent> messageReceived(String content) {
     V4Initiator initiator = new V4Initiator();
-    initiator.setUser(new V4User());
+    V4User user = new V4User();
+    user.setUserId(123L);
+    initiator.setUser(user);
 
     V4MessageSent messageSent = new V4MessageSent();
     V4Message message = new V4Message();
@@ -88,7 +90,9 @@ abstract class IntegrationTest {
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId,
       String formId, Map<String, Object> formReplies) {
     V4Initiator initiator = new V4Initiator();
-    initiator.setUser(new V4User());
+    V4User user = new V4User();
+    user.setUserId(123L);
+    initiator.setUser(user);
 
     V4SymphonyElementsAction elementsAction = new V4SymphonyElementsAction();
     elementsAction.setFormMessageId(messageId);

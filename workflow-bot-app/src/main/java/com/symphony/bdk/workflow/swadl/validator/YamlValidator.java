@@ -53,9 +53,7 @@ public class YamlValidator {
     final JsonSchema schema = JSON_SCHEMA_FACTORY.getJsonSchema(jsonSchema);
     ProcessingReport report = schema.validate(workflowAsJson);
 
-    if (report.isSuccess()) {
-      log.info("YAML file is VALID");
-    } else {
+    if (!report.isSuccess()) {
       throw new YamlNotValidException(report.toString());
     }
 

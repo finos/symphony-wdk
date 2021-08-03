@@ -13,9 +13,9 @@ bdk:
 
 logging:
   level:
-
+    audit-trail: INFO
     com.symphony: DEBUG
-    org.camunda: DEBUG
+    org.camunda: INFO
     org.camunda.engine.persistence: INFO
 
 camunda:

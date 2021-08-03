@@ -29,8 +29,8 @@ public class CamundaEngine implements WorkflowEngine {
 
   @Override
   public void execute(Workflow workflow) throws IOException {
-    bpmnBuilder.addWorkflow(workflow);
-    log.info("Deployed workflow {}", workflow.getName());
+    Deployment deployment = bpmnBuilder.addWorkflow(workflow);
+    log.info("Deployed workflow {}", deployment.getId());
   }
 
   @Override

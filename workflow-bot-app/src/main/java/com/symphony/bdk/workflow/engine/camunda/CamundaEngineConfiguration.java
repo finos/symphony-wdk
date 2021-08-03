@@ -1,11 +1,14 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
+import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.util.List;
 import javax.sql.DataSource;
 
 @Configuration
@@ -24,6 +27,11 @@ public class CamundaEngineConfiguration {
   @Bean
   public PlatformTransactionManager transactionManager(DataSource dataSource) {
     return new DataSourceTransactionManager(dataSource);
+  }
+
+  @Bean
+  public HistoryEventHandler customHistoryEventHandler() {
+    return new HistoryEventLogger();
   }
 
 }

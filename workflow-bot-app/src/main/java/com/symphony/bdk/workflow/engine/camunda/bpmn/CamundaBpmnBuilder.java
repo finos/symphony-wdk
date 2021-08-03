@@ -16,6 +16,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
@@ -49,11 +50,11 @@ public class CamundaBpmnBuilder {
     this.eventToMessage = eventToMessage;
   }
 
-  public BpmnModelInstance addWorkflow(Workflow workflow) {
+  public Deployment addWorkflow(Workflow workflow) {
     BpmnModelInstance instance = workflowToBpmn(workflow);
 
     try {
-      repositoryService.createDeployment()
+      return repositoryService.createDeployment()
           .name(workflow.getName())
           .addModelInstance(workflow.getName() + ".bpmn", instance)
           .deploy();
@@ -62,7 +63,6 @@ public class CamundaBpmnBuilder {
         WorkflowDebugger.generateDebugFiles(workflow.getName(), instance);
       }
     }
-    return instance;
   }
 
   private List<Event> getStartingEvents(Workflow workflow) {
