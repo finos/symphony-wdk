@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1;
 
-import com.symphony.bdk.workflow.swadl.v1.event.ActivityExpiredEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityExpiredEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.ConnectionAcceptedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.ConnectionRequestedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.FormRepliedEvent;

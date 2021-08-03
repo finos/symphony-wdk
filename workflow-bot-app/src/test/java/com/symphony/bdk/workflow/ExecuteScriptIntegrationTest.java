@@ -39,5 +39,6 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");
+    verify(messageService, timeout(5000)).send("abc", "bar");
   }
 }

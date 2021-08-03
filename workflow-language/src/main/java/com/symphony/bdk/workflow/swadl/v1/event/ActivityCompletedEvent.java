@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class ActivityCompletedEvent {
   private String activityId;
+
   @JsonProperty("if")
   private String ifCondition;
 }

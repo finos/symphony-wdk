@@ -39,9 +39,9 @@ class BranchingIntegrationTest extends IntegrationTest {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(workflowFile));
     engine.execute(workflow);
 
-    Optional<String> process = engine.onEvent(messageReceived("/execute"));
+    engine.onEvent(messageReceived("/execute"));
 
-    assertExecuted(process, activities);
+    assertExecuted(lastProcess(), activities);
   }
 
   private void assertExecuted(Optional<String> process, List<String> activities) {

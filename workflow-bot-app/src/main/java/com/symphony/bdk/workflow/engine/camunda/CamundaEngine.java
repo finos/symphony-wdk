@@ -9,16 +9,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
-import org.camunda.bpm.engine.runtime.Execution;
-import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
-import org.camunda.bpm.engine.runtime.MessageCorrelationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -31,7 +25,7 @@ public class CamundaEngine implements WorkflowEngine {
   private CamundaBpmnBuilder bpmnBuilder;
 
   @Autowired
-  private EventToMessage eventToMessage;
+  private WorkflowEventToCamundaEvent events;
 
   @Override
   public void execute(Workflow workflow) throws IOException {
@@ -57,15 +51,8 @@ public class CamundaEngine implements WorkflowEngine {
 
   @SneakyThrows
   @Override
-  public <T> Optional<String> onEvent(RealTimeEvent<T> event) {
-    List<MessageCorrelationBuilder> messageCorrelations = eventToMessage.toMessage(event);
-
-    return messageCorrelations.stream()
-        .map(MessageCorrelationBuilder::correlateAllWithResult)
-        .flatMap(Collection::stream)
-        .findFirst()
-        .map(MessageCorrelationResult::getProcessInstance)
-        .map(Execution::getId);
+  public <T> void onEvent(RealTimeEvent<T> event) {
+    events.dispatch(event);
   }
 
 }

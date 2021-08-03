@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @SpringBootTest
 abstract class IntegrationTest {
@@ -104,5 +105,12 @@ abstract class IntegrationTest {
       return processInstance.getState().equals("COMPLETED");
     }
     return false;
+  }
+
+  protected Optional<String> lastProcess() {
+    return Optional.ofNullable(historyService.createHistoricProcessInstanceQuery()
+            .orderByProcessInstanceStartTime().desc()
+            .singleResult())
+        .map(HistoricProcessInstance::getId);
   }
 }

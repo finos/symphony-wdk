@@ -26,6 +26,7 @@ import com.symphony.bdk.workflow.swadl.v1.Event;
 
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
+import org.camunda.bpm.engine.runtime.SignalEventReceivedBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-// There might be a way to make this make this more generic/less code but waiting for
+// There might be a way to make this more generic/less code but waiting for
 // event filtering to see how it is going to evolve, at least it is easy to understand.
 @Component
-public class EventToMessage {
+public class WorkflowEventToCamundaEvent {
 
   static final String MESSAGE_PREFIX = "message-received_";
   static final String MESSAGE_SUPPRESSED = "message-suppressed";
@@ -64,7 +65,7 @@ public class EventToMessage {
   @Autowired
   private SessionService sessionService;
 
-  public Optional<String> toMessageName(Event event) {
+  public Optional<String> toSignalName(Event event) {
     if (event.getMessageReceived() != null) {
       if (event.getMessageReceived().isRequiresBotMention()) {
         // this is super fragile, extra spaces, bot changing names are not handled
@@ -119,82 +120,82 @@ public class EventToMessage {
       return Optional.of(CONNECTION_ACCEPTED);
 
     } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
-      return toMessageName(event.getOneOf().get(0));
+      return toSignalName(event.getOneOf().get(0));
     }
 
     return Optional.empty();
   }
 
-  public <T> List<MessageCorrelationBuilder> toMessage(RealTimeEvent<T> event)
+  public <T> List<MessageCorrelationBuilder> dispatch(RealTimeEvent<T> event)
       throws PresentationMLParserException {
-    MessageCorrelationBuilder messageCorrelation = null;
+    SignalEventReceivedBuilder messageCorrelation = null;
 
     Map<String, Object> processVariables = new HashMap<>();
     processVariables.put(ActivityExecutorContext.EVENT, new EventHolder<>(event.getInitiator(), event.getSource()));
 
     if (event.getSource() instanceof V4SymphonyElementsAction) {
-      messageCorrelation = formReplyToMessage(event, processVariables);
+      formReplyToMessage(event, processVariables);
 
     } else if (event.getSource() instanceof V4MessageSent) {
       return messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
 
     } else if (event.getSource() instanceof V4RoomCreated) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_CREATED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_CREATED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomUpdated) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_UPDATED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_UPDATED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomDeactivated) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_DEACTIVATED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_DEACTIVATED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomReactivated) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_REACTIVATED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_REACTIVATED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4UserJoinedRoom) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.USER_JOINED_ROOM)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_JOINED_ROOM)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4UserLeftRoom) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.USER_LEFT_ROOM)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_LEFT_ROOM)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomMemberDemotedFromOwner) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_MEMBER_DEMOTED_FROM_OWNER)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_MEMBER_DEMOTED_FROM_OWNER)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomMemberPromotedToOwner) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.ROOM_MEMBER_PROMOTED_TO_OWNER)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_MEMBER_PROMOTED_TO_OWNER)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4MessageSuppressed) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.MESSAGE_SUPPRESSED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_SUPPRESSED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4SharedPost) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.POST_SHARED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.POST_SHARED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4InstantMessageCreated) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.IM_CREATED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.IM_CREATED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4UserRequestedToJoinRoom) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.USER_REQUESTED_JOIN_ROOM)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_REQUESTED_JOIN_ROOM)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4ConnectionRequested) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.CONNECTION_REQUESTED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_REQUESTED)
+          .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4ConnectionAccepted) {
-      messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.CONNECTION_ACCEPTED)
-          .setVariables(processVariables);
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_ACCEPTED)
+          .setVariables(processVariables).send();
     }
-    return Collections.singletonList(messageCorrelation);
+    return Collections.emptyList();
   }
 
   private <T> MessageCorrelationBuilder formReplyToMessage(RealTimeEvent<T> event,
@@ -206,10 +207,11 @@ public class EventToMessage {
     Map<String, Object> formReplies = (Map<String, Object>) implEvent.getFormValues();
     String formId = implEvent.getFormId();
     processVariables.put(formId, formReplies);
-    messageCorrelation = runtimeService.createMessageCorrelation(EventToMessage.FORM_REPLY_PREFIX + formId)
+    runtimeService.createMessageCorrelation(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + formId)
         .processInstanceVariableEquals(formId + ".outputs.msgId", implEvent.getFormMessageId())
-        .setVariables(processVariables);
-    return messageCorrelation;
+        .setVariables(processVariables)
+        .correlateAll();
+    return null;
   }
 
   private List<MessageCorrelationBuilder> messageSentToMessage(RealTimeEvent<V4MessageSent> event,
@@ -218,12 +220,12 @@ public class EventToMessage {
     String textContent = PresentationMLParser.getTextContent(presentationMl);
 
     List<MessageCorrelationBuilder> messages = new ArrayList<>();
-    messages.add(runtimeService.createMessageCorrelation(EventToMessage.MESSAGE_PREFIX + textContent)
-        .setVariables(processVariables));
+    runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX + textContent)
+        .setVariables(processVariables).send();
     // we send 2 messages to correlate if a content is set or not
     // this will change with the generalization of event filtering
-    messages.add(runtimeService.createMessageCorrelation(EventToMessage.MESSAGE_PREFIX)
-        .setVariables(processVariables));
+    runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX)
+        .setVariables(processVariables).send();
     return messages;
   }
 }
