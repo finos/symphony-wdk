@@ -13,8 +13,7 @@ import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
 import java.util.List;
 
 /**
- * Log Camunda events in a specific topic/logger.
- *
+ * Log Camunda events in a specific topic/logger. Events are logged using a key1=value1, key2=value2 format.
  */
 @Slf4j(topic = "audit-trail")
 public class HistoryEventLogger implements HistoryEventHandler {
@@ -68,7 +67,7 @@ public class HistoryEventLogger implements HistoryEventHandler {
       }
 
     } else {
-      log.debug("Event {}", historyEvent);
+      log.trace("Event {}", historyEvent);
     }
   }
 
