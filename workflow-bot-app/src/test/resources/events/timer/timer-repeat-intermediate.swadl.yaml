@@ -1,0 +1,20 @@
+name: timer-repeat-intermediate
+activities:
+  - send-message:
+      id: start
+      on:
+        message-received:
+          content: /execute
+      to:
+        stream-id: abc
+      content: start
+  - send-message:
+      id: repeat
+      on:
+        timer-fired:
+          # even if we repeat it twice, the workflow ends after this task so it is not repeated
+          # a starting event would be repeated by starting multiple executions
+          repeat: R2/PT1S
+      to:
+        stream-id: abc
+      content: repeat

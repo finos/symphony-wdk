@@ -1,0 +1,10 @@
+name: timer-at
+activities:
+  - send-message:
+      id: at-time
+      on:
+        timer-fired:
+          at: SET_IN_TEST
+      to:
+        stream-id: abc
+      content: Ok

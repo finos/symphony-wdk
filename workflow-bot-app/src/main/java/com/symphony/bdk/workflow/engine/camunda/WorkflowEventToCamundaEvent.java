@@ -25,15 +25,10 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
-import org.camunda.bpm.engine.runtime.SignalEventReceivedBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -126,9 +121,8 @@ public class WorkflowEventToCamundaEvent {
     return Optional.empty();
   }
 
-  public <T> List<MessageCorrelationBuilder> dispatch(RealTimeEvent<T> event)
+  public <T> void dispatch(RealTimeEvent<T> event)
       throws PresentationMLParserException {
-    SignalEventReceivedBuilder messageCorrelation = null;
 
     Map<String, Object> processVariables = new HashMap<>();
     processVariables.put(ActivityExecutorContext.EVENT, new EventHolder<>(event.getInitiator(), event.getSource()));
@@ -137,7 +131,7 @@ public class WorkflowEventToCamundaEvent {
       formReplyToMessage(event, processVariables);
 
     } else if (event.getSource() instanceof V4MessageSent) {
-      return messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
+      messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
 
     } else if (event.getSource() instanceof V4RoomCreated) {
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_CREATED)
@@ -195,12 +189,10 @@ public class WorkflowEventToCamundaEvent {
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_ACCEPTED)
           .setVariables(processVariables).send();
     }
-    return Collections.emptyList();
   }
 
-  private <T> MessageCorrelationBuilder formReplyToMessage(RealTimeEvent<T> event,
+  private <T> void formReplyToMessage(RealTimeEvent<T> event,
       Map<String, Object> processVariables) {
-    MessageCorrelationBuilder messageCorrelation;
     // we expect the activity id to be the same as the form id to work
     // correlation across processes is based on the message id tha was created to send the form
     V4SymphonyElementsAction implEvent = (V4SymphonyElementsAction) event.getSource();
@@ -211,21 +203,18 @@ public class WorkflowEventToCamundaEvent {
         .processInstanceVariableEquals(formId + ".outputs.msgId", implEvent.getFormMessageId())
         .setVariables(processVariables)
         .correlateAll();
-    return null;
   }
 
-  private List<MessageCorrelationBuilder> messageSentToMessage(RealTimeEvent<V4MessageSent> event,
+  private void messageSentToMessage(RealTimeEvent<V4MessageSent> event,
       Map<String, Object> processVariables) throws PresentationMLParserException {
     String presentationMl = event.getSource().getMessage().getMessage();
     String textContent = PresentationMLParser.getTextContent(presentationMl);
 
-    List<MessageCorrelationBuilder> messages = new ArrayList<>();
     runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX + textContent)
         .setVariables(processVariables).send();
     // we send 2 messages to correlate if a content is set or not
     // this will change with the generalization of event filtering
     runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX)
         .setVariables(processVariables).send();
-    return messages;
   }
 }

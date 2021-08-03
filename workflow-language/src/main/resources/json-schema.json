@@ -171,6 +171,9 @@
                         },
                         {
                             "$ref": "#/definitions/one-of-event"
+                        },
+                        {
+                            "$ref": "#/definitions/timer-fired-event"
                         }
                     ]
                 }
@@ -445,6 +448,9 @@
                             },
                             {
                                 "$ref": "#/definitions/connection-accepted-event"
+                            },
+                            {
+                                "$ref": "#/definitions/timer-fired-event"
                             }
                         ]
                     }
@@ -453,6 +459,28 @@
             "required": [
                 "one-of"
             ]
+        },
+        "timer-fired-event": {
+            "type": "object",
+            "properties": {
+                "timer-fired": {
+                    "$ref": "#/definitions/timer-fired-event-inner"
+                }
+            },
+            "required": [
+                "timer-fired"
+            ]
+        },
+        "timer-fired-event-inner": {
+            "type": "object",
+            "properties": {
+                "repeat": {
+                    "type": "string"
+                },
+                "at": {
+                    "type": "string"
+                }
+            }
         },
         "user-joined-event-inner": {
             "type": "object",
