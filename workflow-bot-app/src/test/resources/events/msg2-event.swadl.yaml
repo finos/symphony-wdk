@@ -1,0 +1,10 @@
+name: msg2-event
+activities:
+  - send-message:
+      id: one
+      on:
+        message-received:
+          content: /msg
+      to:
+        stream-id: abc
+      content: msg2

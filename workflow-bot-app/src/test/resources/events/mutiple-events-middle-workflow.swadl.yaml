@@ -1,0 +1,21 @@
+name: multiple-events-middle-workflow
+activities:
+  - send-message:
+      id: one
+      on:
+        message-received:
+          content: /one
+      to:
+        stream-id: abc
+      content: One
+  - send-message:
+      id: two
+      on:
+        one-of:
+          - message-received:
+              content: /msg1
+          - message-received:
+              content: /msg2
+      to:
+        stream-id: abc
+      content: Two

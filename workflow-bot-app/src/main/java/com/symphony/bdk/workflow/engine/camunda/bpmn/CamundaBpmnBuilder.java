@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
-import com.symphony.bdk.workflow.engine.camunda.EventToMessage;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
 import com.symphony.bdk.workflow.swadl.ActivityRegistry;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
@@ -19,27 +19,32 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.EventBasedGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class CamundaBpmnBuilder {
 
   private final RepositoryService repositoryService;
-  private final EventToMessage eventToMessage;
+  private final WorkflowEventToCamundaEvent eventToMessage;
 
   @Autowired
   public CamundaBpmnBuilder(RepositoryService repositoryService,
-      EventToMessage eventToMessage) {
+      WorkflowEventToCamundaEvent eventToMessage) {
     this.repositoryService = repositoryService;
     this.eventToMessage = eventToMessage;
   }
@@ -60,23 +65,36 @@ public class CamundaBpmnBuilder {
     return instance;
   }
 
-  private String getStartingEventName(Workflow workflow) {
+  private List<String> getStartingSignalName(Workflow workflow) {
     return workflow.getFirstActivity()
-        .flatMap(Activity::getEvent)
-        .flatMap(eventToMessage::toMessageName)
-        .orElseThrow(NoStartingEventException::new);
+        .map(Activity::getEvents)
+        .orElseThrow(NoStartingEventException::new)
+        .stream()
+        .map(eventToMessage::toSignalName)
+        .flatMap(Optional::stream)
+        .collect(Collectors.toList());
   }
 
   @SneakyThrows
   private BpmnModelInstance workflowToBpmn(Workflow workflow) {
     ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow));
 
-    // a workflow starts with a message event
-    String startingEventName = getStartingEventName(workflow);
-    AbstractFlowNodeBuilder<?, ?> builder = process
-        .startEvent()
-        .message(startingEventName)
-        .name(startingEventName);
+    // a workflow starts with at least one named signal event
+    List<String> startingSignals = getStartingSignalName(workflow);
+    if (startingSignals.isEmpty()) {
+      throw new NoStartingEventException();
+    }
+    AbstractFlowNodeBuilder<?, ?> builder = null;
+    List<AbstractFlowNodeBuilder<?, ?>> multipleEvents = new ArrayList<>();
+    for (String startingSignal : startingSignals) {
+      builder = process
+          .startEvent()
+          .signal(startingSignal)
+          .name(startingSignal);
+      multipleEvents.add(builder);
+    }
+    // last start event is automatically connected, so we don't need it
+    multipleEvents.remove(multipleEvents.size() - 1);
 
     // we have to carry a bit of state while processing the activities
     String lastActivity = "";
@@ -89,6 +107,29 @@ public class CamundaBpmnBuilder {
     // then each activity is processed
     for (Activity activityContainer : workflow.getActivities()) {
       BaseActivity activity = activityContainer.getActivity();
+
+      // intermediate events
+      if (!isFirstActivity(lastActivity) && !activity.getEvents().isEmpty()) {
+        List<String> intermediateEvents = activity.getEvents().stream()
+            .map(eventToMessage::toSignalName)
+            .flatMap(Optional::stream)
+            .collect(Collectors.toList());
+        if (!intermediateEvents.isEmpty()) {
+          builder = builder.eventBasedGateway();
+          for (String eventName : intermediateEvents) {
+            if (!(builder instanceof EventBasedGatewayBuilder)) {
+              builder = builder.moveToLastGateway();
+            }
+            builder = builder
+                .intermediateCatchEvent()
+                .signal(eventName)
+                .name(eventName);
+            multipleEvents.add(builder); // will be connected after the activity is created
+          }
+          // last event is automatically created when activity is added
+          multipleEvents.remove(multipleEvents.size() - 1);
+        }
+      }
 
       // process events starting the activity
       if (onFormRepliedEvent(activity)) {
@@ -140,6 +181,12 @@ public class CamundaBpmnBuilder {
         }
       }
 
+      // connect multiple start or intermediate events (can be done once the activity is created only)
+      for (AbstractFlowNodeBuilder<?, ?> event : multipleEvents) {
+        event.connectTo(activity.getId());
+      }
+      multipleEvents.clear(); // empty it for next activity
+
       // store loop flows to build later
       if (activity.getOn() != null && activity.getOn().getOneOf() != null) {
         for (Event event : activity.getOn().getOneOf()) {
@@ -180,6 +227,10 @@ public class CamundaBpmnBuilder {
     BpmnModelInstance model = builder.done();
     process.addExtensionElement(VariablesListener.create(model, workflow.getVariables()));
     return model;
+  }
+
+  private boolean isFirstActivity(String lastActivity) {
+    return lastActivity.equals("");
   }
 
   private boolean onConditional(BaseActivity activity) {

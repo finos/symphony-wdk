@@ -2,12 +2,15 @@ package com.symphony.bdk.workflow.swadl.v1.activity;
 
 import com.symphony.bdk.workflow.swadl.v1.Event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Base implementation of an activity providing data shared across all activities.
- *
  */
 @Data
 public abstract class BaseActivity {
@@ -37,4 +40,15 @@ public abstract class BaseActivity {
 
   @JsonProperty("else")
   private Object elseCondition;
+
+  @JsonIgnore
+  public List<Event> getEvents() {
+    if (on != null && on.getOneOf() != null) {
+      return on.getOneOf();
+    } else if (on != null) {
+      return Collections.singletonList(on);
+    } else {
+      return Collections.emptyList();
+    }
+  }
 }

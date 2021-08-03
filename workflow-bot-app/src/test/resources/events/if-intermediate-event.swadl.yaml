@@ -1,0 +1,23 @@
+name: if-intermediate-event
+variables:
+  foo: foo
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: |
+        println "act1"
+  - send-message:
+      id: act2
+      on:
+        message-received:
+          content: /execute2
+      # will be executed because of the if
+      # single quotes are needed otherwise it does not play well with the activity being passed as JSON
+      if: ${variables.foo == 'foo'}
+      to:
+        stream-id: abc
+      content: act2
+

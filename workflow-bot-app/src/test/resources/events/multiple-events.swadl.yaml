@@ -1,0 +1,13 @@
+name: multiple-events
+activities:
+  - send-message:
+      id: one
+      on:
+        one-of:
+          - message-received:
+              content: /msg1
+          - message-received:
+              content: /msg2
+      to:
+        stream-id: abc
+      content: msg

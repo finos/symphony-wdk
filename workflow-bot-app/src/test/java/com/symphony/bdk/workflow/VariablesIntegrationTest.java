@@ -44,7 +44,8 @@ class VariablesIntegrationTest extends IntegrationTest {
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/typed-variables.swadl.yaml"));
 
     engine.execute(workflow);
-    String processId = engine.onEvent(messageReceived("/send")).get();
+    engine.onEvent(messageReceived("/send"));
+    String processId = lastProcess().get();
 
     await().atMost(5, SECONDS).until(() -> processIsCompleted(processId));
   }
