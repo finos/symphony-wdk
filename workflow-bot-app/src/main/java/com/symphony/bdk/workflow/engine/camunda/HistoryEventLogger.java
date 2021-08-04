@@ -21,50 +21,16 @@ public class HistoryEventLogger implements HistoryEventHandler {
   @Override
   public void handleEvent(HistoryEvent historyEvent) {
     if (historyEvent instanceof HistoricJobLogEvent) {
-      HistoricJobLogEvent jobLogEvent = (HistoricJobLogEvent) historyEvent;
-      log.info("job={}, job_type={}, process={}, process_key={}, activity={}",
-          jobLogEvent.getJobId(), jobLogEvent.getJobDefinitionType(),
-          jobLogEvent.getProcessDefinitionId(), jobLogEvent.getProcessDefinitionKey(),
-          jobLogEvent.getActivityId());
+      logJobEvent((HistoricJobLogEvent) historyEvent);
 
     } else if (historyEvent instanceof HistoricProcessInstanceEventEntity) {
-      HistoricProcessInstanceEventEntity instanceEvent = (HistoricProcessInstanceEventEntity) historyEvent;
-      if (instanceEvent.getDurationInMillis() == null) {
-        log.info("event={}, process={}, process_key={}",
-            instanceEvent.getEventType(),
-            instanceEvent.getProcessDefinitionId(), instanceEvent.getProcessDefinitionKey());
-      } else {
-        log.info("event={}, process={}, process_key={}, duration={}",
-            instanceEvent.getEventType(),
-            instanceEvent.getProcessDefinitionId(), instanceEvent.getProcessDefinitionKey(),
-            instanceEvent.getDurationInMillis());
-      }
+      logProcessEvent((HistoricProcessInstanceEventEntity) historyEvent);
 
     } else if (historyEvent instanceof HistoricActivityInstanceEventEntity) {
-      HistoricActivityInstanceEventEntity instanceEvent = (HistoricActivityInstanceEventEntity) historyEvent;
-      if (instanceEvent.getDurationInMillis() == null) {
-        log.info("event={}, process={}, process_key={}, activity={}, activity_name={}",
-            instanceEvent.getEventType(),
-            instanceEvent.getProcessDefinitionId(), instanceEvent.getProcessDefinitionKey(),
-            instanceEvent.getActivityId(), instanceEvent.getActivityName());
-      } else {
-        log.info("event={}, process={}, process_key={}, activity={}, activity_name={}, duration={}",
-            instanceEvent.getEventType(),
-            instanceEvent.getProcessDefinitionId(), instanceEvent.getProcessDefinitionKey(),
-            instanceEvent.getActivityId(), instanceEvent.getActivityName(),
-            instanceEvent.getDurationInMillis());
-      }
+      logActivityEvent((HistoricActivityInstanceEventEntity) historyEvent);
 
     } else if (historyEvent instanceof HistoricVariableUpdateEventEntity) {
-      HistoricVariableUpdateEventEntity variableEvent = (HistoricVariableUpdateEventEntity) historyEvent;
-
-      // for DF2 events the initiator variable is set to pass the user id that triggered the execution
-      if (ActivityExecutorContext.INITIATOR.equals(variableEvent.getVariableName())
-          && variableEvent.getLongValue() != null) {
-        log.info("initiator={}, process={}, process_key={}",
-            variableEvent.getLongValue(),
-            variableEvent.getProcessDefinitionId(), variableEvent.getProcessDefinitionKey());
-      }
+      logVariableEvent((HistoricVariableUpdateEventEntity) historyEvent);
 
     } else {
       log.trace("Event {}", historyEvent);
@@ -75,6 +41,51 @@ public class HistoryEventLogger implements HistoryEventHandler {
   public void handleEvents(List<HistoryEvent> historyEvents) {
     for (HistoryEvent historyEvent : historyEvents) {
       handleEvent(historyEvent);
+    }
+  }
+
+  private void logJobEvent(HistoricJobLogEvent event) {
+    log.info("job={}, job_type={}, process={}, process_key={}, activity={}",
+        event.getJobId(), event.getJobDefinitionType(),
+        event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+        event.getActivityId());
+  }
+
+  private void logProcessEvent(HistoricProcessInstanceEventEntity event) {
+    if (event.getDurationInMillis() == null) {
+      log.info("event={}, process={}, process_key={}",
+          event.getEventType(),
+          event.getProcessDefinitionId(), event.getProcessDefinitionKey());
+    } else {
+      log.info("event={}, process={}, process_key={}, duration={}",
+          event.getEventType(),
+          event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+          event.getDurationInMillis());
+    }
+  }
+
+  private void logActivityEvent(HistoricActivityInstanceEventEntity event) {
+    if (event.getDurationInMillis() == null) {
+      log.info("event={}, process={}, process_key={}, activity={}, activity_name={}",
+          event.getEventType(),
+          event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+          event.getActivityId(), event.getActivityName());
+    } else {
+      log.info("event={}, process={}, process_key={}, activity={}, activity_name={}, duration={}",
+          event.getEventType(),
+          event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+          event.getActivityId(), event.getActivityName(),
+          event.getDurationInMillis());
+    }
+  }
+
+  private void logVariableEvent(HistoricVariableUpdateEventEntity event) {
+    // for DF2 events the initiator variable is set to pass the user id that triggered the execution
+    if (ActivityExecutorContext.INITIATOR.equals(event.getVariableName())
+        && event.getLongValue() != null) {
+      log.info("initiator={}, process={}, process_key={}",
+          event.getLongValue(),
+          event.getProcessDefinitionId(), event.getProcessDefinitionKey());
     }
   }
 }

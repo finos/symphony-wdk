@@ -9,6 +9,8 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.MDC;
@@ -19,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class CamundaExecutor implements JavaDelegate {
 
@@ -58,7 +61,13 @@ public class CamundaExecutor implements JavaDelegate {
 
     try {
       setMdc(execution);
-      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+      try {
+        executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+      } catch (Exception e) {
+        log.error("Activity {} for process {} failed",
+            execution.getCurrentActivityId(), execution.getProcessInstanceId(), e);
+        throw new BpmnError("FAILURE", e);
+      }
     } finally {
       clearMdc();
     }
