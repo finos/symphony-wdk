@@ -1,8 +1,13 @@
 bdk:
   host: devx3.symphony.com
+#  agent:
+#    host: localhost.symphony.com
+#    port: 9443
 
+#  datafeed:
+#    version: v2
   bot:
-    username: workflow-bot
+    username: daneel-bot
     privateKey:
       path: rsa/privatekey.pem
 

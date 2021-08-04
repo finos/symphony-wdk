@@ -1,0 +1,13 @@
+name: timer-repeat-mixed
+activities:
+  - send-message:
+      id: every-second
+      on:
+        one-of:
+          - message-received:
+              content: /execute
+          - timer-fired:
+              repeat: R2/PT1S
+      to:
+        stream-id: abc
+      content: Ok

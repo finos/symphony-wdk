@@ -1,0 +1,10 @@
+name: timer-repeat
+activities:
+  - send-message:
+      id: every-second
+      on:
+        timer-fired:
+          repeat: R/PT1S
+      to:
+        stream-id: abc
+      content: Ok

@@ -14,6 +14,7 @@ import com.symphony.bdk.workflow.swadl.v1.event.RoomDeactivatedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RoomMemberPromotedToOwnerEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RoomReactivatedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RoomUpdatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.TimerFiredEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.UserLeftRoomEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.UserRequestedToJoinRoomEvent;
@@ -65,4 +66,6 @@ public class Event {
   private ConnectionRequestedEvent connectionRequested;
 
   private ConnectionAcceptedEvent connectionAccepted;
+
+  private TimerFiredEvent timerFired;
 }
