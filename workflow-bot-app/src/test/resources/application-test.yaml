@@ -1,3 +1,7 @@
+bdk:
+  datafeed:
+    enabled: false
+
 logging:
   register-shutdown-hook: true # to avoid shutdown hooks logs in console with Gradle
   level:
