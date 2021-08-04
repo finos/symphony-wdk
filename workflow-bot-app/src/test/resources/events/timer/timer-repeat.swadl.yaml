@@ -4,7 +4,7 @@ activities:
       id: every-second
       on:
         timer-fired:
-          repeat: R/PT1S
+          repeat: R/PT0.1S
       to:
         stream-id: abc
       content: Ok

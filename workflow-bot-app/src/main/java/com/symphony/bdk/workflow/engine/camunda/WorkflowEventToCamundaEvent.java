@@ -127,6 +127,12 @@ public class WorkflowEventToCamundaEvent {
     Map<String, Object> processVariables = new HashMap<>();
     processVariables.put(ActivityExecutorContext.EVENT, new EventHolder<>(event.getInitiator(), event.getSource()));
 
+    if (event.getInitiator() != null
+        && event.getInitiator().getUser() != null
+        && event.getInitiator().getUser().getUserId() != null) {
+      processVariables.put(ActivityExecutorContext.INITIATOR, event.getInitiator().getUser().getUserId());
+    }
+
     if (event.getSource() instanceof V4SymphonyElementsAction) {
       formReplyToMessage(event, processVariables);
 

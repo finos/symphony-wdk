@@ -9,8 +9,11 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.ParameterizedType;
@@ -18,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class CamundaExecutor implements JavaDelegate {
 
@@ -25,6 +29,10 @@ public class CamundaExecutor implements JavaDelegate {
   public static final String ACTIVITY = "activity";
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  // set MDC entries so that executors can produce log that we can contextualize
+  private static final String MDC_PROCESS_ID = "PROCESS_ID";
+  private static final String MDC_ACTIVITY_ID = "ACTIVITY_ID";
 
   static {
     OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -51,7 +59,28 @@ public class CamundaExecutor implements JavaDelegate {
 
     EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);
 
-    executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+    try {
+      setMdc(execution);
+      try {
+        executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+      } catch (Exception e) {
+        log.error("Activity {} for process {} failed",
+            execution.getCurrentActivityId(), execution.getProcessInstanceId(), e);
+        throw new BpmnError("FAILURE", e);
+      }
+    } finally {
+      clearMdc();
+    }
+  }
+
+  private void setMdc(DelegateExecution execution) {
+    MDC.put(MDC_PROCESS_ID, execution.getProcessInstanceId());
+    MDC.put(MDC_ACTIVITY_ID, execution.getActivityInstanceId());
+  }
+
+  private void clearMdc() {
+    MDC.remove(MDC_PROCESS_ID);
+    MDC.remove(MDC_ACTIVITY_ID);
   }
 
   private class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {

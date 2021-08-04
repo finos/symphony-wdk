@@ -1,0 +1,14 @@
+bdk:
+  datafeed:
+    enabled: false
+
+logging:
+  register-shutdown-hook: true # to avoid shutdown hooks logs in console with Gradle
+  level:
+    org.camunda: INFO
+
+camunda:
+  bpm:
+    job-execution:
+      # faster test execution by waking up the job executor quickly
+      wait-time-in-millis: 100

@@ -373,7 +373,9 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   private V4Initiator initiator() {
     V4Initiator initiator = new V4Initiator();
-    initiator.setUser(new V4User());
+    V4User user = new V4User();
+    user.setUserId(123L);
+    initiator.setUser(user);
     return initiator;
   }
 }

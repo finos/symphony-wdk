@@ -1,4 +1,4 @@
-name: on-user-requested-join-roon
+name: on-user-requested-join-room
 activities:
   - execute-script:
       id: doIt

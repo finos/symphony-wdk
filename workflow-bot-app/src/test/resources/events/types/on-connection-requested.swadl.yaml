@@ -1,4 +1,4 @@
-name: on-im-created
+name: on-connection-requested
 activities:
   - execute-script:
       id: doIt

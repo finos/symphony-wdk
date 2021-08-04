@@ -95,6 +95,9 @@ public class WorkflowFolderWatcher {
         }
         key.reset();
       }
+    } catch (InterruptedException e) {
+      // ignored, thrown when stopping watcher
+      Thread.currentThread().interrupt();
     } catch (ClosedWatchServiceException e) {
       // ignored, thrown when stopping watcher
     }

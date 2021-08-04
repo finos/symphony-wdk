@@ -27,13 +27,13 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
 
     if (uids != null && !uids.isEmpty() && !StringUtils.isEmpty(name) && !StringUtils.isEmpty(description)) {
       createdRoomId = this.createRoom(execution, uids, name, description, isPublic);
-      log.info("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
+      log.debug("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
     } else if (uids != null && !uids.isEmpty()) {
       createdRoomId = this.createRoom(execution, uids);
-      log.info("MIM created with {} users, id={}", uids.size(), createdRoomId);
+      log.debug("MIM created with {} users, id={}", uids.size(), createdRoomId);
     } else {
       createdRoomId = this.createRoom(execution, name, description, isPublic);
-      log.info("Stream {} created, id={}", name, createdRoomId);
+      log.debug("Stream {} created, id={}", name, createdRoomId);
     }
 
     execution.setOutputVariable(OUTPUT_ROOM_ID_KEY, createdRoomId);
