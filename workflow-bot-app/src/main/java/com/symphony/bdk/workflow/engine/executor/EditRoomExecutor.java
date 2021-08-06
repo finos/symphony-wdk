@@ -39,6 +39,7 @@ public class EditRoomExecutor implements ActivityExecutor<EditRoom> {
   }
 
   private boolean shouldUpdateRoom(EditRoom editRoom) {
+    // active is a different API call so it is handled separately and not checked here
     return editRoom.getRoomName() != null
         || editRoom.getRoomDescription() != null
         || editRoom.getKeywords() != null
