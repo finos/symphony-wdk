@@ -10,12 +10,13 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.camunda.bpm.engine.variable.Variables;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -61,13 +62,7 @@ public class CamundaExecutor implements JavaDelegate {
 
     try {
       setMdc(execution);
-      try {
-        executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
-      } catch (Exception e) {
-        log.error("Activity {} for process {} failed",
-            execution.getCurrentActivityId(), execution.getProcessInstanceId(), e);
-        throw new BpmnError("FAILURE", e);
-      }
+      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
     } finally {
       clearMdc();
     }
@@ -99,9 +94,23 @@ public class CamundaExecutor implements JavaDelegate {
       Map<String, Object> innerMap = Collections.singletonMap(name, value);
       Map<String, Object> outerMap = Collections.singletonMap(ActivityExecutorContext.OUTPUTS, innerMap);
       String activityId = getActivity().getId();
-      execution.setVariable(activityId, outerMap);
+
+      // value might not implement serializable, so we use JSON if needed
+      Object outerMapVar;
+      Object valueVar;
+      if (value instanceof Serializable) {
+        outerMapVar = outerMap;
+        valueVar = value;
+      } else {
+        outerMapVar =
+            Variables.objectValue(outerMap).serializationDataFormat(Variables.SerializationDataFormats.JSON).create();
+        valueVar =
+            Variables.objectValue(value).serializationDataFormat(Variables.SerializationDataFormats.JSON).create();
+      }
+
+      execution.setVariable(activityId, outerMapVar);
       // flatten it too for message correlation
-      execution.setVariable(String.format("%s.%s.%s", activityId, ActivityExecutorContext.OUTPUTS, name), value);
+      execution.setVariable(String.format("%s.%s.%s", activityId, ActivityExecutorContext.OUTPUTS, name), valueVar);
     }
 
     @Override

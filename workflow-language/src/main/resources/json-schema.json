@@ -42,6 +42,21 @@
                         "$ref": "#/definitions/create-room"
                     },
                     {
+                        "$ref": "#/definitions/edit-room"
+                    },
+                    {
+                        "$ref": "#/definitions/add-room-member"
+                    },
+                    {
+                        "$ref": "#/definitions/remove-room-member"
+                    },
+                    {
+                        "$ref": "#/definitions/promote-room-owner"
+                    },
+                    {
+                        "$ref": "#/definitions/demote-room-owner"
+                    },
+                    {
                         "$ref": "#/definitions/send-message"
                     },
                     {
@@ -58,6 +73,21 @@
                             },
                             "create-room": {
                                 "$ref": "#/definitions/create-room"
+                            },
+                            "edit-room": {
+                                "$ref": "#/definitions/edit-room"
+                            },
+                            "add-room-member": {
+                                "$ref": "#/definitions/add-room-member"
+                            },
+                            "remove-room-member": {
+                                "$ref": "#/definitions/remove-room-member"
+                            },
+                            "promote-room-owner": {
+                                "$ref": "#/definitions/promote-room-owner"
+                            },
+                            "demote-room-owner": {
+                                "$ref": "#/definitions/demote-room-owner"
                             },
                             ".*": {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -78,6 +108,96 @@
             },
             "required": [
                 "create-room"
+            ]
+        },
+        "edit-room": {
+            "type": "object",
+            "properties": {
+                "edit-room": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/edit-room-inner"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "edit-room"
+            ]
+        },
+        "add-room-member": {
+            "type": "object",
+            "properties": {
+                "add-room-member": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/add-room-member-inner"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "add-room-member"
+            ]
+        },
+        "remove-room-member": {
+            "type": "object",
+            "properties": {
+                "remove-room-member": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/remove-room-member-inner"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "remove-room-member"
+            ]
+        },
+        "promote-room-owner": {
+            "type": "object",
+            "properties": {
+                "promote-room-owner": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/promote-room-owner-inner"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "promote-room-owner"
+            ]
+        },
+        "demote-room-owner": {
+            "type": "object",
+            "properties": {
+                "demote-room-owner": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/demote-room-owner-inner"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "demote-room-owner"
             ]
         },
         "send-message": {
@@ -655,6 +775,113 @@
                 },
                 "on": {
                     "$ref": "#/definitions/on"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "edit-room-inner": {
+            "type": "object",
+            "required": [
+                "stream-id"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "room-name": {
+                    "type": "string"
+                },
+                "room-description": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "object"
+                },
+                "membersCanInvite": {
+                    "type": "boolean"
+                },
+                "discoverable": {
+                    "type": "boolean"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "readOnly": {
+                    "type": "boolean"
+                },
+                "copyProtected": {
+                    "type": "boolean"
+                },
+                "crossPod": {
+                    "type": "boolean"
+                },
+                "viewHistory": {
+                    "type": "boolean"
+                },
+                "multiLateralRoom": {
+                    "type": "boolean"
+                },
+                "active": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "add-room-member-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "remove-room-member-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "promote-room-owner-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "demote-room-owner-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
                 },
                 "uids": {
                     "type": "array"

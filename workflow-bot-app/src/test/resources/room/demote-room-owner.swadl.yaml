@@ -1,0 +1,11 @@
+name: demote-room-owner
+activities:
+  - demote-room-owner:
+      id: demoteRoomOwner
+      on:
+        message-received:
+          content: "/demote-room-owner"
+      stream-id: abc
+      uids:
+        - 123
+        - 456

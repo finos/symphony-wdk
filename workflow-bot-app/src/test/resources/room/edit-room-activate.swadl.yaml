@@ -1,0 +1,13 @@
+name: edit-room-activate
+activities:
+  - edit-room:
+      id: editRoom
+      on:
+        message-received:
+          content: "/edit-room"
+      stream-id: abc
+      active: true
+  - execute-script:
+      id: checkOutput
+      script: |
+        assert editRoom.outputs.room.roomSystemInfo.id == "abc"

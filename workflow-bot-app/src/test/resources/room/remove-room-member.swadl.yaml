@@ -1,0 +1,11 @@
+name: remove-room-member
+activities:
+  - remove-room-member:
+      id: removeRoomMember
+      on:
+        message-received:
+          content: "/remove-room-member"
+      stream-id: abc
+      uids:
+        - 123
+        - 456

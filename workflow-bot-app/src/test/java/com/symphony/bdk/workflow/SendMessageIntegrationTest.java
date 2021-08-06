@@ -44,7 +44,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
       "Given two activities: create-room and send-message, when the room is created, then a message is sent to it")
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-and-send-message.swadl.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
     final V4Message message = new V4Message().messageId("msgId");
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");

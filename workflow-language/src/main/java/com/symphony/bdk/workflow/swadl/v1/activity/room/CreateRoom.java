@@ -1,4 +1,6 @@
-package com.symphony.bdk.workflow.swadl.v1.activity;
+package com.symphony.bdk.workflow.swadl.v1.activity.room;
+
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +10,9 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @see <a href="https://developers.symphony.com/restapi/reference#create-room-v3">Create room API</a>
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CreateRoom extends BaseActivity {
