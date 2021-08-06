@@ -1,0 +1,11 @@
+name: promote-room-owner
+activities:
+  - promote-room-owner:
+      id: promoteRoomOwner
+      on:
+        message-received:
+          content: "/promote-room-owner"
+      stream-id: abc
+      uids:
+        - 123
+        - 456

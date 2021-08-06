@@ -19,7 +19,7 @@ class EventsIntegrationTest extends IntegrationTest {
   @Test
   void eventInTheMiddleOfWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/event-middle-workflow.swadl.yaml"));
+            "/event/event-middle-workflow.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
@@ -34,9 +34,9 @@ class EventsIntegrationTest extends IntegrationTest {
   @Test
   void twoWorkflowsSameEvent() throws IOException, ProcessingException {
     final Workflow workflow1 = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/msg1-event.swadl.yaml"));
+            "/event/msg1-event.swadl.yaml"));
     final Workflow workflow2 = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/msg2-event.swadl.yaml"));
+            "/event/msg2-event.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow1);
@@ -50,7 +50,7 @@ class EventsIntegrationTest extends IntegrationTest {
   @Test
   void multipleStartingEvents() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/multiple-events.swadl.yaml"));
+            "/event/multiple-events.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
@@ -64,7 +64,7 @@ class EventsIntegrationTest extends IntegrationTest {
   @Test
   void multipleEventsMiddleOfWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/mutiple-events-middle-workflow.swadl.yaml"));
+            "/event/mutiple-events-middle-workflow.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
@@ -83,7 +83,7 @@ class EventsIntegrationTest extends IntegrationTest {
   @Test
   void ifWithIntermediateEvent() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/if-intermediate-event.swadl.yaml"));
+            "/event/if-intermediate-event.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);

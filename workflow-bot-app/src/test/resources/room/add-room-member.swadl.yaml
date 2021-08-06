@@ -1,0 +1,11 @@
+name: add-room-member
+activities:
+  - add-room-member:
+      id: addRoomMember
+      on:
+        message-received:
+          content: "/add-room-member"
+      stream-id: abc
+      uids:
+        - 123
+        - 456

@@ -21,7 +21,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
   @Test
   void at() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/timer/timer-at.swadl.yaml"));
+        "/event/timer/timer-at.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     // set workflow to execute once in the future
@@ -36,7 +36,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
   @Test
   void repeat() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/timer/timer-repeat.swadl.yaml"));
+        "/event/timer/timer-repeat.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
@@ -48,7 +48,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
   @Test
   void repeatAsIntermediateEvent() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/timer/timer-repeat-intermediate.swadl.yaml"));
+        "/event/timer/timer-repeat-intermediate.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
@@ -62,7 +62,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
   @Test
   void repeatMixedWithOtherEvents() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-        "/events/timer/timer-repeat-mixed.swadl.yaml"));
+        "/event/timer/timer-repeat-mixed.swadl.yaml"));
     when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
