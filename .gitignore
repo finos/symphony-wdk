@@ -92,3 +92,6 @@ workflow-bot-app/datafeed.id
 
 workflow-bot-app/*.bpmn
 workflow-bot-app/*.png
+
+workflow-bot-app/workflows
+!workflow-bot-app/workflows/README.txt
