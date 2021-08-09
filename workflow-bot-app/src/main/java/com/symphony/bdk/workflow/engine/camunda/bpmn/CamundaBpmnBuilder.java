@@ -21,8 +21,8 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.EventBasedGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
+import org.camunda.bpm.model.bpmn.builder.IntermediateCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +36,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Events are created with async before to make sure they are not blocking the dispatch of events (starting or
+ * intermediate). This way, 2 workflows listening to the same event are started in parallel
+ */
 @Slf4j
 @Component
 public class CamundaBpmnBuilder {
@@ -206,6 +210,7 @@ public class CamundaBpmnBuilder {
             if (signalName.isPresent()) {
               builder = createOrMoveEventGateway(builder);
               builder = builder.intermediateCatchEvent()
+                  .camundaAsyncBefore()
                   .signal(signalName.get())
                   .name(signalName.get());
               eventsToConnect.add(builder); // will be connected after the activity is created
@@ -222,7 +227,7 @@ public class CamundaBpmnBuilder {
   }
 
   private AbstractFlowNodeBuilder<?, ?> createOrMoveEventGateway(AbstractFlowNodeBuilder<?, ?> builder) {
-    if (builder instanceof EventBasedGatewayBuilder) {
+    if (builder instanceof IntermediateCatchEventBuilder) {
       builder = builder.moveToLastGateway();
     } else {
       builder = builder.eventBasedGateway();
@@ -245,6 +250,7 @@ public class CamundaBpmnBuilder {
           Optional<String> signalName = eventToMessage.toSignalName(event);
           if (signalName.isPresent()) {
             builder = process.startEvent()
+                .camundaAsyncBefore()
                 .signal(signalName.get())
                 .name(signalName.get());
             multipleEvents.add(builder);
@@ -315,8 +321,9 @@ public class CamundaBpmnBuilder {
     // we add the form reply event sub process inside the subprocess
     builder = subProcess.embeddedSubProcess().eventSubProcess()
         .startEvent()
+        .camundaAsyncBefore()
         .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-        .message("formReply_" + activity.getOn().getFormReplied().getId())
+        .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getId())
         .name("formReply");
     return builder;
   }
@@ -331,19 +338,19 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  private AbstractFlowNodeBuilder<?, ?> addScriptTask(AbstractFlowNodeBuilder<?, ?> eventBuilder,
+  private AbstractFlowNodeBuilder<?, ?> addScriptTask(AbstractFlowNodeBuilder<?, ?> builder,
       ExecuteScript scriptActivity) {
-    eventBuilder = eventBuilder.scriptTask()
+    builder = builder.scriptTask()
         .id(scriptActivity.getId())
         .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
         .scriptText(scriptActivity.getScript())
         .scriptFormat(ExecuteScript.SCRIPT_ENGINE);
-    return eventBuilder;
+    return builder;
   }
 
-  private AbstractFlowNodeBuilder<?, ?> addServiceTask(AbstractFlowNodeBuilder<?, ?> eventBuilder,
+  private AbstractFlowNodeBuilder<?, ?> addServiceTask(AbstractFlowNodeBuilder<?, ?> builder,
       BaseActivity activity) throws JsonProcessingException {
-    eventBuilder = eventBuilder.serviceTask()
+    builder = builder.serviceTask()
         .id(activity.getId())
         .name(Objects.toString(activity.getName(), activity.getId()))
         .camundaClass(CamundaExecutor.class)
@@ -351,7 +358,7 @@ public class CamundaBpmnBuilder {
             ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())
         .camundaInputParameter(CamundaExecutor.ACTIVITY,
             CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
-    return eventBuilder;
+    return builder;
   }
 
 }

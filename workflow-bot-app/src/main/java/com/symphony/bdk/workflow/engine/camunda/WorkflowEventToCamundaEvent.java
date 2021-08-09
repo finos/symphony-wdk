@@ -43,7 +43,7 @@ public class WorkflowEventToCamundaEvent {
   static final String MESSAGE_SUPPRESSED = "message-suppressed";
   static final String POST_SHARED = "post-shared";
   static final String IM_CREATED = "im-created";
-  static final String FORM_REPLY_PREFIX = "formReply_";
+  public static final String FORM_REPLY_PREFIX = "formReply_";
   static final String ROOM_CREATED = "room-created";
   static final String ROOM_UPDATED = "room-updated";
   static final String ROOM_DEACTIVATED = "room-deactivated";

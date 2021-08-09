@@ -19,6 +19,7 @@ camunda:
     job-execution:
       wait-time-in-millis: 1000
       max-wait: 1000
+      # Tuning the job executor thread pools can help if many workflows need to be executed at the same time
     # Remove WARN logs at startup (we are not using this feature but our own watcher)
     deployment-resource-pattern:
     generic-properties:
