@@ -27,25 +27,33 @@ public class CamundaEngine implements WorkflowEngine {
   @Autowired
   private WorkflowEventToCamundaEvent events;
 
+  @Autowired
+  private AuditTrailLogger auditTrailLogger;
+
   @Override
   public void execute(Workflow workflow) throws IOException {
     Deployment deployment = bpmnBuilder.addWorkflow(workflow);
     log.info("Deployed workflow {}", deployment.getId());
+    auditTrailLogger.deployed(deployment);
   }
 
   @Override
   public void stop(String workflowName) {
     for (Deployment deployment : repositoryService.createDeploymentQuery().deploymentName(workflowName).list()) {
-      repositoryService.deleteDeployment(deployment.getId(), true);
-      log.info("Removed workflow {}", deployment.getName());
+      stop(deployment);
     }
+  }
+
+  private void stop(Deployment deployment) {
+    repositoryService.deleteDeployment(deployment.getId(), true);
+    log.info("Removed workflow {}", deployment.getName());
+    auditTrailLogger.undeployed(deployment);
   }
 
   @Override
   public void stopAll() {
     for (Deployment deployment : repositoryService.createDeploymentQuery().list()) {
-      repositoryService.deleteDeployment(deployment.getId(), true);
-      log.info("Removed workflow {}", deployment.getName());
+      CamundaEngine.this.stop(deployment);
     }
   }
 

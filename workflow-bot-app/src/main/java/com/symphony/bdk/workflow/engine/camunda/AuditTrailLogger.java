@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.history.event.HistoricActivityInstanceEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoricJobLogEvent;
 import org.camunda.bpm.engine.impl.history.event.HistoricProcessInstanceEventEntity;
@@ -10,6 +11,7 @@ import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEnti
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
 import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
 import org.camunda.bpm.engine.impl.persistence.entity.DeploymentEntity;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.springframework.stereotype.Component;
@@ -50,9 +52,9 @@ public class AuditTrailLogger implements HistoryEventHandler {
   }
 
   private void logJobEvent(HistoricJobLogEvent event) {
-    log.info("event={}, job={}, job_type={}, process={}, process_key={}, activity={}",
-        event.getEventType(), event.getJobId(), event.getJobDefinitionType(),
-        event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+    log.info("job={}, job_type={}, process={}, process_key={}, activity={}",
+        event.getJobId(), event.getJobDefinitionType(),
+        event.getProcessInstanceId(), event.getProcessDefinitionKey(),
         event.getActivityId());
   }
 
@@ -60,11 +62,11 @@ public class AuditTrailLogger implements HistoryEventHandler {
     if (event.getDurationInMillis() == null) {
       log.info("event={}_process, process={}, process_key={}",
           event.getEventType(),
-          event.getProcessDefinitionId(), event.getProcessDefinitionKey());
+          event.getProcessInstanceId(), event.getProcessDefinitionKey());
     } else {
       log.info("event={}_process, process={}, process_key={}, duration={}",
           event.getEventType(),
-          event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+          event.getProcessInstanceId(), event.getProcessDefinitionKey(),
           event.getDurationInMillis());
     }
   }
@@ -73,35 +75,35 @@ public class AuditTrailLogger implements HistoryEventHandler {
     if (event.getDurationInMillis() == null) {
       log.info("event={}_activity, process={}, process_key={}, activity={}, activity_name={}",
           event.getEventType(),
-          event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+          event.getProcessInstanceId(), event.getProcessDefinitionKey(),
           event.getActivityId(), event.getActivityName());
     } else {
       log.info("event={}_activity, process={}, process_key={}, activity={}, activity_name={}, duration={}",
           event.getEventType(),
-          event.getProcessDefinitionId(), event.getProcessDefinitionKey(),
+          event.getProcessInstanceId(), event.getProcessDefinitionKey(),
           event.getActivityId(), event.getActivityName(),
           event.getDurationInMillis());
     }
   }
 
   private void logVariableEvent(HistoricVariableUpdateEventEntity event) {
-    // for DF2 events the initiator variable is set to pass the user id that triggered the execution
+    // for DF events the initiator variable is set to pass the user id that triggered the execution
     if (ActivityExecutorContext.INITIATOR.equals(event.getVariableName())
         && event.getLongValue() != null) {
       log.info("initiator={}, process={}, process_key={}",
           event.getLongValue(),
-          event.getProcessDefinitionId(), event.getProcessDefinitionKey());
+          event.getProcessInstanceId(), event.getProcessDefinitionKey());
     }
   }
 
   public void deployed(Deployment deployment) {
     log.info("event={}, deployment={}, deployment_name={}, process_key={}",
-        "deploy", deployment.getId(), deployment.getName(), getProcessKey(deployment));
+        "deploy_workflow", deployment.getId(), deployment.getName(), getProcessKey(deployment));
   }
 
   public void undeployed(Deployment deployment) {
-    log.info("event={}, deployment={}, deployment_name={}, process_key={}",
-        "undeploy", deployment.getId(), deployment.getName(), getProcessKey(deployment));
+    log.info("event={}, deployment={}, deployment_name={}",
+        "undeploy_workflow", deployment.getId(), deployment.getName());
   }
 
   @SuppressWarnings("rawtypes")
@@ -116,5 +118,13 @@ public class AuditTrailLogger implements HistoryEventHandler {
       }
     }
     return "";
+  }
+
+  public void execute(DelegateExecution execution, String activityType) {
+    log.info("event={}, process={}, process_key={}, activity={}, activity_name={}, activity_type={}",
+        "execute_activity", execution.getProcessDefinitionId(),
+        ((ExecutionEntity) execution).getProcessDefinition().getKey(),
+        execution.getCurrentActivityId(), execution.getCurrentActivityName(),
+        activityType);
   }
 }
