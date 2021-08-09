@@ -41,6 +41,9 @@ public class YamlValidator {
 
   public static void validateYamlString(String yamlString) throws IOException, ProcessingException {
     try (InputStream schemaStream = YamlValidator.class.getResourceAsStream(JSON_SCHEMA_FILE)) {
+      if (schemaStream == null) {
+        throw new IOException("Could not read JSON schema from classpath location: " + JSON_SCHEMA_FILE);
+      }
       validate(YAML_READER.readTree(yamlString), OBJECT_MAPPER.readTree(schemaStream));
     }
   }
