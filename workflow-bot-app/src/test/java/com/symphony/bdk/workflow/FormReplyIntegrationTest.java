@@ -1,8 +1,10 @@
 package com.symphony.bdk.workflow;
 
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +16,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 class FormReplyIntegrationTest extends IntegrationTest {
 
@@ -30,10 +33,12 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
     // reply to form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
-
-    // bot should send my reply back
-    verify(messageService, timeout(5000)).send(eq("123"), contains("My message"));
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+      // bot should send my reply back
+      verify(messageService, atLeast(1)).send(eq("123"), contains("My message"));
+      return true;
+    });
   }
 
   @Test
@@ -48,14 +53,16 @@ class FormReplyIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
-    // user 1 replies to form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      // user 1 replies to form
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+      // user 2 replies to form
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
-    // user 2 replies to form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
-
-    // bot should send my reply back
-    verify(messageService, timeout(5000).times(2)).send(eq("123"), contains("My message"));
+      // bot should send my reply back
+      verify(messageService, atLeast(2)).send(eq("123"), contains("My message"));
+      return true;
+    });
   }
 
   @Test

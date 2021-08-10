@@ -1,3 +1,4 @@
+# disable DF events listener for tests, we are generating the events in the test directly
 bdk:
   datafeed:
     enabled: false
@@ -12,3 +13,4 @@ camunda:
     job-execution:
       # faster test execution by waking up the job executor quickly
       wait-time-in-millis: 100
+      max-wait: 100

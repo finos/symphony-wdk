@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +55,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("/create-room"));
 
-    verify(streamService, times(1)).create(uids);
-    verify(messageService, times(1)).send(anyString(), eq(content));
+    verify(streamService, timeout(5000).times(1)).create(uids);
+    verify(messageService, timeout(5000).times(1)).send(anyString(), eq(content));
   }
 }

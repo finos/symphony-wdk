@@ -24,6 +24,7 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import java.util.Optional;
 
 // There might be a way to make this more generic/less code but waiting for
 // event filtering to see how it is going to evolve, at least it is easy to understand.
+@Slf4j
 @Component
 public class WorkflowEventToCamundaEvent {
 
@@ -41,7 +43,7 @@ public class WorkflowEventToCamundaEvent {
   static final String MESSAGE_SUPPRESSED = "message-suppressed";
   static final String POST_SHARED = "post-shared";
   static final String IM_CREATED = "im-created";
-  static final String FORM_REPLY_PREFIX = "formReply_";
+  public static final String FORM_REPLY_PREFIX = "formReply_";
   static final String ROOM_CREATED = "room-created";
   static final String ROOM_UPDATED = "room-updated";
   static final String ROOM_DEACTIVATED = "room-deactivated";
@@ -130,7 +132,10 @@ public class WorkflowEventToCamundaEvent {
     if (event.getInitiator() != null
         && event.getInitiator().getUser() != null
         && event.getInitiator().getUser().getUserId() != null) {
-      processVariables.put(ActivityExecutorContext.INITIATOR, event.getInitiator().getUser().getUserId());
+      Long userId = event.getInitiator().getUser().getUserId();
+      processVariables.put(ActivityExecutorContext.INITIATOR, userId);
+
+      log.debug("Dispatching event {} from user {}", event.getSource().getClass().getSimpleName(), userId);
     }
 
     if (event.getSource() instanceof V4SymphonyElementsAction) {

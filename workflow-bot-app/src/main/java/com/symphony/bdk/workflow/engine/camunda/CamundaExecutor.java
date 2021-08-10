@@ -41,10 +41,13 @@ public class CamundaExecutor implements JavaDelegate {
 
   private final MessageService messageService;
   private final StreamService streamService;
+  private final AuditTrailLogger auditTrailLogger;
 
-  public CamundaExecutor(MessageService messageService, StreamService streamService) {
+  public CamundaExecutor(MessageService messageService, StreamService streamService,
+      AuditTrailLogger auditTrailLogger) {
     this.messageService = messageService;
     this.streamService = streamService;
+    this.auditTrailLogger = auditTrailLogger;
   }
 
   @Override
@@ -62,6 +65,8 @@ public class CamundaExecutor implements JavaDelegate {
 
     try {
       setMdc(execution);
+      // TODO cover script task too (with a listener?)
+      auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
     } finally {
       clearMdc();

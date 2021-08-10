@@ -62,6 +62,7 @@ public class WorkflowFolderWatcher {
       throw new IllegalArgumentException("Could not find workflows folder to monitor with path: " + workflowsFolder);
     }
 
+    log.info("Watching workflows from {}", path);
     File[] existingFiles = path.toFile().listFiles();
     if (existingFiles != null) {
       for (File file : existingFiles) {
@@ -82,7 +83,7 @@ public class WorkflowFolderWatcher {
     watchFileEvents(path);
   }
 
-  private void watchFileEvents(Path path) throws InterruptedException, IOException, ProcessingException {
+  private void watchFileEvents(Path path) {
     try {
       WatchKey key;
       while ((key = watchService.take()) != null) {
