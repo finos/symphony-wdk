@@ -15,7 +15,7 @@ import java.util.Map;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class EditRoom extends BaseActivity {
+public class UpdateRoom extends BaseActivity {
   private String streamId;
 
   private String roomName;

@@ -42,7 +42,7 @@
                         "$ref": "#/definitions/create-room"
                     },
                     {
-                        "$ref": "#/definitions/edit-room"
+                        "$ref": "#/definitions/update-room"
                     },
                     {
                         "$ref": "#/definitions/add-room-member"
@@ -74,8 +74,8 @@
                             "create-room": {
                                 "$ref": "#/definitions/create-room"
                             },
-                            "edit-room": {
-                                "$ref": "#/definitions/edit-room"
+                            "update-room": {
+                                "$ref": "#/definitions/update-room"
                             },
                             "add-room-member": {
                                 "$ref": "#/definitions/add-room-member"
@@ -110,22 +110,22 @@
                 "create-room"
             ]
         },
-        "edit-room": {
+        "update-room": {
             "type": "object",
             "properties": {
-                "edit-room": {
+                "update-room": {
                     "allOf": [
                         {
                             "$ref": "#/definitions/basic-activity-inner"
                         },
                         {
-                            "$ref": "#/definitions/edit-room-inner"
+                            "$ref": "#/definitions/update-room-inner"
                         }
                     ]
                 }
             },
             "required": [
-                "edit-room"
+                "update-room"
             ]
         },
         "add-room-member": {
@@ -781,7 +781,7 @@
                 }
             }
         },
-        "edit-room-inner": {
+        "update-room-inner": {
             "type": "object",
             "required": [
                 "stream-id"

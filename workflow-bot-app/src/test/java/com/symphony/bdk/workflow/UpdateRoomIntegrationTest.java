@@ -15,11 +15,11 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-class EditRoomIntegrationTest extends IntegrationTest {
+class UpdateRoomIntegrationTest extends IntegrationTest {
 
   @Test
-  void editRoom() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/edit-room.swadl.yaml"));
+  void updateRoom() throws Exception {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/update-room.swadl.yaml"));
 
     V3RoomDetail roomDetail = new V3RoomDetail();
     RoomSystemInfo info = new RoomSystemInfo();
@@ -28,7 +28,7 @@ class EditRoomIntegrationTest extends IntegrationTest {
     when(streamService.getRoomInfo("abc")).thenReturn(roomDetail);
 
     engine.execute(workflow);
-    engine.onEvent(messageReceived("/edit-room"));
+    engine.onEvent(messageReceived("/update-room"));
 
     ArgumentCaptor<V3RoomAttributes> attributes = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(streamService, timeout(5000)).updateRoom(eq("abc"), attributes.capture());
@@ -42,9 +42,9 @@ class EditRoomIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void editRoom_activate() throws Exception {
+  void updateRoom_activate() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/edit-room-activate.swadl.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/update-room-activate.swadl.yaml"));
 
     V3RoomDetail roomDetail = new V3RoomDetail();
     RoomSystemInfo info = new RoomSystemInfo();
@@ -53,7 +53,7 @@ class EditRoomIntegrationTest extends IntegrationTest {
     when(streamService.getRoomInfo("abc")).thenReturn(roomDetail);
 
     engine.execute(workflow);
-    engine.onEvent(messageReceived("/edit-room"));
+    engine.onEvent(messageReceived("/update-room"));
 
     verify(streamService, timeout(5000)).setRoomActive("abc", true);
   }
