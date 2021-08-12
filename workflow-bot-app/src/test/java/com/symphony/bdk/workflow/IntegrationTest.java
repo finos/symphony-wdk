@@ -48,6 +48,11 @@ abstract class IntegrationTest {
   @MockBean(name = "sessionService")
   SessionService sessionService;
 
+  static {
+    // we don't use nashorn, we don't care it is going to disappear
+    System.setProperty("nashorn.args", "--no-deprecation-warning");
+  }
+
   protected static V4Message message(String msgId) {
     final V4Message message = new V4Message();
     message.setMessageId(msgId);

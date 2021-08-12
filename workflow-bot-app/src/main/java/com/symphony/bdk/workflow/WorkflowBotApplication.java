@@ -11,6 +11,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class WorkflowBotApplication {
 
   public static void main(String[] args) {
+    disableNashornDeprecationWarning();
     SpringApplication.run(WorkflowBotApplication.class, args);
+  }
+
+  private static void disableNashornDeprecationWarning() {
+    System.setProperty("nashorn.args", "--no-deprecation-warning");
   }
 }
