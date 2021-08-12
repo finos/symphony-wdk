@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.symphony.bdk.workflow.DoSomething;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
-import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -54,7 +54,7 @@ class WorkflowBuilderTest {
     assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
         getClass().getResourceAsStream("/workflowbuilder/custom-activity-not-found.swadl.yaml")))
         .describedAs("Should fail are validation time because the JSON schema is updated on the fly")
-        .isInstanceOf(YamlNotValidException.class);
+        .isInstanceOf(SwadlNotValidException.class);
   }
 
   @Test
@@ -65,5 +65,7 @@ class WorkflowBuilderTest {
             "Workflow is invalid because 2 DuplicateCustomActivity classes are defined (in different packages")
         .isInstanceOf(JsonMappingException.class);
   }
+
+
 
 }

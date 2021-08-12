@@ -1,9 +1,10 @@
 {
-    "$id": "https://symphony.com/workflow.schema.json",
-    "title": "Workflow bot schema",
-    "description": "Schema for a Workflow describing file",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "SWADL Schema",
+    "description": "SWADL (Symphony Workflow Automation Definition Language) is a language to describe workflows on Symphony.",
     "default": {},
     "type": "object",
+    "additionalProperties": false,
     "required": [
         "name",
         "activities"
@@ -11,33 +12,28 @@
     "properties": {
         "name": {
             "type": "string",
-            "title": "The name of the Workflow",
-            "description": "The name of the Workflow. It is not required to be unique",
-            "default": "Symphony bot Workflow - default name",
-            "examples": [
-                "Access Fintech Workflow",
-                "Symphony onboarding Workflow"
-            ]
+            "title": "Workflow's name",
+            "description": "A descriptive name for the workflow, it will appear in logs and audit trails.",
+            "default": "my-workflow"
         },
         "version": {
-            "type": "integer",
-            "title": "The version of the Workflow",
-            "description": "The version of the Workflow.",
-            "default": 0,
-            "examples": [
-                0
-            ]
+            "type": "string",
+            "title": "Workflow's version",
+            "description": "For now the v1 version is the only and default one.",
+            "default": "v1"
         },
         "variables": {
             "type": "object",
-            "title": "Global variables",
-            "description": "Global variables to be shared with all steps in the Workflow. It should be written in a map format"
+            "title": "Workflow's variables",
+            "description": "Variables are accessible and editable within the entire workflow. A map of key: value entries is expected."
         },
         "activities": {
             "type": "array",
+            "title": "Workflow's activities",
+            "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
             "x-documentation": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
-                "anyOf": [
+                "oneOf": [
                     {
                         "$ref": "#/definitions/create-room"
                     },
@@ -103,9 +99,17 @@
             "type": "object",
             "properties": {
                 "create-room": {
-                    "$ref": "#/definitions/create-room-inner"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/create-room-inner"
+                        }
+                    ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "create-room"
             ]
@@ -124,6 +128,7 @@
                     ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "update-room"
             ]
@@ -142,6 +147,7 @@
                     ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "add-room-member"
             ]
@@ -160,6 +166,7 @@
                     ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "remove-room-member"
             ]
@@ -178,6 +185,7 @@
                     ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "promote-room-owner"
             ]
@@ -196,6 +204,7 @@
                     ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "demote-room-owner"
             ]
@@ -204,9 +213,17 @@
             "type": "object",
             "properties": {
                 "send-message": {
-                    "$ref": "#/definitions/send-message-inner"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/send-message-inner"
+                        }
+                    ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "send-message"
             ]
@@ -215,21 +232,32 @@
             "type": "object",
             "properties": {
                 "execute-script": {
-                    "$ref": "#/definitions/execute-script-inner"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/execute-script-inner"
+                        }
+                    ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "execute-script"
             ]
         },
         "on": {
+            "description": "Events that can trigger the activity execution.",
             "type": "object",
             "allOf": [
                 {
                     "type": "object",
                     "properties": {
                         "timeout": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Timeout while waiting for events, expressed as an ISO 8601 duration.",
+                            "pattern": "(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
                         }
                     }
                 },
@@ -290,10 +318,10 @@
                             "$ref": "#/definitions/connection-accepted-event"
                         },
                         {
-                            "$ref": "#/definitions/one-of-event"
+                            "$ref": "#/definitions/timer-fired-event"
                         },
                         {
-                            "$ref": "#/definitions/timer-fired-event"
+                            "$ref": "#/definitions/one-of-event"
                         }
                     ]
                 }
@@ -576,6 +604,7 @@
                     }
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "one-of"
             ]
@@ -587,6 +616,7 @@
                     "$ref": "#/definitions/timer-fired-event-inner"
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "timer-fired"
             ]
@@ -623,6 +653,7 @@
         },
         "message-received-event-inner": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "content": {
                     "type": "string"
@@ -723,12 +754,11 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
-                },
-                "name": {
+                    "description": "Activity's identifier, should be unique across workflow.",
                     "type": "string"
                 },
                 "description": {
+                    "description": "Activity's description, mostly used for documentation purpose.",
                     "type": "string"
                 },
                 "on": {
@@ -741,40 +771,32 @@
         },
         "create-room-inner": {
             "type": "object",
+            "description": "Create a room, IM or MIM",
             "anyOf": [
                 {
                     "required": [
-                        "id",
-                        "name",
+                        "room-name",
                         "room-description"
                     ]
                 },
                 {
                     "required": [
-                        "id",
                         "uids"
                     ]
                 }
             ],
             "properties": {
-                "id": {
+                "room-name": {
+                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
                     "type": "string",
-                    "description": "Activity id"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
+                    "maxLength": 50
                 },
                 "room-description": {
+                    "description": "Room's description.",
                     "type": "string"
                 },
                 "public": {
                     "type": "boolean"
-                },
-                "on": {
-                    "$ref": "#/definitions/on"
                 },
                 "uids": {
                     "type": "array"
@@ -791,9 +813,12 @@
                     "type": "string"
                 },
                 "room-name": {
-                    "type": "string"
+                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "room-description": {
+                    "description": "Room's description.",
                     "type": "string"
                 },
                 "keywords": {
@@ -891,53 +916,27 @@
         "send-message-inner": {
             "type": "object",
             "required": [
-                "id",
                 "content"
             ],
             "properties": {
-                "id": {
-                    "type": "string",
-                    "description": "Activity id"
-                },
-                "description": {
-                    "type": "string"
-                },
                 "to": {
                     "$ref": "#/definitions/to"
                 },
                 "content": {
                     "type": "string"
-                },
-                "on": {
-                    "$ref": "#/definitions/on"
                 }
             }
         },
         "execute-script-inner": {
             "type": "object",
             "required": [
-                "id",
                 "script"
             ],
             "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "if": {
-                    "type": "string"
-                },
-                "on": {
-                    "$ref": "#/definitions/on"
-                },
                 "script": {
                     "type": "string",
-                    "description": "The script to execute (Groovy only is supported)"
+                    "description": "Script to execute (only Groovy is supported)",
+                    "x-intellij-language-injection": "Groovy"
                 }
             }
         },
@@ -947,12 +946,10 @@
                 "stream-id": {
                     "type": "string",
                     "title": "Stream ID to send the message",
-                    "description": "Stream ID where to send the message",
-                    "examples": [
-                        "zQUH2Qz-Gw3__oV0"
-                    ]
+                    "description": "Stream ID where to send the message"
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "stream-id"
             ]

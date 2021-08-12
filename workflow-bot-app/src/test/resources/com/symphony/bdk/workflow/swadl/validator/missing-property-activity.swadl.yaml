@@ -1,12 +1,11 @@
 name: test
 activities:
   - send-message:
-      id: test
+      # id is missing
       description: "activity to send a message when a /command is sent to the bot"
       on:
         message-received:
           content: "/message"
       to:
         stream-id: "123"
-      content: |
-        <messageML>Hello!</messageML>
+      content: <messageML>Hello!</messageML>

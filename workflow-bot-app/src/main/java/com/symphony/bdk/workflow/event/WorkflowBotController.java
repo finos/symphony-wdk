@@ -9,7 +9,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
-import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.validator.YamlValidator;
 import com.symphony.bdk.workflow.util.AttachmentsUtils;
@@ -55,8 +55,8 @@ public class WorkflowBotController {
         this.workflowEngine.execute(workflow);
         messageService.send(streamId,
             String.format("<messageML>Ok, validated <b>%s</b></messageML>", workflow.getName()));
-      } catch (YamlNotValidException yamlNotValidException) {
-        log.info(yamlNotValidException.getMessage());
+      } catch (SwadlNotValidException swadlNotValidException) {
+        log.info(swadlNotValidException.getMessage());
         messageService.send(streamId, "<messageML>YAML file is not valid</messageML>");
       }
     }

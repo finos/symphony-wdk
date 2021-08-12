@@ -1,0 +1,8 @@
+name: test
+version: |
+  Hello
+activities:
+  - send-message:
+      on:
+      id: '123'
+      content: "abc"

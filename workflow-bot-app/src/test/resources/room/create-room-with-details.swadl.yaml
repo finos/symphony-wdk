@@ -6,6 +6,6 @@ activities:
       on:
         message-received:
           content: "/create-room"
-      name: "The best room ever"
+      room-name: "The best room ever"
       room-description: "this is room description"
       public: true

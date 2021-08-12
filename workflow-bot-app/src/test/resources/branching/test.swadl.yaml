@@ -1,0 +1,43 @@
+name: if
+variables:
+  foo: foo
+activities:
+  - execute-script:
+      id: act2
+      on:
+        timer-fired:
+          at:
+          repeat:
+      script: |
+        println "act2"
+
+
+
+
+
+
+
+# new use cases
+
+# 2 message received event for a act (alias /command)
+
+# mix of events: message received + activity finished
+
+# mix of event + form reply
+# /cancel form command?
+
+# what it i want an activity right in the middle of the flow, i.e a subprocess waiting for something?
+
+# loop on yourself? allow it?
+
+
+
+# events in the middle
+
+# sequential scenario
+# if with an event?
+# mix of if/loops with multiple events
+# one event or the other?
+
+# one event -> act on multiple workflows
+# multiple workflows waiting for same event

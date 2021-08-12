@@ -36,7 +36,7 @@ public class WorkflowBuilder {
 
   public static Workflow fromYaml(InputStream yaml) throws IOException, ProcessingException {
     String yamlString = IOUtils.toString(yaml, StandardCharsets.UTF_8);
-    YamlValidator.validateYamlString(yamlString);
+    YamlValidator.validateYaml(yamlString);
     return MAPPER.readValue(yamlString, Workflow.class);
   }
 }

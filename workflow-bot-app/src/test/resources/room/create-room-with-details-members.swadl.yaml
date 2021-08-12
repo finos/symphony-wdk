@@ -10,6 +10,6 @@ activities:
         - 666
         - 777
         - 999
-      name: "The best room ever"
+      room-name: "The best room ever"
       room-description: "this is room description"
       public: false

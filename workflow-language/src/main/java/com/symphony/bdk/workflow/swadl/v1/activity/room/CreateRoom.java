@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CreateRoom extends BaseActivity {
+  private String roomName;
   private String roomDescription;
   private List<String> uids;
 
