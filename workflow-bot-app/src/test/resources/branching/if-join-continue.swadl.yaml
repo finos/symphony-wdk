@@ -1,0 +1,31 @@
+name: if-join-continue
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: println "act1"
+  - execute-script:
+      id: act2
+      if: ${"1" == "1"}
+      script: println "act2"
+  - execute-script:
+      id: act3
+      on:
+        activity-completed:
+          activity-id: act1
+      if: ${"1" == "2"}
+      script: println "act3"
+  - execute-script:
+      id: act4
+      on:
+        one-of:
+          - activity-completed:
+              activity-id: act2
+          - activity-completed:
+              activity-id: act3
+      script: println "merge act4"
+  - execute-script:
+      id: act5
+      script: println "continue act5"
