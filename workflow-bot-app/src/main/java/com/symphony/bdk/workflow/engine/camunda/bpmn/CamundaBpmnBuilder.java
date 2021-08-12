@@ -170,13 +170,19 @@ public class CamundaBpmnBuilder {
                 flowsToCreate.get(activity.getId()).getRight().getActivityCompleted().getIfCondition())
             .connectTo(flowsToCreate.get(activity.getId()).getLeft().getId())
             .moveToNode(loopId);
+        flowsToCreate.remove(activity.getId());
       }
 
       lastActivity = activity.getId();
     }
 
+    // we may have collected flows that we did not connect yet
+    for (Map.Entry<String, Pair<BaseActivity, Event>> flow : flowsToCreate.entrySet()) {
+      builder.moveToNode(flow.getKey()).connectTo(flow.getValue().getLeft().getId());
+    }
+
+    // finish all subprocesses handling form replies
     for (AbstractFlowNodeBuilder<?, ?> subProcessBuilder : formExpirations.values()) {
-      // finish all subprocesses handling form replies
       subProcessBuilder.endEvent().subProcessDone();
     }
 
@@ -185,8 +191,8 @@ public class CamundaBpmnBuilder {
       gatewayWithoutElse.moveToLastGateway().endEvent();
     }
 
+    // we have a flow/loop left open, without any default flow, set one
     if (builder instanceof ExclusiveGatewayBuilder) {
-      // we have a flow/loop left open, without any default flow, set one
       builder = builder.endEvent();
     }
 
@@ -198,29 +204,29 @@ public class CamundaBpmnBuilder {
   private AbstractFlowNodeBuilder<?, ?> addIntermediateEvents(List<AbstractFlowNodeBuilder<?, ?>> eventsToConnect,
       AbstractFlowNodeBuilder<?, ?> builder, String lastActivity, BaseActivity activity) {
     if (!isFirstActivity(lastActivity) && !activity.getEvents().isEmpty()) {
-      List<Event> intermediateEvents = activity.getEvents();
-      if (!intermediateEvents.isEmpty()) {
-        for (Event event : intermediateEvents) {
-          if (event.getTimerFired() != null) {
+      for (Event event : activity.getEvents()) {
+
+        if (event.getTimerFired() != null) {
+          builder = createOrMoveEventGateway(builder);
+          builder = timerStartEvent(builder.intermediateCatchEvent(), event);
+          eventsToConnect.add(builder); // will be connected after the activity is created
+
+        } else {
+          Optional<String> signalName = eventToMessage.toSignalName(event);
+          if (signalName.isPresent()) {
             builder = createOrMoveEventGateway(builder);
-            builder = timerStartEvent(builder.intermediateCatchEvent(), event);
+            builder = builder.intermediateCatchEvent()
+                .camundaAsyncBefore()
+                .signal(signalName.get())
+                .name(signalName.get());
             eventsToConnect.add(builder); // will be connected after the activity is created
-          } else {
-            Optional<String> signalName = eventToMessage.toSignalName(event);
-            if (signalName.isPresent()) {
-              builder = createOrMoveEventGateway(builder);
-              builder = builder.intermediateCatchEvent()
-                  .camundaAsyncBefore()
-                  .signal(signalName.get())
-                  .name(signalName.get());
-              eventsToConnect.add(builder); // will be connected after the activity is created
-            }
           }
         }
-        if (!eventsToConnect.isEmpty()) {
-          // last event is automatically created when activity is added
-          eventsToConnect.remove(eventsToConnect.size() - 1);
-        }
+      }
+
+      if (!eventsToConnect.isEmpty()) {
+        // last event is automatically created when activity is added
+        eventsToConnect.remove(eventsToConnect.size() - 1);
       }
     }
     return builder;
@@ -257,7 +263,7 @@ public class CamundaBpmnBuilder {
           }
         }
       }
-      if (multipleEvents.isEmpty()) {
+      if (builder == null || multipleEvents.isEmpty()) {
         throw new NoStartingEventException();
       }
       // last start event is automatically connected, so we don't need it

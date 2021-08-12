@@ -8,6 +8,10 @@ logging:
   level:
     org.camunda: INFO
 
+# disable file watcher for tests
+workflows:
+  folder: false
+
 camunda:
   bpm:
     job-execution:
