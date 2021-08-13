@@ -35,7 +35,7 @@ logging:
   level:
     com.symphony: DEBUG
     # troubleshoot Camunda
-    org.camunda: DEBUG
+    org.camunda: INFO
     # disable audit trail
     #audit-trail: WARN
 

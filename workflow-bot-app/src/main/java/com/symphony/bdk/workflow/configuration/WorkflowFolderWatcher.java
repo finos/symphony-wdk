@@ -132,9 +132,11 @@ public class WorkflowFolderWatcher {
   }
 
   private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
-    Workflow workflow = WorkflowBuilder.fromYaml(new FileInputStream(workflowFile.toFile()));
-    workflowEngine.execute(workflow);
-    deployedWorkflows.put(workflowFile, workflow.getName());
+    try (FileInputStream yaml = new FileInputStream(workflowFile.toFile())) {
+      Workflow workflow = WorkflowBuilder.fromYaml(yaml);
+      workflowEngine.execute(workflow);
+      deployedWorkflows.put(workflowFile, workflow.getName());
+    }
   }
 
   private void removeWorkflow(Path workflowFile) {

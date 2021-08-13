@@ -15,7 +15,7 @@ import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
-import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
@@ -103,7 +103,7 @@ class CreateRoomIntegrationTest extends IntegrationTest {
   void createRoomInvalidWorkflow() {
     assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
         getClass().getResourceAsStream("/room/create-room-invalid-workflow.swadl.yaml"))).isInstanceOf(
-        YamlNotValidException.class);
+        SwadlNotValidException.class);
   }
 
   private void assertRoomAttributes(V3RoomAttributes expected, V3RoomAttributes actual) {

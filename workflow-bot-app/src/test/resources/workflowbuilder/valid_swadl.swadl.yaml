@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=/Users/youri.bonnaffe/src/workflow-bot/workflow-language/src/main/resources/json-schema.json
+# yaml-language-server: $schema=/Users/youri.bonnaffe/src/workflow-bot/workflow-language/src/main/resources/swadl-schema.json
 name: my-proposal
 variables:
   var1: "variable1"
