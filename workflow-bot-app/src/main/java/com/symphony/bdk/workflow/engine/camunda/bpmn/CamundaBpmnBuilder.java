@@ -10,6 +10,7 @@ import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.ExecuteScript;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.SneakyThrows;
@@ -29,12 +30,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Events are created with async before to make sure they are not blocking the dispatch of events (starting or
@@ -113,11 +116,21 @@ public class CamundaBpmnBuilder {
       } else {
         // add the activity in the normal flow
 
-        if (activity.getOn() != null && activity.getOn().getActivityCompleted() != null) {
-          parentActivities.put(activity.getId(), activity.getOn().getActivityCompleted().getActivityId());
-        } else {
-          // implicit parent activity is the one declared before
+        // how is connected with the previous activity, explicit or default?
+        List<ActivityCompletedEvent> activityCompletedEvents = getActivityCompletedEvents(activity);
+        if (activityCompletedEvents.isEmpty()) {
+          // implicit parent activity is the one declared before so the builder will automatically connect it
           parentActivities.put(activity.getId(), lastActivity);
+        } else {
+          // connect it with its parent activity if we already processed it
+          // (loops are dependencies on activities not yet processed)
+          if (parentActivities.containsKey(activityCompletedEvents.get(0).getActivityId())) {
+            builder = builder.moveToNode(activityCompletedEvents.get(0).getActivityId());
+            parentActivities.put(activity.getId(), activityCompletedEvents.get(0).getActivityId());
+
+            // connect the first one, others will be connected once the task is created using connectTo
+            activityCompletedEvents.remove(0);
+          }
         }
 
         if (onConditional(activity)) {
@@ -144,6 +157,12 @@ public class CamundaBpmnBuilder {
         if (onConditional(activity)) {
           // store it to continue other conditional flows (else if, else)
           gateways.put(parentActivities.get(activity.getId()), builder);
+        }
+
+        for (ActivityCompletedEvent activityCompletedEvent : activityCompletedEvents) {
+          if (parentActivities.containsKey(activityCompletedEvent.getActivityId())) {
+            builder.moveToNode(activityCompletedEvent.getActivityId()).connectTo(activity.getId());
+          }
         }
       }
 
@@ -174,11 +193,6 @@ public class CamundaBpmnBuilder {
       }
 
       lastActivity = activity.getId();
-    }
-
-    // we may have collected flows that we did not connect yet
-    for (Map.Entry<String, Pair<BaseActivity, Event>> flow : flowsToCreate.entrySet()) {
-      builder.moveToNode(flow.getKey()).connectTo(flow.getValue().getLeft().getId());
     }
 
     // finish all subprocesses handling form replies
@@ -288,6 +302,21 @@ public class CamundaBpmnBuilder {
 
   private boolean isFirstActivity(String lastActivity) {
     return lastActivity.equals("");
+  }
+
+  private List<ActivityCompletedEvent> getActivityCompletedEvents(BaseActivity activity) {
+    if (activity.getOn() != null && activity.getOn().getActivityCompleted() != null) {
+      return new ArrayList<>(Collections.singletonList(activity.getOn().getActivityCompleted()));
+
+    } else if (activity.getOn() != null && activity.getOn().getOneOf() != null) {
+      return activity.getOn().getOneOf().stream()
+          .map(Event::getActivityCompleted)
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList());
+
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   private boolean onConditional(BaseActivity activity) {
