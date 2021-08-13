@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.stream.Stream;
 
-class YamlValidatorTest {
+class SwadlValidatorTest {
 
   static Stream<Arguments> expectedErrors() {
     return Stream.of(

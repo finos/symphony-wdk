@@ -32,11 +32,11 @@ import java.util.stream.StreamSupport;
  * This class validates a SWADL workflow written in YAML.
  */
 @Slf4j
-public class YamlValidator {
+public class SwadlValidator {
 
   public static final String YAML_VALIDATION_COMMAND = "/validate";
 
-  private static final String JSON_SCHEMA_FILE = "/json-schema.json";
+  private static final String JSON_SCHEMA_FILE = "/swadl-schema.json";
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final ObjectMapper YAML_READER = new ObjectMapper(new YAMLFactory());
@@ -45,11 +45,11 @@ public class YamlValidator {
       .setReportProvider(new ListReportProvider(LogLevel.ERROR, LogLevel.FATAL))
       .freeze();
 
-  private YamlValidator() {
+  private SwadlValidator() {
   }
 
   public static void validateYaml(String yaml) throws IOException, ProcessingException {
-    try (InputStream schemaStream = YamlValidator.class.getResourceAsStream(JSON_SCHEMA_FILE)) {
+    try (InputStream schemaStream = SwadlValidator.class.getResourceAsStream(JSON_SCHEMA_FILE)) {
       if (schemaStream == null) {
         throw new IOException("Could not read JSON schema from classpath location: " + JSON_SCHEMA_FILE);
       }

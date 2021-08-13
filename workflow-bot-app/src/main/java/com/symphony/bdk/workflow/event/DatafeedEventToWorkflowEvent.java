@@ -20,7 +20,7 @@ import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.swadl.validator.YamlValidator;
+import com.symphony.bdk.workflow.swadl.validator.SwadlValidator;
 
 import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class DatafeedEventToWorkflowEvent {
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
     if (!PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage())
-        .equals(YamlValidator.YAML_VALIDATION_COMMAND)) {
+        .equals(SwadlValidator.YAML_VALIDATION_COMMAND)) {
       workflowEngine.onEvent(event);
     }
   }

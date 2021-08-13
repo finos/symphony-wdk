@@ -31,7 +31,7 @@
             "type": "array",
             "title": "Workflow's activities",
             "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
-            "x-documentation": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
+            "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
                 "oneOf": [
                     {
@@ -530,6 +530,9 @@
             "properties": {
                 "activity-completed": {
                     "$ref": "#/definitions/activity-completed-event-inner"
+                },
+                "if": {
+                    "type": "string"
                 }
             },
             "required": [
@@ -763,6 +766,12 @@
                 },
                 "on": {
                     "$ref": "#/definitions/on"
+                },
+                "if": {
+                    "type": "string"
+                },
+                "else": {
+                    "type": "object"
                 }
             },
             "required": [
