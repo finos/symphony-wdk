@@ -1,0 +1,14 @@
+name: update-room
+activities:
+  - update-room:
+      id: updateRoom
+      on:
+        message-received:
+          content: "/update-room"
+      stream-id: abc
+      room-description: "Test"
+      discoverable: true
+  - execute-script:
+      id: checkOutput
+      script: |
+        assert updateRoom.outputs.room.roomSystemInfo.id == "abc"

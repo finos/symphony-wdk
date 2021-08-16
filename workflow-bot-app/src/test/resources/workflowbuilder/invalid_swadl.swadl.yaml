@@ -1,10 +1,7 @@
-name: send-message-on-message
-vars:
-  - variable1: "variables1"
-  - variable2: "variables2"
+name: test
 activities:
   - send-message:
-      id: "sendmessageid1"
+      id: test
       description: "activity to send a message when a /command is sent to the bot"
       on:
         message-received:

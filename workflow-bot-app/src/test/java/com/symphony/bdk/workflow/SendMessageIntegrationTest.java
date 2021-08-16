@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,7 +43,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
       "Given two activities: create-room and send-message, when the room is created, then a message is sent to it")
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/create-room-and-send-message.swadl.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
     final V4Message message = new V4Message().messageId("msgId");
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");
@@ -56,7 +55,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("/create-room"));
 
-    verify(streamService, times(1)).create(uids);
-    verify(messageService, times(1)).send(anyString(), eq(content));
+    verify(streamService, timeout(5000).times(1)).create(uids);
+    verify(messageService, timeout(5000).times(1)).send(anyString(), eq(content));
   }
 }

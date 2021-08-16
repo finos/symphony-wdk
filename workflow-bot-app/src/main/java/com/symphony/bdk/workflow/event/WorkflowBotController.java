@@ -9,9 +9,9 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
-import com.symphony.bdk.workflow.swadl.exception.YamlNotValidException;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import com.symphony.bdk.workflow.swadl.validator.YamlValidator;
+import com.symphony.bdk.workflow.swadl.validator.SwadlValidator;
 import com.symphony.bdk.workflow.util.AttachmentsUtils;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -48,15 +48,15 @@ public class WorkflowBotController {
     String text = PresentationMLParser.getTextContent(message.getMessage());
     String streamId = message.getStream().getStreamId();
 
-    if (text.startsWith(YamlValidator.YAML_VALIDATION_COMMAND)) {
+    if (text.startsWith(SwadlValidator.YAML_VALIDATION_COMMAND)) {
       String attachmentId = getFirstAttachmentIdFrom(AttachmentsUtils.getAttachmentsFrom(event));
       try {
         Workflow workflow = this.buildWorkflow(streamId, messageId, attachmentId);
         this.workflowEngine.execute(workflow);
         messageService.send(streamId,
             String.format("<messageML>Ok, validated <b>%s</b></messageML>", workflow.getName()));
-      } catch (YamlNotValidException yamlNotValidException) {
-        log.info(yamlNotValidException.getMessage());
+      } catch (SwadlNotValidException swadlNotValidException) {
+        log.info(swadlNotValidException.getMessage());
         messageService.send(streamId, "<messageML>YAML file is not valid</messageML>");
       }
     }

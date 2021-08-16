@@ -1,4 +1,4 @@
-name: send-message-on-message
+name: send-message-on-message-with-variables
 variables:
   streamId: "1234"
 activities:

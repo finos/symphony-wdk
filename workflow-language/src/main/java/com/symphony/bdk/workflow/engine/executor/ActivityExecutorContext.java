@@ -23,6 +23,11 @@ public interface ActivityExecutorContext<T extends BaseActivity> {
   String EVENT = "event";
 
   /**
+   * Used for auditing.
+   */
+  String INITIATOR = "initiator";
+
+  /**
    * Define an output variable that can be retrieved later with ${activityId.outputs.name}.
    */
   void setOutputVariable(String name, Object value);

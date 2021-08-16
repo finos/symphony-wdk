@@ -32,7 +32,7 @@ activities:
         </messageML>
 
   - execute-script:
-      id: collect-replies
+      id: collectReplies
       on:
         timeout: PT1S
         form-replied:
@@ -40,10 +40,10 @@ activities:
       script: println "collect"
 
   - send-message:
-      id: expiration-nested
+      id: expirationNested
       on:
         activity-expired:
-          activity-id: collect-replies
+          activity-id: collectReplies
       to:
         stream-id: abc
       content: expiration-nested

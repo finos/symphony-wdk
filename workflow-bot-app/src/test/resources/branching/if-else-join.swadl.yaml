@@ -1,0 +1,28 @@
+name: if-else-join
+activities:
+  - execute-script:
+      id: act1
+      on:
+        message-received:
+          content: /execute
+      script: println "act1"
+  - execute-script:
+      id: act2
+      if: ${"1" == "2"}
+      script: println "act2"
+  - execute-script:
+      id: act3
+      on:
+        activity-completed:
+          activity-id: act1
+      else: {}
+      script: println "act3"
+  - execute-script:
+      id: act4
+      on:
+        one-of:
+          - activity-completed:
+              activity-id: act2
+          - activity-completed:
+              activity-id: act3
+      script: println "merge act4"

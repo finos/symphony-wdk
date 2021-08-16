@@ -1,0 +1,12 @@
+name: test
+version: 123
+activities:
+  - send-message:
+      id: sendMessageId1
+      description: "activity to send a message when a /command is sent to the bot"
+      on:
+        message-received:
+          content: "/message"
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>

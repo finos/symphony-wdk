@@ -19,11 +19,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @SpringBootTest
+@ActiveProfiles("test")
 abstract class IntegrationTest {
 
   @Autowired
@@ -44,6 +47,11 @@ abstract class IntegrationTest {
 
   @MockBean(name = "sessionService")
   SessionService sessionService;
+
+  static {
+    // we don't use nashorn, we don't care it is going to disappear
+    System.setProperty("nashorn.args", "--no-deprecation-warning");
+  }
 
   protected static V4Message message(String msgId) {
     final V4Message message = new V4Message();
@@ -75,7 +83,9 @@ abstract class IntegrationTest {
 
   public static RealTimeEvent<V4MessageSent> messageReceived(String content) {
     V4Initiator initiator = new V4Initiator();
-    initiator.setUser(new V4User());
+    V4User user = new V4User();
+    user.setUserId(123L);
+    initiator.setUser(user);
 
     V4MessageSent messageSent = new V4MessageSent();
     V4Message message = new V4Message();
@@ -87,7 +97,9 @@ abstract class IntegrationTest {
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId,
       String formId, Map<String, Object> formReplies) {
     V4Initiator initiator = new V4Initiator();
-    initiator.setUser(new V4User());
+    V4User user = new V4User();
+    user.setUserId(123L);
+    initiator.setUser(user);
 
     V4SymphonyElementsAction elementsAction = new V4SymphonyElementsAction();
     elementsAction.setFormMessageId(messageId);
@@ -104,5 +116,12 @@ abstract class IntegrationTest {
       return processInstance.getState().equals("COMPLETED");
     }
     return false;
+  }
+
+  protected Optional<String> lastProcess() {
+    return Optional.ofNullable(historyService.createHistoricProcessInstanceQuery()
+            .orderByProcessInstanceStartTime().desc()
+            .singleResult())
+        .map(HistoricProcessInstance::getId);
   }
 }

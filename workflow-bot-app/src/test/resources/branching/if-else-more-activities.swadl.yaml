@@ -16,7 +16,7 @@ activities:
       script: |
         println "act2"
   - execute-script:
-      id: act2-2
+      id: act2_2
       script: |
         println "act2-2"
   - execute-script:
@@ -29,6 +29,6 @@ activities:
       script: |
         println "act3"
   - execute-script:
-      id: act3-2
+      id: act3_2
       script: |
         println "act3-2"

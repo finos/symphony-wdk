@@ -35,9 +35,9 @@ class LoopIntegrationTest extends IntegrationTest {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(workflowFile));
     engine.execute(workflow);
 
-    Optional<String> process = engine.onEvent(messageReceived("/execute"));
+    engine.onEvent(messageReceived("/execute"));
 
-    assertExecuted(process, activities);
+    assertExecuted(lastProcess(), activities);
   }
 
   private void assertExecuted(Optional<String> process, List<String> activities) {
@@ -48,6 +48,7 @@ class LoopIntegrationTest extends IntegrationTest {
         .processInstanceId(process.get())
         .activityType("scriptTask")
         .orderByHistoricActivityInstanceStartTime().asc()
+        .orderByActivityName().asc()
         .list();
 
     assertThat(processes)

@@ -1,0 +1,969 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "SWADL Schema",
+    "description": "SWADL (Symphony Workflow Automation Definition Language) is a language to describe workflows on Symphony.",
+    "default": {},
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "activities"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "title": "Workflow's name",
+            "description": "A descriptive name for the workflow, it will appear in logs and audit trails.",
+            "default": "my-workflow"
+        },
+        "version": {
+            "type": "string",
+            "title": "Workflow's version",
+            "description": "For now the v1 version is the only and default one.",
+            "default": "v1"
+        },
+        "variables": {
+            "type": "object",
+            "title": "Workflow's variables",
+            "description": "Variables are accessible and editable within the entire workflow. A map of key: value entries is expected."
+        },
+        "activities": {
+            "type": "array",
+            "title": "Workflow's activities",
+            "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
+            "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/definitions/create-room"
+                    },
+                    {
+                        "$ref": "#/definitions/update-room"
+                    },
+                    {
+                        "$ref": "#/definitions/add-room-member"
+                    },
+                    {
+                        "$ref": "#/definitions/remove-room-member"
+                    },
+                    {
+                        "$ref": "#/definitions/promote-room-owner"
+                    },
+                    {
+                        "$ref": "#/definitions/demote-room-owner"
+                    },
+                    {
+                        "$ref": "#/definitions/send-message"
+                    },
+                    {
+                        "$ref": "#/definitions/execute-script"
+                    },
+                    {
+                        "type": "object",
+                        "patternProperties": {
+                            "send-message": {
+                                "$ref": "#/definitions/send-message"
+                            },
+                            "execute-script": {
+                                "$ref": "#/definitions/execute-script"
+                            },
+                            "create-room": {
+                                "$ref": "#/definitions/create-room"
+                            },
+                            "update-room": {
+                                "$ref": "#/definitions/update-room"
+                            },
+                            "add-room-member": {
+                                "$ref": "#/definitions/add-room-member"
+                            },
+                            "remove-room-member": {
+                                "$ref": "#/definitions/remove-room-member"
+                            },
+                            "promote-room-owner": {
+                                "$ref": "#/definitions/promote-room-owner"
+                            },
+                            "demote-room-owner": {
+                                "$ref": "#/definitions/demote-room-owner"
+                            },
+                            "^(create-room)|^(update-room)|.*": {
+                                "$comment": "Room tasks are specifically excluded because they don't have strong differentiators in properties, 'more than one variant' warnings are issued otherwise.",
+                                "$ref": "#/definitions/basic-activity-inner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "create-room": {
+            "type": "object",
+            "properties": {
+                "create-room": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/create-room-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "create-room"
+            ]
+        },
+        "update-room": {
+            "type": "object",
+            "properties": {
+                "update-room": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/update-room-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "update-room"
+            ]
+        },
+        "add-room-member": {
+            "type": "object",
+            "properties": {
+                "add-room-member": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/add-room-member-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "add-room-member"
+            ]
+        },
+        "remove-room-member": {
+            "type": "object",
+            "properties": {
+                "remove-room-member": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/remove-room-member-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "remove-room-member"
+            ]
+        },
+        "promote-room-owner": {
+            "type": "object",
+            "properties": {
+                "promote-room-owner": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/promote-room-owner-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "promote-room-owner"
+            ]
+        },
+        "demote-room-owner": {
+            "type": "object",
+            "properties": {
+                "demote-room-owner": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/demote-room-owner-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "demote-room-owner"
+            ]
+        },
+        "send-message": {
+            "type": "object",
+            "properties": {
+                "send-message": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/send-message-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "send-message"
+            ]
+        },
+        "execute-script": {
+            "type": "object",
+            "properties": {
+                "execute-script": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/execute-script-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "execute-script"
+            ]
+        },
+        "on": {
+            "description": "Events that can trigger the activity execution.",
+            "type": "object",
+            "allOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "timeout": {
+                            "type": "string",
+                            "description": "Timeout while waiting for events, expressed as an ISO 8601 duration.",
+                            "pattern": "(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
+                        }
+                    }
+                },
+                {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/form-replied-event"
+                        },
+                        {
+                            "$ref": "#/definitions/activity-expired-event"
+                        },
+                        {
+                            "$ref": "#/definitions/activity-completed-event"
+                        },
+                        {
+                            "$ref": "#/definitions/message-received-event"
+                        },
+                        {
+                            "$ref": "#/definitions/message-suppressed-event"
+                        },
+                        {
+                            "$ref": "#/definitions/post-shared-event"
+                        },
+                        {
+                            "$ref": "#/definitions/im-created-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-created-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-updated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-deactivated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-reactivated-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                        },
+                        {
+                            "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-joined-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-left-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/user-requested-join-room-event"
+                        },
+                        {
+                            "$ref": "#/definitions/connection-requested-event"
+                        },
+                        {
+                            "$ref": "#/definitions/connection-accepted-event"
+                        },
+                        {
+                            "$ref": "#/definitions/timer-fired-event"
+                        },
+                        {
+                            "$ref": "#/definitions/one-of-event"
+                        }
+                    ]
+                }
+            ]
+        },
+        "user-joined-event": {
+            "type": "object",
+            "properties": {
+                "user-joined-room": {
+                    "$ref": "#/definitions/user-joined-event-inner"
+                }
+            },
+            "required": [
+                "user-joined-room"
+            ]
+        },
+        "form-replied-event": {
+            "type": "object",
+            "properties": {
+                "form-replied": {
+                    "$ref": "#/definitions/form-replied-event-inner"
+                }
+            },
+            "required": [
+                "form-replied"
+            ]
+        },
+        "message-received-event": {
+            "type": "object",
+            "properties": {
+                "message-received": {
+                    "$ref": "#/definitions/message-received-event-inner"
+                }
+            },
+            "required": [
+                "message-received"
+            ]
+        },
+        "message-suppressed-event": {
+            "type": "object",
+            "properties": {
+                "message-suppressed": {
+                    "$ref": "#/definitions/message-suppressed-event-inner"
+                }
+            },
+            "required": [
+                "message-suppressed"
+            ]
+        },
+        "post-shared-event": {
+            "type": "object",
+            "properties": {
+                "post-shared": {
+                    "$ref": "#/definitions/post-shared-event-inner"
+                }
+            },
+            "required": [
+                "post-shared"
+            ]
+        },
+        "im-created-event": {
+            "type": "object",
+            "properties": {
+                "im-created": {
+                    "$ref": "#/definitions/im-created-event-inner"
+                }
+            },
+            "required": [
+                "im-created"
+            ]
+        },
+        "room-created-event": {
+            "type": "object",
+            "properties": {
+                "room-created": {
+                    "$ref": "#/definitions/room-created-event-inner"
+                }
+            },
+            "required": [
+                "room-created"
+            ]
+        },
+        "room-updated-event": {
+            "type": "object",
+            "properties": {
+                "room-updated": {
+                    "$ref": "#/definitions/room-updated-event-inner"
+                }
+            },
+            "required": [
+                "room-updated"
+            ]
+        },
+        "room-deactivated-event": {
+            "type": "object",
+            "properties": {
+                "room-deactivated": {
+                    "$ref": "#/definitions/room-deactivated-event-inner"
+                }
+            },
+            "required": [
+                "room-deactivated"
+            ]
+        },
+        "room-reactivated-event": {
+            "type": "object",
+            "properties": {
+                "room-reactivated": {
+                    "$ref": "#/definitions/room-reactivated-event-inner"
+                }
+            },
+            "required": [
+                "room-reactivated"
+            ]
+        },
+        "room-member-promoted-to-owner-event": {
+            "type": "object",
+            "properties": {
+                "room-member-promoted-to-owner": {
+                    "$ref": "#/definitions/room-member-promoted-to-owner-event-inner"
+                }
+            },
+            "required": [
+                "room-member-promoted-to-owner"
+            ]
+        },
+        "room-member-demoted-from-owner-event": {
+            "type": "object",
+            "properties": {
+                "room-member-demoted-from-owner": {
+                    "$ref": "#/definitions/room-member-demoted-from-owner-event-inner"
+                }
+            },
+            "required": [
+                "room-member-demoted-from-owner"
+            ]
+        },
+        "user-joined-room-event": {
+            "type": "object",
+            "properties": {
+                "user-joined-room": {
+                    "$ref": "#/definitions/user-joined-room-event-inner"
+                }
+            },
+            "required": [
+                "user-joined-room"
+            ]
+        },
+        "user-left-room-event": {
+            "type": "object",
+            "properties": {
+                "user-left-room": {
+                    "$ref": "#/definitions/user-left-room-event-inner"
+                }
+            },
+            "required": [
+                "user-left-room"
+            ]
+        },
+        "user-requested-join-room-event": {
+            "type": "object",
+            "properties": {
+                "user-requested-join-room": {
+                    "$ref": "#/definitions/user-requested-join-room-event-inner"
+                }
+            },
+            "required": [
+                "user-requested-join-room"
+            ]
+        },
+        "connection-requested-event": {
+            "type": "object",
+            "properties": {
+                "connection-requested": {
+                    "$ref": "#/definitions/connection-requested-event-inner"
+                }
+            },
+            "required": [
+                "connection-requested"
+            ]
+        },
+        "connection-accepted-event": {
+            "type": "object",
+            "properties": {
+                "connection-accepted": {
+                    "$ref": "#/definitions/connection-accepted-event-inner"
+                }
+            },
+            "required": [
+                "connection-accepted"
+            ]
+        },
+        "activity-expired-event": {
+            "type": "object",
+            "properties": {
+                "activity-expired": {
+                    "$ref": "#/definitions/activity-expired-event-inner"
+                }
+            },
+            "required": [
+                "activity-expired"
+            ]
+        },
+        "activity-completed-event": {
+            "type": "object",
+            "properties": {
+                "activity-completed": {
+                    "$ref": "#/definitions/activity-completed-event-inner"
+                },
+                "if": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "activity-completed"
+            ]
+        },
+        "one-of-event": {
+            "type": "object",
+            "properties": {
+                "one-of": {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/form-replied-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-expired-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-completed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-received-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-suppressed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/post-shared-event"
+                            },
+                            {
+                                "$ref": "#/definitions/im-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-updated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-deactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-reactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-joined-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-left-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-requested-join-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-requested-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-accepted-event"
+                            },
+                            {
+                                "$ref": "#/definitions/timer-fired-event"
+                            }
+                        ]
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "one-of"
+            ]
+        },
+        "timer-fired-event": {
+            "type": "object",
+            "properties": {
+                "timer-fired": {
+                    "$ref": "#/definitions/timer-fired-event-inner"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "timer-fired"
+            ]
+        },
+        "timer-fired-event-inner": {
+            "type": "object",
+            "properties": {
+                "repeat": {
+                    "type": "string"
+                },
+                "at": {
+                    "type": "string"
+                }
+            }
+        },
+        "user-joined-event-inner": {
+            "type": "object",
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                }
+            }
+        },
+        "form-replied-event-inner": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id"
+            ]
+        },
+        "message-received-event-inner": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "requires-bot-mention": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "message-suppressed-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "post-shared-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "im-created-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-created-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-updated-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-deactivated-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-reactivated-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-member-promoted-to-owner-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "room-member-demoted-from-owner-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "user-joined-room-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "user-left-room-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "user-requested-join-room-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "connection-requested-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "connection-accepted-event-inner": {
+            "type": "object",
+            "properties": {
+            }
+        },
+        "activity-expired-event-inner": {
+            "type": "object",
+            "properties": {
+                "activity-id": {
+                    "type": "string"
+                }
+            }
+        },
+        "activity-completed-event-inner": {
+            "type": "object",
+            "properties": {
+                "activity-id": {
+                    "type": "string"
+                }
+            }
+        },
+        "basic-activity-inner": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_]+$"
+                },
+                "description": {
+                    "description": "Activity's description, mostly used for documentation purpose.",
+                    "type": "string"
+                },
+                "on": {
+                    "$ref": "#/definitions/on"
+                },
+                "if": {
+                    "type": "string"
+                },
+                "else": {
+                    "type": "object"
+                }
+            },
+            "required": [
+                "id"
+            ]
+        },
+        "create-room-inner": {
+            "type": "object",
+            "description": "Create a room, IM or MIM",
+            "anyOf": [
+                {
+                    "required": [
+                        "room-name",
+                        "room-description"
+                    ]
+                },
+                {
+                    "required": [
+                        "uids"
+                    ]
+                }
+            ],
+            "properties": {
+                "room-name": {
+                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "room-description": {
+                    "description": "Room's description.",
+                    "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "update-room-inner": {
+            "type": "object",
+            "required": [
+                "stream-id"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "room-name": {
+                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "room-description": {
+                    "description": "Room's description.",
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "object"
+                },
+                "membersCanInvite": {
+                    "type": "boolean"
+                },
+                "discoverable": {
+                    "type": "boolean"
+                },
+                "public": {
+                    "type": "boolean"
+                },
+                "readOnly": {
+                    "type": "boolean"
+                },
+                "copyProtected": {
+                    "type": "boolean"
+                },
+                "crossPod": {
+                    "type": "boolean"
+                },
+                "viewHistory": {
+                    "type": "boolean"
+                },
+                "multiLateralRoom": {
+                    "type": "boolean"
+                },
+                "active": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "add-room-member-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "remove-room-member-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "promote-room-owner-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "demote-room-owner-inner": {
+            "type": "object",
+            "required": [
+                "stream-id",
+                "uids"
+            ],
+            "properties": {
+                "stream-id": {
+                    "type": "string"
+                },
+                "uids": {
+                    "type": "array"
+                }
+            }
+        },
+        "send-message-inner": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "to": {
+                    "$ref": "#/definitions/to"
+                },
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "execute-script-inner": {
+            "type": "object",
+            "required": [
+                "script"
+            ],
+            "properties": {
+                "script": {
+                    "type": "string",
+                    "description": "Script to execute (only Groovy is supported)",
+                    "x-intellij-language-injection": "Groovy"
+                }
+            }
+        },
+        "to": {
+            "type": "object",
+            "properties": {
+                "stream-id": {
+                    "type": "string",
+                    "title": "Stream ID to send the message",
+                    "description": "Stream ID where to send the message"
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "stream-id"
+            ]
+        }
+    }
+}

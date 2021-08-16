@@ -7,7 +7,7 @@ activities:
       id: doIt
       on:
         message-received:
-          content: "/send"
+          content: "/typed"
       script: |
         assert variables.aString instanceof String
         assert variables.aNumber instanceof Integer

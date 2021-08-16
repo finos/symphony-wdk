@@ -1,4 +1,6 @@
 name: execute-script-sets-variable
+variables:
+  foo: doo
 activities:
   - execute-script:
       id: setVariable
@@ -13,3 +15,9 @@ activities:
       # BDK beans are available in the script directly, context variables as well
       script: |
         messageService.send("123", variables.foo)
+  - send-message:
+      id: useVariable2
+      to:
+        stream-id: abc
+      # check variable is evaluated at runtime
+      content: ${variables.foo}

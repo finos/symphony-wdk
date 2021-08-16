@@ -1,27 +1,51 @@
-bdk:
-  host: devx3.symphony.com
-
-  bot:
-    username: workflow-bot
-    privateKey:
-      path: rsa/privatekey.pem
-
-logging:
-  level:
-
-    com.symphony: DEBUG
-    org.camunda: DEBUG
-    org.camunda.engine.persistence: INFO
-
-camunda:
-  bpm:
-    job-execution:
-      wait-time-in-millis: 1000
-      max-wait: 1000
-
+# Bot configuration
 workflows:
   folder: ./workflows
 
+# BDK configuration
+bdk:
+  host: devx3.symphony.com
+  datafeed:
+    version: v2
+  bot:
+    username: daneel-bot
+    privateKey:
+      path: rsa/privatekey.pem
+
+# Camunda configuration
+camunda:
+  bpm:
+    # Job execution is configured to pick up expired/scheduled activities quickly
+    job-execution:
+      wait-time-in-millis: 1000
+      max-wait: 1000
+      # Tuning the job executor thread pools can help if many workflows need to be executed at the same time
+    # Remove WARN logs at startup (we are not using this feature but our own watcher)
+    deployment-resource-pattern:
+    generic-properties:
+      properties:
+        # Avoid requests to the outside world
+        telemetryReporterActivate: false
+
+# Spring boot configuration
 spring:
   main:
     banner-mode: off
+logging:
+  level:
+    com.symphony: DEBUG
+    # troubleshoot Camunda
+    org.camunda: INFO
+    # disable audit trail
+    #audit-trail: WARN
+
+# Actuator endpoint is enabled by default on port 8080
+management:
+  health:
+    camunda:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+

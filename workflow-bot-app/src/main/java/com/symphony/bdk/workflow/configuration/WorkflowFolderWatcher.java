@@ -62,6 +62,7 @@ public class WorkflowFolderWatcher {
       throw new IllegalArgumentException("Could not find workflows folder to monitor with path: " + workflowsFolder);
     }
 
+    log.info("Watching workflows from {}", path);
     File[] existingFiles = path.toFile().listFiles();
     if (existingFiles != null) {
       for (File file : existingFiles) {
@@ -82,7 +83,7 @@ public class WorkflowFolderWatcher {
     watchFileEvents(path);
   }
 
-  private void watchFileEvents(Path path) throws InterruptedException, IOException, ProcessingException {
+  private void watchFileEvents(Path path) {
     try {
       WatchKey key;
       while ((key = watchService.take()) != null) {
@@ -95,6 +96,9 @@ public class WorkflowFolderWatcher {
         }
         key.reset();
       }
+    } catch (InterruptedException e) {
+      // ignored, thrown when stopping watcher
+      Thread.currentThread().interrupt();
     } catch (ClosedWatchServiceException e) {
       // ignored, thrown when stopping watcher
     }
@@ -128,9 +132,11 @@ public class WorkflowFolderWatcher {
   }
 
   private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
-    Workflow workflow = WorkflowBuilder.fromYaml(new FileInputStream(workflowFile.toFile()));
-    workflowEngine.execute(workflow);
-    deployedWorkflows.put(workflowFile, workflow.getName());
+    try (FileInputStream yaml = new FileInputStream(workflowFile.toFile())) {
+      Workflow workflow = WorkflowBuilder.fromYaml(yaml);
+      workflowEngine.execute(workflow);
+      deployedWorkflows.put(workflowFile, workflow.getName());
+    }
   }
 
   private void removeWorkflow(Path workflowFile) {

@@ -9,6 +9,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -25,7 +26,6 @@ public final class ActivityRegistry {
       activityExecutors;
 
   static {
-    log.info(ClasspathHelper.forClassLoader().toString());
     Reflections reflections = new Reflections(new ConfigurationBuilder()
         .setScanners(new SubTypesScanner(false))
         // this is a bit ugly but it works faster than scanning the entire classpath and for all contexts (JAR, tests)
@@ -33,7 +33,8 @@ public final class ActivityRegistry {
             // avoid bot's dependencies / pick only lib/ folder
             .filter(a -> a.toString().contains("lib/") && !a.toString().contains("BOOT-INF"))
             .collect(Collectors.toList()))
-        .addUrls(ClasspathHelper.forPackage("com.symphony.bdk.workflow")));
+        .addUrls(ClasspathHelper.forPackage("com.symphony.bdk.workflow"))
+        .filterInputsBy(new FilterBuilder().include(".*class")));
     activityTypes = reflections.getSubTypesOf(BaseActivity.class);
 
     activityExecutors = reflections.getSubTypesOf(ActivityExecutor.class).stream()

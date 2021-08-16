@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.executor;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.workflow.swadl.v1.activity.CreateRoom;
+import com.symphony.bdk.workflow.swadl.v1.activity.room.CreateRoom;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +19,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
   public void execute(ActivityExecutorContext<CreateRoom> execution) {
     CreateRoom activity = execution.getActivity();
     List<Long> uids = activity.getUuidsAsLongs();
-    String name = activity.getName();
+    String name = activity.getRoomName();
     String description = activity.getRoomDescription();
     boolean isPublic = activity.isPublic();
 
@@ -27,13 +27,13 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
 
     if (uids != null && !uids.isEmpty() && !StringUtils.isEmpty(name) && !StringUtils.isEmpty(description)) {
       createdRoomId = this.createRoom(execution, uids, name, description, isPublic);
-      log.info("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
+      log.debug("Stream {} created with {} users, id={}", name, uids.size(), createdRoomId);
     } else if (uids != null && !uids.isEmpty()) {
       createdRoomId = this.createRoom(execution, uids);
-      log.info("MIM created with {} users, id={}", uids.size(), createdRoomId);
+      log.debug("MIM created with {} users, id={}", uids.size(), createdRoomId);
     } else {
       createdRoomId = this.createRoom(execution, name, description, isPublic);
-      log.info("Stream {} created, id={}", name, createdRoomId);
+      log.debug("Stream {} created, id={}", name, createdRoomId);
     }
 
     execution.setOutputVariable(OUTPUT_ROOM_ID_KEY, createdRoomId);

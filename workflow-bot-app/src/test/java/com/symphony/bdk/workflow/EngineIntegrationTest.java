@@ -60,6 +60,7 @@ class EngineIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.stop(workflow.getName());
 
-    assertThat(engine.onEvent(messageReceived("/message"))).isEmpty();
+    engine.onEvent(messageReceived("/message"));
+    assertThat(lastProcess()).isEmpty();
   }
 }

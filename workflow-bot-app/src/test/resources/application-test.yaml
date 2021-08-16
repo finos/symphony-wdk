@@ -1,0 +1,20 @@
+# disable DF events listener for tests, we are generating the events in the test directly
+bdk:
+  datafeed:
+    enabled: false
+
+logging:
+  register-shutdown-hook: true # to avoid shutdown hooks logs in console with Gradle
+  level:
+    org.camunda: INFO
+
+# disable file watcher for tests
+workflows:
+  folder: false
+
+camunda:
+  bpm:
+    job-execution:
+      # faster test execution by waking up the job executor quickly
+      wait-time-in-millis: 100
+      max-wait: 100

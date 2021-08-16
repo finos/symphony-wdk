@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.swadl;
 
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import com.symphony.bdk.workflow.swadl.validator.YamlValidator;
+import com.symphony.bdk.workflow.swadl.validator.SwadlValidator;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -36,7 +36,7 @@ public class WorkflowBuilder {
 
   public static Workflow fromYaml(InputStream yaml) throws IOException, ProcessingException {
     String yamlString = IOUtils.toString(yaml, StandardCharsets.UTF_8);
-    YamlValidator.validateYamlString(yamlString);
+    SwadlValidator.validateYaml(yamlString);
     return MAPPER.readValue(yamlString, Workflow.class);
   }
 }

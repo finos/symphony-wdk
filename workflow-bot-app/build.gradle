@@ -10,8 +10,10 @@ dependencies {
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.8')
 
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     runtimeOnly 'com.h2database:h2'
 
     implementation 'org.slf4j:slf4j-api'
