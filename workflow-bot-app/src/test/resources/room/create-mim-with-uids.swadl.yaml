@@ -1,7 +1,7 @@
 name: create-mim-with-uids-workflow
 activities:
   - create-room:
-      id: "create-mim-with-uids-id"
+      id: act
       description: "activity to create a an mim with user ids"
       on:
         message-received:

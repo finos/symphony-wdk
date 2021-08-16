@@ -1,7 +1,7 @@
 name: timer-at
 activities:
   - send-message:
-      id: at-time
+      id: at_time
       on:
         timer-fired:
           at: SET_IN_TEST

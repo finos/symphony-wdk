@@ -1,7 +1,7 @@
 name: timer-repeat
 activities:
   - send-message:
-      id: every-second
+      id: every_second
       on:
         timer-fired:
           repeat: R/PT0.1S

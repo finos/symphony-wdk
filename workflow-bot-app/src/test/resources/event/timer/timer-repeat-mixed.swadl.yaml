@@ -1,7 +1,7 @@
 name: timer-repeat-mixed
 activities:
   - send-message:
-      id: every-second
+      id: every_second
       on:
         one-of:
           - message-received:

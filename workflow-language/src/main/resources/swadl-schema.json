@@ -85,7 +85,8 @@
                             "demote-room-owner": {
                                 "$ref": "#/definitions/demote-room-owner"
                             },
-                            ".*": {
+                            "^(create-room)|^(update-room)|.*": {
+                                "$comment": "Room tasks are specifically excluded because they don't have strong differentiators in properties, 'more than one variant' warnings are issued otherwise.",
                                 "$ref": "#/definitions/basic-activity-inner"
                             }
                         }
@@ -757,8 +758,9 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "description": "Activity's identifier, should be unique across workflow.",
-                    "type": "string"
+                    "description": "Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_]+$"
                 },
                 "description": {
                     "description": "Activity's description, mostly used for documentation purpose.",

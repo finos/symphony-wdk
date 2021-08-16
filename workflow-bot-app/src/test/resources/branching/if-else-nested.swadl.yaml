@@ -25,12 +25,12 @@ activities:
       script: |
         println "act2"
   - execute-script:
-      id: act2-2
+      id: act2_2
       if: ${variables.foo == "bar"}
       script: |
         println "act2-2"
   - execute-script:
-      id: act2-3
+      id: act2_3
       on:
         activity-completed:
           activity-id: act2

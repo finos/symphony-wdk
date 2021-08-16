@@ -27,13 +27,13 @@ class BranchingIntegrationTest extends IntegrationTest {
         arguments("/branching/if-else-end.swadl.yaml", List.of("act1")),
         arguments("/branching/if-else-activity.swadl.yaml", List.of("act1", "act3")),
         arguments("/branching/if-else-if.swadl.yaml", List.of("act1", "act3")),
-        arguments("/branching/if-nested.swadl.yaml", List.of("act1", "act2", "act2-2")),
-        arguments("/branching/if-else-nested.swadl.yaml", List.of("act1", "act2", "act2-3")),
+        arguments("/branching/if-nested.swadl.yaml", List.of("act1", "act2", "act2_2")),
+        arguments("/branching/if-else-nested.swadl.yaml", List.of("act1", "act2", "act2_3")),
         arguments("/branching/if-join.swadl.yaml", List.of("act1", "act2", "act4")),
         arguments("/branching/second-if-join.swadl.yaml", List.of("act1", "act3", "act4")),
         arguments("/branching/if-else-join.swadl.yaml", List.of("act1", "act3", "act4")),
         arguments("/branching/if-join-continue.swadl.yaml", List.of("act1", "act2", "act4", "act5")),
-        arguments("/branching/if-else-more-activities.swadl.yaml", List.of("act1", "act3", "act3-2"))
+        arguments("/branching/if-else-more-activities.swadl.yaml", List.of("act1", "act3", "act3_2"))
     );
   }
 

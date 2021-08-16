@@ -91,6 +91,12 @@ public class ProcessingMessageToSwadlError {
           erroredProperty);
     }
 
+    if (errorType.equals("pattern")) {
+      return String.format("Invalid property %s, must match pattern %s",
+          StringUtils.wrapIfMissing(erroredProperty, "'"),
+          errorNode.path("regex").asText());
+    }
+
     if (errorType.equals("type")) {
       JsonNode at = yamlTree.at(errorNode.at("/instance/pointer").asText());
       if (at.isTextual()) {
