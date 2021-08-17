@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.executor;
 
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 public interface ActivityExecutorContext<T extends BaseActivity> {
@@ -41,6 +42,11 @@ public interface ActivityExecutorContext<T extends BaseActivity> {
    * @return BDK service to manage streams (aka rooms).
    */
   StreamService streams();
+
+  /**
+   * @return BDK service to manage users.
+   */
+  UserService users();
 
   /**
    * @return The activity definition from the workflow.

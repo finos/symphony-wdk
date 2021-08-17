@@ -1,5 +1,7 @@
-package com.symphony.bdk.workflow.engine.executor;
+package com.symphony.bdk.workflow.engine.executor.room;
 
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.DemoteRoomOwner;
 
 import lombok.extern.slf4j.Slf4j;

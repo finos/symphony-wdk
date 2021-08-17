@@ -59,6 +59,24 @@
                         "$ref": "#/definitions/execute-script"
                     },
                     {
+                        "$ref": "#/definitions/create-user"
+                    },
+                    {
+                        "$ref": "#/definitions/update-user"
+                    },
+                    {
+                        "$ref": "#/definitions/add-user-role"
+                    },
+                    {
+                        "$ref": "#/definitions/remove-user-role"
+                    },
+                    {
+                        "$ref": "#/definitions/get-user"
+                    },
+                    {
+                        "$ref": "#/definitions/get-users"
+                    },
+                    {
                         "type": "object",
                         "patternProperties": {
                             "send-message": {
@@ -85,7 +103,25 @@
                             "demote-room-owner": {
                                 "$ref": "#/definitions/demote-room-owner"
                             },
-                            "^(create-room)|^(update-room)|.*": {
+                            "create-user": {
+                                "$ref": "#/definitions/create-user"
+                            },
+                            "update-user": {
+                                "$ref": "#/definitions/update-user"
+                            },
+                            "add-user-role": {
+                                "$ref": "#/definitions/add-user-role"
+                            },
+                            "remove-user-role": {
+                                "$ref": "#/definitions/remove-user-role"
+                            },
+                            "get-user": {
+                                "$ref": "#/definitions/get-user"
+                            },
+                            "get-users": {
+                                "$ref": "#/definitions/get-users"
+                            },
+                            "^(?!create-room|update-room|create-user|update-user|execute-script|get-users)([a-z0-9-]+)$": {
                                 "$comment": "Room tasks are specifically excluded because they don't have strong differentiators in properties, 'more than one variant' warnings are issued otherwise.",
                                 "$ref": "#/definitions/basic-activity-inner"
                             }
@@ -247,6 +283,197 @@
             "required": [
                 "execute-script"
             ]
+        },
+        "create-user": {
+            "type": "object",
+            "properties": {
+                "create-user": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/create-user-inner",
+                            "required": [
+                                "email",
+                                "username"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "create-user"
+            ]
+        },
+        "update-user": {
+            "type": "object",
+            "properties": {
+                "update-user": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/create-user-inner"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "user-id": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "user-id"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "update-user"
+            ]
+        },
+        "add-user-role": {
+            "type": "object",
+            "description": "While this activity supports multiple users and multiple roles, multiple API calls will be performed (one for each user,role pair). Make sure to limit this number to a sane limit (i.e a dozen).",
+            "properties": {
+                "add-user-role": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/user-role-inner"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "add-user-role"
+            ]
+        },
+        "remove-user-role": {
+            "type": "object",
+            "description": "While this activity supports multiple users and multiple roles, multiple API calls will be performed (one for each user,role pair). Make sure to limit this number to a sane limit (i.e a dozen).",
+            "properties": {
+                "remove-user-role": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "$ref": "#/definitions/user-role-inner"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "remove-user-role"
+            ]
+        },
+        "get-user": {
+            "type": "object",
+            "properties": {
+                "get-user": {
+                    "type": "object",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "user-id": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "user-id"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-user"
+            ]
+        },
+        "get-users": {
+            "type": "object",
+            "description": "See https://developers.symphony.com/restapi/reference#users-lookup-v3 for details.",
+            "properties": {
+                "get-users": {
+                    "type": "object",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "user-ids": {
+                                    "type": "array",
+                                    "description": "List of user ids. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "minLength": 1
+                                },
+                                "emails": {
+                                    "type": "array",
+                                    "description": "List of email addresses. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                                    },
+                                    "minLength": 1
+                                },
+                                "usernames": {
+                                    "type": "array",
+                                    "description": "List of usernames. If username is specified, local must be set to true. It is possible to search for more than one username by separating them by comma. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "minLength": 1
+                                },
+                                "local": {
+                                    "type": "boolean",
+                                    "description": "If true then a local DB search will be performed and only local pod users will be returned. If absent or false then a directory search will be performed and users from other pods who are visible to the calling user will also be returned.",
+                                    "default": false
+                                },
+                                "active": {
+                                    "type": "boolean",
+                                    "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-users"
+            ]
+        },
+        "search-user-inner": {
+            "type": "object",
+            "properties": {
+                "local": {
+                    "type": "boolean",
+                    "description": "If true then a local DB search will be performed and only local pod users will be returned. If absent or false then a directory search will be performed and users from other pods who are visible to the calling user will also be returned.",
+                    "default": false
+                },
+                "active": {
+                    "type": "boolean",
+                    "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
+                }
+            }
         },
         "on": {
             "description": "Events that can trigger the activity execution.",
@@ -950,6 +1177,449 @@
                     "x-intellij-language-injection": "Groovy"
                 }
             }
+        },
+        "create-user-inner": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "NORMAL",
+                        "SYSTEM"
+                    ],
+                    "default": "NORMAL",
+                    "description": "Account type. Possible values: NORMAL (end-user), SYSTEM (service user).\nIf not specified, NORMAL will be used.\nWhen you create a SYSTEM account, the following properties are not required: firstName, lastName."
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address, must be unique",
+                    "pattern": "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                },
+                "firstname": {
+                    "type": "string",
+                    "description": "The user's first name. Required for NORMAL users.",
+                    "minLength": 1
+                },
+                "lastname": {
+                    "type": "string",
+                    "description": "The user's last name. Required for NORMAL users.",
+                    "minLength": 1
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Must be unique.",
+                    "minLength": 1
+                },
+                "display-name": {
+                    "type": "string",
+                    "description": "The user's display name.",
+                    "minLength": 1
+                },
+                "recommended-language": {
+                    "type": "string",
+                    "description": "The recommended language. As an ISO 639-1 code.",
+                    "default": "en-US"
+                },
+                "contact": {
+                    "type": "object",
+                    "description": "Contact information",
+                    "additionalProperties": false,
+                    "properties": {
+                        "work-phone-number": {
+                            "type": "string",
+                            "description": "The user's work phone number."
+                        },
+                        "mobile-phone-number": {
+                            "type": "string",
+                            "description": "The user's mobile number."
+                        },
+                        "two-factor-auth-number": {
+                            "type": "string",
+                            "description": "The user's two factor authentication mobile phone number."
+                        },
+                        "sms-number": {
+                            "type": "string",
+                            "description": "The user's SMS number."
+                        }
+                    }
+                },
+                "business": {
+                    "type": "object",
+                    "description": "Business information",
+                    "additionalProperties": false,
+                    "properties": {
+                        "company-name": {
+                            "type": "string",
+                            "description": "The user's company name.\nIf not specified, it is set with the default company name."
+                        },
+                        "department": {
+                            "type": "string",
+                            "description": "The user's department."
+                        },
+                        "division": {
+                            "type": "string",
+                            "description": "The user's division."
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "The user's title."
+                        },
+                        "location": {
+                            "type": "string",
+                            "description": "The user's location."
+                        },
+                        "job-function": {
+                            "type": "string",
+                            "description": "The user's job function.",
+                            "enum": [
+                                "Analyst",
+                                "Other",
+                                "Business Development Executive",
+                                "Corporate Access",
+                                "Developer",
+                                "Director",
+                                "Economist",
+                                "Portfolio Manager",
+                                "Project Manager",
+                                "Research Analyst",
+                                "Sales",
+                                "Strategist",
+                                "Trader"
+                            ]
+                        },
+                        "asset-classes": {
+                            "type": "array",
+                            "description": "The user's asset classes (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Equities",
+                                    "Cash Equities",
+                                    "Securities Lending",
+                                    "Fixed Income",
+                                    "Government Bonds",
+                                    "Prime Brokerage",
+                                    "Commodities",
+                                    "Municipal Bonds",
+                                    "Currencies",
+                                    "Corporate Bonds"
+                                ]
+                            }
+                        },
+                        "industries": {
+                            "type": "array",
+                            "description": "The user's job industries (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Healthcare",
+                                    "Consumer Non-Cyclicals",
+                                    "Transportation",
+                                    "Technology",
+                                    "Real Estate",
+                                    "Basic Materials",
+                                    "Financials",
+                                    "Energy & Utilities",
+                                    "Conglomerates",
+                                    "Consumer Cyclicals",
+                                    "Services"
+                                ]
+                            }
+                        },
+                        "functions": {
+                            "type": "array",
+                            "description": "The user's job functions (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Collateral",
+                                    "Confirmation",
+                                    "Trade Processing",
+                                    "Pre-Matching",
+                                    "Margin",
+                                    "Matching",
+                                    "Claims Processing",
+                                    "Middle Office",
+                                    "Liquidity Management",
+                                    "Allocation",
+                                    "Trade Management",
+                                    "Regulatory Outreach",
+                                    "Settlements",
+                                    "Post Trade Management"
+                                ]
+                            }
+                        },
+                        "market-coverages": {
+                            "type": "array",
+                            "description": "The user's market coverage (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "EMEA",
+                                    "NA",
+                                    "APAC",
+                                    "LATAM"
+                                ]
+                            }
+                        },
+                        "responsibilities": {
+                            "type": "array",
+                            "description": "The user's responsibilities (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BAU",
+                                    "Escalation"
+                                ]
+                            }
+                        },
+                        "instruments": {
+                            "type": "array",
+                            "description": "The user's instruments (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Securities",
+                                    "Fixed Income",
+                                    "Equities"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "roles": {
+                    "$ref": "#/definitions/roles-inner"
+                },
+                "entitlements": {
+                    "type": "object",
+                    "description": "Feature entitlements to configure for the user.",
+                    "properties": {
+                        "postReadEnabled": {
+                            "type": "boolean",
+                            "description": "Allows the user to read wall posts."
+                        },
+                        "postWriteEnabled": {
+                            "type": "boolean",
+                            "description": "Allows the user to write wall posts."
+                        },
+                        "delegatesEnabled": {
+                            "type": "boolean",
+                            "description": "Allows the user to have delegates."
+                        },
+                        "isExternalIMEnabled": {
+                            "type": "boolean",
+                            "description": "Allows the user to chat in external IM/MIMs."
+                        },
+                        "canShareFilesExternally": {
+                            "type": "boolean",
+                            "description": "Allows the user to share files externally."
+                        },
+                        "canCreatePublicRoom": {
+                            "type": "boolean",
+                            "description": "Allows the user to create internal public rooms."
+                        },
+                        "canUpdateAvatar": {
+                            "type": "boolean",
+                            "description": "Allows the user to edit profile picture."
+                        },
+                        "isExternalRoomEnabled": {
+                            "type": "boolean",
+                            "description": "Allows the user to chat in private external rooms."
+                        },
+                        "canCreatePushedSignals": {
+                            "type": "boolean",
+                            "description": "Allows the user to create push signals."
+                        },
+                        "canUseCompactMode": {
+                            "type": "boolean",
+                            "description": "Enables Lite Mode."
+                        },
+                        "mustBeRecorded": {
+                            "type": "boolean",
+                            "description": "Must be recorded in meetings."
+                        },
+                        "sendFilesEnabled": {
+                            "type": "boolean",
+                            "description": "Allows the user to send files internally."
+                        },
+                        "canUseInternalAudio": {
+                            "type": "boolean",
+                            "description": "Allows the user to use audio in internal Meetings."
+                        },
+                        "canUseInternalVideo": {
+                            "type": "boolean",
+                            "description": "Allows the user to use video in internal Meetings."
+                        },
+                        "canProjectInternalScreenShare": {
+                            "type": "boolean",
+                            "description": "Allows the user to share screens in internal Meetings."
+                        },
+                        "canViewInternalScreenShare": {
+                            "type": "boolean",
+                            "description": "Allows the user to view shared screens in internal Meetings."
+                        },
+                        "canCreateMultiLateralRoom": {
+                            "type": "boolean",
+                            "description": "Allows the user to create multi-lateral room."
+                        },
+                        "canJoinMultiLateralRoom": {
+                            "type": "boolean",
+                            "description": "Allows the user to join multi-lateral room."
+                        },
+                        "canUseFirehose": {
+                            "type": "boolean",
+                            "description": "Allows the user to use Firehose."
+                        },
+                        "canUseInternalAudioMobile": {
+                            "type": "boolean",
+                            "description": "Allows the user to use audio in internal meetings on mobile."
+                        },
+                        "canUseInternalVideoMobile": {
+                            "type": "boolean",
+                            "description": "Allows the user to use video in internal meetings on mobile."
+                        },
+                        "canProjectInternalScreenShareMobile": {
+                            "type": "boolean",
+                            "description": "Allows the user to share screens in internal meetings on mobile."
+                        },
+                        "canViewInternalScreenShareMobile": {
+                            "type": "boolean",
+                            "description": "Allows the user to view shared screens in internal meetings on mobile."
+                        },
+                        "canManageSignalSubscription": {
+                            "type": "boolean",
+                            "description": "Allows the user to manage signal subscriptions."
+                        },
+                        "canCreateDatahose": {
+                            "type": "boolean",
+                            "description": "Can create datahose feeds."
+                        },
+                        "canIntegrateEmail": {
+                            "type": "boolean",
+                            "description": "Can integrate email service."
+                        },
+                        "canReadDatahose": {
+                            "type": "boolean",
+                            "description": "Can read from datahose feeds."
+                        },
+                        "canSuppressMessage": {
+                            "type": "boolean",
+                            "description": "Can suppress own messages."
+                        },
+                        "canSwitchToClient20": {
+                            "type": "boolean",
+                            "description": "Can switch to Client 2.0 experience."
+                        },
+                        "canUpdateRoomHistoryProperty": {
+                            "type": "boolean",
+                            "description": "Can Toggle Room's Share History Property."
+                        },
+                        "canUseEncryptAPI": {
+                            "type": "boolean",
+                            "description": "Allow user to use Agent Encrypt endpoints."
+                        },
+                        "enableSwiftSearch": {
+                            "type": "boolean",
+                            "description": "Can Use Swift Search."
+                        },
+                        "sdaDevtoolsEnabled": {
+                            "type": "boolean",
+                            "description": "Enable Developer Tools for SDA."
+                        },
+                        "sdaPermissionsFullScreen": {
+                            "type": "boolean",
+                            "description": "Enable Full screen access on SDA."
+                        },
+                        "sdaPermissionsGeoLocation": {
+                            "type": "boolean",
+                            "description": "Enable location access on SDA."
+                        },
+                        "sdaPermissionsMedia": {
+                            "type": "boolean",
+                            "description": "Enable Media access on SDA."
+                        },
+                        "sdaPermissionsMidiSysex": {
+                            "type": "boolean",
+                            "description": "Enable access to MIDI Sysex on SDA."
+                        },
+                        "sdaPermissionsNotifications": {
+                            "type": "boolean",
+                            "description": "Allow notifications on SDA."
+                        },
+                        "sdaPermissionsOpenExternalApp": {
+                            "type": "boolean",
+                            "description": "Allow Opening External Apps from SDA."
+                        },
+                        "sdaPermissionsPointerLock": {
+                            "type": "boolean",
+                            "description": "Enable Pointer Lock on SDA."
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                }
+            }
+        },
+        "roles-inner": {
+            "type": "array",
+            "description": "The roles consists of the following possibilities:\n\nFor end-user accounts (NORMAL), roles are:\nINDIVIDUAL\nADMINISTRATOR\nSUPER_ADMINISTRATOR\nL1_SUPPORT\nL2_SUPPORT\nCOMPLIANCE_OFFICER\nSUPER_COMPLIANCE_OFFICER\nFor service accounts (SYSTEM), roles are:\nINDIVIDUAL\nUSER_PROVISIONING\nSCOPE_MANAGEMENT\nCONTENT_MANAGEMENT\nMALWARE_SCAN_MANAGER\nMALWARE_SCAN_STATE_USER\nAUDIT_TRAIL_MANAGEMENT\nPlease note that, for end-user accounts, if no role is specified at creation, then the INDIVIDUAL value is assigned.",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "enum": [
+                    "INDIVIDUAL",
+                    "ADMINISTRATOR",
+                    "SUPER_ADMINISTRATOR",
+                    "L1_SUPPORT",
+                    "L2_SUPPORT",
+                    "COMPLIANCE_OFFICER",
+                    "SUPER_COMPLIANCE_OFFICER",
+                    "USER_PROVISIONING",
+                    "SCOPE_MANAGEMENT",
+                    "CONTENT_MANAGEMENT",
+                    "MALWARE_SCAN_MANAGER",
+                    "MALWARE_SCAN_STATE_USER",
+                    "AUDIT_TRAIL_MANAGEMENT",
+                    "AGENT",
+                    "CONTENT_EXPORT_SERVICE",
+                    "SYMPHONY_ADMIN",
+                    "KEY_MANAGER",
+                    "EF_POLICY_MANAGEMENT",
+                    "CEP_VISIBILITY_GROUP_MANAGEMENT"
+                ]
+            }
+        },
+        "user-role-inner": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "type": "array",
+                    "description": "Users to add or remove roles from.",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "roles": {
+                    "$ref": "#/definitions/roles-inner"
+                }
+            },
+            "required": [
+                "user-ids",
+                "roles"
+            ]
         },
         "to": {
             "type": "object",

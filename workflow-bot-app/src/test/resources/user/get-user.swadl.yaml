@@ -1,0 +1,12 @@
+name: get-user
+activities:
+  - get-user:
+      id: get
+      on:
+        message-received:
+          content: /get-user
+      user-id: "123"
+  - execute-script:
+      id: script
+      script: |
+        assert get.outputs.user != null

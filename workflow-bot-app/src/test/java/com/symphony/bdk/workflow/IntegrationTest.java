@@ -4,6 +4,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -44,6 +45,9 @@ abstract class IntegrationTest {
 
   @MockBean(name = "messageService")
   MessageService messageService;
+
+  @MockBean(name = "userService")
+  UserService userService;
 
   @MockBean(name = "sessionService")
   SessionService sessionService;
@@ -119,9 +123,14 @@ abstract class IntegrationTest {
   }
 
   protected Optional<String> lastProcess() {
-    return Optional.ofNullable(historyService.createHistoricProcessInstanceQuery()
-            .orderByProcessInstanceStartTime().desc()
-            .singleResult())
-        .map(HistoricProcessInstance::getId);
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+        .orderByProcessInstanceStartTime().desc()
+        .list();
+    if (processes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable(processes.get(0))
+          .map(HistoricProcessInstance::getId);
+    }
   }
 }
