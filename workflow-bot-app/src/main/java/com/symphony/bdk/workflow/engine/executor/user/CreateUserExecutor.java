@@ -2,16 +2,20 @@ package com.symphony.bdk.workflow.engine.executor.user;
 
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.Feature;
+import com.symphony.bdk.gen.api.model.Password;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
 import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.gen.api.model.V2UserKeyRequest;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.CreateUser;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,6 +57,15 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
 
     user.setUserAttributes(attributes);
 
+    if (createUser.getPassword() != null) {
+      user.password(new Password()
+          .hPassword(createUser.getPassword().getHashedPassword())
+          .hSalt(createUser.getPassword().getHashedSalt())
+          .khPassword(createUser.getPassword().getHashedKmPassword())
+          .khSalt(createUser.getPassword().getHashedKmSalt())
+      );
+    }
+
     user.setRoles(createUser.getRoles());
     return user;
   }
@@ -88,7 +101,32 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
       attributes.setResponsibility(createUser.getBusiness().getResponsibilities());
       attributes.setMarketCoverage(createUser.getBusiness().getMarketCoverages());
     }
+
+    if (createUser.getKeys() != null) {
+      if (createUser.getKeys().getCurrent() != null) {
+        attributes.setCurrentKey(new V2UserKeyRequest()
+            .key(createUser.getKeys().getCurrent().getKey())
+            .action(createUser.getKeys().getCurrent().getAction())
+            .expirationDate(toTimestamp(createUser.getKeys().getCurrent().getExpiration()))
+        );
+      }
+      if (createUser.getKeys().getPrevious() != null) {
+        attributes.setPreviousKey(new V2UserKeyRequest()
+            .key(createUser.getKeys().getPrevious().getKey())
+            .action(createUser.getKeys().getPrevious().getAction())
+            .expirationDate(toTimestamp(createUser.getKeys().getPrevious().getExpiration()))
+        );
+      }
+    }
+
     return attributes;
+  }
+
+  private static Long toTimestamp(String iso8601Ts) {
+    if (iso8601Ts == null) {
+      return null;
+    }
+    return Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(iso8601Ts)).toEpochMilli();
   }
 
   static List<Feature> toFeatures(Map<String, Boolean> entitlements) {

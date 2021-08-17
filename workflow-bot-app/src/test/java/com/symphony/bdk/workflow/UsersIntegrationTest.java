@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.gen.api.model.UserSystemInfo;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
@@ -16,7 +17,6 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,7 +27,7 @@ class UsersIntegrationTest extends IntegrationTest {
   void createUser() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user.swadl.yaml"));
 
-    Mockito.when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+    when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/create-user"));
@@ -46,10 +46,29 @@ class UsersIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void createUserKeys() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user-keys.swadl.yaml"));
+
+    when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("/create-user"));
+
+    ArgumentCaptor<V2UserCreate> userCreate = ArgumentCaptor.forClass(V2UserCreate.class);
+    verify(userService, timeout(5000)).create(userCreate.capture());
+
+    assertThat(userCreate.getValue()).satisfies(user -> {
+      assertThat(user.getUserAttributes().getCurrentKey().getAction()).isEqualTo("SAVE");
+      assertThat(user.getUserAttributes().getCurrentKey().getKey()).isEqualTo("abc");
+      assertThat(user.getUserAttributes().getCurrentKey().getExpirationDate()).isEqualTo(1629210917000L);
+    });
+  }
+
+  @Test
   void updateUser() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/update-user.swadl.yaml"));
 
-    Mockito.when(userService.update(any(), any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/update-user"));

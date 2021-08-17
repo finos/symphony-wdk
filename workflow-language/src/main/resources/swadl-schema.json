@@ -1393,6 +1393,49 @@
                         }
                     }
                 },
+                "password": {
+                    "type": "object",
+                    "description": "User's password. The password object is optional for end-user accounts (NORMAL). For example, if your organization utilizes SSO, you may not want to specify the password.\n\nPlease note the password object is not used for service accounts (SYSTEM) and therefore cannot be entered in the request payload.",
+                    "additionalProperties": false,
+                    "required": [
+                        "hashedPassword",
+                        "hashedSalt"
+                    ],
+                    "properties": {
+                        "hashedPassword": {
+                            "description": "A base64-encoded string. The hashed password. This is the hashed version of the password the user would use to login.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "hashedSalt": {
+                            "description": "A base64-encoded string. The salt used for hashing the hPassword.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "hashedKmPassword": {
+                            "description": "A base64-encoded string. The hashed password to be used for authenticating to the key manager.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "hashedKmSalt": {
+                            "description": "A base64-encoded string. The salt used for hashing the khPassword.",
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                },
+                "keys": {
+                    "type": "object",
+                    "description": "For SYSTEM users, to setup the RSA keys for authentication.",
+                    "properties": {
+                        "current": {
+                            "$ref": "#/definitions/key-inner"
+                        },
+                        "previous": {
+                            "$ref": "#/definitions/key-inner"
+                        }
+                    }
+                },
                 "roles": {
                     "$ref": "#/definitions/roles-inner"
                 },
@@ -1568,6 +1611,31 @@
                         "ENABLED",
                         "DISABLED"
                     ]
+                }
+            }
+        },
+        "key-inner": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "action": {
+                    "description": "A string indicating the action to be performed on the user's RSA.\n\nThe following actions can be performed on the user's active RSA key:\nSAVE\nREVOKE.\n\nThe following actions can be performed onto the user's rotated RSA key:\nREVOKE\nEXTEND.",
+                    "type": "string",
+                    "enum": [
+                        "SAVE",
+                        "EXTEND",
+                        "REVOKE"
+                    ]
+                },
+                "key": {
+                    "description": "A string containing the user's RSA public key. The key must be 4096 bits. Only PKCS8 format is allowed.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "expiration": {
+                    "description": "An ISO 8601 timestamp containing the RSA key expiration date. This value is only set for rotated keys.",
+                    "type": "string",
+                    "minLength": 1
                 }
             }
         },

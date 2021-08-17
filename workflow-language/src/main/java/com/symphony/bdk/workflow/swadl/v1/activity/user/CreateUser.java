@@ -40,8 +40,11 @@ public class CreateUser extends BaseActivity {
   @Nullable
   private String status;
 
-  // TODO password?
+  @Nullable
+  private Password password;
 
+  @Nullable
+  private Keys keys;
 
   @Data
   public static class Contact {
@@ -66,5 +69,26 @@ public class CreateUser extends BaseActivity {
     private List<String> marketCoverages;
     private List<String> responsibilities;
     private List<String> instruments;
+  }
+
+  @Data
+  public static class Password {
+    private String hashedPassword;
+    private String hashedSalt;
+    private String hashedKmPassword;
+    private String hashedKmSalt;
+  }
+
+  @Data
+  public static class Keys {
+    private Key current;
+    private Key previous;
+  }
+
+  @Data
+  public static class Key {
+    private String action;
+    private String expiration;
+    private String key;
   }
 }
