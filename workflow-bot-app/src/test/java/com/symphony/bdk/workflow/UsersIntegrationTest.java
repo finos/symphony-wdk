@@ -28,6 +28,7 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user.swadl.yaml"));
 
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/create-user"));
@@ -43,13 +44,17 @@ class UsersIntegrationTest extends IntegrationTest {
 
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, timeout(5000)).updateFeatureEntitlements(any(), any());
+
+    assertExecuted(workflow);
   }
 
   @Test
   void createUserKeys() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user-keys.swadl.yaml"));
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user-keys.swadl.yaml"));
 
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/create-user"));
@@ -62,6 +67,8 @@ class UsersIntegrationTest extends IntegrationTest {
       assertThat(user.getUserAttributes().getCurrentKey().getKey()).isEqualTo("abc");
       assertThat(user.getUserAttributes().getCurrentKey().getExpirationDate()).isEqualTo(1629210917000L);
     });
+
+    assertExecuted(workflow);
   }
 
   @Test
@@ -84,6 +91,8 @@ class UsersIntegrationTest extends IntegrationTest {
 
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, timeout(5000)).updateFeatureEntitlements(any(), any());
+
+    assertExecuted(workflow);
   }
 
   @Test
@@ -91,11 +100,15 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/update-user-status.swadl.yaml"));
 
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
+
     engine.execute(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, never()).update(any(), any());
+
+    assertExecuted(workflow);
   }
 
   @Test
@@ -107,6 +120,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000).times(2)).addRole(any(), any());
+    assertExecuted(workflow);
   }
 
   @Test
@@ -118,16 +132,20 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000).times(2)).removeRole(any(), any());
+    assertExecuted(workflow);
   }
 
   @Test
   void getUser() throws IOException, ProcessingException {
     final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/get-user.swadl.yaml"));
 
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
+
     engine.execute(workflow);
     engine.onEvent(messageReceived("/get-user"));
 
     verify(userService, timeout(5000)).getUserDetail(123L);
+    assertExecuted(workflow);
   }
 
   @Test
@@ -139,6 +157,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByIds(List.of(123L, 456L), true, false);
+    assertExecuted(workflow);
   }
 
   @Test
@@ -150,6 +169,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByEmails(List.of("bob@mail.com", "eve@mail.com"), true, false);
+    assertExecuted(workflow);
   }
 
   @Test
@@ -161,5 +181,6 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByUsernames(List.of("bob", "eve"), false);
+    assertExecuted(workflow);
   }
 }
