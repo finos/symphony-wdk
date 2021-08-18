@@ -1,0 +1,12 @@
+name: get-stream
+activities:
+  - get-stream:
+      id: act1
+      on:
+        message-received:
+          content: /get-stream
+      stream-id: abc
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.stream != null

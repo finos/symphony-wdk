@@ -1,0 +1,14 @@
+name: get-stream-members-pagination
+activities:
+  - get-stream-members:
+      id: act1
+      on:
+        message-received:
+          content: /get-stream-members-pagination
+      stream-id: abc
+      skip: 10
+      limit: 10
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.members != null

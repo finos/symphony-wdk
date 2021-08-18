@@ -1,0 +1,19 @@
+name: get-streams-pagination
+activities:
+  - get-streams:
+      id: act1
+      on:
+        message-received:
+          content: /get-streams-pagination
+      types:
+        - IM
+        - ROOM
+      status: ACTIVE
+      origin: INTERNAL
+      start-date: "2021-08-17T14:35:17+00:00"
+      skip: 10
+      limit: 10
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.streams != null
