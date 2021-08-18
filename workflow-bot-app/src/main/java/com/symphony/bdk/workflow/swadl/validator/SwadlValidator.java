@@ -45,22 +45,30 @@ public class SwadlValidator {
       .setReportProvider(new ListReportProvider(LogLevel.ERROR, LogLevel.FATAL))
       .freeze();
 
-  private SwadlValidator() {
-  }
+  private static final JsonNode jsonSchema;
 
-  public static void validateYaml(String yaml) throws IOException, ProcessingException {
+  static {
+    // load it only once
     try (InputStream schemaStream = SwadlValidator.class.getResourceAsStream(JSON_SCHEMA_FILE)) {
       if (schemaStream == null) {
         throw new IOException("Could not read JSON schema from classpath location: " + JSON_SCHEMA_FILE);
       }
-      validate(yaml, OBJECT_MAPPER.readTree(schemaStream));
+      jsonSchema = OBJECT_MAPPER.readTree(schemaStream);
+      addCustomActivitiesToSchema(jsonSchema);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to load JSON schema", e);
     }
   }
 
-  private static void validate(String yaml, JsonNode jsonSchema)
-      throws ProcessingException, IOException {
+  private SwadlValidator() {
+  }
 
-    addCustomActivitiesToSchema(jsonSchema);
+  public static void validateYaml(String yaml) throws IOException, ProcessingException {
+    validate(yaml);
+  }
+
+  private static void validate(String yaml)
+      throws ProcessingException, IOException {
 
     final JsonSchema schema = JSON_SCHEMA_FACTORY.getJsonSchema(jsonSchema);
     try {
