@@ -322,7 +322,11 @@
                             "type": "object",
                             "properties": {
                                 "user-id": {
-                                    "type": "string"
+                                    "type": [
+                                        "string",
+                                        "integer"
+                                    ],
+                                    "minLength": 1
                                 }
                             },
                             "required": [
@@ -388,7 +392,10 @@
                         {
                             "properties": {
                                 "user-id": {
-                                    "type": "string",
+                                    "type": [
+                                        "string",
+                                        "integer"
+                                    ],
                                     "minLength": 1
                                 }
                             },
@@ -421,7 +428,10 @@
                                     "type": "array",
                                     "description": "List of user ids. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
                                     "items": {
-                                        "type": "string"
+                                        "type": [
+                                            "string",
+                                            "integer"
+                                        ]
                                     },
                                     "minLength": 1
                                 },
@@ -1212,7 +1222,7 @@
                 },
                 "display-name": {
                     "type": "string",
-                    "description": "The user's display name.",
+                    "description": "The user's display name. Required upon creation.",
                     "minLength": 1
                 },
                 "recommended-language": {
@@ -1677,7 +1687,11 @@
                     "uniqueItems": true,
                     "minItems": 1,
                     "items": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "integer"
+                        ],
+                        "minLength": 1
                     }
                 },
                 "roles": {

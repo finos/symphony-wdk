@@ -1,0 +1,27 @@
+name: create-user-account
+activities:
+  - create-user:
+      id: create
+      on:
+        message-received:
+          content: /create-user
+
+      email:  bob123@mail.com
+      username: bob123
+      firstname: Bob
+      lastname: Lee
+      display-name: Bob Lee
+      entitlements:
+        canCreateDatahose: false
+        canIntegrateEmail: true
+      business:
+        department: "Space"
+        division: "Moon"
+        title: "Pilot"
+        location: "Texas"
+        industries:
+          - Basic Materials
+          - Consumer Cyclicals
+        instruments:
+          - Equities
+

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -103,10 +104,10 @@ public class CamundaExecutor implements JavaDelegate {
       Map<String, Object> outerMap = Collections.singletonMap(ActivityExecutorContext.OUTPUTS, innerMap);
       String activityId = getActivity().getId();
 
-      // value might not implement serializable, so we use JSON if needed
+      // value might not implement serializable or be a collection with non-serializable items, so we use JSON if needed
       Object outerMapVar;
       Object valueVar;
-      if (value instanceof Serializable) {
+      if (value instanceof Serializable && !(value instanceof Collection)) {
         outerMapVar = outerMap;
         valueVar = value;
       } else {
