@@ -1,0 +1,25 @@
+name: update-user
+activities:
+  - update-user:
+      id: update
+      on:
+        message-received:
+          content: /update-user
+      email: john@mail.com
+      user-id: "123"
+      username: john
+      firstname: John
+      lastname: Lee
+      roles:
+        - ADMINISTRATOR
+        - USER_PROVISIONING
+      status: DISABLED
+      entitlements:
+        canCreatePublicRoom: true
+        canJoinMultiLateralRoom: false
+      contact:
+        mobile-phone-number: "123456789"
+  - execute-script:
+      id: script
+      script: |
+        assert update.outputs.user != null

@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -41,12 +43,14 @@ public class CamundaExecutor implements JavaDelegate {
 
   private final MessageService messageService;
   private final StreamService streamService;
+  private final UserService userService;
   private final AuditTrailLogger auditTrailLogger;
 
   public CamundaExecutor(MessageService messageService, StreamService streamService,
-      AuditTrailLogger auditTrailLogger) {
+      UserService userService, AuditTrailLogger auditTrailLogger) {
     this.messageService = messageService;
     this.streamService = streamService;
+    this.userService = userService;
     this.auditTrailLogger = auditTrailLogger;
   }
 
@@ -100,10 +104,10 @@ public class CamundaExecutor implements JavaDelegate {
       Map<String, Object> outerMap = Collections.singletonMap(ActivityExecutorContext.OUTPUTS, innerMap);
       String activityId = getActivity().getId();
 
-      // value might not implement serializable, so we use JSON if needed
+      // value might not implement serializable or be a collection with non-serializable items, so we use JSON if needed
       Object outerMapVar;
       Object valueVar;
-      if (value instanceof Serializable) {
+      if (value instanceof Serializable && !(value instanceof Collection)) {
         outerMapVar = outerMap;
         valueVar = value;
       } else {
@@ -126,6 +130,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public StreamService streams() {
       return streamService;
+    }
+
+    @Override
+    public UserService users() {
+      return userService;
     }
 
     @Override

@@ -16,5 +16,5 @@ camunda:
   bpm:
     job-execution:
       # faster test execution by waking up the job executor quickly
-      wait-time-in-millis: 100
-      max-wait: 100
+      wait-time-in-millis: 50
+      max-wait: 50

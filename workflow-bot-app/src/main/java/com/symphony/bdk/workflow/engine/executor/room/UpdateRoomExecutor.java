@@ -1,8 +1,10 @@
-package com.symphony.bdk.workflow.engine.executor;
+package com.symphony.bdk.workflow.engine.executor.room;
 
 import com.symphony.bdk.gen.api.model.RoomTag;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.UpdateRoom;
 
 import lombok.extern.slf4j.Slf4j;

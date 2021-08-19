@@ -18,7 +18,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   public void execute(ActivityExecutorContext<SendMessage> execution) {
     SendMessage activity = execution.getActivity();
     String streamId = resolveStreamId(execution, activity);
-    log.debug("Running activity {} to send message to room {}", activity.getId(), streamId);
+    log.debug("Sending message to room {}", streamId);
 
     if (streamId.endsWith("=")) { // TODO should be done in the BDK
       streamId = StreamUtil.toUrlSafeStreamId(streamId);
