@@ -21,7 +21,7 @@ class WorkflowBuilderTest {
   void shouldLoadGlobalVariablesWhenLoadingValidSwadl()
       throws IOException, ProcessingException {
     Workflow workflow = WorkflowBuilder.fromYaml(getClass()
-        .getResourceAsStream("/workflowbuilder/valid_swadl.yaml"));
+        .getResourceAsStream("valid_swadl.yaml"));
 
     assertThat(workflow.getVariables()).isNotNull();
     assertThat(workflow.getVariables()).isNotEmpty();
@@ -33,16 +33,14 @@ class WorkflowBuilderTest {
   @Test
   void shouldIgnoreVariablesWhenLoadingInvalidSwadl()
       throws IOException, ProcessingException {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass()
-        .getResourceAsStream("/workflowbuilder/invalid_swadl.swadl.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("invalid_swadl.swadl.yaml"));
 
     assertThat(workflow.getVariables()).isEmpty();
   }
 
   @Test
   void customActivity() throws IOException, ProcessingException {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass()
-        .getResourceAsStream("/workflowbuilder/custom-activity.swadl.yaml"));
+    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("custom-activity.swadl.yaml"));
 
     assertThat(workflow.getFirstActivity()).hasValueSatisfying(c -> {
       assertThat(((DoSomething) (c.getActivity())).getMyParameter()).isEqualTo("abc");
@@ -51,8 +49,8 @@ class WorkflowBuilderTest {
 
   @Test
   void customActivity_notFound() {
-    assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/workflowbuilder/custom-activity-not-found.swadl.yaml")))
+    assertThatThrownBy(
+        () -> WorkflowBuilder.fromYaml(getClass().getResourceAsStream("custom-activity-not-found.swadl.yaml")))
         .describedAs("Should fail are validation time because the JSON schema is updated on the fly")
         .isInstanceOf(SwadlNotValidException.class);
   }
@@ -60,7 +58,7 @@ class WorkflowBuilderTest {
   @Test
   void customActivity_duplicateDefinition() {
     assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
-        getClass().getResourceAsStream("/workflowbuilder/custom-activity-duplicate-definition.swadl.yaml")))
+        getClass().getResourceAsStream("custom-activity-duplicate-definition.swadl.yaml")))
         .describedAs(
             "Workflow is invalid because 2 DuplicateCustomActivity classes are defined (in different packages")
         .isInstanceOf(JsonMappingException.class);
