@@ -41,6 +41,27 @@ public abstract class BaseActivity {
   @JsonProperty("else")
   private Object elseCondition;
 
+  /**
+   * We usually want unset fields to stay null as the API is usually using default values.
+   *
+   * @param field a Boolean value.
+   * @return null if field is null.
+   */
+  protected static Boolean toBoolean(String field) {
+    return field == null ? null : Boolean.valueOf(field);
+  }
+
+  /**
+   * We usually want unset fields to stay null as the API is usually using default values.
+   *
+   * @param field an Integer value.
+   * @return null if field is null.
+   */
+  protected static Integer toInt(String field) {
+    return field == null ? null : Integer.valueOf(field);
+  }
+
+
   @JsonIgnore
   public List<Event> getEvents() {
     if (on != null && on.getOneOf() != null) {

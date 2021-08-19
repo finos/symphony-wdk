@@ -20,6 +20,14 @@ public class GetStreams extends BaseActivity {
   private String status;
   private String startDate;
   private String endDate;
-  private Integer limit;
-  private Integer skip;
+  private String limit;
+  private String skip;
+
+  public Integer getLimit() {
+    return toInt(limit);
+  }
+
+  public Integer getSkip() {
+    return toInt(skip);
+  }
 }

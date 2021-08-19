@@ -21,7 +21,7 @@ public class CreateRoom extends BaseActivity {
   private List<String> uids;
 
   @JsonProperty("public")
-  private boolean isPublic;
+  private String isPublic;
 
   // to support the usage of variables
   @JsonIgnore
@@ -30,6 +30,10 @@ public class CreateRoom extends BaseActivity {
       return null;
     }
     return uids.stream().map(Long::parseLong).collect(Collectors.toList());
+  }
+
+  public Boolean isPublic() {
+    return Boolean.valueOf(isPublic);
   }
 }
 

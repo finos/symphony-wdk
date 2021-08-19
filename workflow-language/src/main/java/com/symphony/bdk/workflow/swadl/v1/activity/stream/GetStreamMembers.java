@@ -12,6 +12,14 @@ import lombok.EqualsAndHashCode;
 @Data
 public class GetStreamMembers extends BaseActivity {
   private String streamId;
-  private Integer limit;
-  private Integer skip;
+  private String limit;
+  private String skip;
+
+  public Integer getLimit() {
+    return toInt(limit);
+  }
+
+  public Integer getSkip() {
+    return toInt(skip);
+  }
 }

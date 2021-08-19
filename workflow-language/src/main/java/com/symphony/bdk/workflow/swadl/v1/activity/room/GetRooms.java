@@ -16,9 +16,9 @@ import java.util.List;
 public class GetRooms extends BaseActivity {
   private String query;
   private List<String> labels;
-  private Boolean active;
+  private String active;
   @JsonProperty("private")
-  private Boolean isPrivate;
+  private String isPrivate;
 
   private String creatorId;
   private String ownerId;
@@ -26,6 +26,22 @@ public class GetRooms extends BaseActivity {
 
   private String sortOrder;
 
-  private Integer limit;
-  private Integer skip;
+  private String limit;
+  private String skip;
+
+  public Boolean getActive() {
+    return toBoolean(active);
+  }
+
+  public Boolean getIsPrivate() {
+    return toBoolean(isPrivate);
+  }
+
+  public Integer getLimit() {
+    return toInt(limit);
+  }
+
+  public Integer getSkip() {
+    return toInt(skip);
+  }
 }

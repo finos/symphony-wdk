@@ -1,0 +1,26 @@
+name: paginate-rooms
+variables:
+  skip: 0
+  count: 1000
+activities:
+  - get-rooms:
+      id: get
+      on:
+        one-of:
+          - message-received:
+              content: /paginate-rooms
+          - activity-completed:
+              activity-id: iter
+              if: ${variables.skip < variables.count}
+      query: test
+      types:
+        - ROOM
+      limit: 5
+      skip: ${variables.skip}
+  - execute-script:
+      id: iter
+      script: |
+        // prepare next iteration, incrementing skip until we reach the count value
+        variables.skip += 5
+        variables.count = get.outputs.rooms.count
+        println get.outputs.rooms.rooms*.roomAttributes.name

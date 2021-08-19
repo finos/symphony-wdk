@@ -14,7 +14,19 @@ import java.util.List;
 @Data
 public class GetUserStreams extends BaseActivity {
   private List<String> types;
-  private Boolean includeInactiveStreams;
-  private Integer limit;
-  private Integer skip;
+  private String includeInactiveStreams;
+  private String limit;
+  private String skip;
+
+  public Boolean getIncludeInactiveStreams() {
+    return toBoolean(includeInactiveStreams);
+  }
+
+  public Integer getLimit() {
+    return toInt(limit);
+  }
+
+  public Integer getSkip() {
+    return toInt(skip);
+  }
 }
