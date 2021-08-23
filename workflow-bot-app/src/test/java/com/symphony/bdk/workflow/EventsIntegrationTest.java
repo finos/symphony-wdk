@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
@@ -117,6 +118,21 @@ class EventsIntegrationTest extends IntegrationTest {
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("abc", "/go room name"));
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received room name");
+  }
+
+  @Test
+  void onMessageReceivedArgumentsBotMention() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-args-bot-mention.swadl.yaml"));
+    UserV2 bot = new UserV2();
+    bot.setDisplayName("myBot");
+    when(sessionService.getSession()).thenReturn(bot);
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("abc", "@myBot /go room name"));
 
     verify(messageService, timeout(5000).times(1)).send("abc", "Received room name");
   }

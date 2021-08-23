@@ -1,0 +1,11 @@
+name: message-received-args-bot-mention
+activities:
+  - send-message:
+      id: act
+      on:
+        message-received:
+          content: /go {arg1}
+          requires-bot-mention: true
+      to:
+        stream-id: abc
+      content: Received ${event.args.arg1}

@@ -24,6 +24,7 @@ node {
 
         stage('Build Project') {
             sh './gradlew check'
+            util.archiveJunitTestArtifacts("**/build/test-results/test/*.xml")
         }
 
         stage("Publish and deploy") {
