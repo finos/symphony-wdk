@@ -27,13 +27,13 @@ class EventsIntegrationTest extends IntegrationTest {
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("abc", "/one"));
-    verify(messageService, timeout(5000)).send("abc", "One");
+    verify(messageService, timeout(5000)).send("abc", "<messageML>One</messageML>");
 
     verify(messageService, never()).send("abc", "Two");
 
     await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
       engine.onEvent(messageReceived("abc", "/two"));
-      verify(messageService).send("abc", "Two");
+      verify(messageService).send("abc", "<messageML>Two</messageML>");
       return true;
     });
   }
@@ -50,8 +50,8 @@ class EventsIntegrationTest extends IntegrationTest {
     engine.execute(workflow2);
     engine.onEvent(messageReceived("abc", "/msg"));
 
-    verify(messageService, timeout(5000)).send("abc", "msg1");
-    verify(messageService, timeout(5000)).send("abc", "msg2");
+    verify(messageService, timeout(5000)).send("abc", "<messageML>msg1</messageML>");
+    verify(messageService, timeout(5000)).send("abc", "<messageML>msg2</messageML>");
   }
 
   @Test
@@ -65,7 +65,7 @@ class EventsIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("abc", "/msg1"));
     engine.onEvent(messageReceived("abc", "/msg2"));
 
-    verify(messageService, timeout(5000).times(2)).send("abc", "msg");
+    verify(messageService, timeout(5000).times(2)).send("abc", "<messageML>msg</messageML>");
   }
 
   @Test
@@ -85,7 +85,7 @@ class EventsIntegrationTest extends IntegrationTest {
     await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
       engine.onEvent(messageReceived("abc", "/msg1"));
       engine.onEvent(messageReceived("abc", "/msg2"));
-      verify(messageService, times(2)).send("abc", "Two");
+      verify(messageService, times(2)).send("abc", "<messageML>Two</messageML>");
       return true;
     });
   }
@@ -102,7 +102,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
     await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
       engine.onEvent(messageReceived("abc", "/execute2"));
-      verify(messageService).send("abc", "act2");
+      verify(messageService).send("abc", "<messageML>act2</messageML>");
       return true;
     });
   }

@@ -6,6 +6,8 @@ import static org.awaitility.Awaitility.await;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.model.Attachment;
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -16,11 +18,13 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.spring.events.RealTimeEvent;
+import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -28,18 +32,24 @@ import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(IntegrationTestConfiguration.class)
 abstract class IntegrationTest {
 
   @Autowired
   WorkflowEngine engine;
+
+  @Autowired
+  ResourceProvider resourceProvider;
 
   @Autowired
   HistoryService historyService;
@@ -103,6 +113,11 @@ abstract class IntegrationTest {
     V4Message message = new V4Message();
     message.setMessage("<presentationML>" + content + "</presentationML>");
     messageSent.setMessage(message);
+
+    V4Stream stream = new V4Stream();
+    stream.setStreamId("123");
+    message.setStream(stream);
+
     return new RealTimeEvent<>(initiator, messageSent);
   }
 
@@ -165,4 +180,40 @@ abstract class IntegrationTest {
         .extracting(HistoricActivityInstance::getActivityName)
         .containsExactly(activityIds);
   }
+
+  protected Message buildMessage(String content, List<Attachment> attachments) {
+    return Message.builder().content(content).attachments(attachments).build();
+  }
+
+  protected void assertMessage(Message actual, Message expected) throws IOException {
+    assertThat(actual.getContent()).as("The same content should be found").isEqualTo(expected.getContent());
+    assertThat(actual.getData()).as("The same data should be found").isEqualTo(expected.getData());
+    this.assertAttachments(actual.getAttachments(), expected.getAttachments());
+  }
+
+  private void assertAttachments(List<Attachment> actual, List<Attachment> expected) throws IOException {
+    if (actual == null || actual.isEmpty() || expected == null || expected.isEmpty()) {
+      assertThat(actual).isEqualTo(expected);
+    } else {
+      assertThat(actual.size()).isEqualTo(expected.size());
+      for (Attachment actualAttachment : actual) {
+        boolean isFound = false;
+        for (Attachment expectedAttachment : expected) {
+
+          // reset both InputStreams to the initial state,
+          // otherwise the equality check will return false even if they have the same values in the byte array
+          actualAttachment.getContent().reset();
+          expectedAttachment.getContent().reset();
+
+          if (IOUtils.contentEquals(expectedAttachment.getContent(), actualAttachment.getContent())
+              && expectedAttachment.getFilename().equals(actualAttachment.getFilename())) {
+            isFound = true;
+            break;
+          }
+        }
+        assertThat(isFound).isTrue();
+      }
+    }
+  }
+
 }

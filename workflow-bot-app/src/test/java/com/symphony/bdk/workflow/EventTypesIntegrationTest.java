@@ -47,7 +47,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("123", "/execute"));
 
-    verify(messageService, timeout(5000)).send("123", "/execute");
+    verify(messageService, timeout(5000)).send("123", "<messageML>/execute</messageML>");
   }
 
   @Test
@@ -62,7 +62,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("123", "@myBot /execute"));
 
-    verify(messageService, timeout(5000)).send("123", "ok");
+    verify(messageService, timeout(5000)).send("123", "<messageML>ok</messageML>");
   }
 
   @Test
@@ -90,7 +90,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("123", "/anything"));
 
-    verify(messageService, timeout(5000)).send("123", "ok");
+    verify(messageService, timeout(5000)).send("123", "<messageML>ok</messageML>");
   }
 
   @Test

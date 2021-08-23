@@ -5,6 +5,9 @@ import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public interface ActivityExecutorContext<T extends BaseActivity> {
 
   /**
@@ -53,5 +56,13 @@ public interface ActivityExecutorContext<T extends BaseActivity> {
    */
   T getActivity();
 
+  /**
+   * @return Last event captured by the workflow.
+   */
   EventHolder<Object> getEvent();
+
+  /**
+   * @return Resource file stored with the workflow.
+   */
+  InputStream getResource(String resourcePath) throws IOException;
 }
