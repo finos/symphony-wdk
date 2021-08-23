@@ -7,4 +7,4 @@ activities:
           content: /execute
       # to is omitted so reply is sent to the same stream as the originating event
       content:
-        ${bdk.text(event.source.message.message)}
+        ${text(event.source.message.message)}

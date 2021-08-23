@@ -159,6 +159,74 @@ class EventsIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000).times(1)).send("abc", "Received Hello, John, awesome, TESLA");
   }
 
+  @Test
+  void onMessageReceivedHashTagsFunction() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-hashtags.swadl.yaml"));
+
+    engine.execute(workflow);
+    RealTimeEvent<V4MessageSent> event = messageReceived("abc", "/go #awesome #super");
+    event.getSource().getMessage().data("{\n"
+        + "  \"0\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"org.symphonyoss.taxonomy.hashtag\",\n"
+        + "        \"value\": \"awesome\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"org.symphonyoss.taxonomy\",\n"
+        + "    \"version\": \"1.0\"\n"
+        + "  },\n"
+        + "  \"1\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"org.symphonyoss.taxonomy.hashtag\",\n"
+        + "        \"value\": \"super\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"org.symphonyoss.taxonomy\",\n"
+        + "    \"version\": \"1.0\"\n"
+        + "  }\n"
+        + "}\n");
+    engine.onEvent(event);
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received awesome super");
+  }
+
+  @Test
+  void onMessageReceivedCashTagsFunction() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-cashtags.swadl.yaml"));
+
+    engine.execute(workflow);
+    RealTimeEvent<V4MessageSent> event = messageReceived("abc", "/go $GOOG $TSLA");
+    event.getSource().getMessage().data("{\n"
+        + "  \"0\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"org.symphonyoss.fin.security.id.ticker\",\n"
+        + "        \"value\": \"GOOG\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"org.symphonyoss.fin.security\",\n"
+        + "    \"version\": \"1.0\"\n"
+        + "  },\n"
+        + "  \"1\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"org.symphonyoss.fin.security.id.ticker\",\n"
+        + "        \"value\": \"TSLA\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"org.symphonyoss.fin.security\",\n"
+        + "    \"version\": \"1.0\"\n"
+        + "  }\n"
+        + "}\n");
+    engine.onEvent(event);
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received GOOG TSLA");
+  }
+
   private String userMentionData(long userId) {
     return "{\n"
         + "  \"0\": {\n"
@@ -172,4 +240,5 @@ class EventsIntegrationTest extends IntegrationTest {
         + "  }\n"
         + "}\n";
   }
+
 }

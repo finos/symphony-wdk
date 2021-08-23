@@ -4,7 +4,11 @@ activities:
       id: act
       on:
         message-received:
+          # dash for the hashtag is escaped otherwise it is a comment in YAML
+          # $ for the cash tag is escaped otherwise it is a variable handled as an expression by Camunda
           content: /go {arg1} @{user} \#{hash} \${cash}
+          # to write it as a string with quotes, the escaping is a bit different
+          # content: "/go {arg1} @{user} \\#{hash} \\${cash}"
       to:
         stream-id: abc
       content: Received ${event.args.arg1}, ${event.args.user}, ${event.args.hash}, ${event.args.cash}
