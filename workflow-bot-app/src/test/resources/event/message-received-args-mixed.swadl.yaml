@@ -1,0 +1,10 @@
+name: message-received-args-mixed
+activities:
+  - send-message:
+      id: act
+      on:
+        message-received:
+          content: /go {arg1} @{user} \#{hash} \${cash}
+      to:
+        stream-id: abc
+      content: Received ${event.args.arg1}, ${event.args.user}, ${event.args.hash}, ${event.args.cash}

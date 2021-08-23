@@ -23,7 +23,7 @@ class VariablesIntegrationTest extends IntegrationTest {
   void shouldSendMessageToStreamWhenIdIsVariable() throws Exception {
 
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-messages-with-variables.swadl.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/send-messages-with-variables.swadl.yaml"));
     final V4Message message = new V4Message().messageId("msgId");
     final String content = "<messageML>Have a nice day !</messageML>\n";
 

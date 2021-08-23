@@ -8,8 +8,10 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -31,14 +33,18 @@ public class CamundaExecutor implements JavaDelegate {
   public static final String EXECUTOR = "executor";
   public static final String ACTIVITY = "activity";
 
-  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  public static final ObjectMapper OBJECT_MAPPER;
 
   // set MDC entries so that executors can produce log that we can contextualize
   private static final String MDC_PROCESS_ID = "PROCESS_ID";
   private static final String MDC_ACTIVITY_ID = "ACTIVITY_ID";
 
   static {
-    OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    OBJECT_MAPPER = JsonMapper.builder()
+        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+        // to escape # or $ in message received content and still serialize it to JSON
+        .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
+        .build();
   }
 
   private final MessageService messageService;

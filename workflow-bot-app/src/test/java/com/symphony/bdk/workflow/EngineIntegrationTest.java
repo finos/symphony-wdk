@@ -50,7 +50,7 @@ class EngineIntegrationTest extends IntegrationTest {
   @Test
   void stop() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-message-on-message.swadl.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
 
     final V4Message message = message("msgId");
     final String streamId = "123";

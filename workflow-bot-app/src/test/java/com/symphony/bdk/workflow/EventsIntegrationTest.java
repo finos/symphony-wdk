@@ -8,6 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -107,4 +109,67 @@ class EventsIntegrationTest extends IntegrationTest {
     });
   }
 
+  @Test
+  void onMessageReceivedArguments() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-args.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("abc", "/go room name"));
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received room name");
+  }
+
+  @Test
+  void onMessageReceivedArgumentsMention() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-args-mention.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+
+    engine.execute(workflow);
+    RealTimeEvent<V4MessageSent> event = messageReceived("abc", "/go @John");
+    event.getSource().getMessage().data(userMentionData(123L));
+    engine.onEvent(event);
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received John 123");
+  }
+
+  @Test
+  void onMessageReceivedArgumentsMentions() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-args-mentions.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("abc", "/go @John @Bob Lee @Eve"));
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received John, Bob Lee, Eve");
+  }
+
+  @Test
+  void onMessageReceivedArgumentsMixed() throws IOException, ProcessingException {
+    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+        "/event/message-received-args-mixed.swadl.yaml"));
+    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("abc", "/go Hello @John #awesome $TESLA"));
+
+    verify(messageService, timeout(5000).times(1)).send("abc", "Received Hello, John, awesome, TESLA");
+  }
+
+  private String userMentionData(long userId) {
+    return "{\n"
+        + "  \"0\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"com.symphony.user.userId\",\n"
+        + "        \"value\": \"" + userId + "\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"com.symphony.user.mention\"\n"
+        + "  }\n"
+        + "}\n";
+  }
 }
