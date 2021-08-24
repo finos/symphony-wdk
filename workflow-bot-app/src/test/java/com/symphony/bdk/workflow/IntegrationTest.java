@@ -3,6 +3,10 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
@@ -29,6 +33,8 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -79,6 +85,11 @@ abstract class IntegrationTest {
     final V4Message message = new V4Message();
     message.setMessageId(msgId);
     return message;
+  }
+
+  @BeforeEach
+  void setUpMocks() {
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered
@@ -157,6 +168,19 @@ abstract class IntegrationTest {
     }
   }
 
+  protected Optional<String> lastProcess(Workflow workflow) {
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+        .processDefinitionName(workflow.getName())
+        .orderByProcessInstanceStartTime().desc()
+        .list();
+    if (processes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable(processes.get(0))
+          .map(HistoricProcessInstance::getId);
+    }
+  }
+
   protected void assertExecuted(Workflow workflow) {
     String[] activityIds = workflow.getActivities().stream()
         .map(Activity::getActivity)
@@ -215,5 +239,34 @@ abstract class IntegrationTest {
       }
     }
   }
+
+  protected static Message content(final String content) {
+    return argThat(new ArgumentMatcher<>() {
+      @Override
+      public boolean matches(Message argument) {
+        return argument.getContent().equals("<messageML>" + content + "</messageML>");
+      }
+
+      @Override
+      public String toString() {
+        return "messageWithContent(" + content + ")";
+      }
+    });
+  }
+
+  protected static Message contains(final String content) {
+    return argThat(new ArgumentMatcher<>() {
+      @Override
+      public boolean matches(Message argument) {
+        return argument.getContent().contains(content);
+      }
+
+      @Override
+      public String toString() {
+        return "messageContainingContent(" + content + ")";
+      }
+    });
+  }
+
 
 }

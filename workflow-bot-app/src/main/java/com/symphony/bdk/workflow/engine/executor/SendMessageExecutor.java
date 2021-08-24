@@ -37,17 +37,9 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
     Message messageToSend = this.buildMessage(execution);
 
-    V4Message message;
-    if (hasAttachments(messageToSend)) {
-      message = execution.messages().send(streamId, messageToSend);
-    } else {
-      // to avoid refactoring all the tests if we only set content
-      message = execution.messages().send(streamId, messageToSend.getContent());
-    }
+    V4Message message = execution.messages().send(streamId, messageToSend);
 
-    if (message != null) {
-      execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
-    }
+    execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
 
   private String resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity) {
@@ -88,10 +80,10 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       ActivityExecutorContext<SendMessage> execution) throws IOException {
     if (attachment.getContentPath() != null) {
       InputStream content = this.loadAttachment(attachment.getContentPath(), execution);
-      String filename = Path.of(attachment.getContentPath()).getFileName().toString();
-      if (content != null) {
-        //TODO: check when the content stream is closed
-        messageBuilder.addAttachment(content, filename);
+      Path filename = Path.of(attachment.getContentPath()).getFileName();
+      if (content != null && filename != null) {
+        // TODO check when the content stream is closed
+        messageBuilder.addAttachment(content, filename.toString());
       }
     }
   }
@@ -145,10 +137,6 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
 
     return execution.getResource(attachmentPath);
-  }
-
-  private static boolean hasAttachments(Message messageToSend) {
-    return messageToSend.getAttachments() != null && !messageToSend.getAttachments().isEmpty();
   }
 
 }

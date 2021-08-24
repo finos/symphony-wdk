@@ -26,10 +26,14 @@ import com.symphony.bdk.workflow.swadl.v1.Event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.impl.event.EventType;
+import org.camunda.bpm.engine.runtime.EventSubscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,22 +43,24 @@ import java.util.Optional;
 @Component
 public class WorkflowEventToCamundaEvent {
 
-  static final String MESSAGE_PREFIX = "message-received_";
-  static final String MESSAGE_SUPPRESSED = "message-suppressed";
-  static final String POST_SHARED = "post-shared";
-  static final String IM_CREATED = "im-created";
+  private static final String MESSAGE_PREFIX = "message-received_";
+  private static final String MESSAGE_SUPPRESSED = "message-suppressed";
+  private static final String POST_SHARED = "post-shared";
+  private static final String IM_CREATED = "im-created";
   public static final String FORM_REPLY_PREFIX = "formReply_";
-  static final String ROOM_CREATED = "room-created";
-  static final String ROOM_UPDATED = "room-updated";
-  static final String ROOM_DEACTIVATED = "room-deactivated";
-  static final String ROOM_REACTIVATED = "room-reactivated";
-  static final String ROOM_MEMBER_PROMOTED_TO_OWNER = "room-member-promoted-to-owner-event";
-  static final String ROOM_MEMBER_DEMOTED_FROM_OWNER = "room-member-demoted-from-owner-event";
-  static final String USER_REQUESTED_JOIN_ROOM = "user-requested-join-room";
-  static final String USER_JOINED_ROOM = "user-joined-room";
-  static final String USER_LEFT_ROOM = "user-left-room";
-  static final String CONNECTION_REQUESTED = "connection-requested";
-  static final String CONNECTION_ACCEPTED = "connection-accepted";
+  private static final String ROOM_CREATED = "room-created";
+  private static final String ROOM_UPDATED = "room-updated";
+  private static final String ROOM_DEACTIVATED = "room-deactivated";
+  private static final String ROOM_REACTIVATED = "room-reactivated";
+  private static final String ROOM_MEMBER_PROMOTED_TO_OWNER = "room-member-promoted-to-owner-event";
+  private static final String ROOM_MEMBER_DEMOTED_FROM_OWNER = "room-member-demoted-from-owner-event";
+  private static final String USER_REQUESTED_JOIN_ROOM = "user-requested-join-room";
+  private static final String USER_JOINED_ROOM = "user-joined-room";
+  private static final String USER_LEFT_ROOM = "user-left-room";
+  private static final String CONNECTION_REQUESTED = "connection-requested";
+  private static final String CONNECTION_ACCEPTED = "connection-accepted";
+
+  private static final AntPathMatcher MESSAGE_RECEIVED_CONTENT_MATCHER = new AntPathMatcher();
 
   @Autowired
   private RuntimeService runtimeService;
@@ -127,7 +133,8 @@ public class WorkflowEventToCamundaEvent {
       throws PresentationMLParserException {
 
     Map<String, Object> processVariables = new HashMap<>();
-    processVariables.put(ActivityExecutorContext.EVENT, new EventHolder<>(event.getInitiator(), event.getSource()));
+    processVariables.put(ActivityExecutorContext.EVENT,
+        new EventHolder<>(event.getInitiator(), event.getSource(), new HashMap<>()));
 
     if (event.getInitiator() != null
         && event.getInitiator().getUser() != null
@@ -216,16 +223,37 @@ public class WorkflowEventToCamundaEvent {
         .correlateAll();
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void messageSentToMessage(RealTimeEvent<V4MessageSent> event,
       Map<String, Object> processVariables) throws PresentationMLParserException {
     String presentationMl = event.getSource().getMessage().getMessage();
-    String textContent = PresentationMLParser.getTextContent(presentationMl);
+    String receivedContent = PresentationMLParser.getTextContent(presentationMl);
 
-    runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX + textContent)
-        .setVariables(processVariables).send();
-    // we send 2 messages to correlate if a content is set or not
-    // this will change with the generalization of event filtering
+    List<EventSubscription> subscribedSignals = runtimeService.createEventSubscriptionQuery()
+        .eventType(EventType.SIGNAL.name())
+        .list();
+
+    for (EventSubscription signal : subscribedSignals) {
+      String content = messageReceivedContentfromSignalName(signal.getEventName());
+      if (MESSAGE_RECEIVED_CONTENT_MATCHER.match(content, receivedContent)) {
+        // match the arguments and add them to the event holder
+        Map<String, String> args =
+            MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
+        ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+
+        runtimeService.createSignalEvent(signal.getEventName())
+            .setVariables(processVariables)
+            .send();
+      }
+    }
+
+    // we send another signal for workflows listening to any message (without content being set)
     runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX)
-        .setVariables(processVariables).send();
+        .setVariables(processVariables)
+        .send();
+  }
+
+  private static String messageReceivedContentfromSignalName(String signalName) {
+    return signalName.replace(MESSAGE_PREFIX, "");
   }
 }

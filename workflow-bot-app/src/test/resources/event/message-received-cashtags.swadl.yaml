@@ -1,0 +1,10 @@
+name: message-received-cashtags
+activities:
+  - send-message:
+      id: act
+      on:
+        message-received:
+          content: /go {args}
+      to:
+        stream-id: abc
+      content: Received ${cashTags(event)[0]} ${cashTags(event)[1]}

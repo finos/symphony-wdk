@@ -7,7 +7,6 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -90,36 +89,33 @@ public class SwadlValidator {
 
   private static void addCustomActivitiesToSchema(JsonNode jsonSchema) {
     // we expect activities to be defined this way in the JSON schema
-    ArrayNode activityItems = (ArrayNode) jsonSchema.get("properties").get("activities").get("items").get("oneOf");
+    ObjectNode activityItems = (ObjectNode) jsonSchema.get("properties").get("activities").get("items");
 
-    // clear last item which is there to support completion/validation with custom activities
-    activityItems.remove(activityItems.size() - 1);
+    // remove the pattern that allows to define any custom activities and replace it with the known custom activities
+    activityItems.remove("patternProperties");
 
     // builtin activities are already in JSON Schema
-    Set<String> alreadyDefinedActivities = StreamSupport.stream(activityItems.spliterator(), false)
-        .map(node -> node.get("$ref").asText())
-        .map(ref -> ref.replace("#/definitions/", ""))
+    Iterable<String> iterable = () -> activityItems.get("properties").fieldNames();
+    Set<String> alreadyDefinedActivities =  StreamSupport
+        .stream(iterable.spliterator(), false)
         .collect(Collectors.toSet());
 
     for (Class<? extends BaseActivity> activityType : ActivityRegistry.getActivityTypes()) {
       // in YAML, activities are referenced like my-activity and the class is named MyActivity
       String activityTypeName = camelToKebabCase(activityType.getSimpleName());
       if (!alreadyDefinedActivities.contains(activityTypeName)) {
-        addJsonSchemaForCustomActivity(activityItems, activityTypeName);
+        addJsonSchemaForCustomActivity((ObjectNode) activityItems.get("properties"), activityTypeName);
         // avoid defining an activity twice, however deserialization checks for duplicates and will fail
         alreadyDefinedActivities.add(activityTypeName);
       }
     }
   }
 
-  private static void addJsonSchemaForCustomActivity(ArrayNode activityItems, String activityTypeName) {
-    ObjectNode newAct = activityItems.addObject();
-    newAct.put("type", "object");
-    ObjectNode outerActivityProperties = newAct.putObject("properties")
-        .putObject(activityTypeName);
-    outerActivityProperties.put("$ref", "#/definitions/basic-activity-inner");
-    // we could even add the custom activities field
-    newAct.putArray("required").add(activityTypeName);
+  private static void addJsonSchemaForCustomActivity(ObjectNode activityItems, String activityTypeName) {
+    ObjectNode newAct = activityItems.putObject(activityTypeName);
+    // we just use the activity name and set the basic fields
+    newAct.put("$ref", "#/definitions/basic-activity-inner");
+    // we could even try to add its fields using reflection
   }
 
   private static String camelToKebabCase(String str) {
