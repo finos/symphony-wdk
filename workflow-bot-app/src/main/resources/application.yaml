@@ -6,11 +6,17 @@ workflows:
 bdk:
   host: devx3.symphony.com
   datafeed:
-    version: v2
+    version: v1
   bot:
-    username: daneel-bot
+    username: SoufianeBot2
     privateKey:
-      path: rsa/privatekey.pem
+      path: /Users/soufiane/.symphony/rsa-devx3/privatekey.pem
+
+#  pod:
+#    host: devx3.symphony.com
+#  agent:
+#    host: localhost.symphony.com
+#    port: 9443
 
 # Camunda configuration
 camunda:
@@ -19,7 +25,6 @@ camunda:
     job-execution:
       wait-time-in-millis: 1000
       max-wait: 1000
-      # Tuning the job executor thread pools can help if many workflows need to be executed at the same time
     # Remove WARN logs at startup (we are not using this feature but our own watcher)
     deployment-resource-pattern:
     generic-properties:
@@ -35,7 +40,7 @@ logging:
   level:
     com.symphony: DEBUG
     # troubleshoot Camunda
-    org.camunda: INFO
+    org.camunda: DEBUG
     # disable audit trail
     #audit-trail: WARN
 

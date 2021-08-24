@@ -30,7 +30,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
 
     // wait for execution
-    verify(messageService, timeout(5000)).send("abc", "Ok");
+    verify(messageService, timeout(5000)).send("abc", "<messageML>Ok</messageML>");
   }
 
   @Test
@@ -42,7 +42,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
 
     // wait for multiple executions
-    verify(messageService, timeout(5000).times(2)).send("abc", "Ok");
+    verify(messageService, timeout(5000).times(2)).send("abc", "<messageML>Ok</messageML>");
   }
 
   @Test
@@ -54,9 +54,9 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("/execute"));
 
-    verify(messageService, timeout(5000)).send("abc", "start");
+    verify(messageService, timeout(5000)).send("abc", "<messageML>start</messageML>");
     // executed only once because the process ends after
-    verify(messageService, timeout(5000)).send("abc", "repeat");
+    verify(messageService, timeout(5000)).send("abc", "<messageML>repeat</messageML>");
   }
 
   @Test
@@ -69,7 +69,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/execute"));
 
     // wait for multiple executions: 1 with message, 2 by timer
-    verify(messageService, timeout(5000).times(3)).send("abc", "Ok");
+    verify(messageService, timeout(5000).times(3)).send("abc", "<messageML>Ok</messageML>");
   }
 
 }

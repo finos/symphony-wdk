@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
@@ -17,8 +18,11 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -51,18 +55,22 @@ public class CamundaExecutor implements JavaDelegate {
   private final StreamService streamService;
   private final UserService userService;
   private final AuditTrailLogger auditTrailLogger;
+  private final ResourceProvider resourceLoader;
 
   public CamundaExecutor(MessageService messageService, StreamService streamService,
-      UserService userService, AuditTrailLogger auditTrailLogger) {
+      UserService userService, AuditTrailLogger auditTrailLogger,
+      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader) {
     this.messageService = messageService;
     this.streamService = streamService;
     this.userService = userService;
     this.auditTrailLogger = auditTrailLogger;
+    this.resourceLoader = resourceLoader;
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
+
     ActivityExecutor<?> executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
 
     Type type =
@@ -77,7 +85,7 @@ public class CamundaExecutor implements JavaDelegate {
       setMdc(execution);
       // TODO cover script task too (with a listener?)
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
-      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event));
+      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader));
     } finally {
       clearMdc();
     }
@@ -97,11 +105,14 @@ public class CamundaExecutor implements JavaDelegate {
     private final DelegateExecution execution;
     private final T activity;
     private final EventHolder<Object> event;
+    private final ResourceProvider resourceLoader;
 
-    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event) {
+    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event,
+        ResourceProvider resourceLoader) {
       this.execution = execution;
       this.activity = activity;
       this.event = event;
+      this.resourceLoader = resourceLoader;
     }
 
     @Override
@@ -151,6 +162,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public EventHolder<Object> getEvent() {
       return event;
+    }
+
+    @Override
+    public InputStream getResource(String resourcePath) throws IOException {
+      return resourceLoader.getResource(resourcePath);
     }
   }
 }

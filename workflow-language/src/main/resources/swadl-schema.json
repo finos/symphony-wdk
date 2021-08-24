@@ -1031,6 +1031,12 @@
                 },
                 "content": {
                     "type": "string"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref":"#/definitions/attachment"
+                    }
                 }
             }
         },
@@ -2029,6 +2035,41 @@
             "required": [
                 "stream-id"
             ]
+        },
+        "attachment": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/attachment-message"
+                },
+                {
+                    "$ref": "#/definitions/attachment-file"
+                }
+            ]
+        },
+        "attachment-message": {
+            "type": "object",
+            "properties": {
+                "message-id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "attachment-id": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["message-id"]
+        },
+        "attachment-file": {
+            "type": "object",
+            "required": ["content-path"],
+            "properties": {
+                "content-path": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
         }
     }
 }
