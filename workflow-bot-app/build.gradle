@@ -1,13 +1,13 @@
 plugins {
     id 'workflow-bot.java-conventions'
-    id 'org.springframework.boot' version '2.5.2'
+    id 'org.springframework.boot' version '2.5.4'
 }
 
 dependencies {
     implementation project(':workflow-language')
     implementation project(':custom-activity-example')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.8')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.2.1')
 
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -28,10 +28,10 @@ dependencies {
 
     implementation 'org.codehaus.groovy:groovy-all:3.0.8'
 
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
     implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
 
-    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'org.apache.commons:commons-lang3:3.12'
     implementation 'commons-io:commons-io:2.11.0'
     implementation('org.reflections:reflections:0.9.11') {
         version {
