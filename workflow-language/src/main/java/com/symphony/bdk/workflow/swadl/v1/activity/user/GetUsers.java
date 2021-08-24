@@ -2,12 +2,10 @@ package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
@@ -25,9 +23,18 @@ public class GetUsers extends BaseActivity {
   private List<String> usernames;
 
   @Nullable
-  private Boolean local;
+  private String local;
 
   @Nullable
-  private Boolean active;
+  private String active;
 
+  @Nullable
+  public Boolean getLocal() {
+    return toBoolean(local);
+  }
+
+  @Nullable
+  public Boolean getActive() {
+    return toBoolean(active);
+  }
 }

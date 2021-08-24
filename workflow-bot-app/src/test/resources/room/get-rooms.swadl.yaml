@@ -1,0 +1,17 @@
+name: get-rooms
+activities:
+  - get-rooms:
+      id: act1
+      on:
+        message-received:
+          content: /get-rooms
+      active: true
+      labels:
+        - test
+        - test1
+      query: test
+      sort-order: BASIC
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.rooms != null

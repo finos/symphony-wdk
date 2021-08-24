@@ -1,0 +1,15 @@
+name: get-user-streams
+activities:
+  - get-user-streams:
+      id: act1
+      on:
+        message-received:
+          content: /get-user-streams
+      types:
+        - ROOM
+        - POST
+      include-inactive-streams: true
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.streams != null

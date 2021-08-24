@@ -77,6 +77,27 @@
                         "$ref": "#/definitions/get-users"
                     },
                     {
+                        "$ref": "#/definitions/get-stream"
+                    },
+                    {
+                        "$ref": "#/definitions/get-room"
+                    },
+                    {
+                        "$ref": "#/definitions/get-stream-members"
+                    },
+                    {
+                        "$ref": "#/definitions/get-room-members"
+                    },
+                    {
+                        "$ref": "#/definitions/get-user-streams"
+                    },
+                    {
+                        "$ref": "#/definitions/get-streams"
+                    },
+                    {
+                        "$ref": "#/definitions/get-rooms"
+                    },
+                    {
                         "type": "object",
                         "patternProperties": {
                             "send-message": {
@@ -121,7 +142,28 @@
                             "get-users": {
                                 "$ref": "#/definitions/get-users"
                             },
-                            "^(?!create-room|update-room|create-user|update-user|execute-script|get-users)([a-z0-9-]+)$": {
+                            "get-stream": {
+                                "$ref": "#/definitions/get-stream"
+                            },
+                            "get-room": {
+                                "$ref": "#/definitions/get-room"
+                            },
+                            "get-stream-members": {
+                                "$ref": "#/definitions/get-stream-members"
+                            },
+                            "get-room-members": {
+                                "$ref": "#/definitions/get-room-members"
+                            },
+                            "get-user-streams": {
+                                "$ref": "#/definitions/get-user-streams"
+                            },
+                            "get-streams": {
+                                "$ref": "#/definitions/get-streams"
+                            },
+                            "get-rooms": {
+                                "$ref": "#/definitions/get-rooms"
+                            },
+                            "^?!(create-room|update-room|create-user|update-user|execute-script|get-users)([a-z0-9-]+)$": {
                                 "$comment": "Room tasks are specifically excluded because they don't have strong differentiators in properties, 'more than one variant' warnings are issued otherwise.",
                                 "$ref": "#/definitions/basic-activity-inner"
                             }
@@ -356,6 +398,7 @@
                     ]
                 }
             },
+            "additionalProperties": false,
             "required": [
                 "add-user-role"
             ]
@@ -440,7 +483,8 @@
                                     "description": "List of email addresses. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
                                     "items": {
                                         "type": "string",
-                                        "pattern": "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                                        "$comment": "Variable or email regex is accepted.",
+                                        "pattern": "(\\${.+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
                                     },
                                     "minLength": 1
                                 },
@@ -453,12 +497,18 @@
                                     "minLength": 1
                                 },
                                 "local": {
-                                    "type": "boolean",
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
                                     "description": "If true then a local DB search will be performed and only local pod users will be returned. If absent or false then a directory search will be performed and users from other pods who are visible to the calling user will also be returned.",
                                     "default": false
                                 },
                                 "active": {
-                                    "type": "boolean",
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
                                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                                 }
                             }
@@ -475,15 +525,416 @@
             "type": "object",
             "properties": {
                 "local": {
-                    "type": "boolean",
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
                     "description": "If true then a local DB search will be performed and only local pod users will be returned. If absent or false then a directory search will be performed and users from other pods who are visible to the calling user will also be returned.",
                     "default": false
                 },
                 "active": {
-                    "type": "boolean",
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                 }
             }
+        },
+        "get-stream": {
+            "type": "object",
+            "properties": {
+                "get-stream": {
+                    "type": "object",
+                    "description": "Returns information about a particular stream.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "stream-id": {
+                                    "description": "Id of the stream for which to get information.",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "stream-id"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-stream"
+            ]
+        },
+        "get-room": {
+            "type": "object",
+            "properties": {
+                "get-room": {
+                    "type": "object",
+                    "description": "Returns information about a particular chat room.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "stream-id": {
+                                    "description": "Room streamId.",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "stream-id"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-room"
+            ]
+        },
+        "get-stream-members": {
+            "type": "object",
+            "properties": {
+                "get-stream-members": {
+                    "type": "object",
+                    "description": "Returns a list of all the current members of a stream (IM, MIM, or chatroom).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "stream-id": {
+                                    "description": "Id of the stream for which to return members.",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "minLength": 1
+                                },
+                                "limit": {
+                                    "description": "Maximum number of members to be returned - used for pagination. Maximum allowed is 1000.",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "maximum": 1000,
+                                    "minimum": 1
+                                },
+                                "skip": {
+                                    "description": "Number of members to be skipped during return - used for pagination.",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "minimum": 0
+                                }
+                            },
+                            "required": [
+                                "stream-id"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-stream-members"
+            ]
+        },
+        "get-room-members": {
+            "type": "object",
+            "properties": {
+                "get-room-members": {
+                    "type": "object",
+                    "description": "Lists the current members of an existing room.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "stream-id": {
+                                    "description": "Id of the stream for which to return members.",
+                                    "type": [
+                                        "string"
+                                    ],
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "stream-id"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-room-members"
+            ]
+        },
+        "get-user-streams": {
+            "type": "object",
+            "properties": {
+                "get-user-streams": {
+                    "type": "object",
+                    "description": "Returns a list of all the streams of which the requesting user is a member, sorted by creation date (ascending - oldest to newest).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "types": {
+                                    "description": "A list of stream types that will be returned. Options are IM (1-1 instant messages), MIM (multiparty instant messages), ROOM (rooms), POST (the user's wall). For more information, see the streamTypes section below.\nIf not specified, all types of streams are returned.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "IM",
+                                            "MIM",
+                                            "ROOM",
+                                            "POST"
+                                        ]
+                                    }
+                                },
+                                "include-inactive-streams": {
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
+                                    "description": "Whether to include inactive conversations. A chatroom is inactive if it has been deactivated by an owner or admin. An IM or MIM is inactive if one of the participating users has been deactivated by an admin. If not specified, only active streams are returned."
+                                },
+                                "limit": {
+                                    "description": "Maximum number of streams to return.\nIf limit is not set, a maximum of 50 streams will be returned.\nIf limit=0, all user streams will be returned.",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "default": 50,
+                                    "minimum": 0
+                                },
+                                "skip": {
+                                    "description": "Number of stream results to skip.",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "minimum": 0
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-user-streams"
+            ]
+        },
+        "get-streams": {
+            "type": "object",
+            "properties": {
+                "get-streams": {
+                    "type": "object",
+                    "description": "Returns a list of all the streams (IMs, MIMs, and chatrooms) for the calling user's company, sorted by creation date (ascending – oldest to newest).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "types": {
+                                    "description": "A list of stream types that will be returned (IM, MIM, ROOM). If not specified, streams of all types are returned.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "IM",
+                                            "MIM",
+                                            "ROOM"
+                                        ]
+                                    }
+                                },
+                                "scope": {
+                                    "type": "string",
+                                    "enum": [
+                                        "INTERNAL",
+                                        "EXTERNAL"
+                                    ],
+                                    "description": "The scope of the stream: INTERNAL (restricted to members of the calling user's company) or EXTERNAL (including members of the calling user's company, as well as another firm). If not specified, returns streams of either scope."
+                                },
+                                "origin": {
+                                    "type": "string",
+                                    "enum": [
+                                        "INTERNAL",
+                                        "EXTERNAL"
+                                    ],
+                                    "description": "The origin of the room: INTERNAL (created by a user of the calling user's company) or EXTERNAL (created by a user of another company). If not specified, returns streams of either origin. Only applies to chatrooms with External scope."
+                                },
+                                "privacy": {
+                                    "type": "string",
+                                    "enum": [
+                                        "PRIVATE",
+                                        "PUBLIC"
+                                    ],
+                                    "description": "The privacy setting of the room: PRIVATE (members must be added) OR PUBLIC (anyone can join). If not specified, returns both private and public rooms. Only applies to chatrooms with internal scope."
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ACTIVE",
+                                        "INACTIVE"
+                                    ],
+                                    "description": "The status of the room: ACTIVE or INACTIVE. If not specified, both active and inactive streams are returned."
+                                },
+                                "start-date": {
+                                    "type": "string",
+                                    "description": "Restricts result set to rooms that have been modified since this date (an Epoch timestamp specified in milliseconds). When specified along with endDate, enables the developer to specify rooms modified within a given time range."
+                                },
+                                "end-date": {
+                                    "type": "string",
+                                    "description": "Restricts result set to rooms that have been modified prior to this date (an Epoch timestamp specified in milliseconds). When specified along with startDate, enables the developer to specify rooms modified within a given time range."
+                                },
+                                "limit": {
+                                    "description": "Maximum number of streams to be returned - used for pagination. Maximum allowed is 100.",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "minimum": 1,
+                                    "maximum": 100
+                                },
+                                "skip": {
+                                    "description": "Number of streams to be skipped during return - used for pagination.",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "minimum": 0
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-streams"
+            ]
+        },
+        "get-rooms": {
+            "type": "object",
+            "properties": {
+                "get-rooms": {
+                    "type": "object",
+                    "description": "Search for rooms, querying name, description, and specified keywords.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/basic-activity-inner"
+                        },
+                        {
+                            "properties": {
+                                "query": {
+                                    "description": "The query which is searched for in room name, description, and optionally keywords. Case insensitive.",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "labels": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "A list of room keywords whose values will be queried."
+                                },
+                                "active": {
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
+                                    "description": "If true, it restricts the search to active rooms. If false, it restricts the search to inactive rooms. If not specified, it includes both active and inactive rooms. Note that for inactive rooms, only rooms where the calling user is a member will be in the search scope; read the box “Room Search Scope” for further details."
+                                },
+                                "private": {
+                                    "type": [
+                                        "boolean",
+                                        "string"
+                                    ],
+                                    "description": "If true, it includes only private rooms in the search results. If false, only public rooms are returned. If not specified, both public and private rooms are returned. Note that for inactive rooms, only discoverable rooms and rooms where the calling user is a member will be in the search scope; read the box “Room Search Scope” for further details."
+                                },
+                                "creator-id": {
+                                    "type": [
+                                        "string",
+                                        "number"
+                                    ],
+                                    "description": "If provided, restricts the search to rooms created by the specified user.",
+                                    "minLength": 1
+                                },
+                                "owner-id": {
+                                    "type": [
+                                        "string",
+                                        "number"
+                                    ],
+                                    "description": "If provided, restricts the search to rooms owned by the specified user.",
+                                    "minLength": 1
+                                },
+                                "member-id": {
+                                    "type": [
+                                        "string",
+                                        "number"
+                                    ],
+                                    "description": "If provided, restricts the search to rooms where the specified user is a member.",
+                                    "minLength": 1
+                                },
+                                "sort-order": {
+                                    "type": "string",
+                                    "enum": [
+                                        "BASIC",
+                                        "RELEVANCE"
+                                    ],
+                                    "description": "Sort algorithm to be used. Supports two values: BASIC (legacy algorithm) and RELEVANCE (enhanced algorithm)."
+                                },
+                                "limit": {
+                                    "description": "Maximum number of rooms to return. Must be a positive integer that doesn’t exceed 100.",
+                                    "type": [
+                                        "string",
+                                        "integer"
+                                    ],
+                                    "minimum": 1,
+                                    "maximum": 100
+                                },
+                                "skip": {
+                                    "description": "Number of room search results to skip.",
+                                    "type": [
+                                        "string",
+                                        "integer"
+                                    ],
+                                    "minimum": 0
+                                }
+                            },
+                            "required": [
+                                "query"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "get-rooms"
+            ]
         },
         "on": {
             "description": "Events that can trigger the activity execution.",
@@ -495,7 +946,7 @@
                         "timeout": {
                             "type": "string",
                             "description": "Timeout while waiting for events, expressed as an ISO 8601 duration.",
-                            "pattern": "(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
+                            "pattern": "(\\${.+})|(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
                         }
                     }
                 },
@@ -1097,7 +1548,10 @@
                     "type": "boolean"
                 },
                 "active": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 }
             }
         },
@@ -1209,7 +1663,8 @@
                 "email": {
                     "type": "string",
                     "description": "Email address, must be unique",
-                    "pattern": "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                    "$comment": "Variable or email regex is accepted.",
+                    "pattern": "(\\${.+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
                 },
                 "firstname": {
                     "type": "string",
@@ -1460,163 +1915,283 @@
                     "description": "Feature entitlements to configure for the user.",
                     "properties": {
                         "postReadEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to read wall posts."
                         },
                         "postWriteEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to write wall posts."
                         },
                         "delegatesEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to have delegates."
                         },
                         "isExternalIMEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to chat in external IM/MIMs."
                         },
                         "canShareFilesExternally": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to share files externally."
                         },
                         "canCreatePublicRoom": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to create internal public rooms."
                         },
                         "canUpdateAvatar": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to edit profile picture."
                         },
                         "isExternalRoomEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to chat in private external rooms."
                         },
                         "canCreatePushedSignals": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to create push signals."
                         },
                         "canUseCompactMode": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enables Lite Mode."
                         },
                         "mustBeRecorded": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Must be recorded in meetings."
                         },
                         "sendFilesEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to send files internally."
                         },
                         "canUseInternalAudio": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to use audio in internal Meetings."
                         },
                         "canUseInternalVideo": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to use video in internal Meetings."
                         },
                         "canProjectInternalScreenShare": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to share screens in internal Meetings."
                         },
                         "canViewInternalScreenShare": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to view shared screens in internal Meetings."
                         },
                         "canCreateMultiLateralRoom": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to create multi-lateral room."
                         },
                         "canJoinMultiLateralRoom": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to join multi-lateral room."
                         },
                         "canUseFirehose": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to use Firehose."
                         },
                         "canUseInternalAudioMobile": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to use audio in internal meetings on mobile."
                         },
                         "canUseInternalVideoMobile": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to use video in internal meetings on mobile."
                         },
                         "canProjectInternalScreenShareMobile": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to share screens in internal meetings on mobile."
                         },
                         "canViewInternalScreenShareMobile": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to view shared screens in internal meetings on mobile."
                         },
                         "canManageSignalSubscription": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allows the user to manage signal subscriptions."
                         },
                         "canCreateDatahose": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can create datahose feeds."
                         },
                         "canIntegrateEmail": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can integrate email service."
                         },
                         "canReadDatahose": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can read from datahose feeds."
                         },
                         "canSuppressMessage": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can suppress own messages."
                         },
                         "canSwitchToClient20": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can switch to Client 2.0 experience."
                         },
                         "canUpdateRoomHistoryProperty": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can Toggle Room's Share History Property."
                         },
                         "canUseEncryptAPI": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allow user to use Agent Encrypt endpoints."
                         },
                         "enableSwiftSearch": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Can Use Swift Search."
                         },
                         "sdaDevtoolsEnabled": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enable Developer Tools for SDA."
                         },
                         "sdaPermissionsFullScreen": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enable Full screen access on SDA."
                         },
                         "sdaPermissionsGeoLocation": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enable location access on SDA."
                         },
                         "sdaPermissionsMedia": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enable Media access on SDA."
                         },
                         "sdaPermissionsMidiSysex": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enable access to MIDI Sysex on SDA."
                         },
                         "sdaPermissionsNotifications": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allow notifications on SDA."
                         },
                         "sdaPermissionsOpenExternalApp": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Allow Opening External Apps from SDA."
                         },
                         "sdaPermissionsPointerLock": {
-                            "type": "boolean",
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
                             "description": "Enable Pointer Lock on SDA."
                         }
                     }

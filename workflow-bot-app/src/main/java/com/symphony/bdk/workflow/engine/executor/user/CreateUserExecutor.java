@@ -11,11 +11,10 @@ import com.symphony.bdk.gen.api.model.V2UserKeyRequest;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.CreateUser;
+import com.symphony.bdk.workflow.util.DateTimeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -107,26 +106,19 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
         attributes.setCurrentKey(new V2UserKeyRequest()
             .key(createUser.getKeys().getCurrent().getKey())
             .action(createUser.getKeys().getCurrent().getAction())
-            .expirationDate(toTimestamp(createUser.getKeys().getCurrent().getExpiration()))
+            .expirationDate(DateTimeUtils.toEpochMilli(createUser.getKeys().getCurrent().getExpiration()))
         );
       }
       if (createUser.getKeys().getPrevious() != null) {
         attributes.setPreviousKey(new V2UserKeyRequest()
             .key(createUser.getKeys().getPrevious().getKey())
             .action(createUser.getKeys().getPrevious().getAction())
-            .expirationDate(toTimestamp(createUser.getKeys().getPrevious().getExpiration()))
+            .expirationDate(DateTimeUtils.toEpochMilli(createUser.getKeys().getPrevious().getExpiration()))
         );
       }
     }
 
     return attributes;
-  }
-
-  private static Long toTimestamp(String iso8601Ts) {
-    if (iso8601Ts == null) {
-      return null;
-    }
-    return Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(iso8601Ts)).toEpochMilli();
   }
 
   static List<Feature> toFeatures(Map<String, Boolean> entitlements) {

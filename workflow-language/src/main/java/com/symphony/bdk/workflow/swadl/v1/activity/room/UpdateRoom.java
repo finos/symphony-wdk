@@ -22,15 +22,51 @@ public class UpdateRoom extends BaseActivity {
   private String roomDescription;
   private Map<String, String> keywords;
 
-  private Boolean membersCanInvite;
-  private Boolean discoverable;
+  private String membersCanInvite;
+  private String discoverable;
   @JsonProperty("public")
-  private Boolean isPublic;
-  private Boolean readOnly;
-  private Boolean copyProtected;
-  private Boolean crossPod;
-  private Boolean viewHistory;
-  private Boolean multiLateralRoom;
+  private String isPublic;
+  private String readOnly;
+  private String copyProtected;
+  private String crossPod;
+  private String viewHistory;
+  private String multiLateralRoom;
 
-  private Boolean active;
+  private String active;
+
+  public Boolean getMembersCanInvite() {
+    return toBoolean(membersCanInvite);
+  }
+
+  public Boolean getDiscoverable() {
+    return toBoolean(discoverable);
+  }
+
+  public Boolean getIsPublic() {
+    return toBoolean(isPublic);
+  }
+
+  public Boolean getReadOnly() {
+    return toBoolean(readOnly);
+  }
+
+  public Boolean getCopyProtected() {
+    return toBoolean(copyProtected);
+  }
+
+  public Boolean getCrossPod() {
+    return toBoolean(crossPod);
+  }
+
+  public Boolean getViewHistory() {
+    return toBoolean(viewHistory);
+  }
+
+  public Boolean getMultiLateralRoom() {
+    return toBoolean(multiLateralRoom);
+  }
+
+  public Boolean getActive() {
+    return toBoolean(active);
+  }
 }
