@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -38,16 +39,11 @@ class SendMessageIntegrationTest extends IntegrationTest {
   void sendMessageOnMessage() throws Exception {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
-    final V4Message message = message("msgId");
-
-    final String streamId = "123";
-    final String content = "<messageML>Hello!</messageML>";
-    when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/message"));
 
-    verify(messageService, timeout(5000)).send(streamId, content);
+    verify(messageService, timeout(5000)).send(eq("123"), content("Hello!"));
   }
 
   @Test
@@ -56,24 +52,23 @@ class SendMessageIntegrationTest extends IntegrationTest {
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
-    final V4Message message = new V4Message().messageId("msgId");
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");
-    final String content = "<messageML><p>Hello!</p></messageML>";
 
     when(streamService.create(uids)).thenReturn(stream);
-    when(messageService.send("0000", content)).thenReturn(message);
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/create-room"));
 
     verify(streamService, timeout(5000).times(1)).create(uids);
-    verify(messageService, timeout(5000).times(1)).send(anyString(), eq(content));
+    verify(messageService, timeout(5000).times(1)).send(anyString(), content("<p>Hello!</p>"));
   }
 
   @Test
   @DisplayName(
-      "Given a message with attachments, when I send a new message with the attachment id, this specific file is sent in a new message")
+      "Given a message with attachments, "
+          + "when I send a new message with the attachment id, "
+          + "this specific file is sent in a new message")
   void sendMessageWithSpecificAttachment() throws Exception {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/forward-specific-attachment-in-message.swadl.yaml"));
@@ -206,7 +201,6 @@ class SendMessageIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-attachments-from-file-in-message.swadl.yaml"));
     final String content = "<messageML>here is a msg with attachment</messageML>";
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/send-attachment-from-file"));
@@ -222,6 +216,6 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
   private static byte[] mockBase64ByteArray() {
     String randomString = UUID.randomUUID().toString();
-    return Base64.getEncoder().encode(randomString.getBytes());
+    return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
   }
 }

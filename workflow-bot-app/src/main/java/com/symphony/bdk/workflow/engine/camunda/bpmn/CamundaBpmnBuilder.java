@@ -80,7 +80,7 @@ public class CamundaBpmnBuilder {
 
   @SneakyThrows
   private BpmnModelInstance workflowToBpmn(Workflow workflow) {
-    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow));
+    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow)).name(workflow.getName());
 
     // a workflow starts with at least one named signal event
     List<AbstractFlowNodeBuilder<?, ?>> eventsToConnect = new ArrayList<>();

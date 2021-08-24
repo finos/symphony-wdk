@@ -2,10 +2,13 @@ package com.symphony.bdk.workflow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
@@ -35,16 +38,11 @@ class EngineIntegrationTest extends IntegrationTest {
   void workflowWithSpaceInName() throws Exception {
     final Workflow workflow =
         WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/workflow-name-space.swadl.yaml"));
-    final V4Message message = message("msgId");
-
-    final String streamId = "123";
-    final String content = "<messageML>Hello!</messageML>";
-    when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/message"));
 
-    verify(messageService, timeout(5000)).send(streamId, content);
+    verify(messageService, timeout(5000)).send(anyString(), any(Message.class));
   }
 
   @Test
@@ -61,6 +59,6 @@ class EngineIntegrationTest extends IntegrationTest {
     engine.stop(workflow.getName());
 
     engine.onEvent(messageReceived("/message"));
-    assertThat(lastProcess()).isEmpty();
+    assertThat(lastProcess(workflow)).isEmpty();
   }
 }

@@ -3,11 +3,12 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -32,7 +33,7 @@ class VariablesIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-    verify(messageService, timeout(5000)).send(argumentCaptor.capture(), anyString());
+    verify(messageService, timeout(5000)).send(argumentCaptor.capture(), any(Message.class));
     final String captorStreamId = argumentCaptor.getValue();
 
     assertThat(captorStreamId).isEqualTo("1234");
