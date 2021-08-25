@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.POST;
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.ROOM;
+import static com.symphony.bdk.workflow.customAssertion.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.timeout;
@@ -36,7 +37,7 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-stream"));
 
     verify(streamService, timeout(5000)).getStream("abc");
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -49,7 +50,7 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-stream-members"));
 
     verify(streamService, timeout(5000)).listStreamMembers("abc");
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -62,7 +63,7 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("/get-stream-members-pagination"));
 
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -81,7 +82,7 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-streams"));
 
     verify(streamService, timeout(5000)).listStreamsAdmin(refEq(filter));
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -101,7 +102,7 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-streams-pagination"));
 
     verify(streamService, timeout(5000)).listStreamsAdmin(refEq(filter), refEq(new PaginationAttribute(10, 10)));
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -118,7 +119,7 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-user-streams"));
 
     verify(streamService, timeout(5000)).listStreams(refEq(filter));
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -136,6 +137,6 @@ class StreamIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-user-streams-pagination"));
 
     verify(streamService, timeout(5000)).listStreams(refEq(filter), refEq(new PaginationAttribute(10, 10)));
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 }

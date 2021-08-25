@@ -1,0 +1,8 @@
+name: get-message-by-id
+activities:
+  - get-message:
+      id: getMessageByIdFound
+      on:
+        message-received:
+          content: /get-msg-by-id-found
+      message-id: MSG_ID

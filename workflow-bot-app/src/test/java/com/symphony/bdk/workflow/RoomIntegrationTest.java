@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.customAssertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -232,7 +233,7 @@ class RoomIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-room"));
 
     verify(streamService, timeout(5000)).getRoomInfo("abc");
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -245,7 +246,7 @@ class RoomIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-room-members"));
 
     verify(streamService, timeout(5000)).listRoomMembers("abc");
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
@@ -264,7 +265,7 @@ class RoomIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-rooms"));
 
     verify(streamService, timeout(5000)).searchRooms(refEq(query));
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
@@ -284,6 +285,6 @@ class RoomIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-rooms-pagination"));
 
     verify(streamService, timeout(5000)).searchRooms(refEq(query), refEq(new PaginationAttribute(10, 10)));
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 }

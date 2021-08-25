@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.customAssertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -45,7 +46,7 @@ class UsersIntegrationTest extends IntegrationTest {
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, timeout(5000)).updateFeatureEntitlements(any(), any());
 
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -68,7 +69,7 @@ class UsersIntegrationTest extends IntegrationTest {
       assertThat(user.getUserAttributes().getCurrentKey().getExpirationDate()).isEqualTo(1629210917000L);
     });
 
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -92,7 +93,7 @@ class UsersIntegrationTest extends IntegrationTest {
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, timeout(5000)).updateFeatureEntitlements(any(), any());
 
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -128,7 +129,7 @@ class UsersIntegrationTest extends IntegrationTest {
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, never()).update(any(), any());
 
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -140,7 +141,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000).times(2)).addRole(any(), any());
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -152,7 +153,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000).times(2)).removeRole(any(), any());
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -165,7 +166,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-user"));
 
     verify(userService, timeout(5000)).getUserDetail(123L);
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -177,7 +178,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByIds(List.of(123L, 456L), true, false);
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -189,7 +190,7 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByEmails(List.of("bob@mail.com", "eve@mail.com"), true, false);
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 
   @Test
@@ -201,6 +202,6 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByUsernames(List.of("bob", "eve"), false);
-    assertExecuted(workflow);
+    assertThat(workflow).isExecuted();
   }
 }

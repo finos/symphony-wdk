@@ -45,11 +45,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.PostConstruct;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(IntegrationTestConfiguration.class)
-abstract class IntegrationTest {
+public abstract class IntegrationTest {
 
   @Autowired
   WorkflowEngine engine;
@@ -58,7 +59,9 @@ abstract class IntegrationTest {
   ResourceProvider resourceProvider;
 
   @Autowired
-  HistoryService historyService;
+  private HistoryService historyService;
+
+  public static HistoryService historyServiceCopy;
 
   // Mock the BDK
   @MockBean
@@ -79,6 +82,11 @@ abstract class IntegrationTest {
   static {
     // we don't use nashorn, we don't care it is going to disappear
     System.setProperty("nashorn.args", "--no-deprecation-warning");
+  }
+
+  @PostConstruct
+  public void init() {
+    historyServiceCopy = this.historyService;
   }
 
   protected static V4Message message(String msgId) {
@@ -146,8 +154,8 @@ abstract class IntegrationTest {
     return new RealTimeEvent<>(initiator, elementsAction);
   }
 
-  protected Boolean processIsCompleted(String processId) {
-    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+  public static Boolean processIsCompleted(String processId) {
+    List<HistoricProcessInstance> processes = historyServiceCopy.createHistoricProcessInstanceQuery()
         .processInstanceId(processId).list();
     if (!processes.isEmpty()) {
       HistoricProcessInstance processInstance = processes.get(0);
@@ -156,8 +164,8 @@ abstract class IntegrationTest {
     return false;
   }
 
-  protected Optional<String> lastProcess() {
-    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+  public static Optional<String> lastProcess() {
+    List<HistoricProcessInstance> processes = historyServiceCopy.createHistoricProcessInstanceQuery()
         .orderByProcessInstanceStartTime().desc()
         .list();
     if (processes.isEmpty()) {
@@ -181,7 +189,7 @@ abstract class IntegrationTest {
     }
   }
 
-  protected void assertExecuted(Workflow workflow) {
+  public static void assertExecuted(Workflow workflow) {
     String[] activityIds = workflow.getActivities().stream()
         .map(Activity::getActivity)
         .map(BaseActivity::getId)
@@ -189,11 +197,11 @@ abstract class IntegrationTest {
     assertExecuted(activityIds);
   }
 
-  private void assertExecuted(String... activityIds) {
+  private static void assertExecuted(String... activityIds) {
     String process = lastProcess().orElseThrow();
     await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
 
-    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
+    List<HistoricActivityInstance> processes = historyServiceCopy.createHistoricActivityInstanceQuery()
         .processInstanceId(process)
         .orderByHistoricActivityInstanceStartTime().asc()
         .orderByActivityName().asc()
@@ -203,6 +211,22 @@ abstract class IntegrationTest {
         .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
         .extracting(HistoricActivityInstance::getActivityName)
         .containsExactly(activityIds);
+  }
+
+  public static void assertExecuted(Optional<String> process, List<String> activities) {
+    assertThat(process).hasValueSatisfying(
+        processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
+
+    List<HistoricActivityInstance> processes = historyServiceCopy.createHistoricActivityInstanceQuery()
+        .processInstanceId(process.get())
+        .activityType("scriptTask")
+        .orderByHistoricActivityInstanceStartTime().asc()
+        .orderByActivityName().asc()
+        .list();
+
+    assertThat(processes)
+        .extracting(HistoricActivityInstance::getActivityName)
+        .containsExactly(activities.toArray(String[]::new));
   }
 
   protected Message buildMessage(String content, List<Attachment> attachments) {

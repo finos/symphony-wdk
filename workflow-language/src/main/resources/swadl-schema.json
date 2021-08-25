@@ -264,6 +264,18 @@
                             }
                         ]
                     },
+                    "get-message": {
+                        "type": "object",
+                        "description": "Returns a message found by id.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-message-inner"
+                            }
+                        ]
+                    },
                     "get-stream-members": {
                         "type": "object",
                         "description": "Returns a list of all the current members of a stream (IM, MIM, or chatroom).",
@@ -323,12 +335,24 @@
                                 "$ref": "#/definitions/get-rooms-inner"
                             }
                         ]
+                    },
+                    "get-messages": {
+                        "type": "object",
+                        "description": "Get message by id and list stream's messages.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-messages-inner"
+                            }
+                        ]
                     }
                 },
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|update-user|update-system-user|add-user-role|remove-user-role|get-user|get-users|get-stream|get-room|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms)([a-z0-9-]+)$": {
+                  "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|update-user|update-system-user|add-user-role|remove-user-role|get-user|get-users|get-stream|get-room|get-message|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activities to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
@@ -1070,12 +1094,15 @@
             ],
             "properties": {
                 "to": {
+                    "description": "The recipient (conversation, IM, MI or chatroom) in which the message should be posted.",
                     "$ref": "#/definitions/to"
                 },
                 "content": {
+                    "description": "The content of the message in MessageML format. Must contain at least one space.",
                     "type": "string"
                 },
                 "attachments": {
+                    "description": "One or more attachments to be sent along with the message.",
                     "type": "array",
                     "items": {
                         "$ref":"#/definitions/attachment"
@@ -2088,6 +2115,16 @@
                 }
             }
         },
+        "get-message-inner": {
+            "properties": {
+                "message-id": {
+                    "description": "The message identifier.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["message-id"]
+        },
         "get-streams-inner": {
             "properties": {
                 "types": {
@@ -2243,6 +2280,38 @@
                 "query"
             ]
         },
+        "get-messages-inner": {
+            "type": "object",
+            "properties": {
+                "stream-id": {
+                    "description": "Stream identifier.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "since": {
+                    "description": "Date, in ISO 8601 format, of the earliest possible data of the first message returned.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "skip": {
+                    "description": "Number of messages search to skip.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                },
+                "limit": {
+                    "description": "Maximum number of messages to return. Default limit is 50.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                }
+            },
+            "required": ["stream-id", "since"]
+        },
         "to": {
             "type": "object",
             "properties": {
@@ -2272,10 +2341,12 @@
             "type": "object",
             "properties": {
                 "message-id": {
+                    "description": "Message id having the attachment to forward.",
                     "type": "string",
                     "minLength": 1
                 },
                 "attachment-id": {
+                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded.",
                     "type": "string",
                     "minLength": 1
                 }
@@ -2287,6 +2358,7 @@
             "required": ["content-path"],
             "properties": {
                 "content-path": {
+                    "description": "Path to the file to be attached to the message. The path is relative to the workflows folder.",
                     "type": "string",
                     "minLength": 1
                 }

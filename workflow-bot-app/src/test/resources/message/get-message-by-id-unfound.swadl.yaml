@@ -1,0 +1,8 @@
+name: get-message-by-id-unfound
+activities:
+  - get-message:
+      id: getMessageByIdUnfound
+      on:
+        message-received:
+          content: /get-msg-by-id-unfound
+      message-id: MSG_ID
