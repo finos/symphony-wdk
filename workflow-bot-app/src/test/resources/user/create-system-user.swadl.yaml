@@ -1,12 +1,13 @@
-name: create-user-keys
+name: create-system-user
 activities:
-  - create-user:
+  - create-system-user:
       id: create
       on:
         message-received:
           content: /create-user
       email: john@mail.com
       username: john
+      display-name: John
       keys:
         current:
           action: SAVE

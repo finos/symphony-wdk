@@ -26,6 +26,11 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
 
   @Override
   public void execute(ActivityExecutorContext<CreateUser> context) {
+    doExecute(context);
+  }
+
+  // to support subtypes of CreateUser
+  void doExecute(ActivityExecutorContext<? extends CreateUser> context) {
     CreateUser createUser = context.getActivity();
     UserService userService = context.users();
 

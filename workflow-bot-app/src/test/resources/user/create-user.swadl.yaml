@@ -9,6 +9,7 @@ activities:
       username: john
       firstname: John
       lastname: Lee
+      display-name: John Lee
       roles:
         - ADMINISTRATOR
         - USER_PROVISIONING

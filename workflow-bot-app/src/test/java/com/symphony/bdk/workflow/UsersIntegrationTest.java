@@ -49,9 +49,9 @@ class UsersIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void createUserKeys() throws IOException, ProcessingException {
+  void createSystemUser() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user-keys.swadl.yaml"));
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-system-user.swadl.yaml"));
 
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
@@ -80,10 +80,10 @@ class UsersIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
-    ArgumentCaptor<V2UserAttributes> userCreate = ArgumentCaptor.forClass(V2UserAttributes.class);
-    verify(userService, timeout(5000)).update(any(), userCreate.capture());
+    ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
+    verify(userService, timeout(5000)).update(any(), userUpdate.capture());
 
-    assertThat(userCreate.getValue()).satisfies(user -> {
+    assertThat(userUpdate.getValue()).satisfies(user -> {
       assertThat(user.getEmailAddress()).isEqualTo("john@mail.com");
       assertThat(user.getFirstName()).isEqualTo("John");
       assertThat(user.getLastName()).isEqualTo("Lee");
@@ -91,6 +91,26 @@ class UsersIntegrationTest extends IntegrationTest {
 
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, timeout(5000)).updateFeatureEntitlements(any(), any());
+
+    assertExecuted(workflow);
+  }
+
+  @Test
+  void updateSystemUser() throws IOException, ProcessingException {
+    final Workflow workflow =
+        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/update-system-user.swadl.yaml"));
+
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("/update-user"));
+
+    ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
+    verify(userService, timeout(5000)).update(any(), userUpdate.capture());
+
+    assertThat(userUpdate.getValue()).satisfies(user -> {
+      assertThat(user.getDisplayName()).isEqualTo("Changed");
+    });
 
     assertExecuted(workflow);
   }

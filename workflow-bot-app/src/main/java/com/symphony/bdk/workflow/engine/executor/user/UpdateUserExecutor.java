@@ -17,6 +17,11 @@ public class UpdateUserExecutor implements ActivityExecutor<UpdateUser> {
 
   @Override
   public void execute(ActivityExecutorContext<UpdateUser> context) {
+    doExecute(context);
+  }
+
+  // to support subtypes of UpdateUser
+  void doExecute(ActivityExecutorContext<? extends UpdateUser> context) {
     UpdateUser updateUser = context.getActivity();
     UserService userService = context.users();
 

@@ -4,19 +4,11 @@ workflows:
 
 # BDK configuration
 bdk:
-  host: devx3.symphony.com
-  datafeed:
-    version: v1
+  host:
   bot:
-    username: SoufianeBot2
+    username:
     privateKey:
-      path: /Users/soufiane/.symphony/rsa-devx3/privatekey.pem
-
-#  pod:
-#    host: devx3.symphony.com
-#  agent:
-#    host: localhost.symphony.com
-#    port: 9443
+      path:
 
 # Camunda configuration
 camunda:
