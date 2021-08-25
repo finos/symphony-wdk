@@ -125,7 +125,10 @@
                                 "$ref": "#/definitions/create-user-inner",
                                 "required": [
                                     "email",
-                                    "username"
+                                    "username",
+                                    "firstname",
+                                    "lastname",
+                                    "display-name"
                                 ]
                             }
                         ]
@@ -137,6 +140,46 @@
                             },
                             {
                                 "$ref": "#/definitions/create-user-inner"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "user-id": {
+                                        "type": [
+                                            "string",
+                                            "integer"
+                                        ],
+                                        "minLength": 1
+                                    }
+                                },
+                                "required": [
+                                    "user-id"
+                                ]
+                            }
+                        ]
+                    },
+                    "create-system-user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-system-user-inner",
+                                "required": [
+                                    "email",
+                                    "username",
+                                    "display-name"
+                                ]
+                            }
+                        ]
+                    },
+                    "update-system-user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-system-user-inner"
                             },
                             {
                                 "type": "object",
@@ -285,7 +328,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|update-user|add-user-rol|remove-user-role|get-user|get-users|get-stream|get-room|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|update-user|update-system-user|add-user-role|remove-user-role|get-user|get-users|get-stream|get-room|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activities to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
@@ -1056,20 +1099,11 @@
         "create-user-inner": {
             "type": "object",
             "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "NORMAL",
-                        "SYSTEM"
-                    ],
-                    "default": "NORMAL",
-                    "description": "Account type. Possible values: NORMAL (end-user), SYSTEM (service user).\nIf not specified, NORMAL will be used.\nWhen you create a SYSTEM account, the following properties are not required: firstName, lastName."
-                },
                 "email": {
                     "type": "string",
                     "description": "Email address, must be unique",
                     "$comment": "Variable or email regex is accepted.",
-                    "pattern": "(\\${.+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
                 },
                 "firstname": {
                     "type": "string",
@@ -1300,6 +1334,190 @@
                         }
                     }
                 },
+                "roles": {
+                    "$ref": "#/definitions/roles-inner"
+                },
+                "entitlements": {
+                    "$ref": "#/definitions/entitlements-inner"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                }
+            }
+        },
+        "create-system-user-inner": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "Email address, must be unique",
+                    "$comment": "Variable or email regex is accepted.",
+                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Must be unique.",
+                    "minLength": 1
+                },
+                "display-name": {
+                    "type": "string",
+                    "description": "The user's display name. Required upon creation.",
+                    "minLength": 1
+                },
+                "business": {
+                    "type": "object",
+                    "description": "Business information",
+                    "additionalProperties": false,
+                    "properties": {
+                        "company-name": {
+                            "type": "string",
+                            "description": "The user's company name.\nIf not specified, it is set with the default company name."
+                        },
+                        "department": {
+                            "type": "string",
+                            "description": "The user's department."
+                        },
+                        "division": {
+                            "type": "string",
+                            "description": "The user's division."
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "The user's title."
+                        },
+                        "location": {
+                            "type": "string",
+                            "description": "The user's location."
+                        },
+                        "job-function": {
+                            "type": "string",
+                            "description": "The user's job function.",
+                            "enum": [
+                                "Analyst",
+                                "Other",
+                                "Business Development Executive",
+                                "Corporate Access",
+                                "Developer",
+                                "Director",
+                                "Economist",
+                                "Portfolio Manager",
+                                "Project Manager",
+                                "Research Analyst",
+                                "Sales",
+                                "Strategist",
+                                "Trader"
+                            ]
+                        },
+                        "asset-classes": {
+                            "type": "array",
+                            "description": "The user's asset classes (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Equities",
+                                    "Cash Equities",
+                                    "Securities Lending",
+                                    "Fixed Income",
+                                    "Government Bonds",
+                                    "Prime Brokerage",
+                                    "Commodities",
+                                    "Municipal Bonds",
+                                    "Currencies",
+                                    "Corporate Bonds"
+                                ]
+                            }
+                        },
+                        "industries": {
+                            "type": "array",
+                            "description": "The user's job industries (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Healthcare",
+                                    "Consumer Non-Cyclicals",
+                                    "Transportation",
+                                    "Technology",
+                                    "Real Estate",
+                                    "Basic Materials",
+                                    "Financials",
+                                    "Energy & Utilities",
+                                    "Conglomerates",
+                                    "Consumer Cyclicals",
+                                    "Services"
+                                ]
+                            }
+                        },
+                        "functions": {
+                            "type": "array",
+                            "description": "The user's job functions (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Collateral",
+                                    "Confirmation",
+                                    "Trade Processing",
+                                    "Pre-Matching",
+                                    "Margin",
+                                    "Matching",
+                                    "Claims Processing",
+                                    "Middle Office",
+                                    "Liquidity Management",
+                                    "Allocation",
+                                    "Trade Management",
+                                    "Regulatory Outreach",
+                                    "Settlements",
+                                    "Post Trade Management"
+                                ]
+                            }
+                        },
+                        "market-coverages": {
+                            "type": "array",
+                            "description": "The user's market coverage (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "EMEA",
+                                    "NA",
+                                    "APAC",
+                                    "LATAM"
+                                ]
+                            }
+                        },
+                        "responsibilities": {
+                            "type": "array",
+                            "description": "The user's responsibilities (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BAU",
+                                    "Escalation"
+                                ]
+                            }
+                        },
+                        "instruments": {
+                            "type": "array",
+                            "description": "The user's instruments (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Securities",
+                                    "Fixed Income",
+                                    "Equities"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "keys": {
                     "type": "object",
                     "description": "For SYSTEM users, to setup the RSA keys for authentication.",
@@ -1316,290 +1534,7 @@
                     "$ref": "#/definitions/roles-inner"
                 },
                 "entitlements": {
-                    "type": "object",
-                    "description": "Feature entitlements to configure for the user.",
-                    "properties": {
-                        "postReadEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to read wall posts."
-                        },
-                        "postWriteEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to write wall posts."
-                        },
-                        "delegatesEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to have delegates."
-                        },
-                        "isExternalIMEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to chat in external IM/MIMs."
-                        },
-                        "canShareFilesExternally": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to share files externally."
-                        },
-                        "canCreatePublicRoom": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to create internal public rooms."
-                        },
-                        "canUpdateAvatar": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to edit profile picture."
-                        },
-                        "isExternalRoomEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to chat in private external rooms."
-                        },
-                        "canCreatePushedSignals": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to create push signals."
-                        },
-                        "canUseCompactMode": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enables Lite Mode."
-                        },
-                        "mustBeRecorded": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Must be recorded in meetings."
-                        },
-                        "sendFilesEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to send files internally."
-                        },
-                        "canUseInternalAudio": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to use audio in internal Meetings."
-                        },
-                        "canUseInternalVideo": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to use video in internal Meetings."
-                        },
-                        "canProjectInternalScreenShare": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to share screens in internal Meetings."
-                        },
-                        "canViewInternalScreenShare": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to view shared screens in internal Meetings."
-                        },
-                        "canCreateMultiLateralRoom": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to create multi-lateral room."
-                        },
-                        "canJoinMultiLateralRoom": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to join multi-lateral room."
-                        },
-                        "canUseFirehose": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to use Firehose."
-                        },
-                        "canUseInternalAudioMobile": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to use audio in internal meetings on mobile."
-                        },
-                        "canUseInternalVideoMobile": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to use video in internal meetings on mobile."
-                        },
-                        "canProjectInternalScreenShareMobile": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to share screens in internal meetings on mobile."
-                        },
-                        "canViewInternalScreenShareMobile": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to view shared screens in internal meetings on mobile."
-                        },
-                        "canManageSignalSubscription": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allows the user to manage signal subscriptions."
-                        },
-                        "canCreateDatahose": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can create datahose feeds."
-                        },
-                        "canIntegrateEmail": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can integrate email service."
-                        },
-                        "canReadDatahose": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can read from datahose feeds."
-                        },
-                        "canSuppressMessage": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can suppress own messages."
-                        },
-                        "canSwitchToClient20": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can switch to Client 2.0 experience."
-                        },
-                        "canUpdateRoomHistoryProperty": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can Toggle Room's Share History Property."
-                        },
-                        "canUseEncryptAPI": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allow user to use Agent Encrypt endpoints."
-                        },
-                        "enableSwiftSearch": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Can Use Swift Search."
-                        },
-                        "sdaDevtoolsEnabled": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enable Developer Tools for SDA."
-                        },
-                        "sdaPermissionsFullScreen": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enable Full screen access on SDA."
-                        },
-                        "sdaPermissionsGeoLocation": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enable location access on SDA."
-                        },
-                        "sdaPermissionsMedia": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enable Media access on SDA."
-                        },
-                        "sdaPermissionsMidiSysex": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enable access to MIDI Sysex on SDA."
-                        },
-                        "sdaPermissionsNotifications": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allow notifications on SDA."
-                        },
-                        "sdaPermissionsOpenExternalApp": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Allow Opening External Apps from SDA."
-                        },
-                        "sdaPermissionsPointerLock": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "description": "Enable Pointer Lock on SDA."
-                        }
-                    }
+                    "$ref": "#/definitions/entitlements-inner"
                 },
                 "status": {
                     "type": "string",
@@ -1632,6 +1567,292 @@
                     "description": "An ISO 8601 timestamp containing the RSA key expiration date. This value is only set for rotated keys.",
                     "type": "string",
                     "minLength": 1
+                }
+            }
+        },
+        "entitlements-inner": {
+            "type": "object",
+            "description": "Feature entitlements to configure for the user.",
+            "properties": {
+                "postReadEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to read wall posts."
+                },
+                "postWriteEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to write wall posts."
+                },
+                "delegatesEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to have delegates."
+                },
+                "isExternalIMEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to chat in external IM/MIMs."
+                },
+                "canShareFilesExternally": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to share files externally."
+                },
+                "canCreatePublicRoom": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to create internal public rooms."
+                },
+                "canUpdateAvatar": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to edit profile picture."
+                },
+                "isExternalRoomEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to chat in private external rooms."
+                },
+                "canCreatePushedSignals": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to create push signals."
+                },
+                "canUseCompactMode": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enables Lite Mode."
+                },
+                "mustBeRecorded": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Must be recorded in meetings."
+                },
+                "sendFilesEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to send files internally."
+                },
+                "canUseInternalAudio": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use audio in internal Meetings."
+                },
+                "canUseInternalVideo": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use video in internal Meetings."
+                },
+                "canProjectInternalScreenShare": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to share screens in internal Meetings."
+                },
+                "canViewInternalScreenShare": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to view shared screens in internal Meetings."
+                },
+                "canCreateMultiLateralRoom": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to create multi-lateral room."
+                },
+                "canJoinMultiLateralRoom": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to join multi-lateral room."
+                },
+                "canUseFirehose": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use Firehose."
+                },
+                "canUseInternalAudioMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use audio in internal meetings on mobile."
+                },
+                "canUseInternalVideoMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use video in internal meetings on mobile."
+                },
+                "canProjectInternalScreenShareMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to share screens in internal meetings on mobile."
+                },
+                "canViewInternalScreenShareMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to view shared screens in internal meetings on mobile."
+                },
+                "canManageSignalSubscription": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to manage signal subscriptions."
+                },
+                "canCreateDatahose": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can create datahose feeds."
+                },
+                "canIntegrateEmail": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can integrate email service."
+                },
+                "canReadDatahose": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can read from datahose feeds."
+                },
+                "canSuppressMessage": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can suppress own messages."
+                },
+                "canSwitchToClient20": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can switch to Client 2.0 experience."
+                },
+                "canUpdateRoomHistoryProperty": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can Toggle Room's Share History Property."
+                },
+                "canUseEncryptAPI": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allow user to use Agent Encrypt endpoints."
+                },
+                "enableSwiftSearch": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can Use Swift Search."
+                },
+                "sdaDevtoolsEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Developer Tools for SDA."
+                },
+                "sdaPermissionsFullScreen": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Full screen access on SDA."
+                },
+                "sdaPermissionsGeoLocation": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable location access on SDA."
+                },
+                "sdaPermissionsMedia": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Media access on SDA."
+                },
+                "sdaPermissionsMidiSysex": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable access to MIDI Sysex on SDA."
+                },
+                "sdaPermissionsNotifications": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allow notifications on SDA."
+                },
+                "sdaPermissionsOpenExternalApp": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allow Opening External Apps from SDA."
+                },
+                "sdaPermissionsPointerLock": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Pointer Lock on SDA."
                 }
             }
         },
@@ -1724,7 +1945,7 @@
                     "items": {
                         "type": "string",
                         "$comment": "Variable or email regex is accepted.",
-                        "pattern": "(\\${.+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                        "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
                     },
                     "minLength": 1
                 },
