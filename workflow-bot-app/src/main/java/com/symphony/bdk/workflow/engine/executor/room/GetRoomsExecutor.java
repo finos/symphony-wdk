@@ -21,10 +21,10 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
 
     GetRooms getRooms = execution.getActivity();
     V3RoomSearchResults rooms;
-    if (getRooms.getLimit() != null && getRooms.getSkip() != null) {
+    if (getRooms.getLimitAsInt() != null && getRooms.getSkipAsInt() != null) {
       rooms = execution.streams().searchRooms(toCritera(getRooms),
-          new PaginationAttribute(getRooms.getSkip(), getRooms.getLimit()));
-    } else if (getRooms.getLimit() == null && getRooms.getSkip() == null) {
+          new PaginationAttribute(getRooms.getSkipAsInt(), getRooms.getLimitAsInt()));
+    } else if (getRooms.getLimitAsInt() == null && getRooms.getSkipAsInt() == null) {
       rooms = execution.streams().searchRooms(toCritera(getRooms));
     } else {
       throw new IllegalArgumentException("skip and limit should both be set to get rooms");
@@ -37,8 +37,8 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
     V2RoomSearchCriteria criteria = new V2RoomSearchCriteria()
         .query(getRooms.getQuery())
         .labels(getRooms.getLabels())
-        ._private(getRooms.getIsPrivate())
-        .active(getRooms.getActive());
+        ._private(getRooms.getIsPrivateAsBool())
+        .active(getRooms.getActiveAsBool());
     if (getRooms.getSortOrder() != null) {
       criteria.setSortOrder(V2RoomSearchCriteria.SortOrderEnum.fromValue(getRooms.getSortOrder()));
     }

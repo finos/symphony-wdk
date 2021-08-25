@@ -1,4 +1,7 @@
 name: get-rooms-pagination
+variables:
+  skip: 10
+  limit: 10
 activities:
   - get-rooms:
       id: act1
@@ -10,8 +13,8 @@ activities:
         - test
         - test1
       query: test
-      skip: 10
-      limit: 10
+      skip: ${variables.skip}
+      limit: ${variables.limit}
   - execute-script:
       id: script
       script: |

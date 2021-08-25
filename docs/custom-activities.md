@@ -33,8 +33,9 @@ The workflow bot being a Spring Boot based application, it can be executed as st
 ./gradlew :custom-activity-example:installDist
 
 cd workflow-bot-app
+mkdir lib
 # Copy the custom activity JARs
-cp -r ../custom-activity-example/build/install/custom-activity-example/lib .
+cp -r ../custom-activity-example/build/install/custom-activity-example/lib lib/
 
 # Build and start the workflow bot
 ../gradlew bootJar

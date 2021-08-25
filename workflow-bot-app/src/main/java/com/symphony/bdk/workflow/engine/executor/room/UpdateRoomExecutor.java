@@ -27,10 +27,10 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
       execution.streams().updateRoom(updateRoom.getStreamId(), attributes);
     }
 
-    if (updateRoom.getActive() != null) {
+    if (updateRoom.getActiveAsBool() != null) {
       // this is a different API call but we support it in the same activity
       log.debug("Updating room {} active status", updateRoom.getStreamId());
-      execution.streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive());
+      execution.streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActiveAsBool());
     }
 
     // services called above return different results and might end up not being called so we explicitly call the API
@@ -45,14 +45,14 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     return updateRoom.getRoomName() != null
         || updateRoom.getRoomDescription() != null
         || updateRoom.getKeywords() != null
-        || updateRoom.getMembersCanInvite() != null
-        || updateRoom.getDiscoverable() != null
-        || updateRoom.getIsPublic() != null
-        || updateRoom.getReadOnly() != null
-        || updateRoom.getCopyProtected() != null
-        || updateRoom.getCrossPod() != null
-        || updateRoom.getViewHistory() != null
-        || updateRoom.getMultiLateralRoom() != null;
+        || updateRoom.getMembersCanInviteAsBool() != null
+        || updateRoom.getDiscoverableAsBool() != null
+        || updateRoom.getIsPublicAsBool() != null
+        || updateRoom.getReadOnlyAsBool() != null
+        || updateRoom.getCopyProtectedAsBool() != null
+        || updateRoom.getCrossPodAsBool() != null
+        || updateRoom.getViewHistoryAsBool() != null
+        || updateRoom.getMultiLateralRoomAsBool() != null;
   }
 
   private V3RoomAttributes toAttributes(UpdateRoom updateRoom) {
@@ -72,14 +72,14 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
       attributes.setKeywords(tags);
     }
 
-    attributes.membersCanInvite(updateRoom.getMembersCanInvite());
-    attributes.setDiscoverable(updateRoom.getDiscoverable());
-    attributes.setPublic(updateRoom.getIsPublic());
-    attributes.setReadOnly(updateRoom.getReadOnly());
-    attributes.copyProtected(updateRoom.getCopyProtected());
-    attributes.crossPod(updateRoom.getCrossPod());
-    attributes.viewHistory(updateRoom.getViewHistory());
-    attributes.multiLateralRoom(updateRoom.getMultiLateralRoom());
+    attributes.membersCanInvite(updateRoom.getMembersCanInviteAsBool());
+    attributes.setDiscoverable(updateRoom.getDiscoverableAsBool());
+    attributes.setPublic(updateRoom.getIsPublicAsBool());
+    attributes.setReadOnly(updateRoom.getReadOnlyAsBool());
+    attributes.copyProtected(updateRoom.getCopyProtectedAsBool());
+    attributes.crossPod(updateRoom.getCrossPodAsBool());
+    attributes.viewHistory(updateRoom.getViewHistoryAsBool());
+    attributes.multiLateralRoom(updateRoom.getMultiLateralRoomAsBool());
 
     return attributes;
   }

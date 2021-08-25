@@ -32,7 +32,8 @@ public class CreateRoom extends BaseActivity {
     return uids.stream().map(Long::parseLong).collect(Collectors.toList());
   }
 
-  public Boolean isPublic() {
+  @JsonIgnore
+  public Boolean isPublicAsBool() {
     return Boolean.valueOf(isPublic);
   }
 }

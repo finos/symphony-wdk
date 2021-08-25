@@ -24,10 +24,10 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
 
     GetUserStreams getUserStreams = execution.getActivity();
     List<StreamAttributes> userStreams;
-    if (getUserStreams.getLimit() != null && getUserStreams.getSkip() != null) {
+    if (getUserStreams.getLimitAsInt() != null && getUserStreams.getSkipAsInt() != null) {
       userStreams = execution.streams().listStreams(toFilter(getUserStreams),
-          new PaginationAttribute(getUserStreams.getSkip(), getUserStreams.getLimit()));
-    } else if (getUserStreams.getLimit() == null && getUserStreams.getSkip() == null) {
+          new PaginationAttribute(getUserStreams.getSkipAsInt(), getUserStreams.getLimitAsInt()));
+    } else if (getUserStreams.getLimitAsInt() == null && getUserStreams.getSkipAsInt() == null) {
       userStreams = execution.streams().listStreams(toFilter(getUserStreams));
     } else {
       throw new IllegalArgumentException("skip and limit should both be set to get user streams");
@@ -38,7 +38,7 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
 
   private StreamFilter toFilter(GetUserStreams getUserStreams) {
     StreamFilter filter = new StreamFilter()
-        .includeInactiveStreams(getUserStreams.getIncludeInactiveStreams());
+        .includeInactiveStreams(getUserStreams.getIncludeInactiveStreamsAsBool());
 
     if (getUserStreams.getTypes() != null) {
       filter.setStreamTypes(getUserStreams.getTypes().stream()
