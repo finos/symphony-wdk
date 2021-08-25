@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl.v1.activity.stream;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,15 +19,18 @@ public class GetUserStreams extends BaseActivity {
   private String limit;
   private String skip;
 
-  public Boolean getIncludeInactiveStreams() {
+  @JsonIgnore
+  public Boolean getIncludeInactiveStreamsAsBool() {
     return toBoolean(includeInactiveStreams);
   }
 
-  public Integer getLimit() {
+  @JsonIgnore
+  public Integer getLimitAsInt() {
     return toInt(limit);
   }
 
-  public Integer getSkip() {
+  @JsonIgnore
+  public Integer getSkipAsInt() {
     return toInt(skip);
   }
 }

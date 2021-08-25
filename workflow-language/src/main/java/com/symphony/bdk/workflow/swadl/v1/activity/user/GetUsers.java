@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -29,12 +30,14 @@ public class GetUsers extends BaseActivity {
   private String active;
 
   @Nullable
-  public Boolean getLocal() {
+  @JsonIgnore
+  public Boolean getLocalAsBool() {
     return toBoolean(local);
   }
 
   @Nullable
-  public Boolean getActive() {
+  @JsonIgnore
+  public Boolean getActiveAsBool() {
     return toBoolean(active);
   }
 }

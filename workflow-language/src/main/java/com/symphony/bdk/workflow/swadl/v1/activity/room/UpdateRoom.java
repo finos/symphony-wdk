@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,39 +35,48 @@ public class UpdateRoom extends BaseActivity {
 
   private String active;
 
-  public Boolean getMembersCanInvite() {
+  @JsonIgnore
+  public Boolean getMembersCanInviteAsBool() {
     return toBoolean(membersCanInvite);
   }
 
-  public Boolean getDiscoverable() {
+  @JsonIgnore
+  public Boolean getDiscoverableAsBool() {
     return toBoolean(discoverable);
   }
 
-  public Boolean getIsPublic() {
+  @JsonIgnore
+  public Boolean getIsPublicAsBool() {
     return toBoolean(isPublic);
   }
 
-  public Boolean getReadOnly() {
+  @JsonIgnore
+  public Boolean getReadOnlyAsBool() {
     return toBoolean(readOnly);
   }
 
-  public Boolean getCopyProtected() {
+  @JsonIgnore
+  public Boolean getCopyProtectedAsBool() {
     return toBoolean(copyProtected);
   }
 
-  public Boolean getCrossPod() {
+  @JsonIgnore
+  public Boolean getCrossPodAsBool() {
     return toBoolean(crossPod);
   }
 
-  public Boolean getViewHistory() {
+  @JsonIgnore
+  public Boolean getViewHistoryAsBool() {
     return toBoolean(viewHistory);
   }
 
-  public Boolean getMultiLateralRoom() {
+  @JsonIgnore
+  public Boolean getMultiLateralRoomAsBool() {
     return toBoolean(multiLateralRoom);
   }
 
-  public Boolean getActive() {
+  @JsonIgnore
+  public Boolean getActiveAsBool() {
     return toBoolean(active);
   }
 }

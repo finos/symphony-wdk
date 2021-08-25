@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,19 +30,24 @@ public class GetRooms extends BaseActivity {
   private String limit;
   private String skip;
 
-  public Boolean getActive() {
+  @JsonIgnore
+  public Boolean getActiveAsBool() {
     return toBoolean(active);
   }
 
-  public Boolean getIsPrivate() {
+  @JsonIgnore
+  public Boolean getIsPrivateAsBool() {
     return toBoolean(isPrivate);
   }
 
-  public Integer getLimit() {
+  @JsonIgnore
+  public Integer getLimitAsInt() {
     return toInt(limit);
   }
 
-  public Integer getSkip() {
+  @JsonIgnore
+  public Integer getSkipAsInt() {
     return toInt(skip);
   }
+
 }

@@ -23,13 +23,13 @@ public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
 
     List<UserV2> users;
     if (getUsers.getUsernames() != null) {
-      users = context.users().listUsersByUsernames(getUsers.getUsernames(), getUsers.getActive());
+      users = context.users().listUsersByUsernames(getUsers.getUsernames(), getUsers.getActiveAsBool());
 
     } else if (getUsers.getUserIds() != null) {
-      users = context.users().listUsersByIds(toLongs(getUsers.getUserIds()), getUsers.getLocal(), getUsers.getActive());
+      users = context.users().listUsersByIds(toLongs(getUsers.getUserIds()), getUsers.getLocalAsBool(), getUsers.getActiveAsBool());
 
     } else if (getUsers.getEmails() != null) {
-      users = context.users().listUsersByEmails(getUsers.getEmails(), getUsers.getLocal(), getUsers.getActive());
+      users = context.users().listUsersByEmails(getUsers.getEmails(), getUsers.getLocalAsBool(), getUsers.getActiveAsBool());
 
     } else {
       throw new IllegalArgumentException("Usernames or user ids or emails must be set");

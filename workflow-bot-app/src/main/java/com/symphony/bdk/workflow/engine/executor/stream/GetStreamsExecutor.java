@@ -24,10 +24,10 @@ public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
 
     GetStreams getStreams = execution.getActivity();
     V2AdminStreamList streams;
-    if (getStreams.getLimit() != null && getStreams.getSkip() != null) {
+    if (getStreams.getLimitAsInt() != null && getStreams.getSkipAsInt() != null) {
       streams = execution.streams().listStreamsAdmin(toFilter(getStreams),
-          new PaginationAttribute(getStreams.getSkip(), getStreams.getLimit()));
-    } else if (getStreams.getLimit() == null && getStreams.getSkip() == null) {
+          new PaginationAttribute(getStreams.getSkipAsInt(), getStreams.getLimitAsInt()));
+    } else if (getStreams.getLimitAsInt() == null && getStreams.getSkipAsInt() == null) {
       streams = execution.streams().listStreamsAdmin(toFilter(getStreams));
     } else {
       throw new IllegalArgumentException("skip and limit should both be set to get streams");
