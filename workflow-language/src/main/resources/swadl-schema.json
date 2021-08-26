@@ -324,6 +324,66 @@
                             }
                         ]
                     },
+                    "get-connection": {
+                        "type": "object",
+                        "description": "Get one connection status.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "create-connection": {
+                        "type": "object",
+                        "description": "Send a connection request to another user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "accept-connection": {
+                        "type": "object",
+                        "description": "Accept the connection request for a requesting user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "reject-connection": {
+                        "type": "object",
+                        "description": "Reject the connection request from a requesting user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "remove-connection": {
+                        "type": "object",
+                        "description": "Remove a connection with a user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
                     "get-rooms": {
                         "type": "object",
                         "description": "Search for rooms, querying name, description, and specified keywords.",
@@ -347,13 +407,25 @@
                                 "$ref": "#/definitions/get-messages-inner"
                             }
                         ]
+                    },
+                    "get-connections": {
+                        "type": "object",
+                        "description": "Get one or multiple connections statuses",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-connections-inner"
+                            }
+                        ]
                     }
                 },
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                  "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|update-user|update-system-user|add-user-role|remove-user-role|get-user|get-users|get-stream|get-room|get-message|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages)([a-z0-9-]+)$": {
-                        "$comment": "Match everything that is not an already known activities to allow for custom activities to be used.",
+                  "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                        "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
                 }
@@ -2029,6 +2101,20 @@
                 "stream-id"
             ]
         },
+        "connection-inner": {
+            "type": "object",
+            "properties": {
+                "user-id": {
+                    "description": "User id with whom to get/accept/reject/remove the connection status.",
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1
+                }
+            },
+            "required": ["user-id"]
+        },
         "get-stream-members-inner": {
             "properties": {
                 "stream-id": {
@@ -2311,6 +2397,34 @@
                 }
             },
             "required": ["stream-id", "since"]
+        },
+        "get-connections-inner": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "description": "List of user ids that this activity results will be restricted to their connections.",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "items": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ],
+                        "minLength": 1
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "PENDING_INCOMING",
+                        "PENDING_OUTGOING",
+                        "ACCEPTED",
+                        "REJECTED"
+                    ]
+                }
+            },
+            "required": ["user-ids", "status"]
         },
         "to": {
             "type": "object",

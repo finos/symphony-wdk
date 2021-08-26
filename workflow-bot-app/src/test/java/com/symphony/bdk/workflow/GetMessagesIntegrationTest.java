@@ -1,8 +1,10 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.customAssertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
@@ -98,14 +100,6 @@ class GetMessagesIntegrationTest extends IntegrationTest {
         .hasOutput(String.format(OUTPUTS_LIST_MESSAGES_KEY, "listMessagesWithPagination"), messages);
   }
 
-  private void assertEquals(Object actual, Object expected) {
-    org.assertj.core.api.Assertions.assertThat(actual).isEqualTo(expected);
-  }
-
-  private void assertNotNull(Object actual) {
-    org.assertj.core.api.Assertions.assertThat(actual).isNotNull();
-  }
-
   @Test
   @DisplayName(
       "Given a streamId, when the workflow is triggered without pagination, then stream's messages are all sent")
@@ -135,7 +129,8 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
   @Test
   @DisplayName(
-      "Given a get message by streamid without since parameter, when the workflow is triggered, then an error is thrown")
+      "Given a get message by streamid without since parameter, when the workflow is triggered,"
+          + "then an error is thrown")
   void getMessageByStreamIdWithoutSince_invalidWorkflow() {
     assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
         getClass().getResourceAsStream("/message/get-message-by-stream-id-invalid.swadl.yaml"))).isInstanceOf(

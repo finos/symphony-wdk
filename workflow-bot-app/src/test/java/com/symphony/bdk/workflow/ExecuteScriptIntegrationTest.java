@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;

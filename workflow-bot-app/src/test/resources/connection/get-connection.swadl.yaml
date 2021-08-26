@@ -1,0 +1,8 @@
+name: get-connection
+activities:
+  - get-connection:
+      id: getConnection
+      on:
+        message-received:
+          content: /get-connection
+      user-id: 1234

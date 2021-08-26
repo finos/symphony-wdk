@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.customAssertion;
+package com.symphony.bdk.workflow.custom.assertion;
 
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 

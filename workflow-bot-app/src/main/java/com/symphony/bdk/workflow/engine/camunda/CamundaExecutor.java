@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -54,15 +55,17 @@ public class CamundaExecutor implements JavaDelegate {
   private final MessageService messageService;
   private final StreamService streamService;
   private final UserService userService;
+  private final ConnectionService connectionService;
   private final AuditTrailLogger auditTrailLogger;
   private final ResourceProvider resourceLoader;
 
-  public CamundaExecutor(MessageService messageService, StreamService streamService,
-      UserService userService, AuditTrailLogger auditTrailLogger,
+  public CamundaExecutor(MessageService messageService, StreamService streamService, UserService userService,
+      ConnectionService connectionService, AuditTrailLogger auditTrailLogger,
       @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader) {
     this.messageService = messageService;
     this.streamService = streamService;
     this.userService = userService;
+    this.connectionService = connectionService;
     this.auditTrailLogger = auditTrailLogger;
     this.resourceLoader = resourceLoader;
   }
@@ -152,6 +155,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public UserService users() {
       return userService;
+    }
+
+    @Override
+    public ConnectionService connections() {
+      return connectionService;
     }
 
     @Override
