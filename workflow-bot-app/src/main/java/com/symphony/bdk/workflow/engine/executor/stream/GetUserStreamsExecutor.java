@@ -25,10 +25,10 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
     GetUserStreams getUserStreams = execution.getActivity();
     List<StreamAttributes> userStreams;
     if (getUserStreams.getLimitAsInt() != null && getUserStreams.getSkipAsInt() != null) {
-      userStreams = execution.streams().listStreams(toFilter(getUserStreams),
+      userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams),
           new PaginationAttribute(getUserStreams.getSkipAsInt(), getUserStreams.getLimitAsInt()));
     } else if (getUserStreams.getLimitAsInt() == null && getUserStreams.getSkipAsInt() == null) {
-      userStreams = execution.streams().listStreams(toFilter(getUserStreams));
+      userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams));
     } else {
       throw new IllegalArgumentException("skip and limit should both be set to get user streams");
     }

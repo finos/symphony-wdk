@@ -18,7 +18,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Collect known activities (including custom ones) from the classpath.
+ */
 @Slf4j
+@SuppressWarnings("unchecked")
 public final class ActivityRegistry {
 
   private static final Set<Class<? extends BaseActivity>> activityTypes;
@@ -38,7 +42,7 @@ public final class ActivityRegistry {
     activityTypes = reflections.getSubTypesOf(BaseActivity.class);
 
     activityExecutors = reflections.getSubTypesOf(ActivityExecutor.class).stream()
-        .map(a -> (Class<? extends ActivityExecutor<? extends BaseActivity>>) a)
+        .map(Class.class::cast)
         .collect(Collectors.toMap(ActivityRegistry::findMatchingActivity, Function.identity()));
 
     log.info("Found these activities: {} and executors: {}", activityTypes, activityExecutors);
@@ -64,6 +68,7 @@ public final class ActivityRegistry {
   }
 
   private ActivityRegistry() {
+    // singleton class
   }
 
   public static Set<Class<? extends BaseActivity>> getActivityTypes() {

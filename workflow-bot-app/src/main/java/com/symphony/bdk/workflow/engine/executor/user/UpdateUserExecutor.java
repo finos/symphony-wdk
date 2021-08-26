@@ -23,7 +23,7 @@ public class UpdateUserExecutor implements ActivityExecutor<UpdateUser> {
   // to support subtypes of UpdateUser
   void doExecute(ActivityExecutorContext<? extends UpdateUser> context) {
     UpdateUser updateUser = context.getActivity();
-    UserService userService = context.users();
+    UserService userService = context.bdk().users();
 
     Long userId = Long.valueOf(updateUser.getUserId());
 

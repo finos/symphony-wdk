@@ -2,6 +2,8 @@ package com.symphony.bdk.workflow.swadl.validator;
 
 import lombok.Value;
 
+import java.io.Serializable;
+
 @Value
 public class SwadlError {
   int lineNumber;

@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.event;
 
-import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
 import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
@@ -21,19 +20,24 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 
 import lombok.Generated;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Entry points for Datafeed events, they are dispatched to the workflow engine from there.
+ */
 @Component
 @Generated // not interesting to test
 public class DatafeedEventToWorkflowEvent {
 
-  @Autowired
-  private WorkflowEngine workflowEngine;
+  private final WorkflowEngine workflowEngine;
+
+  public DatafeedEventToWorkflowEvent(WorkflowEngine workflowEngine) {
+    this.workflowEngine = workflowEngine;
+  }
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
     workflowEngine.onEvent(event);
   }
 

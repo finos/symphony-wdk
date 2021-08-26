@@ -22,10 +22,10 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
     GetRooms getRooms = execution.getActivity();
     V3RoomSearchResults rooms;
     if (getRooms.getLimitAsInt() != null && getRooms.getSkipAsInt() != null) {
-      rooms = execution.streams().searchRooms(toCritera(getRooms),
+      rooms = execution.bdk().streams().searchRooms(toCritera(getRooms),
           new PaginationAttribute(getRooms.getSkipAsInt(), getRooms.getLimitAsInt()));
     } else if (getRooms.getLimitAsInt() == null && getRooms.getSkipAsInt() == null) {
-      rooms = execution.streams().searchRooms(toCritera(getRooms));
+      rooms = execution.bdk().streams().searchRooms(toCritera(getRooms));
     } else {
       throw new IllegalArgumentException("skip and limit should both be set to get rooms");
     }

@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -19,7 +19,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
 
   @Test
   void at() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-at.swadl.yaml"));
 
     // set workflow to execute once in the future
@@ -33,7 +33,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
 
   @Test
   void repeat() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat.swadl.yaml"));
 
     engine.execute(workflow);
@@ -44,7 +44,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
 
   @Test
   void repeatAsIntermediateEvent() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-intermediate.swadl.yaml"));
 
     engine.execute(workflow);
@@ -57,7 +57,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
 
   @Test
   void repeatMixedWithOtherEvents() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-mixed.swadl.yaml"));
 
     engine.execute(workflow);

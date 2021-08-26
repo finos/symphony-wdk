@@ -10,8 +10,8 @@ import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserKeyRequest;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.DateTimeUtils;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.CreateUser;
-import com.symphony.bdk.workflow.util.DateTimeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +32,7 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
   // to support subtypes of CreateUser
   void doExecute(ActivityExecutorContext<? extends CreateUser> context) {
     CreateUser createUser = context.getActivity();
-    UserService userService = context.users();
+    UserService userService = context.bdk().users();
 
     log.debug("Creating user");
     V2UserDetail createdUser = userService.create(toUser(createUser));

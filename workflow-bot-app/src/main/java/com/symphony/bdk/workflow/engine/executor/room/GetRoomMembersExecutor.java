@@ -18,7 +18,7 @@ public class GetRoomMembersExecutor implements ActivityExecutor<GetRoomMembers> 
   public void execute(ActivityExecutorContext<GetRoomMembers> execution) {
     String streamId = execution.getActivity().getStreamId();
     log.debug("Getting room members for stream {}", streamId);
-    List<MemberInfo> roomInfo = execution.streams().listRoomMembers(streamId);
+    List<MemberInfo> roomInfo = execution.bdk().streams().listRoomMembers(streamId);
     execution.setOutputVariable(OUTPUTS_MEMBERS_KEY, roomInfo);
   }
 

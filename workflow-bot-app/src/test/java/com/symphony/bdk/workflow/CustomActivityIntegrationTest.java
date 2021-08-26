@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ class CustomActivityIntegrationTest extends IntegrationTest {
 
   @Test
   void customActivity() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/custom-activity.swadl.yaml"));
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/custom-activity.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(messageReceived("/execute"));

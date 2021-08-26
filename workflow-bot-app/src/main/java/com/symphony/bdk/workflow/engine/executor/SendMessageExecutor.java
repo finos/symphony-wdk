@@ -37,7 +37,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
     Message messageToSend = this.buildMessage(execution);
 
-    V4Message message = execution.messages().send(streamId, messageToSend);
+    V4Message message = execution.bdk().messages().send(streamId, messageToSend);
 
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
@@ -69,7 +69,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     if (execution.getActivity().getAttachments() != null) {
       for (SendMessage.Attachment attachment : execution.getActivity().getAttachments()) {
         this.handleFileAttachment(builder, attachment, execution);
-        this.handleForwardedAttachment(builder, attachment, execution.messages());
+        this.handleForwardedAttachment(builder, attachment, execution.bdk().messages());
       }
     }
 

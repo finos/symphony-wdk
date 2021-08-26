@@ -11,7 +11,7 @@ import com.symphony.bdk.gen.api.model.UserSystemInfo;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
 import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -25,7 +25,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
   @Test
   void createUser() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-user.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/user/create-user.swadl.yaml"));
 
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
@@ -51,7 +51,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void createSystemUser() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/create-system-user.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/create-system-user.swadl.yaml"));
 
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
@@ -73,7 +73,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
   @Test
   void updateUser() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/update-user.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/user/update-user.swadl.yaml"));
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
@@ -98,7 +98,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void updateSystemUser() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/update-system-user.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/update-system-user.swadl.yaml"));
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
@@ -118,7 +118,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void updateUser_statusOnly() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/update-user-status.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/update-user-status.swadl.yaml"));
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
@@ -134,7 +134,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void addUserRole() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/add-user-role.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/add-user-role.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/update-user"));
@@ -146,7 +146,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void removeUserRole() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/remove-user-role.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/remove-user-role.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/update-user"));
@@ -157,7 +157,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
   @Test
   void getUser() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/get-user.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-user.swadl.yaml"));
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
@@ -171,7 +171,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void getUsersIds() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/get-users-ids.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-ids.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/get-users"));
@@ -183,7 +183,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void getUsersEmails() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/get-users-emails.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-emails.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/get-users"));
@@ -195,7 +195,7 @@ class UsersIntegrationTest extends IntegrationTest {
   @Test
   void getUsersUsernames() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/user/get-users-usernames.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-usernames.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/get-users"));
