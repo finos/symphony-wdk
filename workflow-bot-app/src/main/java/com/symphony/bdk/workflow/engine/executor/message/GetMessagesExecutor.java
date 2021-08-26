@@ -33,10 +33,10 @@ public class GetMessagesExecutor implements ActivityExecutor<GetMessages> {
 
       if (pagination != null) {
         context.setOutputVariable(OUTPUT_MESSAGES_KEY,
-            context.messages().listMessages(streamId, Instant.parse(activity.getSince()), pagination));
+            context.bdk().messages().listMessages(streamId, Instant.parse(activity.getSince()), pagination));
       } else {
         context.setOutputVariable(OUTPUT_MESSAGES_KEY,
-            context.messages().listMessages(streamId, Instant.parse(activity.getSince())));
+            context.bdk().messages().listMessages(streamId, Instant.parse(activity.getSince())));
       }
     }
   }

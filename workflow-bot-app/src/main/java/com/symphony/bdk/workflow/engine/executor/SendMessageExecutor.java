@@ -1,9 +1,10 @@
 package com.symphony.bdk.workflow.engine.executor;
 
-
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.stream.util.StreamUtil;
+import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
@@ -28,7 +31,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   @SneakyThrows
   public void execute(ActivityExecutorContext<SendMessage> execution) {
     SendMessage activity = execution.getActivity();
-    String streamId = resolveStreamId(execution, activity);
+    String streamId = resolveStreamId(execution, activity, execution.bdk().streams());
     log.debug("Sending message to room {}", streamId);
 
     if (streamId.endsWith("=")) { // TODO should be done in the BDK: https://perzoinc.atlassian.net/browse/PLAT-11214
@@ -42,14 +45,19 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
 
-  private String resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity) {
+  private String resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
+      StreamService streamService) {
     if (activity.getTo() != null && activity.getTo().getStreamId() != null) {
-      // either set explicitly in the workflow
+      // either the stream id is set explicitly in the workflow
       return activity.getTo().getStreamId();
 
-      // or retrieved from the current event
+    } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
+      // or the user ids are set explicitly in the workflow
+      return this.createOrGetStreamId(activity.getTo().getUserIds(), streamService);
+
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
+      // or retrieved from the current even
       V4MessageSent event = (V4MessageSent) execution.getEvent().getSource();
       return event.getMessage().getStream().getStreamId();
 
@@ -61,6 +69,12 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     } else {
       throw new IllegalArgumentException("No stream id set to send a message");
     }
+  }
+
+  private String createOrGetStreamId(List<String> userIds, StreamService streamService) {
+    List<Long> userIdsAsLong = userIds.stream().map(Long::parseLong).collect(Collectors.toList());
+    Stream stream = streamService.create(userIdsAsLong);
+    return stream.getId();
   }
 
   private Message buildMessage(ActivityExecutorContext<SendMessage> execution) throws IOException {

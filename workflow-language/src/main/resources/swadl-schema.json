@@ -2314,17 +2314,45 @@
         },
         "to": {
             "type": "object",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/stream-id"
+                },
+                {
+                    "$ref": "#/definitions/user-ids"
+                }
+            ]
+        },
+        "stream-id": {
+            "type": "object",
             "properties": {
                 "stream-id": {
-                    "type": "string",
+                    "description": "Stream ID where to send the message",
                     "title": "Stream ID to send the message",
-                    "description": "Stream ID where to send the message"
+                    "type": "string",
+                    "minLength": 1
                 }
             },
-            "additionalProperties": false,
-            "required": [
-                "stream-id"
-            ]
+            "required": ["stream-id"]
+        },
+        "user-ids": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                     "description": "User ids to send the message to",
+                     "title": "User ids to send the message to",
+                     "type": "array",
+                     "items": {
+                         "type": [
+                             "string",
+                             "integer"
+                         ]
+                     },
+                     "minLength": 1,
+                     "uniqueItems": true
+                }
+            },
+            "required": ["user-ids"]
         },
         "attachment": {
             "type": "object",
