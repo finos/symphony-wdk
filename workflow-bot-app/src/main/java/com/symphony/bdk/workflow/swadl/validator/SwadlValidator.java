@@ -33,8 +33,6 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class SwadlValidator {
 
-  public static final String YAML_VALIDATION_COMMAND = "/validate";
-
   private static final String JSON_SCHEMA_FILE = "/swadl-schema.json";
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
