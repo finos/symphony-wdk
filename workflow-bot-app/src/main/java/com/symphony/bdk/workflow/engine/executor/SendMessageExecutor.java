@@ -79,10 +79,10 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,
       ActivityExecutorContext<SendMessage> execution) throws IOException {
     if (attachment.getContentPath() != null) {
+      // stream is closed by HTTP client once the request body has been written
       InputStream content = this.loadAttachment(attachment.getContentPath(), execution);
       Path filename = Path.of(attachment.getContentPath()).getFileName();
       if (content != null && filename != null) {
-        // TODO check when the content stream is closed
         messageBuilder.addAttachment(content, filename.toString());
       }
     }
@@ -127,6 +127,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
         .getAttachment(actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), a.getId());
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
 
+    // stream is closed by HTTP client once the request body has been written (besides no need to close byte array)
     messageBuilder.addAttachment(new ByteArrayInputStream(decodedAttachmentFromMessage), filename);
   }
 
