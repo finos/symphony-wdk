@@ -12,6 +12,6 @@ public class RemoveConnectionExecutor implements ActivityExecutor<RemoveConnecti
   @Override
   public void execute(ActivityExecutorContext<RemoveConnection> context) {
     RemoveConnection activity = context.getActivity();
-    context.connections().removeConnection(Long.parseLong(activity.getUserId()));
+    context.bdk().connections().removeConnection(Long.parseLong(activity.getUserId()));
   }
 }

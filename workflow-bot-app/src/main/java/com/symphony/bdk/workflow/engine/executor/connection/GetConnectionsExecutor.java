@@ -20,7 +20,7 @@ public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> 
       ActivityExecutorContext<GetConnections> context) {
     GetConnections activity = context.getActivity();
 
-    context.setOutputVariable(OUTPUT_CONNECTIONS_KEY, context.connections()
+    context.setOutputVariable(OUTPUT_CONNECTIONS_KEY, context.bdk().connections()
         .listConnections(ConnectionStatus.valueOf(activity.getStatus()), toLongs(activity.getUserIds())));
   }
 

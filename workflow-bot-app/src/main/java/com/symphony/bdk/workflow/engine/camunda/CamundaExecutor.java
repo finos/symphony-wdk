@@ -132,6 +132,11 @@ public class CamundaExecutor implements JavaDelegate {
         public UserService users() {
           return userService;
         }
+
+        @Override
+        public ConnectionService connections() {
+          return connectionService;
+        }
       };
     }
 
@@ -162,11 +167,6 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public BdkGateway bdk() {
       return bdk;
-    }
-
-    @Override
-    public ConnectionService connections() {
-      return connectionService;
     }
 
     @Override

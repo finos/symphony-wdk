@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.gen.api.model.UserConnection;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -21,8 +21,8 @@ import java.util.List;
 
 class ConnectionsIntegrationTest extends IntegrationTest {
 
-  private final String OUTPUTS_CONNECTION_KEY = "%s.outputs.connection";
-  private final String OUTPUTS_CONNECTIONS_KEY = "%s.outputs.connections";
+  private final String outputConnectionKey = "%s.outputs.connection";
+  private final String outputsConnectionsKey = "%s.outputs.connections";
 
   @Test
   @DisplayName(
@@ -30,7 +30,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
           + "then all connections having this status are returned")
   void listConnections() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/connection/get-connections.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/get-connections.swadl.yaml"));
 
     final List<Long> userIds = Arrays.asList(666L, 777L);
     final List<UserConnection> userConnections = Arrays.asList(connection(666L, UserConnection.StatusEnum.ACCEPTED),
@@ -44,14 +44,14 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).listConnections(eq(ConnectionStatus.ACCEPTED), eq(userIds));
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_CONNECTIONS_KEY, "getConnections"), userConnections);
+        .hasOutput(String.format(outputsConnectionsKey, "getConnections"), userConnections);
   }
 
   @Test
   @DisplayName("Given a connection with a user, when the workflow is triggered, then the connection is returned")
   void getConnectionStatus() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/connection/get-connection.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/get-connection.swadl.yaml"));
 
     final Long userId = 1234L;
     final UserConnection userConnection = connection(userId);
@@ -64,7 +64,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).getConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_CONNECTION_KEY, "getConnection"), userConnection);
+        .hasOutput(String.format(outputConnectionKey, "getConnection"), userConnection);
   }
 
   @Test
@@ -72,7 +72,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
       "Given a user, when the workflow is triggered, then a connection to him is created")
   void createConnectionStatus() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/connection/create-connection.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/create-connection.swadl.yaml"));
 
     final Long userId = 1234L;
     final UserConnection userConnection = connection(userId, UserConnection.StatusEnum.PENDING_OUTGOING);
@@ -85,7 +85,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).createConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_CONNECTION_KEY, "createConnection"), userConnection);
+        .hasOutput(String.format(outputConnectionKey, "createConnection"), userConnection);
   }
 
   @Test
@@ -94,7 +94,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
           + "then the connection is accepted")
   void acceptConnectionStatus() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/connection/accept-connection.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/accept-connection.swadl.yaml"));
 
     final Long userId = 1234L;
     final UserConnection userConnection = connection(userId, UserConnection.StatusEnum.ACCEPTED);
@@ -107,7 +107,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).acceptConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_CONNECTION_KEY, "acceptConnection"), userConnection);
+        .hasOutput(String.format(outputConnectionKey, "acceptConnection"), userConnection);
   }
 
   @Test
@@ -116,7 +116,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
           + "then the connection is rejected")
   void rejectConnectionStatus() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/connection/reject-connection.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/reject-connection.swadl.yaml"));
 
     final Long userId = 1234L;
     final UserConnection userConnection = connection(userId, UserConnection.StatusEnum.REJECTED);
@@ -129,7 +129,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).rejectConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_CONNECTION_KEY, "rejectConnection"), userConnection);
+        .hasOutput(String.format(outputConnectionKey, "rejectConnection"), userConnection);
   }
 
   @Test
@@ -137,7 +137,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
       "Given connection request from a user, when the workflow is triggered, then the connection is removed")
   void removeConnectionStatus() throws IOException, ProcessingException {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/connection/remove-connection.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/remove-connection.swadl.yaml"));
 
     final Long userId = 1234L;
 

@@ -15,6 +15,6 @@ public class GetConnectionExecutor implements ActivityExecutor<GetConnection> {
   public void execute(ActivityExecutorContext<GetConnection> context) {
     GetConnection activity = context.getActivity();
     context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.connections().getConnection(Long.parseLong(activity.getUserId())));
+        context.bdk().connections().getConnection(Long.parseLong(activity.getUserId())));
   }
 }

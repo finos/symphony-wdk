@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor;
 
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -22,4 +23,9 @@ public interface BdkGateway {
    * @return BDK service to manage users.
    */
   UserService users();
+
+  /**
+   * @return BDK service to manage connections.
+   */
+  ConnectionService connections();
 }

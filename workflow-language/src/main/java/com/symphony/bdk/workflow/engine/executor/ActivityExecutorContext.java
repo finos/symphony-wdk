@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor;
 
-import com.symphony.bdk.core.service.connection.ConnectionService;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,11 +35,6 @@ public interface ActivityExecutorContext<T> {
    * @return Gateway to access the BDK services.
    */
   BdkGateway bdk();
-
-  /**
-   * @return BDK service to manage connections.
-   */
-  ConnectionService connections();
 
   /**
    * @return The activity definition from the workflow.

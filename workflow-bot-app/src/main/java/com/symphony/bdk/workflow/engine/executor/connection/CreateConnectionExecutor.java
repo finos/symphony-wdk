@@ -15,6 +15,6 @@ public class CreateConnectionExecutor implements ActivityExecutor<CreateConnecti
   public void execute(ActivityExecutorContext<CreateConnection> context) {
     CreateConnection activity = context.getActivity();
     context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.connections().createConnection(Long.parseLong(activity.getUserId())));
+        context.bdk().connections().createConnection(Long.parseLong(activity.getUserId())));
   }
 }

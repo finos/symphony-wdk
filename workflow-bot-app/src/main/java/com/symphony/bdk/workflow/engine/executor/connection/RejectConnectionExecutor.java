@@ -15,6 +15,6 @@ public class RejectConnectionExecutor implements ActivityExecutor<RejectConnecti
   public void execute(ActivityExecutorContext<RejectConnection> context) {
     RejectConnection activity = context.getActivity();
     context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.connections().rejectConnection(Long.parseLong(activity.getUserId())));
+        context.bdk().connections().rejectConnection(Long.parseLong(activity.getUserId())));
   }
 }

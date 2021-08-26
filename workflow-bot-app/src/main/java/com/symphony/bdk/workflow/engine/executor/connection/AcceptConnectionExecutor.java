@@ -15,6 +15,6 @@ public class AcceptConnectionExecutor implements ActivityExecutor<AcceptConnecti
   public void execute(ActivityExecutorContext<AcceptConnection> context) {
     AcceptConnection acceptConnection = context.getActivity();
     context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.connections().acceptConnection(Long.parseLong(acceptConnection.getUserId())));
+        context.bdk().connections().acceptConnection(Long.parseLong(acceptConnection.getUserId())));
   }
 }

@@ -23,7 +23,7 @@ public class GetMessageExecutor implements ActivityExecutor<GetMessage> {
     }
 
     log.debug("Get message {}", messageId);
-    V4Message message = context.messages().getMessage(messageId);
+    V4Message message = context.bdk().messages().getMessage(messageId);
 
     context.setOutputVariable(OUTPUT_MESSAGE_KEY, message);
   }
