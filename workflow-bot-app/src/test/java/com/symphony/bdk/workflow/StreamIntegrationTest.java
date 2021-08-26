@@ -17,7 +17,7 @@ import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2AdminStreamType;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ class StreamIntegrationTest extends IntegrationTest {
 
   @Test
   void getStream() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-stream.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-stream.swadl.yaml"));
     when(streamService.getStream("abc")).thenReturn(new V2StreamAttributes());
 
     engine.execute(workflow);
@@ -43,7 +43,7 @@ class StreamIntegrationTest extends IntegrationTest {
   @Test
   void getStreamMembers() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-stream-members.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-stream-members.swadl.yaml"));
     when(streamService.listStreamMembers("abc")).thenReturn(new V2MembershipList());
 
     engine.execute(workflow);
@@ -56,7 +56,7 @@ class StreamIntegrationTest extends IntegrationTest {
   @Test
   void getStreamMembersPagination() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-stream-members-pagination.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-stream-members-pagination.swadl.yaml"));
     when(streamService.listStreamMembers(eq("abc"), refEq(new PaginationAttribute(10, 10))))
         .thenReturn(new V2MembershipList());
 
@@ -69,7 +69,7 @@ class StreamIntegrationTest extends IntegrationTest {
   @Test
   void getStreams() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-streams.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-streams.swadl.yaml"));
 
     V2AdminStreamFilter filter = new V2AdminStreamFilter()
         .streamTypes(List.of(new V2AdminStreamType().type("IM"), new V2AdminStreamType().type("ROOM")))
@@ -88,7 +88,7 @@ class StreamIntegrationTest extends IntegrationTest {
   @Test
   void getStreamsPagination() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-streams-pagination.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-streams-pagination.swadl.yaml"));
 
     V2AdminStreamFilter filter = new V2AdminStreamFilter()
         .streamTypes(List.of(new V2AdminStreamType().type("IM"), new V2AdminStreamType().type("ROOM")))
@@ -108,7 +108,7 @@ class StreamIntegrationTest extends IntegrationTest {
   @Test
   void getUserStreams() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-user-streams.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-user-streams.swadl.yaml"));
 
     StreamFilter filter = new StreamFilter()
         .streamTypes(List.of(new StreamType().type(ROOM), new StreamType().type(POST)))
@@ -125,7 +125,7 @@ class StreamIntegrationTest extends IntegrationTest {
   @Test
   void getUserStreamsPagination() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/stream/get-user-streams-pagination.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-user-streams-pagination.swadl.yaml"));
 
     StreamFilter filter = new StreamFilter()
         .streamTypes(List.of(new StreamType().type(ROOM), new StreamType().type(POST)))

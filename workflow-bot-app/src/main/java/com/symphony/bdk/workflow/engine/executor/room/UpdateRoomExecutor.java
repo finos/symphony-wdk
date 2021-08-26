@@ -24,18 +24,18 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     if (shouldUpdateRoom(updateRoom)) {
       log.debug("Updating room {} attributes", updateRoom.getStreamId());
       V3RoomAttributes attributes = toAttributes(updateRoom);
-      execution.streams().updateRoom(updateRoom.getStreamId(), attributes);
+      execution.bdk().streams().updateRoom(updateRoom.getStreamId(), attributes);
     }
 
     if (updateRoom.getActiveAsBool() != null) {
       // this is a different API call but we support it in the same activity
       log.debug("Updating room {} active status", updateRoom.getStreamId());
-      execution.streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActiveAsBool());
+      execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActiveAsBool());
     }
 
     // services called above return different results and might end up not being called so we explicitly call the API
     // to return the same info in all cases
-    V3RoomDetail updatedRoom = execution.streams().getRoomInfo(updateRoom.getStreamId());
+    V3RoomDetail updatedRoom = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
 
     execution.setOutputVariable(OUTPUT_ROOM_KEY, updatedRoom);
   }

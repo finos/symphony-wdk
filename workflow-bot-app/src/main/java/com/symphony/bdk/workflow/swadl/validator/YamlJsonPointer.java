@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Inspired from https://github.com/zalando/zally/issues/78.
+ * Inspired from https://github.com/zalando/zally/issues/78 to provide line numbers.
  */
 public class YamlJsonPointer {
 

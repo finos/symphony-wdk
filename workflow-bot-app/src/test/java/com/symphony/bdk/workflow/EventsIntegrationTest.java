@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -25,7 +25,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void eventInTheMiddleOfWorkflow() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/event-middle-workflow.swadl.yaml"));
 
     engine.execute(workflow);
@@ -43,9 +43,9 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void twoWorkflowsSameEvent() throws IOException, ProcessingException {
-    final Workflow workflow1 = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow1 = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/msg1-event.swadl.yaml"));
-    final Workflow workflow2 = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow2 = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/msg2-event.swadl.yaml"));
 
     engine.execute(workflow1);
@@ -58,7 +58,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void multipleStartingEvents() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/multiple-events.swadl.yaml"));
 
     engine.execute(workflow);
@@ -71,7 +71,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void multipleEventsMiddleOfWorkflow() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/mutiple-events-middle-workflow.swadl.yaml"));
 
     engine.execute(workflow);
@@ -92,7 +92,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void ifWithIntermediateEvent() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/if-intermediate-event.swadl.yaml"));
 
     engine.execute(workflow);
@@ -108,7 +108,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedArguments() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args.swadl.yaml"));
 
     engine.execute(workflow);
@@ -119,7 +119,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedArgumentsBotMention() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-bot-mention.swadl.yaml"));
     UserV2 bot = new UserV2();
     bot.setDisplayName("myBot");
@@ -133,7 +133,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedArgumentsMention() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-mention.swadl.yaml"));
 
     engine.execute(workflow);
@@ -146,7 +146,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedArgumentsMentions() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-mentions.swadl.yaml"));
 
     engine.execute(workflow);
@@ -157,7 +157,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedArgumentsMixed() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-mixed.swadl.yaml"));
 
     engine.execute(workflow);
@@ -168,7 +168,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedHashTagsFunction() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-hashtags.swadl.yaml"));
 
     engine.execute(workflow);
@@ -202,7 +202,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceivedCashTagsFunction() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-cashtags.swadl.yaml"));
 
     engine.execute(workflow);

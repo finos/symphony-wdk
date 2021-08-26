@@ -19,7 +19,7 @@ import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -39,7 +39,7 @@ class RoomIntegrationTest extends IntegrationTest {
           + "then an MIM is created with the given users")
   void createRoomWithUids() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-mim-with-uids.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-mim-with-uids.swadl.yaml"));
     final List<Long> uids = Arrays.asList(666L, 777L, 999L);
     final Stream stream = new Stream();
     stream.setId("0000");
@@ -56,7 +56,7 @@ class RoomIntegrationTest extends IntegrationTest {
           + "when the message is received, then a room with the given details is created")
   void createRoomWithDetails() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-room-with-details.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-room-with-details.swadl.yaml"));
     final String roomName = "The best room ever";
     final String roomDescription = "this is room description";
     final boolean isRoomPublic = true;
@@ -81,7 +81,7 @@ class RoomIntegrationTest extends IntegrationTest {
       + "then a room with given details and members is created")
   void createRoomWithDetailsAndMembers() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-room-with-details-members.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-room-with-details-members.swadl.yaml"));
     final String roomName = "The best room ever";
     final String roomDescription = "this is room description";
     final boolean isRoomPublic = false;
@@ -107,7 +107,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test()
   @DisplayName("Given an invalid create-room activity, when the message is received, then an error is thrown")
   void createRoomInvalidWorkflow() {
-    assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
+    assertThatThrownBy(() -> SwadlParser.fromYaml(
         getClass().getResourceAsStream("/room/create-room-invalid-workflow.swadl.yaml"))).isInstanceOf(
         SwadlNotValidException.class);
   }
@@ -137,7 +137,7 @@ class RoomIntegrationTest extends IntegrationTest {
 
   @Test
   void updateRoom() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/update-room.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/room/update-room.swadl.yaml"));
 
     V3RoomDetail roomDetail = new V3RoomDetail();
     RoomSystemInfo info = new RoomSystemInfo();
@@ -162,7 +162,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void updateRoom_activate() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/update-room-activate.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/update-room-activate.swadl.yaml"));
 
     V3RoomDetail roomDetail = new V3RoomDetail();
     RoomSystemInfo info = new RoomSystemInfo();
@@ -179,7 +179,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void addRoomMember() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/add-room-member.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/add-room-member.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/add-room-member"));
@@ -191,7 +191,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void removeRoomMember() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/remove-room-member.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/remove-room-member.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/remove-room-member"));
@@ -203,7 +203,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void promoteRoomMember() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/promote-room-owner.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/promote-room-owner.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/promote-room-owner"));
@@ -215,7 +215,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void demoteRoomMember() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/demote-room-owner.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/demote-room-owner.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/demote-room-owner"));
@@ -226,7 +226,7 @@ class RoomIntegrationTest extends IntegrationTest {
 
   @Test
   void getRoom() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/get-room.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/room/get-room.swadl.yaml"));
     when(streamService.getRoomInfo("abc")).thenReturn(new V3RoomDetail());
 
     engine.execute(workflow);
@@ -239,7 +239,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void getRoomMembers() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/get-room-members.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/get-room-members.swadl.yaml"));
     when(streamService.listRoomMembers("abc")).thenReturn(Collections.emptyList());
 
     engine.execute(workflow);
@@ -252,7 +252,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
   @Test
   void getRooms() throws Exception {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/get-rooms.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/room/get-rooms.swadl.yaml"));
 
     V2RoomSearchCriteria query = new V2RoomSearchCriteria()
         .query("test")
@@ -272,7 +272,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void getRoomsPagination() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/get-rooms-pagination.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/get-rooms-pagination.swadl.yaml"));
 
     V2RoomSearchCriteria query = new V2RoomSearchCriteria()
         .query("test")

@@ -7,6 +7,7 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
@@ -86,7 +87,6 @@ public class CamundaExecutor implements JavaDelegate {
 
     try {
       setMdc(execution);
-      // TODO cover script task too (with a listener?)
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader));
     } finally {
@@ -109,6 +109,7 @@ public class CamundaExecutor implements JavaDelegate {
     private final T activity;
     private final EventHolder<Object> event;
     private final ResourceProvider resourceLoader;
+    private final BdkGateway bdk;
 
     public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event,
         ResourceProvider resourceLoader) {
@@ -116,6 +117,22 @@ public class CamundaExecutor implements JavaDelegate {
       this.activity = activity;
       this.event = event;
       this.resourceLoader = resourceLoader;
+      this.bdk = new BdkGateway() {
+        @Override
+        public MessageService messages() {
+          return messageService;
+        }
+
+        @Override
+        public StreamService streams() {
+          return streamService;
+        }
+
+        @Override
+        public UserService users() {
+          return userService;
+        }
+      };
     }
 
     @Override
@@ -143,18 +160,8 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public MessageService messages() {
-      return messageService;
-    }
-
-    @Override
-    public StreamService streams() {
-      return streamService;
-    }
-
-    @Override
-    public UserService users() {
-      return userService;
+    public BdkGateway bdk() {
+      return bdk;
     }
 
     @Override

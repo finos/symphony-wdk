@@ -10,6 +10,6 @@ public class DoSomethingExecutor implements ActivityExecutor<DoSomething> {
 
   @Override
   public void execute(ActivityExecutorContext<DoSomething> context) {
-    context.messages().send("123", context.getActivity().getMyParameter());
+    context.bdk().messages().send("123", context.getActivity().getMyParameter());
   }
 }

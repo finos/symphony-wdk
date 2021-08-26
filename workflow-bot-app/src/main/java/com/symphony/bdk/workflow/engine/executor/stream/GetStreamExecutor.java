@@ -16,7 +16,7 @@ public class GetStreamExecutor implements ActivityExecutor<GetStream> {
   public void execute(ActivityExecutorContext<GetStream> execution) {
     String streamId = execution.getActivity().getStreamId();
     log.debug("Getting stream {}", streamId);
-    V2StreamAttributes roomInfo = execution.streams().getStream(streamId);
+    V2StreamAttributes roomInfo = execution.bdk().streams().getStream(streamId);
     execution.setOutputVariable(OUTPUTS_STREAM_KEY, roomInfo);
   }
 

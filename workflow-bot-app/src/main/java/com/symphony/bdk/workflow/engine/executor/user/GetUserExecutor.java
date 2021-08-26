@@ -17,7 +17,7 @@ public class GetUserExecutor implements ActivityExecutor<GetUser> {
     Long userId = Long.valueOf(context.getActivity().getUserId());
 
     log.debug("Getting user {}", userId);
-    V2UserDetail userDetail = context.users().getUserDetail(userId);
+    V2UserDetail userDetail = context.bdk().users().getUserDetail(userId);
 
     context.setOutputVariable(OUTPUT_USER_KEY, userDetail);
   }

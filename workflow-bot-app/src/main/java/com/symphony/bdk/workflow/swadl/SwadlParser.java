@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class WorkflowBuilder {
+public class SwadlParser {
 
-  public static final ObjectMapper MAPPER = new ObjectMapper(
+  private static final ObjectMapper MAPPER = new ObjectMapper(
       new YAMLFactory().configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true));
 
   static {
@@ -31,7 +31,7 @@ public class WorkflowBuilder {
     MAPPER.registerModule(module);
   }
 
-  private WorkflowBuilder() {
+  private SwadlParser() {
   }
 
   public static Workflow fromYaml(InputStream yaml) throws IOException, ProcessingException {

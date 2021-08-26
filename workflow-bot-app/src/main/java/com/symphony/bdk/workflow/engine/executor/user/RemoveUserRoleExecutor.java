@@ -20,7 +20,7 @@ public class RemoveUserRoleExecutor implements ActivityExecutor<RemoveUserRole> 
     for (String userId : userRole.getUserIds()) {
       for (String role : userRole.getRoles()) {
         log.debug("Removing role {} from user {}", role, userId);
-        context.users().removeRole(Long.valueOf(userId), RoleId.valueOf(role));
+        context.bdk().users().removeRole(Long.valueOf(userId), RoleId.valueOf(role));
       }
     }
   }

@@ -28,12 +28,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * This class validates a SWADL workflow written in YAML.
+ * Validates a SWADL workflow written in YAML.
  */
 @Slf4j
 public class SwadlValidator {
-
-  public static final String YAML_VALIDATION_COMMAND = "/validate";
 
   private static final String JSON_SCHEMA_FILE = "/swadl-schema.json";
 
@@ -47,7 +45,7 @@ public class SwadlValidator {
   private static final JsonNode jsonSchema;
 
   static {
-    // load it only once
+    // load it only once as it won't change dynamically (i.e we don't support adding new custom activities on the fly)
     try (InputStream schemaStream = SwadlValidator.class.getResourceAsStream(JSON_SCHEMA_FILE)) {
       if (schemaStream == null) {
         throw new IOException("Could not read JSON schema from classpath location: " + JSON_SCHEMA_FILE);
@@ -87,6 +85,10 @@ public class SwadlValidator {
     }
   }
 
+  /**
+   * On the fly, we add the custom activities discovered in the classpath to the JSON Schema.This way we can validate
+   * them at least for basic attributes.
+   */
   private static void addCustomActivitiesToSchema(JsonNode jsonSchema) {
     // we expect activities to be defined this way in the JSON schema
     ObjectNode activityItems = (ObjectNode) jsonSchema.get("properties").get("activities").get("items");

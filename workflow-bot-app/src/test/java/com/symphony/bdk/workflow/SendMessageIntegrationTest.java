@@ -16,7 +16,7 @@ import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +40,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then the provided message should be sent to the room")
   void sendMessageOnMessage() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/message"));
@@ -53,7 +53,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
       "Given two activities: create-room and send-message, when the room is created, then a message is sent to it")
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");
 
@@ -73,7 +73,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "this specific file is sent in a new message")
   void sendMessageWithSpecificAttachment() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/forward-specific-attachment-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/forward-specific-attachment-in-message.swadl.yaml"));
     final V4Message messageToReturn = message("msgId");
 
     final String streamId = "123";
@@ -113,7 +113,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then only theses attachments are sent in a new message")
   void sendMessageWithMultipleAttachments() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/forward-multiple-attachments-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/forward-multiple-attachments-in-message.swadl.yaml"));
     final V4Message messageToReturn = message("msgId");
 
     final String streamId = "123";
@@ -157,7 +157,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then all message's attachments are sent in a new message")
   void sendMessageWithAllAttachments() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/forward-all-attachments-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/forward-all-attachments-in-message.swadl.yaml"));
     final V4Message messageToReturn = message("msgId");
 
     final String streamId = "123";
@@ -201,7 +201,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then the file is sent as attachment in a new message")
   void sendMessageWithAttachmentsFromFile() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-attachments-from-file-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/send-attachments-from-file-in-message.swadl.yaml"));
     final String content = "<messageML>here is a msg with attachment</messageML>";
 
     engine.execute(workflow);

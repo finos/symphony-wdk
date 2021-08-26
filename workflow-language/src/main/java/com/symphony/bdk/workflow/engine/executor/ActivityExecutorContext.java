@@ -1,9 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor;
 
 import com.symphony.bdk.core.service.connection.ConnectionService;
-import com.symphony.bdk.core.service.message.MessageService;
-import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,19 +34,9 @@ public interface ActivityExecutorContext<T> {
   void setOutputVariable(String name, Object value);
 
   /**
-   * @return BDK service to send and manipulate messages.
+   * @return Gateway to access the BDK services.
    */
-  MessageService messages();
-
-  /**
-   * @return BDK service to manage streams (aka rooms).
-   */
-  StreamService streams();
-
-  /**
-   * @return BDK service to manage users.
-   */
-  UserService users();
+  BdkGateway bdk();
 
   /**
    * @return BDK service to manage connections.

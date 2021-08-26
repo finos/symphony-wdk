@@ -15,7 +15,7 @@ public class DemoteRoomOwnerExecutor implements ActivityExecutor<DemoteRoomOwner
 
     for (String uid : demoteRoomOwner.getUids()) {
       log.debug("Demote owner {} for room {}", uid, demoteRoomOwner.getStreamId());
-      execution.streams().demoteUserToRoomParticipant(Long.valueOf(uid), demoteRoomOwner.getStreamId());
+      execution.bdk().streams().demoteUserToRoomParticipant(Long.valueOf(uid), demoteRoomOwner.getStreamId());
     }
   }
 

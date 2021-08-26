@@ -32,8 +32,8 @@ logging:
   level:
     com.symphony: DEBUG
     # troubleshoot Camunda
-    org.camunda: DEBUG
-    # disable audit trail
+    org.camunda: INFO
+    # audit trail can be disabled with WARN level
     #audit-trail: WARN
 
 # Actuator endpoint is enabled by default on port 8080
