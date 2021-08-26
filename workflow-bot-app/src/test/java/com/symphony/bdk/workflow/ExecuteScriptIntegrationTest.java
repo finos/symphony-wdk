@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
   @Test
   void executeScript() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/execute-script.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/execute"));
@@ -25,7 +25,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
   @Test
   void executeScript_setsVariable() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/execute"));

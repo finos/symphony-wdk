@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -77,7 +77,7 @@ class SwadlValidatorTest {
   void validate(String workflowFile, List<Pair<Integer, String>> errors) {
     assertThatExceptionOfType(SwadlNotValidException.class)
         .isThrownBy(() ->
-            WorkflowBuilder.fromYaml(getClass().getResourceAsStream(workflowFile)))
+            SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile)))
         .satisfies(e -> {
           for (int i = 0; i < errors.size(); i++) {
             Pair<Integer, String> error = errors.get(i);

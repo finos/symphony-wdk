@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -34,7 +34,7 @@ import javax.annotation.PreDestroy;
  * Will automatically add workflows present at startup and update workflows on the fly while running
  * (stopping and redeploying them).
  */
-@Generated // slow tests
+@Generated // slow tests on Mac
 @Slf4j
 @Service
 @ConditionalOnProperty(value = "workflows.folder")
@@ -133,7 +133,7 @@ public class WorkflowFolderWatcher {
 
   private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
     try (FileInputStream yaml = new FileInputStream(workflowFile.toFile())) {
-      Workflow workflow = WorkflowBuilder.fromYaml(yaml);
+      Workflow workflow = SwadlParser.fromYaml(yaml);
       workflowEngine.execute(workflow);
       deployedWorkflows.put(workflowFile, workflow.getName());
     }

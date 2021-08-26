@@ -37,7 +37,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
     Message messageToSend = this.buildMessage(execution);
 
-    V4Message message = execution.messages().send(streamId, messageToSend);
+    V4Message message = execution.bdk().messages().send(streamId, messageToSend);
 
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
@@ -69,7 +69,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     if (execution.getActivity().getAttachments() != null) {
       for (SendMessage.Attachment attachment : execution.getActivity().getAttachments()) {
         this.handleFileAttachment(builder, attachment, execution);
-        this.handleForwardedAttachment(builder, attachment, execution.messages());
+        this.handleForwardedAttachment(builder, attachment, execution.bdk().messages());
       }
     }
 
@@ -79,10 +79,10 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,
       ActivityExecutorContext<SendMessage> execution) throws IOException {
     if (attachment.getContentPath() != null) {
+      // stream is closed by HTTP client once the request body has been written
       InputStream content = this.loadAttachment(attachment.getContentPath(), execution);
       Path filename = Path.of(attachment.getContentPath()).getFileName();
       if (content != null && filename != null) {
-        // TODO check when the content stream is closed
         messageBuilder.addAttachment(content, filename.toString());
       }
     }
@@ -127,6 +127,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
         .getAttachment(actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), a.getId());
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
 
+    // stream is closed by HTTP client once the request body has been written (besides no need to close byte array)
     messageBuilder.addAttachment(new ByteArrayInputStream(decodedAttachmentFromMessage), filename);
   }
 

@@ -6,8 +6,8 @@ import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2AdminStreamType;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.DateTimeUtils;
 import com.symphony.bdk.workflow.swadl.v1.activity.stream.GetStreams;
-import com.symphony.bdk.workflow.util.DateTimeUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,10 +25,10 @@ public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
     GetStreams getStreams = execution.getActivity();
     V2AdminStreamList streams;
     if (getStreams.getLimitAsInt() != null && getStreams.getSkipAsInt() != null) {
-      streams = execution.streams().listStreamsAdmin(toFilter(getStreams),
+      streams = execution.bdk().streams().listStreamsAdmin(toFilter(getStreams),
           new PaginationAttribute(getStreams.getSkipAsInt(), getStreams.getLimitAsInt()));
     } else if (getStreams.getLimitAsInt() == null && getStreams.getSkipAsInt() == null) {
-      streams = execution.streams().listStreamsAdmin(toFilter(getStreams));
+      streams = execution.bdk().streams().listStreamsAdmin(toFilter(getStreams));
     } else {
       throw new IllegalArgumentException("skip and limit should both be set to get streams");
     }

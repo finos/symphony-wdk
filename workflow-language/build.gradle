@@ -4,9 +4,9 @@ plugins {
 }
 
 dependencies {
-    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.8')
+    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.2.1')
 
     api 'org.finos.symphony.bdk:symphony-bdk-core'
 
-    api 'com.fasterxml.jackson.core:jackson-annotations:2.12.3'
+    api 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
 }

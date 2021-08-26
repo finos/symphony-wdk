@@ -16,7 +16,7 @@ public class GetRoomExecutor implements ActivityExecutor<GetRoom> {
   public void execute(ActivityExecutorContext<GetRoom> execution) {
     String streamId = execution.getActivity().getStreamId();
     log.debug("Getting room {}", streamId);
-    V3RoomDetail roomInfo = execution.streams().getRoomInfo(streamId);
+    V3RoomDetail roomInfo = execution.bdk().streams().getRoomInfo(streamId);
     execution.setOutputVariable(OUTPUTS_ROOM_KEY, roomInfo);
   }
 

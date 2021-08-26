@@ -1,8 +1,0 @@
-# BDK configuration for local development
-bdk:
-  host: XXX
-  bot:
-    username: XXX
-    privateKey:
-      path: XXX
-

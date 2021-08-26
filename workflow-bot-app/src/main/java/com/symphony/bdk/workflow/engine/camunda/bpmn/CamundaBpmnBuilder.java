@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
+import com.symphony.bdk.workflow.engine.camunda.listener.ScriptTaskAuditListener;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
 import com.symphony.bdk.workflow.swadl.ActivityRegistry;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
@@ -17,6 +18,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -379,7 +381,8 @@ public class CamundaBpmnBuilder {
         .id(scriptActivity.getId())
         .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
         .scriptText(scriptActivity.getScript())
-        .scriptFormat(ExecuteScript.SCRIPT_ENGINE);
+        .scriptFormat(ExecuteScript.SCRIPT_ENGINE)
+        .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ScriptTaskAuditListener.class);
     return builder;
   }
 

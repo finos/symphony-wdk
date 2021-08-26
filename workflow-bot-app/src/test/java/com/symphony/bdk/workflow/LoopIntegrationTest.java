@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow;
 import static com.symphony.bdk.workflow.customAssertion.WorkflowAssert.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -28,7 +28,7 @@ class LoopIntegrationTest extends IntegrationTest {
   @ParameterizedTest
   @MethodSource("executedActivities")
   void looping(String workflowFile, List<String> activities) throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(workflowFile));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
     engine.execute(workflow);
 
     engine.onEvent(messageReceived("/execute"));

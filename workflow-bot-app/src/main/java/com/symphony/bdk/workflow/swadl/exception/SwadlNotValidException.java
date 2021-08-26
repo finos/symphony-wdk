@@ -16,7 +16,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class SwadlNotValidException extends IOException {
-  List<SwadlError> errors;
+  transient List<SwadlError> errors;
 
   public SwadlNotValidException(List<SwadlError> errors, String fullDetails) {
     super(String.format("SWADL content is not valid: %s, full details: %s", errors, fullDetails));

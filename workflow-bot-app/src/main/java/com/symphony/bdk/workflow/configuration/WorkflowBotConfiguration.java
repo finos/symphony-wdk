@@ -16,6 +16,7 @@ public class WorkflowBotConfiguration {
 
   @Bean("workflowResourcesProvider")
   public ResourceProvider workflowResourcesProvider(@Value("${workflows.folder}") String resourcesFolder) {
+    // ./workflows folder is used both to load workflows and local resources
     return path -> new FileInputStream(StringUtils.appendIfMissing(resourcesFolder, "/") + path);
   }
 }

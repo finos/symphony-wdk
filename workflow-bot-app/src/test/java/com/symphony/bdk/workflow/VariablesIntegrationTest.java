@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +24,7 @@ class VariablesIntegrationTest extends IntegrationTest {
   void shouldSendMessageToStreamWhenIdIsVariable() throws Exception {
 
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/send-messages-with-variables.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-messages-with-variables.swadl.yaml"));
     final V4Message message = new V4Message().messageId("msgId");
     final String content = "<messageML>Have a nice day !</messageML>\n";
 
@@ -42,7 +42,7 @@ class VariablesIntegrationTest extends IntegrationTest {
   @Test
   void variablesAreTyped() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/typed-variables.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/typed-variables.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/typed"));
