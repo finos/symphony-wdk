@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.event;
 
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
-import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
 import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
@@ -20,7 +19,6 @@ import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.swadl.validator.SwadlValidator;
 
 import lombok.Generated;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +34,7 @@ public class DatafeedEventToWorkflowEvent {
 
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) throws PresentationMLParserException {
-    if (!PresentationMLParser.getTextContent(event.getSource().getMessage().getMessage())
-        .equals(SwadlValidator.YAML_VALIDATION_COMMAND)) {
-      workflowEngine.onEvent(event);
-    }
+    workflowEngine.onEvent(event);
   }
 
   @EventListener

@@ -83,7 +83,6 @@ public class CamundaExecutor implements JavaDelegate {
 
     try {
       setMdc(execution);
-      // TODO cover script task too (with a listener?)
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader));
     } finally {
