@@ -50,7 +50,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
     engine.execute(workflow1);
     engine.execute(workflow2);
-    engine.onEvent(messageReceived("abc", "/msg"));
+    engine.onEvent(messageReceived("abc", "/twoWorkflowsSameEvent"));
 
     verify(messageService, timeout(5000)).send(eq("abc"), content("msg1"));
     verify(messageService, timeout(5000)).send(eq("abc"), content("msg2"));

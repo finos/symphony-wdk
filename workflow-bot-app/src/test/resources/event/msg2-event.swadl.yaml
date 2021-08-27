@@ -4,7 +4,7 @@ activities:
       id: one
       on:
         message-received:
-          content: /msg
+          content: /twoWorkflowsSameEvent
       to:
         stream-id: abc
       content: msg2
