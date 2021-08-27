@@ -2420,7 +2420,8 @@
                         "PENDING_INCOMING",
                         "PENDING_OUTGOING",
                         "ACCEPTED",
-                        "REJECTED"
+                        "REJECTED",
+                        "ALL"
                     ]
                 }
             },

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.connection;
 
+import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.CreateConnection;
@@ -14,7 +15,7 @@ public class CreateConnectionExecutor implements ActivityExecutor<CreateConnecti
   @Override
   public void execute(ActivityExecutorContext<CreateConnection> context) {
     CreateConnection activity = context.getActivity();
-    context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.bdk().connections().createConnection(Long.parseLong(activity.getUserId())));
+    UserConnection connection = context.bdk().connections().createConnection(Long.parseLong(activity.getUserId()));
+    context.setOutputVariable(OUTPUT_CONNECTION_KEY, connection);
   }
 }

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.connection;
 
+import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.RejectConnection;
@@ -14,7 +15,7 @@ public class RejectConnectionExecutor implements ActivityExecutor<RejectConnecti
   @Override
   public void execute(ActivityExecutorContext<RejectConnection> context) {
     RejectConnection activity = context.getActivity();
-    context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.bdk().connections().rejectConnection(Long.parseLong(activity.getUserId())));
+    UserConnection connection = context.bdk().connections().rejectConnection(Long.parseLong(activity.getUserId()));
+    context.setOutputVariable(OUTPUT_CONNECTION_KEY, connection);
   }
 }

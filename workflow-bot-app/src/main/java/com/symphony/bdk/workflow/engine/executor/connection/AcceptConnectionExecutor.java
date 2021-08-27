@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.connection;
 
+import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.AcceptConnection;
@@ -14,7 +15,8 @@ public class AcceptConnectionExecutor implements ActivityExecutor<AcceptConnecti
   @Override
   public void execute(ActivityExecutorContext<AcceptConnection> context) {
     AcceptConnection acceptConnection = context.getActivity();
-    context.setOutputVariable(OUTPUT_CONNECTION_KEY,
-        context.bdk().connections().acceptConnection(Long.parseLong(acceptConnection.getUserId())));
+    UserConnection connection =
+        context.bdk().connections().acceptConnection(Long.parseLong(acceptConnection.getUserId()));
+    context.setOutputVariable(OUTPUT_CONNECTION_KEY, connection);
   }
 }
