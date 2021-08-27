@@ -5,16 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -29,20 +30,17 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.ArgumentMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +72,9 @@ public abstract class IntegrationTest {
   @MockBean(name = "userService")
   UserService userService;
 
+  @MockBean(name = "connectionService")
+  ConnectionService connectionService;
+
   @MockBean(name = "sessionService")
   SessionService sessionService;
 
@@ -91,6 +92,17 @@ public abstract class IntegrationTest {
     final V4Message message = new V4Message();
     message.setMessageId(msgId);
     return message;
+  }
+
+  protected static UserConnection connection(Long userId) {
+    return connection(userId, null);
+  }
+
+  protected static UserConnection connection(Long userId, UserConnection.StatusEnum status) {
+    final UserConnection userConnection = new UserConnection();
+    userConnection.setUserId(userId);
+    userConnection.setStatus(status);
+    return userConnection;
   }
 
   @BeforeEach
@@ -229,65 +241,6 @@ public abstract class IntegrationTest {
 
   protected Message buildMessage(String content, List<Attachment> attachments) {
     return Message.builder().content(content).attachments(attachments).build();
-  }
-
-  protected void assertMessage(Message actual, Message expected) throws IOException {
-    assertThat(actual.getContent()).as("The same content should be found").isEqualTo(expected.getContent());
-    assertThat(actual.getData()).as("The same data should be found").isEqualTo(expected.getData());
-    this.assertAttachments(actual.getAttachments(), expected.getAttachments());
-  }
-
-  private void assertAttachments(List<Attachment> actual, List<Attachment> expected) throws IOException {
-    if (actual == null || actual.isEmpty() || expected == null || expected.isEmpty()) {
-      assertThat(actual).isEqualTo(expected);
-    } else {
-      assertThat(actual.size()).isEqualTo(expected.size());
-      for (Attachment actualAttachment : actual) {
-        boolean isFound = false;
-        for (Attachment expectedAttachment : expected) {
-
-          // reset both InputStreams to the initial state,
-          // otherwise the equality check will return false even if they have the same values in the byte array
-          actualAttachment.getContent().reset();
-          expectedAttachment.getContent().reset();
-
-          if (IOUtils.contentEquals(expectedAttachment.getContent(), actualAttachment.getContent())
-              && expectedAttachment.getFilename().equals(actualAttachment.getFilename())) {
-            isFound = true;
-            break;
-          }
-        }
-        assertThat(isFound).isTrue();
-      }
-    }
-  }
-
-  protected static Message content(final String content) {
-    return argThat(new ArgumentMatcher<>() {
-      @Override
-      public boolean matches(Message argument) {
-        return argument.getContent().equals("<messageML>" + content + "</messageML>");
-      }
-
-      @Override
-      public String toString() {
-        return "messageWithContent(" + content + ")";
-      }
-    });
-  }
-
-  protected static Message contains(final String content) {
-    return argThat(new ArgumentMatcher<>() {
-      @Override
-      public boolean matches(Message argument) {
-        return argument.getContent().contains(content);
-      }
-
-      @Override
-      public String toString() {
-        return "messageContainingContent(" + content + ")";
-      }
-    });
   }
 
 

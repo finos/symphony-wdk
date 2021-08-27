@@ -1,0 +1,8 @@
+name: accept-connection
+activities:
+  - accept-connection:
+      id: acceptConnection
+      on:
+        message-received:
+          content: /accept-connection
+      user-id: 1234

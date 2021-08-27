@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.POST;
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.ROOM;
-import static com.symphony.bdk.workflow.customassertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.timeout;

@@ -1,0 +1,8 @@
+name: create-connection
+activities:
+  - create-connection:
+      id: createConnection
+      on:
+        message-received:
+          content: /create-connection
+      user-id: 1234

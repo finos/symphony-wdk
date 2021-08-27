@@ -1,0 +1,8 @@
+name: remove-connection
+activities:
+  - remove-connection:
+      id: removeConnection
+      on:
+        message-received:
+          content: /remove-connection
+      user-id: 1234

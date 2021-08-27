@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -49,7 +50,7 @@ class EventsIntegrationTest extends IntegrationTest {
 
     engine.execute(workflow1);
     engine.execute(workflow2);
-    engine.onEvent(messageReceived("abc", "/msg"));
+    engine.onEvent(messageReceived("abc", "/twoWorkflowsSameEvent"));
 
     verify(messageService, timeout(5000)).send(eq("abc"), content("msg1"));
     verify(messageService, timeout(5000)).send(eq("abc"), content("msg2"));
