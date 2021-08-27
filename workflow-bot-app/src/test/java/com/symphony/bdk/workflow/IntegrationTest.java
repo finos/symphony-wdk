@@ -15,6 +15,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
@@ -103,6 +104,12 @@ public abstract class IntegrationTest {
     userConnection.setUserId(userId);
     userConnection.setStatus(status);
     return userConnection;
+  }
+
+  protected static Stream stream(String streamId) {
+    final Stream stream = new Stream();
+    stream.setId(streamId);
+    return stream;
   }
 
   @BeforeEach

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +35,8 @@ import java.util.UUID;
 
 class SendMessageIntegrationTest extends IntegrationTest {
 
+  private static final String OUTPUTS_MSG_KEY = "%s.outputs.message";
+
   @Test
   @DisplayName(
       "Given a send-message with a streamId, when the triggering message is received, "
@@ -64,6 +67,43 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
     verify(streamService, timeout(5000).times(1)).create(uids);
     verify(messageService, timeout(5000).times(1)).send(anyString(), content("<p>Hello!</p>"));
+  }
+
+  @Test
+  @DisplayName(
+      "Given a list of user ids, when the workflow is executed, then a message is sent to their IM/MIM"
+  )
+  void sendMessageWithUids() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-uids.swadl.yaml"));
+
+    final List<Long> uids = Arrays.asList(123L, 456L);
+    final String streamId = "STREAM_ID";
+    final String msgId = "MSG_ID";
+    final String content = "<messageML>hello</messageML>";
+    final V4Message message = message(msgId);
+
+    when(streamService.create(uids)).thenReturn(stream(streamId));
+    when(messageService.send(eq(streamId), any(Message.class))).thenReturn(message);
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("/send"));
+
+    ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<List<Long>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+
+    verify(streamService, timeout(5000).times(1)).create(listArgumentCaptor.capture());
+    verify(messageService, timeout(5000).times(1)).send(stringArgumentCaptor.capture(),
+        messageArgumentCaptor.capture());
+
+    assertThat(listArgumentCaptor.getAllValues().size()).as("The create method is called with a list as parameter")
+        .isEqualTo(1);
+    assertThat(listArgumentCaptor.getAllValues().get(0)).isEqualTo(uids);
+    assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
+
+    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUids"), message);
   }
 
   @Test
