@@ -1,8 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
-import com.symphony.bdk.core.service.message.MessageService;
-import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
@@ -52,18 +49,13 @@ public class CamundaExecutor implements JavaDelegate {
         .build();
   }
 
-  private final MessageService messageService;
-  private final StreamService streamService;
-  private final UserService userService;
+  private final BdkGateway bdk;
   private final AuditTrailLogger auditTrailLogger;
   private final ResourceProvider resourceLoader;
 
-  public CamundaExecutor(MessageService messageService, StreamService streamService,
-      UserService userService, AuditTrailLogger auditTrailLogger,
+  public CamundaExecutor(BdkGateway bdk, AuditTrailLogger auditTrailLogger,
       @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader) {
-    this.messageService = messageService;
-    this.streamService = streamService;
-    this.userService = userService;
+    this.bdk = bdk;
     this.auditTrailLogger = auditTrailLogger;
     this.resourceLoader = resourceLoader;
   }
@@ -85,7 +77,8 @@ public class CamundaExecutor implements JavaDelegate {
     try {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
-      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader));
+      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event,
+          resourceLoader, bdk));
     } finally {
       clearMdc();
     }
@@ -101,7 +94,7 @@ public class CamundaExecutor implements JavaDelegate {
     MDC.remove(MDC_ACTIVITY_ID);
   }
 
-  private class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {
+  private static class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {
     private final DelegateExecution execution;
     private final T activity;
     private final EventHolder<Object> event;
@@ -109,27 +102,12 @@ public class CamundaExecutor implements JavaDelegate {
     private final BdkGateway bdk;
 
     public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event,
-        ResourceProvider resourceLoader) {
+        ResourceProvider resourceLoader, BdkGateway bdk) {
       this.execution = execution;
       this.activity = activity;
       this.event = event;
       this.resourceLoader = resourceLoader;
-      this.bdk = new BdkGateway() {
-        @Override
-        public MessageService messages() {
-          return messageService;
-        }
-
-        @Override
-        public StreamService streams() {
-          return streamService;
-        }
-
-        @Override
-        public UserService users() {
-          return userService;
-        }
-      };
+      this.bdk = bdk;
     }
 
     @Override

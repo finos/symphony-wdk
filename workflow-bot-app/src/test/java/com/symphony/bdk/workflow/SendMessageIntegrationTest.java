@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.customAssertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
