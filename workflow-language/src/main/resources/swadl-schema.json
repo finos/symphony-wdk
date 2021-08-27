@@ -145,11 +145,7 @@
                                 "type": "object",
                                 "properties": {
                                     "user-id": {
-                                        "type": [
-                                            "string",
-                                            "integer"
-                                        ],
-                                        "minLength": 1
+                                        "$ref": "#/definitions/user-id"
                                     }
                                 },
                                 "required": [
@@ -185,11 +181,7 @@
                                 "type": "object",
                                 "properties": {
                                     "user-id": {
-                                        "type": [
-                                            "string",
-                                            "integer"
-                                        ],
-                                        "minLength": 1
+                                        "$ref": "#/definitions/user-id"
                                     }
                                 },
                                 "required": [
@@ -1941,11 +1933,7 @@
             "type": "object",
             "properties": {
                 "user-id": {
-                    "type": [
-                        "string",
-                        "integer"
-                    ],
-                    "minLength": 1
+                    "$ref": "#/definitions/user-id"
                 }
             },
             "required": [
@@ -2352,7 +2340,7 @@
             "required": ["user-ids"]
         },
         "user-id": {
-            "description": "User ids to send the message to",
+            "description": "User identifier",
             "title": "User ids to send the message to",
             "type": [
                 "string",
