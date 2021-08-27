@@ -25,7 +25,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
-  private static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
+  // required for message correlation and forms (correlation happens on variables than cannot be nested)
+  public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
+  private static final String OUTPUT_MESSAGE_KEY = "message";
 
   @Override
   @SneakyThrows
@@ -42,6 +44,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
     V4Message message = execution.bdk().messages().send(streamId, messageToSend);
 
+    execution.setOutputVariable(OUTPUT_MESSAGE_KEY, message);
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
 

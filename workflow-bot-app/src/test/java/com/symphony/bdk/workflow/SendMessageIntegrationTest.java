@@ -35,7 +35,7 @@ import java.util.UUID;
 
 class SendMessageIntegrationTest extends IntegrationTest {
 
-  private final String OUTPUTS_MSG_ID_KEY = "%s.outputs.msgId";
+  private static final String OUTPUTS_MSG_KEY = "%s.outputs.message";
 
   @Test
   @DisplayName(
@@ -103,7 +103,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
 
-    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUids"), msgId);
+    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUids"), message);
   }
 
   @Test
