@@ -7,6 +7,8 @@ logging:
   register-shutdown-hook: true # to avoid shutdown hooks logs in console with Gradle
   level:
     org.camunda: INFO
+    # disable BPMN image generation
+    com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: INFO
 
 # disable file watcher for tests
 workflows:
