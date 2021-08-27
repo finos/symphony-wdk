@@ -34,9 +34,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 // There might be a way to make this more generic/less code but waiting for
 // event filtering to see how it is going to evolve, at least it is easy to understand.
@@ -237,17 +239,23 @@ public class WorkflowEventToCamundaEvent {
         .eventType(EventType.SIGNAL.name())
         .list();
 
+    // we want to avoid sending the same signals twice otherwise workflows would be triggered multiple times
+    // meaning only the first matching /command is picked
+    Set<String> alreadySentSignals = new HashSet<>();
     for (EventSubscription signal : subscribedSignals) {
-      String content = messageReceivedContentfromSignalName(signal.getEventName());
-      if (MESSAGE_RECEIVED_CONTENT_MATCHER.match(content, receivedContent)) {
-        // match the arguments and add them to the event holder
-        Map<String, String> args =
-            MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
-        ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+      if (!alreadySentSignals.contains(signal.getEventName())) {
+        String content = messageReceivedContentfromSignalName(signal.getEventName());
+        if (MESSAGE_RECEIVED_CONTENT_MATCHER.match(content, receivedContent)) {
+          // match the arguments and add them to the event holder
+          Map<String, String> args =
+              MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
+          ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
 
-        runtimeService.createSignalEvent(signal.getEventName())
-            .setVariables(processVariables)
-            .send();
+          runtimeService.createSignalEvent(signal.getEventName())
+              .setVariables(processVariables)
+              .send();
+          alreadySentSignals.add(signal.getEventName());
+        }
       }
     }
 
