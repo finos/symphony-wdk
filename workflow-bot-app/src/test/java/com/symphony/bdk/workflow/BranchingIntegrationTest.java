@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.customAssertion.WorkflowAssert.assertThat;
+import static com.symphony.bdk.workflow.customassertion.WorkflowAssert.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.symphony.bdk.workflow.swadl.SwadlParser;

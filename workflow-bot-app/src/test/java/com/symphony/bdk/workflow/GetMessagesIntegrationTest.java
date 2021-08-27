@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.customAssertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.customassertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,8 +25,8 @@ import java.util.List;
 
 class GetMessagesIntegrationTest extends IntegrationTest {
 
-  private final String OUTPUTS_ONE_MESSAGE_KEY = "%s.outputs.message";
-  private final String OUTPUTS_LIST_MESSAGES_KEY = "%s.outputs.messages";
+  private static final String OUTPUTS_ONE_MESSAGE_KEY = "%s.outputs.message";
+  private static final String OUTPUTS_LIST_MESSAGES_KEY = "%s.outputs.messages";
 
   @Test
   @DisplayName("Given a message with an id, when the workflow is triggered, then the message is returned")
@@ -135,7 +135,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
   @Test
   @DisplayName(
-      "Given a get message by streamid without since parameter, when the workflow is triggered, then an error is thrown")
+      "Given a get message by id without since parameter, when the workflow is triggered, then an error is thrown")
   void getMessageByStreamIdWithoutSince_invalidWorkflow() {
     assertThatThrownBy(() -> SwadlParser.fromYaml(
         getClass().getResourceAsStream("/message/get-message-by-stream-id-invalid.swadl.yaml"))).isInstanceOf(
