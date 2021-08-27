@@ -1,0 +1,12 @@
+name: send-message-with-uids
+activities:
+  - send-message:
+      id: sendMessageWithUids
+      content: "<messageML>hello</messageML>"
+      on:
+        message-received:
+          content: "/send"
+      to:
+        user-ids:
+          - 123
+          - 456

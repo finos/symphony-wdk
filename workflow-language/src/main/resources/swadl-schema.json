@@ -352,7 +352,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                  "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|update-user|update-system-user|add-user-role|remove-user-role|get-user|get-users|get-stream|get-room|get-message|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|update-user|update-system-user|add-user-role|remove-user-role|get-user|get-users|get-stream|get-room|get-message|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activities to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
@@ -2339,20 +2339,26 @@
             "type": "object",
             "properties": {
                 "user-ids": {
-                     "description": "User ids to send the message to",
-                     "title": "User ids to send the message to",
-                     "type": "array",
-                     "items": {
-                         "type": [
-                             "string",
-                             "integer"
-                         ]
-                     },
-                     "minLength": 1,
-                     "uniqueItems": true
+                    "description": "User ids to send the message to",
+                    "title": "User ids to send the message to",
+                    "type": "array",
+                    "items": {
+                       "$ref": "#/definitions/user-id"
+                    },
+                    "minLength": 1,
+                    "uniqueItems": true
                 }
             },
             "required": ["user-ids"]
+        },
+        "user-id": {
+            "description": "User ids to send the message to",
+            "title": "User ids to send the message to",
+            "type": [
+                "string",
+                "integer"
+            ],
+            "minLength": 1
         },
         "attachment": {
             "type": "object",

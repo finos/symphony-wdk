@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -32,7 +32,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
   @DisplayName("Given a message with an id, when the workflow is triggered, then the message is returned")
   void getMessageByIdFound() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/get-message-by-id.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/get-message-by-id.swadl.yaml"));
     final String msgId = "MSG_ID";
 
     when(messageService.getMessage(msgId)).thenReturn(message(msgId));
@@ -51,7 +51,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
   @DisplayName("Given a message id that does not exist, when the workflow is triggered, then an exception is thrown")
   void getMessageByIdUnfound() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/message/get-message-by-id-unfound.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/get-message-by-id-unfound.swadl.yaml"));
     final String msgId = "MSG_ID";
 
     when(messageService.getMessage(msgId)).thenReturn(null);
@@ -70,7 +70,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
   @DisplayName("Given a streamId, when the workflow is triggered, then stream's messages are sent with pagination")
   void getMessageByStreamIdWithPagination() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(
+        SwadlParser.fromYaml(
             getClass().getResourceAsStream("/message/get-message-by-stream-id-with-pagination.swadl.yaml"));
     final String streamId = "STREAM_ID";
 
@@ -111,7 +111,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
       "Given a streamId, when the workflow is triggered without pagination, then stream's messages are all sent")
   void getMessageByStreamIdWithoutPagination() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(
+        SwadlParser.fromYaml(
             getClass().getResourceAsStream("/message/get-message-by-stream-id-without-pagination.swadl.yaml"));
     final String streamId = "STREAM_ID";
 
@@ -137,7 +137,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
   @DisplayName(
       "Given a get message by streamid without since parameter, when the workflow is triggered, then an error is thrown")
   void getMessageByStreamIdWithoutSince_invalidWorkflow() {
-    assertThatThrownBy(() -> WorkflowBuilder.fromYaml(
+    assertThatThrownBy(() -> SwadlParser.fromYaml(
         getClass().getResourceAsStream("/message/get-message-by-stream-id-invalid.swadl.yaml"))).isInstanceOf(
         SwadlNotValidException.class);
   }

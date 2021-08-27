@@ -15,6 +15,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -93,6 +94,12 @@ public abstract class IntegrationTest {
     final V4Message message = new V4Message();
     message.setMessageId(msgId);
     return message;
+  }
+
+  protected static Stream stream(String streamId) {
+    final Stream stream = new Stream();
+    stream.setId(streamId);
+    return stream;
   }
 
   @BeforeEach
