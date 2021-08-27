@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,8 +20,8 @@ import java.util.List;
 
 class ConnectionsIntegrationTest extends IntegrationTest {
 
-  private final String outputConnectionKey = "%s.outputs.connection";
-  private final String outputsConnectionsKey = "%s.outputs.connections";
+  private static final String OUTPUT_CONNECTION_KEY = "%s.outputs.connection";
+  private static final String OUTPUTS_CONNECTIONS_KEY = "%s.outputs.connections";
 
   @Test
   @DisplayName(
@@ -41,10 +40,10 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("/get-connections"));
 
-    verify(connectionService, timeout(5000)).listConnections(eq(ConnectionStatus.ACCEPTED), eq(userIds));
+    verify(connectionService, timeout(5000)).listConnections(ConnectionStatus.ACCEPTED, userIds);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputsConnectionsKey, "getConnections"), userConnections);
+        .hasOutput(String.format(OUTPUTS_CONNECTIONS_KEY, "getConnections"), userConnections);
   }
 
   @Test
@@ -64,7 +63,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).getConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputConnectionKey, "getConnection"), userConnection);
+        .hasOutput(String.format(OUTPUT_CONNECTION_KEY, "getConnection"), userConnection);
   }
 
   @Test
@@ -85,7 +84,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).createConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputConnectionKey, "createConnection"), userConnection);
+        .hasOutput(String.format(OUTPUT_CONNECTION_KEY, "createConnection"), userConnection);
   }
 
   @Test
@@ -107,7 +106,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).acceptConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputConnectionKey, "acceptConnection"), userConnection);
+        .hasOutput(String.format(OUTPUT_CONNECTION_KEY, "acceptConnection"), userConnection);
   }
 
   @Test
@@ -129,7 +128,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
     verify(connectionService, timeout(5000)).rejectConnection(userId);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputConnectionKey, "rejectConnection"), userConnection);
+        .hasOutput(String.format(OUTPUT_CONNECTION_KEY, "rejectConnection"), userConnection);
   }
 
   @Test

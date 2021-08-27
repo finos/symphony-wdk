@@ -90,7 +90,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   }
 
   public static Optional<String> lastProcess(Workflow workflow) {
-    List<HistoricProcessInstance> processes = IntegrationTest.staticHistoryService.createHistoricProcessInstanceQuery()
+    List<HistoricProcessInstance> processes = IntegrationTest.historyService.createHistoricProcessInstanceQuery()
         .processDefinitionName(workflow.getName())
         .orderByProcessInstanceStartTime().desc()
         .list();
@@ -103,7 +103,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   }
 
   public static Optional<String> lastProcess() {
-    List<HistoricProcessInstance> processes = IntegrationTest.staticHistoryService.createHistoricProcessInstanceQuery()
+    List<HistoricProcessInstance> processes = IntegrationTest.historyService.createHistoricProcessInstanceQuery()
         .orderByProcessInstanceStartTime().desc()
         .list();
     if (processes.isEmpty()) {
@@ -115,7 +115,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   }
 
   public static Boolean processIsCompleted(String processId) {
-    List<HistoricProcessInstance> processes = IntegrationTest.staticHistoryService.createHistoricProcessInstanceQuery()
+    List<HistoricProcessInstance> processes = IntegrationTest.historyService.createHistoricProcessInstanceQuery()
         .processInstanceId(processId).list();
     if (!processes.isEmpty()) {
       HistoricProcessInstance processInstance = processes.get(0);
@@ -137,7 +137,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
         processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
 
     List<HistoricActivityInstance> processes =
-        IntegrationTest.staticHistoryService.createHistoricActivityInstanceQuery()
+        IntegrationTest.historyService.createHistoricActivityInstanceQuery()
             .processInstanceId(process.get())
             .activityType("scriptTask")
             .orderByHistoricActivityInstanceStartTime().asc()
@@ -154,7 +154,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
     await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
 
     List<HistoricActivityInstance> processes =
-        IntegrationTest.staticHistoryService.createHistoricActivityInstanceQuery()
+        IntegrationTest.historyService.createHistoricActivityInstanceQuery()
             .processInstanceId(process)
             .orderByHistoricActivityInstanceStartTime().asc()
             .orderByActivityName().asc()
@@ -172,7 +172,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
     await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
 
     final List<HistoricDetail> historicalDetails =
-        IntegrationTest.staticHistoryService.createHistoricDetailQuery().processInstanceId(process).list();
+        IntegrationTest.historyService.createHistoricDetailQuery().processInstanceId(process).list();
 
     Optional<HistoricDetail> historicalDetailOptional = historicalDetails.stream()
         .filter(x -> ((HistoricDetailVariableInstanceUpdateEntity) x).getVariableName().equals(key))

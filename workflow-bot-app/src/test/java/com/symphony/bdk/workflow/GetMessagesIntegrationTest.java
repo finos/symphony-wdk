@@ -27,8 +27,8 @@ import java.util.List;
 
 class GetMessagesIntegrationTest extends IntegrationTest {
 
-  private final String outputsOneMessageKey = "%s.outputs.message";
-  private final String outputsListMessagesKey = "%s.outputs.messages";
+  private static final String OUTPUTS_ONE_MESSAGE_KEY = "%s.outputs.message";
+  private static final String OUTPUTS_LIST_MESSAGES_KEY = "%s.outputs.messages";
 
   @Test
   @DisplayName("Given a message with an id, when the workflow is triggered, then the message is returned")
@@ -46,7 +46,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputsOneMessageKey, "getMessageByIdFound"), message(msgId));
+        .hasOutput(String.format(OUTPUTS_ONE_MESSAGE_KEY, "getMessageByIdFound"), message(msgId));
   }
 
   @Test
@@ -65,7 +65,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
     assertThat(workflow)
         .isExecuted()
-        .hasOutput(String.format(outputsOneMessageKey, "getMessageByIdUnfound"), null);
+        .hasOutput(String.format(OUTPUTS_ONE_MESSAGE_KEY, "getMessageByIdUnfound"), null);
   }
 
   @Test
@@ -97,7 +97,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
     assertEquals(pagination.getSkip(), 0);
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(outputsListMessagesKey, "listMessagesWithPagination"), messages);
+        .hasOutput(String.format(OUTPUTS_LIST_MESSAGES_KEY, "listMessagesWithPagination"), messages);
   }
 
   @Test
@@ -124,13 +124,12 @@ class GetMessagesIntegrationTest extends IntegrationTest {
     assertThat(instantArgumentCaptor.getValue()).isNotNull();
     assertThat(workflow)
         .isExecuted()
-        .hasOutput(String.format(outputsListMessagesKey, "listMessagesWithoutPagination"), messages);
+        .hasOutput(String.format(OUTPUTS_LIST_MESSAGES_KEY, "listMessagesWithoutPagination"), messages);
   }
 
   @Test
   @DisplayName(
-      "Given a get message by streamid without since parameter, when the workflow is triggered,"
-          + "then an error is thrown")
+      "Given a get message by id without since parameter, when the workflow is triggered, then an error is thrown")
   void getMessageByStreamIdWithoutSince_invalidWorkflow() {
     assertThatThrownBy(() -> SwadlParser.fromYaml(
         getClass().getResourceAsStream("/message/get-message-by-stream-id-invalid.swadl.yaml"))).isInstanceOf(

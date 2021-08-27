@@ -1,5 +1,8 @@
 package com.symphony.bdk.workflow;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -22,8 +25,14 @@ import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.swadl.v1.Activity;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.history.HistoricActivityInstance;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +43,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Map;
-import javax.annotation.PostConstruct;
+import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -47,10 +56,8 @@ public abstract class IntegrationTest {
   @Autowired
   ResourceProvider resourceProvider;
 
-  @Autowired
-  private HistoryService historyService;
-
-  public static HistoryService staticHistoryService;
+  @SuppressFBWarnings
+  public static HistoryService historyService;
 
   // Mock the BDK
   @MockBean
@@ -76,9 +83,9 @@ public abstract class IntegrationTest {
     System.setProperty("nashorn.args", "--no-deprecation-warning");
   }
 
-  @PostConstruct
-  public void init() {
-    staticHistoryService = this.historyService;
+  @Autowired
+  public void setHistoryService(HistoryService historyService) {
+    IntegrationTest.historyService = historyService;
   }
 
   protected static V4Message message(String msgId) {
@@ -155,6 +162,81 @@ public abstract class IntegrationTest {
     elementsAction.setFormId(formId);
     elementsAction.setFormValues(formReplies);
     return new RealTimeEvent<>(initiator, elementsAction);
+  }
+
+  public static Boolean processIsCompleted(String processId) {
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+        .processInstanceId(processId).list();
+    if (!processes.isEmpty()) {
+      HistoricProcessInstance processInstance = processes.get(0);
+      return processInstance.getState().equals("COMPLETED");
+    }
+    return false;
+  }
+
+  public static Optional<String> lastProcess() {
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+        .orderByProcessInstanceStartTime().desc()
+        .list();
+    if (processes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable(processes.get(0))
+          .map(HistoricProcessInstance::getId);
+    }
+  }
+
+  protected Optional<String> lastProcess(Workflow workflow) {
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+        .processDefinitionName(workflow.getName())
+        .orderByProcessInstanceStartTime().desc()
+        .list();
+    if (processes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable(processes.get(0))
+          .map(HistoricProcessInstance::getId);
+    }
+  }
+
+  public static void assertExecuted(Workflow workflow) {
+    String[] activityIds = workflow.getActivities().stream()
+        .map(Activity::getActivity)
+        .map(BaseActivity::getId)
+        .toArray(String[]::new);
+    assertExecuted(activityIds);
+  }
+
+  private static void assertExecuted(String... activityIds) {
+    String process = lastProcess().orElseThrow();
+    await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
+
+    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
+        .processInstanceId(process)
+        .orderByHistoricActivityInstanceStartTime().asc()
+        .orderByActivityName().asc()
+        .list();
+
+    assertThat(processes)
+        .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
+        .extracting(HistoricActivityInstance::getActivityName)
+        .containsExactly(activityIds);
+  }
+
+  public static void assertExecuted(Optional<String> process, List<String> activities) {
+    assertThat(process).hasValueSatisfying(
+        processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
+
+    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
+        .processInstanceId(process.get())
+        .activityType("scriptTask")
+        .orderByHistoricActivityInstanceStartTime().asc()
+        .orderByActivityName().asc()
+        .list();
+
+    assertThat(processes)
+        .extracting(HistoricActivityInstance::getActivityName)
+        .containsExactly(activities.toArray(String[]::new));
   }
 
   protected Message buildMessage(String content, List<Attachment> attachments) {
