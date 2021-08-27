@@ -1,0 +1,41 @@
+name: connections-workflow-example
+variables:
+  userid: PUT_A_USER_ID
+activities:
+  - create-connection:
+      id: createconnection
+      description: "Create a connection request with user provided in variables"
+      on:
+        message-received:
+          content: /create-connection
+      user-id: ${variables.userid}
+  - get-connection:
+      id: getconnection1
+      description: "Cet connection's status"
+      user-id: ${variables.userid}
+  - execute-script:
+      id: assertscript
+      description: "Check connection status is pending outgoing"
+      script: |
+        println getconnection1.outputs.connection.status
+        assert getconnection1.outputs.connection.status.getValue() == "PENDING_OUTGOING"
+  - remove-connection:
+      id: removeconnection
+      description: "Remove the connection request"
+      user-id: ${variables.userid}
+  - get-connections:
+      id: listconnections
+      description: "List all user's connections"
+      user-ids:
+        - ${variables.userid}
+      status: ALL
+  - execute-script:
+      id: assertscript2
+      description: "Check that user does not have any connection request"
+      script: |
+        assert listconnections.outputs.connections.size == 0
+  - execute-script:
+      id: feedback
+      description: "Print feedback"
+      script: |
+        println "Workflow ended successfully"
