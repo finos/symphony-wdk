@@ -1,4 +1,4 @@
-name: example-connections-workflow
+name: smoke-test-connections
 variables:
   userid: 11338713663043
 activities:
@@ -7,7 +7,7 @@ activities:
       description: "Create a connection request with user provided in variables"
       on:
         message-received:
-          content: /start
+          content: /create-connection
       user-id: ${variables.userid}
   - get-connection:
       id: getconnection1
@@ -19,16 +19,23 @@ activities:
       script: |
         println getconnection1.outputs.connection.status
         assert getconnection1.outputs.connection.status.getValue() == "PENDING_OUTGOING"
-  - get-connection:
-      id: getconnection2
-      description: "Cet connection's status after being accepted by user"
-      on:
-        message-received:
-          content: /resume
+  - remove-connection:
+      id: removeconnection
+      description: "Remove the connection request"
       user-id: ${variables.userid}
+  - get-connections:
+      id: listconnections
+      description: "List all user's connections"
+      user-ids:
+        - ${variables.userid}
+      status: ALL
   - execute-script:
-      id: assertscript
-      description: "Check connection status is pending outgoing"
+      id: assertscript2
+      description: "Check that user does not have any connection request"
       script: |
-        println getconnection1.outputs.connection.status
-        assert getconnection1.outputs.connection.status.getValue() == "ACCEPTED"
+        assert listconnections.outputs.connections.size == 0
+  - execute-script:
+      id: feedback
+      description: "Print feedback"
+      script: |
+        println "Workflow ended successfully"
