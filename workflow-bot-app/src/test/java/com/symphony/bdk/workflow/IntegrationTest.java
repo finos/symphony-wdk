@@ -29,6 +29,7 @@ import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
@@ -46,7 +47,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -59,10 +59,8 @@ public abstract class IntegrationTest {
   @Autowired
   ResourceProvider resourceProvider;
 
-  @Autowired
-  private HistoryService historyService;
-
-  public static HistoryService historyServiceCopy;
+  @SuppressFBWarnings
+  public static HistoryService historyService;
 
   // Mock the BDK
   @MockBean
@@ -85,9 +83,9 @@ public abstract class IntegrationTest {
     System.setProperty("nashorn.args", "--no-deprecation-warning");
   }
 
-  @PostConstruct
-  public void init() {
-    historyServiceCopy = this.historyService;
+  @Autowired
+  public void setHistoryService(HistoryService historyService) {
+    IntegrationTest.historyService = historyService;
   }
 
   protected static V4Message message(String msgId) {
@@ -162,7 +160,7 @@ public abstract class IntegrationTest {
   }
 
   public static Boolean processIsCompleted(String processId) {
-    List<HistoricProcessInstance> processes = historyServiceCopy.createHistoricProcessInstanceQuery()
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
         .processInstanceId(processId).list();
     if (!processes.isEmpty()) {
       HistoricProcessInstance processInstance = processes.get(0);
@@ -172,7 +170,7 @@ public abstract class IntegrationTest {
   }
 
   public static Optional<String> lastProcess() {
-    List<HistoricProcessInstance> processes = historyServiceCopy.createHistoricProcessInstanceQuery()
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
         .orderByProcessInstanceStartTime().desc()
         .list();
     if (processes.isEmpty()) {
@@ -208,7 +206,7 @@ public abstract class IntegrationTest {
     String process = lastProcess().orElseThrow();
     await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
 
-    List<HistoricActivityInstance> processes = historyServiceCopy.createHistoricActivityInstanceQuery()
+    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
         .processInstanceId(process)
         .orderByHistoricActivityInstanceStartTime().asc()
         .orderByActivityName().asc()
@@ -224,7 +222,7 @@ public abstract class IntegrationTest {
     assertThat(process).hasValueSatisfying(
         processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
 
-    List<HistoricActivityInstance> processes = historyServiceCopy.createHistoricActivityInstanceQuery()
+    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
         .processInstanceId(process.get())
         .activityType("scriptTask")
         .orderByHistoricActivityInstanceStartTime().asc()
