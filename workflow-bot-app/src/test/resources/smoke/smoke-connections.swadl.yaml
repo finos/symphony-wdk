@@ -1,41 +1,36 @@
 name: smoke-test-connections
-variables:
-  userid: PUT_A_USER_ID
 activities:
   - create-connection:
-      id: createconnection
+      id: createConnection
       description: "Create a connection request with user provided in variables"
       on:
         message-received:
-          content: /create-connection
-      user-id: ${variables.userid}
+          content: /create-connection {user}
+      user-id: ${mentions(event)[0]}
   - get-connection:
-      id: getconnection1
+      id: getConnection
       description: "Cet connection's status"
-      user-id: ${variables.userid}
+      user-id: ${mentions(event)[0]}
   - execute-script:
-      id: assertscript
+      id: assertScript
       description: "Check connection status is pending outgoing"
       script: |
-        println getconnection1.outputs.connection.status
-        assert getconnection1.outputs.connection.status.getValue() == "PENDING_OUTGOING"
+        assert getConnection.outputs.connection.status.getValue() == "PENDING_OUTGOING"
   - remove-connection:
-      id: removeconnection
+      id: removeConnection
       description: "Remove the connection request"
-      user-id: ${variables.userid}
+      user-id: ${mentions(event)[0]}
   - get-connections:
-      id: listconnections
+      id: listConnections
       description: "List all user's connections"
       user-ids:
-        - ${variables.userid}
+        - ${mentions(event)[0]}
       status: ALL
   - execute-script:
-      id: assertscript2
+      id: assertScript2
       description: "Check that user does not have any connection request"
       script: |
-        assert listconnections.outputs.connections.size == 0
-  - execute-script:
-      id: feedback
-      description: "Print feedback"
-      script: |
-        println "Workflow ended successfully"
+        assert listConnections.outputs.connections.size() == 0
+  - send-message:
+      id: report
+      content: Test passed <emoji shortcode="white_check_mark"/>
