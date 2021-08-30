@@ -1,6 +1,6 @@
 name: example-connections-workflow
 variables:
-  userid: 11338713663043
+  userid: PUT_A_USER_ID
 activities:
   - create-connection:
       id: createconnection
