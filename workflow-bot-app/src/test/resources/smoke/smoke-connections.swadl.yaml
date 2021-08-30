@@ -1,0 +1,36 @@
+name: smoke-test-connections
+activities:
+  - create-connection:
+      id: createConnection
+      description: "Create a connection request with user provided in variables"
+      on:
+        message-received:
+          content: /create-connection {user}
+      user-id: ${mentions(event)[0]}
+  - get-connection:
+      id: getConnection
+      description: "Cet connection's status"
+      user-id: ${mentions(event)[0]}
+  - execute-script:
+      id: assertScript
+      description: "Check connection status is pending outgoing"
+      script: |
+        assert getConnection.outputs.connection.status.getValue() == "PENDING_OUTGOING"
+  - remove-connection:
+      id: removeConnection
+      description: "Remove the connection request"
+      user-id: ${mentions(event)[0]}
+  - get-connections:
+      id: listConnections
+      description: "List all user's connections"
+      user-ids:
+        - ${mentions(event)[0]}
+      status: ALL
+  - execute-script:
+      id: assertScript2
+      description: "Check that user does not have any connection request"
+      script: |
+        assert listConnections.outputs.connections.size() == 0
+  - send-message:
+      id: report
+      content: Test passed <emoji shortcode="white_check_mark"/>
