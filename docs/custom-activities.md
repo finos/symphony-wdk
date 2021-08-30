@@ -12,6 +12,8 @@ and its executor are defined.
 
 [MyActivity](../custom-activity-example/src/main/java/org/acme/workflow/MyActivity.java) extends the `BaseActivity` 
 class that provides common attributes for an activity such as its id or its starting event (`on`).
+If you want to support variables being passed as attributes in SWADL (with the `${}` syntax) then the class fields
+must be typed as `String` (variables are evaluated at runtime).
 
 [MyActivityExecutor](../custom-activity-example/src/main/java/org/acme/workflow/MyActivityExecutor.java) implements the
 `ActivityExecutor` interface and gives access to the activity definition, variables, outputs and BDK services during the
@@ -31,8 +33,9 @@ The workflow bot being a Spring Boot based application, it can be executed as st
 ./gradlew :custom-activity-example:installDist
 
 cd workflow-bot-app
+mkdir lib
 # Copy the custom activity JARs
-cp -r ../custom-activity-example/build/install/custom-activity-example/lib .
+cp -r ../custom-activity-example/build/install/custom-activity-example/lib lib/
 
 # Build and start the workflow bot
 ../gradlew bootJar

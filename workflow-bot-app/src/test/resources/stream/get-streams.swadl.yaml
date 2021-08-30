@@ -1,0 +1,17 @@
+name: get-streams
+activities:
+  - get-streams:
+      id: act1
+      on:
+        message-received:
+          content: /get-streams
+      types:
+        - IM
+        - ROOM
+      status: ACTIVE
+      origin: INTERNAL
+      start-date: "2021-08-17T14:35:17+00:00"
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.streams != null

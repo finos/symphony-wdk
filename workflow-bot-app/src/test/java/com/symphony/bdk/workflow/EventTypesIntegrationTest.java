@@ -1,9 +1,12 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.lastProcess;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.processIsCompleted;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +31,7 @@ import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -40,21 +43,19 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceived_streamIdFromEvent() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-message-received.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-message-received.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("123", "/execute"));
 
-    verify(messageService, timeout(5000)).send("123", "/execute");
+    verify(messageService, timeout(5000)).send(eq("123"), content("/execute"));
   }
 
   @Test
   void onMessageReceived_botMention() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-message-received-bot-mention.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-message-received-bot-mention.swadl.yaml"));
     UserV2 bot = new UserV2();
     bot.setDisplayName("myBot");
     when(sessionService.getSession()).thenReturn(bot);
@@ -62,14 +63,13 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
     engine.onEvent(messageReceived("123", "@myBot /execute"));
 
-    verify(messageService, timeout(5000)).send("123", "ok");
+    verify(messageService, timeout(5000)).send(eq("123"), content("ok"));
   }
 
   @Test
   void onMessageReceived_botMention_notMentioned() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-message-received-bot-mention.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-message-received-bot-mention.swadl.yaml"));
     UserV2 bot = new UserV2();
     bot.setDisplayName("myBot");
     when(sessionService.getSession()).thenReturn(bot);
@@ -78,25 +78,24 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("123", "/execute"));
 
     // no process started if the bot is not mentioned
-    assertThat(lastProcess()).isEmpty();
+    assertThat(lastProcess(workflow)).isEmpty();
   }
 
   @Test
   void onMessageReceived_anyContent() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-message-received-any-content.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-message-received-any-content.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("123", "/anything"));
 
-    verify(messageService, timeout(5000)).send("123", "ok");
+    verify(messageService, timeout(5000)).send(eq("123"), content("ok"));
   }
 
   @Test
   void onRoomCreated() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-room-created.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-room-created.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(roomCreatedEvent("123"));
@@ -107,8 +106,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onRoomUpdated() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-room-updated.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-room-updated.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(roomUpdatedEvent("123"));
@@ -119,8 +118,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onRoomDeactivated() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-room-deactivated.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-room-deactivated.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(roomDeactivatedEvent("123"));
@@ -131,8 +130,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onRoomReactivated() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-room-reactivated.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-room-reactivated.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(roomReactivatedEvent("123"));
@@ -143,8 +142,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onPostShared() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-post-shared.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-post-shared.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(postShared("123"));
@@ -155,8 +154,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onImCreated() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-im-created.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-im-created.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(imCreated("123"));
@@ -167,8 +166,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageSuppressed() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-message-suppressed.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-message-suppressed.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(messageSuppressed("123"));
@@ -179,8 +178,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onRoomMemberPromotedToOwner() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-room-member-promoted-to-owner.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-room-member-promoted-to-owner.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(roomMemberPromotedToOwner("123"));
@@ -191,8 +190,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onRoomMemberDemotedFromOwner() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-room-member-demoted-from-owner.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-room-member-demoted-from-owner.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(roomMemberDemotedFromOwner("123"));
@@ -203,8 +202,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onUserRequestedJoinRoom() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-user-requested-join-room.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-user-requested-join-room.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(userRequestedJoinRoom("123"));
@@ -215,8 +214,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onUserJoinedRoom() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-user-joined-room.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-user-joined-room.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(userJoinedRoom("123"));
@@ -227,8 +226,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onUserLeftRoom() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-user-left-room.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-user-left-room.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(userLeftRoom("123"));
@@ -239,8 +238,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onConnectionRequested() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-connection-requested.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-connection-requested.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(connectionRequested(123));
@@ -251,8 +250,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
   @Test
   void onConnectionAccepted() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
-            "/event/types/on-connection-accepted.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/on-connection-accepted.swadl.yaml"));
     engine.execute(workflow);
 
     engine.onEvent(connectionAccepted(123));

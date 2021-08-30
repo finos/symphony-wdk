@@ -20,6 +20,5 @@ activities:
   - execute-script:
       id: act3
       # = on/activity-completed: act2 without an if, i.e the default flow after act2
-      # TODO, if an if is define here, then conditional flow from act2 -> act3 (not a loop), we need to add the default flow then
       script: |
         println "act3"

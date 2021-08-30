@@ -1,15 +1,18 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.lastProcess;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.processIsCompleted;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +26,7 @@ class VariablesIntegrationTest extends IntegrationTest {
   void shouldSendMessageToStreamWhenIdIsVariable() throws Exception {
 
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/send-messages-with-variables.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-messages-with-variables.swadl.yaml"));
     final V4Message message = new V4Message().messageId("msgId");
     final String content = "<messageML>Have a nice day !</messageML>\n";
 
@@ -32,7 +35,7 @@ class VariablesIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-    verify(messageService, timeout(5000)).send(argumentCaptor.capture(), anyString());
+    verify(messageService, timeout(5000)).send(argumentCaptor.capture(), any(Message.class));
     final String captorStreamId = argumentCaptor.getValue();
 
     assertThat(captorStreamId).isEqualTo("1234");
@@ -41,7 +44,7 @@ class VariablesIntegrationTest extends IntegrationTest {
   @Test
   void variablesAreTyped() throws Exception {
     final Workflow workflow =
-        WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/typed-variables.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/typed-variables.swadl.yaml"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/typed"));

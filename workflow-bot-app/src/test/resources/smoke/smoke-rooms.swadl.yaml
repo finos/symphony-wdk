@@ -1,0 +1,52 @@
+name: smoke-test-rooms
+activities:
+  - execute-script:
+      id: createRoomName
+      on:
+        one-of:
+          - message-received:
+              content: /smoke-rooms
+      script: |
+        variables.roomName = UUID.randomUUID().toString()
+  - create-room:
+      id: createRoom
+      room-name: SmokeTest ${variables.roomName}
+      room-description: Test room created by workflow
+      public: true
+  - add-room-member:
+      id: addUser
+      stream-id: ${createRoom.outputs.roomId}
+      uids:
+        - ${event.initiator.user.userId}
+  - get-room:
+      id: getRoom
+      stream-id: ${createRoom.outputs.roomId}
+  - execute-script:
+      id: checkGetRoom
+      script: |
+        assert getRoom.outputs.room.roomAttributes.name.contains(variables.roomName)
+  - execute-script:
+      id: waitForSearch
+      script: |
+        // wait a bit for the room to be indexed
+        Thread.sleep(5000)
+  - get-rooms:
+      id: getRooms
+      query: SmokeTest
+      active: true
+  - execute-script:
+      id: checkGetRooms
+      script: |
+        assert getRooms.outputs.rooms.rooms.find { it.roomAttributes.name.contains(variables.roomName)} != null
+  - get-room-members:
+      id: getRoomMembers
+      stream-id: ${createRoom.outputs.roomId}
+  - execute-script:
+      id: checkGetRoomMembers
+      script: |
+        assert getRoomMembers.outputs.members.find { it.id == event.initiator.user.userId} != null
+  - send-message:
+      id: report
+      to:
+        stream-id: ${createRoom.outputs.roomId}
+      content: Test passed <emoji shortcode="white_check_mark"/>

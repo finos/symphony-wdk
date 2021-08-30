@@ -1,0 +1,30 @@
+name: contact-sharing
+activities:
+  - get-user:
+      id: getUser
+      on:
+        message-received:
+          content: send @{user} details to @{recipient}
+      user-id: ${mentions(event)[0]}
+  - create-room:
+      id: createOneToOne
+      uids:
+        - ${mentions(event)[1]}
+  - send-message:
+      id: sendDetails
+      to:
+        stream-id: ${createOneToOne.outputs.roomId}
+      content: |
+        <messageML>
+          <h2>Contact information for ${event.args.user}</h2>
+          <hr/>
+          <b>Email address:</b> <a href="mailto:${getUser.outputs.user.userAttributes.emailAddress}">${getUser.outputs.user.userAttributes.emailAddress}</a>
+          <br/>
+          <b>Work phone number:</b> <a href="skype:${getUser.outputs.user.userAttributes.workPhoneNumber}">${getUser.outputs.user.userAttributes.workPhoneNumber}</a>
+          <hr/>
+          <i>Shared by ${event.initiator.user.displayName}</i>
+        </messageML>
+  - send-message:
+      id: feedback
+      content: |
+        Contact details sent!

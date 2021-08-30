@@ -4,13 +4,11 @@ workflows:
 
 # BDK configuration
 bdk:
-  host: devx3.symphony.com
-  datafeed:
-    version: v2
+  host:
   bot:
-    username: daneel-bot
+    username:
     privateKey:
-      path: rsa/privatekey.pem
+      path:
 
 # Camunda configuration
 camunda:
@@ -19,7 +17,6 @@ camunda:
     job-execution:
       wait-time-in-millis: 1000
       max-wait: 1000
-      # Tuning the job executor thread pools can help if many workflows need to be executed at the same time
     # Remove WARN logs at startup (we are not using this feature but our own watcher)
     deployment-resource-pattern:
     generic-properties:
@@ -36,7 +33,7 @@ logging:
     com.symphony: DEBUG
     # troubleshoot Camunda
     org.camunda: INFO
-    # disable audit trail
+    # audit trail can be disabled with WARN level
     #audit-trail: WARN
 
 # Actuator endpoint is enabled by default on port 8080

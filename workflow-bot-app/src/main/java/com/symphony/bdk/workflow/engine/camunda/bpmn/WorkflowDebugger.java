@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -14,6 +15,7 @@ import java.util.Base64;
  * Be aware that enabling debug logs will log the entire workflow's content. Sensitive data might be there!
  */
 @Slf4j
+@Generated // used for debugging/testing
 public final class WorkflowDebugger {
 
   static void generateDebugFiles(String workflowName, BpmnModelInstance instance) {

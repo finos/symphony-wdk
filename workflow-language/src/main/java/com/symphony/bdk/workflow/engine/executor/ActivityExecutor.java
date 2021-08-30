@@ -1,13 +1,11 @@
 package com.symphony.bdk.workflow.engine.executor;
 
-import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
-
 /**
  * Implement this interface to define your own activities.
  *
  * @param <T> The activity type used in the workflow's definition.
  */
-public interface ActivityExecutor<T extends BaseActivity> {
+public interface ActivityExecutor<T> {
 
   /**
    * Called when the activity is executed.

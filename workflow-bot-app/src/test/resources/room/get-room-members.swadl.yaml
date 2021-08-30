@@ -1,0 +1,12 @@
+name: get-room-members
+activities:
+  - get-room-members:
+      id: act1
+      on:
+        message-received:
+          content: /get-room-members
+      stream-id: abc
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.members != null

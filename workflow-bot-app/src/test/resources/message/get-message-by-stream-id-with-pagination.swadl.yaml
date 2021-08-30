@@ -1,0 +1,11 @@
+name: get-message-by-stream-id-with-pagination
+activities:
+  - get-messages:
+      id: listMessagesWithPagination
+      on:
+        message-received:
+          content: /get-msg-by-stream-id-with-pagination
+      stream-id: STREAM_ID
+      skip: 0
+      limit: 2
+      since: 1997-01-19T09:59:51.300Z

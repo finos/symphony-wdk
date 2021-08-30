@@ -33,220 +33,417 @@
             "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
             "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
-                "oneOf": [
-                    {
-                        "$ref": "#/definitions/create-room"
-                    },
-                    {
-                        "$ref": "#/definitions/update-room"
-                    },
-                    {
-                        "$ref": "#/definitions/add-room-member"
-                    },
-                    {
-                        "$ref": "#/definitions/remove-room-member"
-                    },
-                    {
-                        "$ref": "#/definitions/promote-room-owner"
-                    },
-                    {
-                        "$ref": "#/definitions/demote-room-owner"
-                    },
-                    {
-                        "$ref": "#/definitions/send-message"
-                    },
-                    {
-                        "$ref": "#/definitions/execute-script"
-                    },
-                    {
-                        "type": "object",
-                        "patternProperties": {
-                            "send-message": {
-                                "$ref": "#/definitions/send-message"
-                            },
-                            "execute-script": {
-                                "$ref": "#/definitions/execute-script"
-                            },
-                            "create-room": {
-                                "$ref": "#/definitions/create-room"
-                            },
-                            "update-room": {
-                                "$ref": "#/definitions/update-room"
-                            },
-                            "add-room-member": {
-                                "$ref": "#/definitions/add-room-member"
-                            },
-                            "remove-room-member": {
-                                "$ref": "#/definitions/remove-room-member"
-                            },
-                            "promote-room-owner": {
-                                "$ref": "#/definitions/promote-room-owner"
-                            },
-                            "demote-room-owner": {
-                                "$ref": "#/definitions/demote-room-owner"
-                            },
-                            "^(create-room)|^(update-room)|.*": {
-                                "$comment": "Room tasks are specifically excluded because they don't have strong differentiators in properties, 'more than one variant' warnings are issued otherwise.",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "create-room": {
+                        "allOf": [
+                            {
                                 "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-room-inner"
                             }
-                        }
+                        ]
+                    },
+                    "update-room": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/update-room-inner"
+                            }
+                        ]
+                    },
+                    "add-room-member": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/add-room-member-inner"
+                            }
+                        ]
+                    },
+                    "remove-room-member": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/remove-room-member-inner"
+                            }
+                        ]
+                    },
+                    "promote-room-owner": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/promote-room-owner-inner"
+                            }
+                        ]
+                    },
+                    "demote-room-owner": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/demote-room-owner-inner"
+                            }
+                        ]
+                    },
+                    "send-message": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/send-message-inner"
+                            }
+                        ]
+                    },
+                    "execute-script": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/execute-script-inner"
+                            }
+                        ]
+                    },
+                    "create-user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-user-inner",
+                                "required": [
+                                    "email",
+                                    "username",
+                                    "firstname",
+                                    "lastname",
+                                    "display-name"
+                                ]
+                            }
+                        ]
+                    },
+                    "update-user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-user-inner"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "user-id": {
+                                        "$ref": "#/definitions/user-id"
+                                    }
+                                },
+                                "required": [
+                                    "user-id"
+                                ]
+                            }
+                        ]
+                    },
+                    "create-system-user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-system-user-inner",
+                                "required": [
+                                    "email",
+                                    "username",
+                                    "display-name"
+                                ]
+                            }
+                        ]
+                    },
+                    "update-system-user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-system-user-inner"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "user-id": {
+                                        "$ref": "#/definitions/user-id"
+                                    }
+                                },
+                                "required": [
+                                    "user-id"
+                                ]
+                            }
+                        ]
+                    },
+                    "add-user-role": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/user-role-inner"
+                            }
+                        ]
+                    },
+                    "remove-user-role": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/user-role-inner"
+                            }
+                        ]
+                    },
+                    "get-user": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-user-inner"
+                            }
+                        ]
+                    },
+                    "get-users": {
+                        "type": "object",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-users-inner"
+                            }
+                        ]
+                    },
+                    "get-stream": {
+                        "type": "object",
+                        "description": "Returns information about a particular stream.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-stream-inner"
+                            }
+                        ]
+                    },
+                    "get-room": {
+                        "type": "object",
+                        "description": "Returns information about a particular chat room.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-room-inner"
+                            }
+                        ]
+                    },
+                    "get-message": {
+                        "type": "object",
+                        "description": "Returns a message found by id.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-message-inner"
+                            }
+                        ]
+                    },
+                    "get-stream-members": {
+                        "type": "object",
+                        "description": "Returns a list of all the current members of a stream (IM, MIM, or chatroom).",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-stream-members-inner"
+                            }
+                        ]
+                    },
+                    "get-room-members": {
+                        "type": "object",
+                        "description": "Lists the current members of an existing room.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-room-members-inner"
+                            }
+                        ]
+                    },
+                    "get-user-streams": {
+                        "type": "object",
+                        "description": "Returns a list of all the streams of which the requesting user is a member, sorted by creation date (ascending - oldest to newest).",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-user-streams-inner"
+                            }
+                        ]
+                    },
+                    "get-streams": {
+                        "type": "object",
+                        "description": "Returns a list of all the streams (IMs, MIMs, and chatrooms) for the calling user's company, sorted by creation date (ascending – oldest to newest).",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-streams-inner"
+                            }
+                        ]
+                    },
+                    "get-connection": {
+                        "type": "object",
+                        "description": "Get one connection status.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "create-connection": {
+                        "type": "object",
+                        "description": "Send a connection request to another user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "accept-connection": {
+                        "type": "object",
+                        "description": "Accept the connection request for a requesting user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "reject-connection": {
+                        "type": "object",
+                        "description": "Reject the connection request from a requesting user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "remove-connection": {
+                        "type": "object",
+                        "description": "Remove a connection with a user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-inner"
+                            }
+                        ]
+                    },
+                    "get-rooms": {
+                        "type": "object",
+                        "description": "Search for rooms, querying name, description, and specified keywords.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-rooms-inner"
+                            }
+                        ]
+                    },
+                    "get-messages": {
+                        "type": "object",
+                        "description": "Get message by id and list stream's messages.",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-messages-inner"
+                            }
+                        ]
+                    },
+                    "get-connections": {
+                        "type": "object",
+                        "description": "Get one or multiple connections statuses",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-connections-inner"
+                            }
+                        ]
                     }
-                ]
+                },
+                "maxProperties": 1,
+                "minProperties": 1,
+                "patternProperties": {
+                  "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                        "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
+                        "$ref": "#/definitions/basic-activity-inner"
+                    }
+                }
             }
         }
     },
     "definitions": {
-        "create-room": {
+        "search-user-inner": {
             "type": "object",
             "properties": {
-                "create-room": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/create-room-inner"
-                        }
-                    ]
+                "local": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If true then a local DB search will be performed and only local pod users will be returned. If absent or false then a directory search will be performed and users from other pods who are visible to the calling user will also be returned.",
+                    "default": false
+                },
+                "active": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                 }
-            },
-            "additionalProperties": false,
-            "required": [
-                "create-room"
-            ]
-        },
-        "update-room": {
-            "type": "object",
-            "properties": {
-                "update-room": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/update-room-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "update-room"
-            ]
-        },
-        "add-room-member": {
-            "type": "object",
-            "properties": {
-                "add-room-member": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/add-room-member-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "add-room-member"
-            ]
-        },
-        "remove-room-member": {
-            "type": "object",
-            "properties": {
-                "remove-room-member": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/remove-room-member-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "remove-room-member"
-            ]
-        },
-        "promote-room-owner": {
-            "type": "object",
-            "properties": {
-                "promote-room-owner": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/promote-room-owner-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "promote-room-owner"
-            ]
-        },
-        "demote-room-owner": {
-            "type": "object",
-            "properties": {
-                "demote-room-owner": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/demote-room-owner-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "demote-room-owner"
-            ]
-        },
-        "send-message": {
-            "type": "object",
-            "properties": {
-                "send-message": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/send-message-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "send-message"
-            ]
-        },
-        "execute-script": {
-            "type": "object",
-            "properties": {
-                "execute-script": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/basic-activity-inner"
-                        },
-                        {
-                            "$ref": "#/definitions/execute-script-inner"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false,
-            "required": [
-                "execute-script"
-            ]
+            }
         },
         "on": {
             "description": "Events that can trigger the activity execution.",
@@ -258,7 +455,7 @@
                         "timeout": {
                             "type": "string",
                             "description": "Timeout while waiting for events, expressed as an ISO 8601 duration.",
-                            "pattern": "(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
+                            "pattern": "(\\${.+})|(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
                         }
                     }
                 },
@@ -807,7 +1004,10 @@
                     "type": "string"
                 },
                 "public": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "uids": {
                     "type": "array"
@@ -836,31 +1036,58 @@
                     "type": "object"
                 },
                 "membersCanInvite": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "discoverable": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "public": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "readOnly": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "copyProtected": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "crossPod": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "viewHistory": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "multiLateralRoom": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 },
                 "active": {
-                    "type": "boolean"
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
                 }
             }
         },
@@ -931,10 +1158,19 @@
             ],
             "properties": {
                 "to": {
+                    "description": "The recipient (conversation, IM, MI or chatroom) in which the message should be posted.",
                     "$ref": "#/definitions/to"
                 },
                 "content": {
+                    "description": "The content of the message in MessageML format. Must contain at least one space.",
                     "type": "string"
+                },
+                "attachments": {
+                    "description": "One or more attachments to be sent along with the message.",
+                    "type": "array",
+                    "items": {
+                        "$ref":"#/definitions/attachment"
+                    }
                 }
             }
         },
@@ -951,19 +1187,1319 @@
                 }
             }
         },
-        "to": {
+        "create-user-inner": {
             "type": "object",
             "properties": {
-                "stream-id": {
+                "email": {
                     "type": "string",
-                    "title": "Stream ID to send the message",
-                    "description": "Stream ID where to send the message"
+                    "description": "Email address, must be unique",
+                    "$comment": "Variable or email regex is accepted.",
+                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                },
+                "firstname": {
+                    "type": "string",
+                    "description": "The user's first name. Required for NORMAL users.",
+                    "minLength": 1
+                },
+                "lastname": {
+                    "type": "string",
+                    "description": "The user's last name. Required for NORMAL users.",
+                    "minLength": 1
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Must be unique.",
+                    "minLength": 1
+                },
+                "display-name": {
+                    "type": "string",
+                    "description": "The user's display name. Required upon creation.",
+                    "minLength": 1
+                },
+                "recommended-language": {
+                    "type": "string",
+                    "description": "The recommended language. As an ISO 639-1 code.",
+                    "default": "en-US"
+                },
+                "contact": {
+                    "type": "object",
+                    "description": "Contact information",
+                    "additionalProperties": false,
+                    "properties": {
+                        "work-phone-number": {
+                            "type": "string",
+                            "description": "The user's work phone number."
+                        },
+                        "mobile-phone-number": {
+                            "type": "string",
+                            "description": "The user's mobile number."
+                        },
+                        "two-factor-auth-number": {
+                            "type": "string",
+                            "description": "The user's two factor authentication mobile phone number."
+                        },
+                        "sms-number": {
+                            "type": "string",
+                            "description": "The user's SMS number."
+                        }
+                    }
+                },
+                "business": {
+                    "type": "object",
+                    "description": "Business information",
+                    "additionalProperties": false,
+                    "properties": {
+                        "company-name": {
+                            "type": "string",
+                            "description": "The user's company name.\nIf not specified, it is set with the default company name."
+                        },
+                        "department": {
+                            "type": "string",
+                            "description": "The user's department."
+                        },
+                        "division": {
+                            "type": "string",
+                            "description": "The user's division."
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "The user's title."
+                        },
+                        "location": {
+                            "type": "string",
+                            "description": "The user's location."
+                        },
+                        "job-function": {
+                            "type": "string",
+                            "description": "The user's job function.",
+                            "enum": [
+                                "Analyst",
+                                "Other",
+                                "Business Development Executive",
+                                "Corporate Access",
+                                "Developer",
+                                "Director",
+                                "Economist",
+                                "Portfolio Manager",
+                                "Project Manager",
+                                "Research Analyst",
+                                "Sales",
+                                "Strategist",
+                                "Trader"
+                            ]
+                        },
+                        "asset-classes": {
+                            "type": "array",
+                            "description": "The user's asset classes (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Equities",
+                                    "Cash Equities",
+                                    "Securities Lending",
+                                    "Fixed Income",
+                                    "Government Bonds",
+                                    "Prime Brokerage",
+                                    "Commodities",
+                                    "Municipal Bonds",
+                                    "Currencies",
+                                    "Corporate Bonds"
+                                ]
+                            }
+                        },
+                        "industries": {
+                            "type": "array",
+                            "description": "The user's job industries (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Healthcare",
+                                    "Consumer Non-Cyclicals",
+                                    "Transportation",
+                                    "Technology",
+                                    "Real Estate",
+                                    "Basic Materials",
+                                    "Financials",
+                                    "Energy & Utilities",
+                                    "Conglomerates",
+                                    "Consumer Cyclicals",
+                                    "Services"
+                                ]
+                            }
+                        },
+                        "functions": {
+                            "type": "array",
+                            "description": "The user's job functions (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Collateral",
+                                    "Confirmation",
+                                    "Trade Processing",
+                                    "Pre-Matching",
+                                    "Margin",
+                                    "Matching",
+                                    "Claims Processing",
+                                    "Middle Office",
+                                    "Liquidity Management",
+                                    "Allocation",
+                                    "Trade Management",
+                                    "Regulatory Outreach",
+                                    "Settlements",
+                                    "Post Trade Management"
+                                ]
+                            }
+                        },
+                        "market-coverages": {
+                            "type": "array",
+                            "description": "The user's market coverage (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "EMEA",
+                                    "NA",
+                                    "APAC",
+                                    "LATAM"
+                                ]
+                            }
+                        },
+                        "responsibilities": {
+                            "type": "array",
+                            "description": "The user's responsibilities (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BAU",
+                                    "Escalation"
+                                ]
+                            }
+                        },
+                        "instruments": {
+                            "type": "array",
+                            "description": "The user's instruments (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Securities",
+                                    "Fixed Income",
+                                    "Equities"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "password": {
+                    "type": "object",
+                    "description": "User's password. The password object is optional for end-user accounts (NORMAL). For example, if your organization utilizes SSO, you may not want to specify the password.\n\nPlease note the password object is not used for service accounts (SYSTEM) and therefore cannot be entered in the request payload.",
+                    "additionalProperties": false,
+                    "required": [
+                        "hashedPassword",
+                        "hashedSalt"
+                    ],
+                    "properties": {
+                        "hashedPassword": {
+                            "description": "A base64-encoded string. The hashed password. This is the hashed version of the password the user would use to login.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "hashedSalt": {
+                            "description": "A base64-encoded string. The salt used for hashing the hPassword.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "hashedKmPassword": {
+                            "description": "A base64-encoded string. The hashed password to be used for authenticating to the key manager.",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "hashedKmSalt": {
+                            "description": "A base64-encoded string. The salt used for hashing the khPassword.",
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                },
+                "roles": {
+                    "$ref": "#/definitions/roles-inner"
+                },
+                "entitlements": {
+                    "$ref": "#/definitions/entitlements-inner"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                }
+            }
+        },
+        "create-system-user-inner": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "Email address, must be unique",
+                    "$comment": "Variable or email regex is accepted.",
+                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Must be unique.",
+                    "minLength": 1
+                },
+                "display-name": {
+                    "type": "string",
+                    "description": "The user's display name. Required upon creation.",
+                    "minLength": 1
+                },
+                "business": {
+                    "type": "object",
+                    "description": "Business information",
+                    "additionalProperties": false,
+                    "properties": {
+                        "company-name": {
+                            "type": "string",
+                            "description": "The user's company name.\nIf not specified, it is set with the default company name."
+                        },
+                        "department": {
+                            "type": "string",
+                            "description": "The user's department."
+                        },
+                        "division": {
+                            "type": "string",
+                            "description": "The user's division."
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "The user's title."
+                        },
+                        "location": {
+                            "type": "string",
+                            "description": "The user's location."
+                        },
+                        "job-function": {
+                            "type": "string",
+                            "description": "The user's job function.",
+                            "enum": [
+                                "Analyst",
+                                "Other",
+                                "Business Development Executive",
+                                "Corporate Access",
+                                "Developer",
+                                "Director",
+                                "Economist",
+                                "Portfolio Manager",
+                                "Project Manager",
+                                "Research Analyst",
+                                "Sales",
+                                "Strategist",
+                                "Trader"
+                            ]
+                        },
+                        "asset-classes": {
+                            "type": "array",
+                            "description": "The user's asset classes (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Equities",
+                                    "Cash Equities",
+                                    "Securities Lending",
+                                    "Fixed Income",
+                                    "Government Bonds",
+                                    "Prime Brokerage",
+                                    "Commodities",
+                                    "Municipal Bonds",
+                                    "Currencies",
+                                    "Corporate Bonds"
+                                ]
+                            }
+                        },
+                        "industries": {
+                            "type": "array",
+                            "description": "The user's job industries (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Healthcare",
+                                    "Consumer Non-Cyclicals",
+                                    "Transportation",
+                                    "Technology",
+                                    "Real Estate",
+                                    "Basic Materials",
+                                    "Financials",
+                                    "Energy & Utilities",
+                                    "Conglomerates",
+                                    "Consumer Cyclicals",
+                                    "Services"
+                                ]
+                            }
+                        },
+                        "functions": {
+                            "type": "array",
+                            "description": "The user's job functions (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Collateral",
+                                    "Confirmation",
+                                    "Trade Processing",
+                                    "Pre-Matching",
+                                    "Margin",
+                                    "Matching",
+                                    "Claims Processing",
+                                    "Middle Office",
+                                    "Liquidity Management",
+                                    "Allocation",
+                                    "Trade Management",
+                                    "Regulatory Outreach",
+                                    "Settlements",
+                                    "Post Trade Management"
+                                ]
+                            }
+                        },
+                        "market-coverages": {
+                            "type": "array",
+                            "description": "The user's market coverage (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "EMEA",
+                                    "NA",
+                                    "APAC",
+                                    "LATAM"
+                                ]
+                            }
+                        },
+                        "responsibilities": {
+                            "type": "array",
+                            "description": "The user's responsibilities (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BAU",
+                                    "Escalation"
+                                ]
+                            }
+                        },
+                        "instruments": {
+                            "type": "array",
+                            "description": "The user's instruments (one or more).",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Securities",
+                                    "Fixed Income",
+                                    "Equities"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "keys": {
+                    "type": "object",
+                    "description": "For SYSTEM users, to setup the RSA keys for authentication.",
+                    "properties": {
+                        "current": {
+                            "$ref": "#/definitions/key-inner"
+                        },
+                        "previous": {
+                            "$ref": "#/definitions/key-inner"
+                        }
+                    }
+                },
+                "roles": {
+                    "$ref": "#/definitions/roles-inner"
+                },
+                "entitlements": {
+                    "$ref": "#/definitions/entitlements-inner"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ENABLED",
+                        "DISABLED"
+                    ]
+                }
+            }
+        },
+        "key-inner": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "action": {
+                    "description": "A string indicating the action to be performed on the user's RSA.\n\nThe following actions can be performed on the user's active RSA key:\nSAVE\nREVOKE.\n\nThe following actions can be performed onto the user's rotated RSA key:\nREVOKE\nEXTEND.",
+                    "type": "string",
+                    "enum": [
+                        "SAVE",
+                        "EXTEND",
+                        "REVOKE"
+                    ]
+                },
+                "key": {
+                    "description": "A string containing the user's RSA public key. The key must be 4096 bits. Only PKCS8 format is allowed.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "expiration": {
+                    "description": "An ISO 8601 timestamp containing the RSA key expiration date. This value is only set for rotated keys.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "entitlements-inner": {
+            "type": "object",
+            "description": "Feature entitlements to configure for the user.",
+            "properties": {
+                "postReadEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to read wall posts."
+                },
+                "postWriteEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to write wall posts."
+                },
+                "delegatesEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to have delegates."
+                },
+                "isExternalIMEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to chat in external IM/MIMs."
+                },
+                "canShareFilesExternally": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to share files externally."
+                },
+                "canCreatePublicRoom": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to create internal public rooms."
+                },
+                "canUpdateAvatar": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to edit profile picture."
+                },
+                "isExternalRoomEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to chat in private external rooms."
+                },
+                "canCreatePushedSignals": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to create push signals."
+                },
+                "canUseCompactMode": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enables Lite Mode."
+                },
+                "mustBeRecorded": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Must be recorded in meetings."
+                },
+                "sendFilesEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to send files internally."
+                },
+                "canUseInternalAudio": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use audio in internal Meetings."
+                },
+                "canUseInternalVideo": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use video in internal Meetings."
+                },
+                "canProjectInternalScreenShare": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to share screens in internal Meetings."
+                },
+                "canViewInternalScreenShare": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to view shared screens in internal Meetings."
+                },
+                "canCreateMultiLateralRoom": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to create multi-lateral room."
+                },
+                "canJoinMultiLateralRoom": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to join multi-lateral room."
+                },
+                "canUseFirehose": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use Firehose."
+                },
+                "canUseInternalAudioMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use audio in internal meetings on mobile."
+                },
+                "canUseInternalVideoMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to use video in internal meetings on mobile."
+                },
+                "canProjectInternalScreenShareMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to share screens in internal meetings on mobile."
+                },
+                "canViewInternalScreenShareMobile": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to view shared screens in internal meetings on mobile."
+                },
+                "canManageSignalSubscription": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allows the user to manage signal subscriptions."
+                },
+                "canCreateDatahose": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can create datahose feeds."
+                },
+                "canIntegrateEmail": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can integrate email service."
+                },
+                "canReadDatahose": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can read from datahose feeds."
+                },
+                "canSuppressMessage": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can suppress own messages."
+                },
+                "canSwitchToClient20": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can switch to Client 2.0 experience."
+                },
+                "canUpdateRoomHistoryProperty": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can Toggle Room's Share History Property."
+                },
+                "canUseEncryptAPI": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allow user to use Agent Encrypt endpoints."
+                },
+                "enableSwiftSearch": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Can Use Swift Search."
+                },
+                "sdaDevtoolsEnabled": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Developer Tools for SDA."
+                },
+                "sdaPermissionsFullScreen": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Full screen access on SDA."
+                },
+                "sdaPermissionsGeoLocation": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable location access on SDA."
+                },
+                "sdaPermissionsMedia": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Media access on SDA."
+                },
+                "sdaPermissionsMidiSysex": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable access to MIDI Sysex on SDA."
+                },
+                "sdaPermissionsNotifications": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allow notifications on SDA."
+                },
+                "sdaPermissionsOpenExternalApp": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Allow Opening External Apps from SDA."
+                },
+                "sdaPermissionsPointerLock": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Enable Pointer Lock on SDA."
+                }
+            }
+        },
+        "roles-inner": {
+            "type": "array",
+            "description": "The roles consists of the following possibilities:\n\nFor end-user accounts (NORMAL), roles are:\nINDIVIDUAL\nADMINISTRATOR\nSUPER_ADMINISTRATOR\nL1_SUPPORT\nL2_SUPPORT\nCOMPLIANCE_OFFICER\nSUPER_COMPLIANCE_OFFICER\nFor service accounts (SYSTEM), roles are:\nINDIVIDUAL\nUSER_PROVISIONING\nSCOPE_MANAGEMENT\nCONTENT_MANAGEMENT\nMALWARE_SCAN_MANAGER\nMALWARE_SCAN_STATE_USER\nAUDIT_TRAIL_MANAGEMENT\nPlease note that, for end-user accounts, if no role is specified at creation, then the INDIVIDUAL value is assigned.",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "enum": [
+                    "INDIVIDUAL",
+                    "ADMINISTRATOR",
+                    "SUPER_ADMINISTRATOR",
+                    "L1_SUPPORT",
+                    "L2_SUPPORT",
+                    "COMPLIANCE_OFFICER",
+                    "SUPER_COMPLIANCE_OFFICER",
+                    "USER_PROVISIONING",
+                    "SCOPE_MANAGEMENT",
+                    "CONTENT_MANAGEMENT",
+                    "MALWARE_SCAN_MANAGER",
+                    "MALWARE_SCAN_STATE_USER",
+                    "AUDIT_TRAIL_MANAGEMENT",
+                    "AGENT",
+                    "CONTENT_EXPORT_SERVICE",
+                    "SYMPHONY_ADMIN",
+                    "KEY_MANAGER",
+                    "EF_POLICY_MANAGEMENT",
+                    "CEP_VISIBILITY_GROUP_MANAGEMENT"
+                ]
+            }
+        },
+        "user-role-inner": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "type": "array",
+                    "description": "Users to add or remove roles from.",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "items": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ],
+                        "minLength": 1
+                    }
+                },
+                "roles": {
+                    "$ref": "#/definitions/roles-inner"
                 }
             },
-            "additionalProperties": false,
+            "required": [
+                "user-ids",
+                "roles"
+            ]
+        },
+        "get-user-inner": {
+            "type": "object",
+            "properties": {
+                "user-id": {
+                    "$ref": "#/definitions/user-id"
+                }
+            },
+            "required": [
+                "user-id"
+            ]
+        },
+        "get-users-inner": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "type": "array",
+                    "description": "List of user ids. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                    "items": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    },
+                    "minLength": 1
+                },
+                "emails": {
+                    "type": "array",
+                    "description": "List of email addresses. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                    "items": {
+                        "type": "string",
+                        "$comment": "Variable or email regex is accepted.",
+                        "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                    },
+                    "minLength": 1
+                },
+                "usernames": {
+                    "type": "array",
+                    "description": "List of usernames. If username is specified, local must be set to true. It is possible to search for more than one username by separating them by comma. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minLength": 1
+                },
+                "local": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If true then a local DB search will be performed and only local pod users will be returned. If absent or false then a directory search will be performed and users from other pods who are visible to the calling user will also be returned.",
+                    "default": false
+                },
+                "active": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
+                }
+            }
+        },
+        "get-stream-inner": {
+            "properties": {
+                "stream-id": {
+                    "description": "Id of the stream for which to get information.",
+                    "type": [
+                        "string"
+                    ],
+                    "minLength": 1
+                }
+            },
             "required": [
                 "stream-id"
             ]
+        },
+        "get-room-inner": {
+            "properties": {
+                "stream-id": {
+                    "description": "Room streamId.",
+                    "type": [
+                        "string"
+                    ],
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "stream-id"
+            ]
+        },
+        "connection-inner": {
+            "type": "object",
+            "properties": {
+                "user-id": {
+                    "description": "User id with whom to get/accept/reject/remove the connection status.",
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1
+                }
+            },
+            "required": ["user-id"]
+        },
+        "get-stream-members-inner": {
+            "properties": {
+                "stream-id": {
+                    "description": "Id of the stream for which to return members.",
+                    "type": [
+                        "string"
+                    ],
+                    "minLength": 1
+                },
+                "limit": {
+                    "description": "Maximum number of members to be returned - used for pagination. Maximum allowed is 1000.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "maximum": 1000,
+                    "minimum": 1
+                },
+                "skip": {
+                    "description": "Number of members to be skipped during return - used for pagination.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                }
+            },
+            "required": [
+                "stream-id"
+            ]
+        },
+        "get-room-members-inner": {
+            "properties": {
+                "stream-id": {
+                    "description": "Id of the stream for which to return members.",
+                    "type": [
+                        "string"
+                    ],
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "stream-id"
+            ]
+        },
+        "get-user-streams-inner": {
+            "properties": {
+                "types": {
+                    "description": "A list of stream types that will be returned. Options are IM (1-1 instant messages), MIM (multiparty instant messages), ROOM (rooms), POST (the user's wall). For more information, see the streamTypes section below.\nIf not specified, all types of streams are returned.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "IM",
+                            "MIM",
+                            "ROOM",
+                            "POST"
+                        ]
+                    }
+                },
+                "include-inactive-streams": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Whether to include inactive conversations. A chatroom is inactive if it has been deactivated by an owner or admin. An IM or MIM is inactive if one of the participating users has been deactivated by an admin. If not specified, only active streams are returned."
+                },
+                "limit": {
+                    "description": "Maximum number of streams to return.\nIf limit is not set, a maximum of 50 streams will be returned.\nIf limit=0, all user streams will be returned.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "default": 50,
+                    "minimum": 0
+                },
+                "skip": {
+                    "description": "Number of stream results to skip.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                }
+            }
+        },
+        "get-message-inner": {
+            "properties": {
+                "message-id": {
+                    "description": "The message identifier.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["message-id"]
+        },
+        "get-streams-inner": {
+            "properties": {
+                "types": {
+                    "description": "A list of stream types that will be returned (IM, MIM, ROOM). If not specified, streams of all types are returned.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "IM",
+                            "MIM",
+                            "ROOM"
+                        ]
+                    }
+                },
+                "scope": {
+                    "type": "string",
+                    "enum": [
+                        "INTERNAL",
+                        "EXTERNAL"
+                    ],
+                    "description": "The scope of the stream: INTERNAL (restricted to members of the calling user's company) or EXTERNAL (including members of the calling user's company, as well as another firm). If not specified, returns streams of either scope."
+                },
+                "origin": {
+                    "type": "string",
+                    "enum": [
+                        "INTERNAL",
+                        "EXTERNAL"
+                    ],
+                    "description": "The origin of the room: INTERNAL (created by a user of the calling user's company) or EXTERNAL (created by a user of another company). If not specified, returns streams of either origin. Only applies to chatrooms with External scope."
+                },
+                "privacy": {
+                    "type": "string",
+                    "enum": [
+                        "PRIVATE",
+                        "PUBLIC"
+                    ],
+                    "description": "The privacy setting of the room: PRIVATE (members must be added) OR PUBLIC (anyone can join). If not specified, returns both private and public rooms. Only applies to chatrooms with internal scope."
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ACTIVE",
+                        "INACTIVE"
+                    ],
+                    "description": "The status of the room: ACTIVE or INACTIVE. If not specified, both active and inactive streams are returned."
+                },
+                "start-date": {
+                    "type": "string",
+                    "description": "Restricts result set to rooms that have been modified since this date (an Epoch timestamp specified in milliseconds). When specified along with endDate, enables the developer to specify rooms modified within a given time range."
+                },
+                "end-date": {
+                    "type": "string",
+                    "description": "Restricts result set to rooms that have been modified prior to this date (an Epoch timestamp specified in milliseconds). When specified along with startDate, enables the developer to specify rooms modified within a given time range."
+                },
+                "limit": {
+                    "description": "Maximum number of streams to be returned - used for pagination. Maximum allowed is 100.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 1,
+                    "maximum": 100
+                },
+                "skip": {
+                    "description": "Number of streams to be skipped during return - used for pagination.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                }
+            }
+        },
+        "get-rooms-inner": {
+            "properties": {
+                "query": {
+                    "description": "The query which is searched for in room name, description, and optionally keywords. Case insensitive.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "A list of room keywords whose values will be queried."
+                },
+                "active": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If true, it restricts the search to active rooms. If false, it restricts the search to inactive rooms. If not specified, it includes both active and inactive rooms. Note that for inactive rooms, only rooms where the calling user is a member will be in the search scope; read the box “Room Search Scope” for further details."
+                },
+                "private": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If true, it includes only private rooms in the search results. If false, only public rooms are returned. If not specified, both public and private rooms are returned. Note that for inactive rooms, only discoverable rooms and rooms where the calling user is a member will be in the search scope; read the box “Room Search Scope” for further details."
+                },
+                "creator-id": {
+                    "type": [
+                        "string",
+                        "number"
+                    ],
+                    "description": "If provided, restricts the search to rooms created by the specified user.",
+                    "minLength": 1
+                },
+                "owner-id": {
+                    "type": [
+                        "string",
+                        "number"
+                    ],
+                    "description": "If provided, restricts the search to rooms owned by the specified user.",
+                    "minLength": 1
+                },
+                "member-id": {
+                    "type": [
+                        "string",
+                        "number"
+                    ],
+                    "description": "If provided, restricts the search to rooms where the specified user is a member.",
+                    "minLength": 1
+                },
+                "sort-order": {
+                    "type": "string",
+                    "enum": [
+                        "BASIC",
+                        "RELEVANCE"
+                    ],
+                    "description": "Sort algorithm to be used. Supports two values: BASIC (legacy algorithm) and RELEVANCE (enhanced algorithm)."
+                },
+                "limit": {
+                    "description": "Maximum number of rooms to return. Must be a positive integer that doesn’t exceed 100.",
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minimum": 1,
+                    "maximum": 100
+                },
+                "skip": {
+                    "description": "Number of room search results to skip.",
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minimum": 0
+                }
+            },
+            "required": [
+                "query"
+            ]
+        },
+        "get-messages-inner": {
+            "type": "object",
+            "properties": {
+                "stream-id": {
+                    "description": "Stream identifier.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "since": {
+                    "description": "Date, in ISO 8601 format, of the earliest possible data of the first message returned.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "skip": {
+                    "description": "Number of messages search to skip.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                },
+                "limit": {
+                    "description": "Maximum number of messages to return. Default limit is 50.",
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                }
+            },
+            "required": ["stream-id", "since"]
+        },
+        "get-connections-inner": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "description": "List of user ids that this activity results will be restricted to their connections.",
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "items": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ],
+                        "minLength": 1
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "PENDING_INCOMING",
+                        "PENDING_OUTGOING",
+                        "ACCEPTED",
+                        "REJECTED",
+                        "ALL"
+                    ]
+                }
+            },
+            "required": ["user-ids", "status"]
+        },
+        "to": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/stream-id"
+                },
+                {
+                    "$ref": "#/definitions/user-ids"
+                }
+            ]
+        },
+        "stream-id": {
+            "type": "object",
+            "properties": {
+                "stream-id": {
+                    "description": "Stream ID where to send the message",
+                    "title": "Stream ID to send the message",
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["stream-id"]
+        },
+        "user-ids": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "description": "User ids to send the message to",
+                    "title": "User ids to send the message to",
+                    "type": "array",
+                    "items": {
+                       "$ref": "#/definitions/user-id"
+                    },
+                    "minLength": 1,
+                    "uniqueItems": true
+                }
+            },
+            "required": ["user-ids"]
+        },
+        "user-id": {
+            "description": "User identifier",
+            "title": "User ids to send the message to",
+            "type": [
+                "string",
+                "integer"
+            ],
+            "minLength": 1
+        },
+        "attachment": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/attachment-message"
+                },
+                {
+                    "$ref": "#/definitions/attachment-file"
+                }
+            ]
+        },
+        "attachment-message": {
+            "type": "object",
+            "properties": {
+                "message-id": {
+                    "description": "Message id having the attachment to forward.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "attachment-id": {
+                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": ["message-id"]
+        },
+        "attachment-file": {
+            "type": "object",
+            "required": ["content-path"],
+            "properties": {
+                "content-path": {
+                    "description": "Path to the file to be attached to the message. The path is relative to the workflows folder.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
         }
     }
 }

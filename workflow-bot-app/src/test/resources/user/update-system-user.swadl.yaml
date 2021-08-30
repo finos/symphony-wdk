@@ -1,0 +1,19 @@
+name: update-system-user
+activities:
+  - update-system-user:
+      id: update
+      on:
+        message-received:
+          content: /update-user
+      user-id: "123"
+      display-name: Changed
+      roles:
+        - ADMINISTRATOR
+        - USER_PROVISIONING
+      entitlements:
+        canCreatePublicRoom: true
+        canJoinMultiLateralRoom: false
+  - execute-script:
+      id: script
+      script: |
+        assert update.outputs.user != null

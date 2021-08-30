@@ -1,0 +1,19 @@
+name: create-system-user
+activities:
+  - create-system-user:
+      id: create
+      on:
+        message-received:
+          content: /create-user
+      email: john@mail.com
+      username: john
+      display-name: John
+      keys:
+        current:
+          action: SAVE
+          expiration: "2021-08-17T14:35:17+00:00"
+          key: abc
+  - execute-script:
+      id: script
+      script: |
+        assert create.outputs.user != null

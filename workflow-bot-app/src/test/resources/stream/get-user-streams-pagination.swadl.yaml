@@ -1,0 +1,17 @@
+name: get-user-streams-pagination
+activities:
+  - get-user-streams:
+      id: act1
+      on:
+        message-received:
+          content: /get-user-streams-pagination
+      types:
+        - ROOM
+        - POST
+      include-inactive-streams: true
+      skip: 10
+      limit: 10
+  - execute-script:
+      id: script
+      script: |
+        assert act1.outputs.streams != null

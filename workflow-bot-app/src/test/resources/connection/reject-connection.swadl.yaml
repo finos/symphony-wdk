@@ -1,0 +1,8 @@
+name: reject-connection
+activities:
+  - reject-connection:
+      id: rejectConnection
+      on:
+        message-received:
+          content: /reject-connection
+      user-id: 1234

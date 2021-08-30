@@ -1,0 +1,10 @@
+name: message-received-args
+activities:
+  - send-message:
+      id: act
+      on:
+        message-received:
+          content: /go {arg1}
+      to:
+        stream-id: abc
+      content: Received ${event.args.arg1}

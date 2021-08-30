@@ -23,7 +23,11 @@ node {
         }
 
         stage('Build Project') {
-            sh './gradlew check'
+            try {
+                sh './gradlew check'
+            } finally {
+                util.archiveJunitTestArtifacts("**/build/test-results/test/*.xml")
+            }
         }
 
         stage("Publish and deploy") {

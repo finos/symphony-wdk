@@ -1,0 +1,8 @@
+name: get-message-by-stream-id-invalid-workflow
+activities:
+  - get-messages:
+      id: getMessageByStreamIdInvalidWorkflow
+      on:
+        message-received:
+          content: /get-msg-by-stream-id-invalid
+      stream-id: STREAM_ID

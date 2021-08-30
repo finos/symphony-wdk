@@ -1,0 +1,33 @@
+name: forward-attachments
+activities:
+  - execute-script:
+      id: command
+      on:
+        message-received:
+          content: /forward {users}
+      script: |
+
+        variables.idx = 0
+        variables.max = com.symphony.bdk.core.service.message.util.MessageParser.getMentions(event.source.message).size()
+  - create-room:
+      id: oneToOne
+      on:
+        one-of:
+          - activity-completed:
+              activity-id: command
+          - activity-completed:
+              activity-id: nextIteration
+              if: ${variables.idx < variables.max}
+      uids:
+        - ${mentions(event)[variables.idx]}
+  - send-message:
+      id: forward
+      to:
+        stream-id: ${oneToOne.outputs.roomId}
+      content: Forwarded
+      attachments:
+        - message-id: ${event.source.message.messageId}
+  - execute-script:
+      id: nextIteration
+      script: |
+        variables.idx++

@@ -1,0 +1,9 @@
+name: get-message-by-stream-id-without-pagination
+activities:
+  - get-messages:
+      id: listMessagesWithoutPagination
+      on:
+        message-received:
+          content: /get-msg-by-stream-id-without-pagination
+      stream-id: STREAM_ID
+      since: 1997-01-19T09:59:51.300Z

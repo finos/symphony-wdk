@@ -1,16 +1,13 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
@@ -22,11 +19,8 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
     engine.execute(workflow);
-
-    V4Message message = message("msgId");
-    when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -43,11 +37,8 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_multipleUsers() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
     engine.execute(workflow);
-
-    V4Message message = message("msgId");
-    when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -67,12 +58,9 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_followUpActivity() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass()
+    Workflow workflow = SwadlParser.fromYaml(getClass()
         .getResourceAsStream("/form/send-form-reply-followup-activity.swadl.yaml"));
     engine.execute(workflow);
-
-    V4Message message = message("msgId");
-    when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -88,12 +76,9 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormSendMessageOnReply_expiration() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(
+    Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/form/send-form-reply-expiration.swadl.yaml"));
     engine.execute(workflow);
-
-    V4Message message = message("msgId");
-    when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -107,12 +92,9 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormNested() throws Exception {
-    Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/form/send-form-reply-nested.swadl.yaml"));
     engine.execute(workflow);
-
-    V4Message message = message("msgId");
-    when(messageService.send(anyString(), anyString())).thenReturn(message);
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));

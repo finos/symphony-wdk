@@ -1,0 +1,10 @@
+name: message-received-args-mention
+activities:
+  - send-message:
+      id: act
+      on:
+        message-received:
+          content: /go @{user}
+      to:
+        stream-id: abc
+      content: Received ${event.args.user} ${mentions(event)[0]}

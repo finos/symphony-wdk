@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.swadl.WorkflowBuilder;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -20,9 +20,8 @@ class TimerEventsIntegrationTest extends IntegrationTest {
 
   @Test
   void at() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-at.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     // set workflow to execute once in the future
     Instant future = Instant.now().plus(1, ChronoUnit.SECONDS);
@@ -30,46 +29,43 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     engine.execute(workflow);
 
     // wait for execution
-    verify(messageService, timeout(5000)).send("abc", "Ok");
+    verify(messageService, timeout(5000)).send(eq("abc"), content("Ok"));
   }
 
   @Test
   void repeat() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
 
     // wait for multiple executions
-    verify(messageService, timeout(5000).times(2)).send("abc", "Ok");
+    verify(messageService, timeout(5000).times(2)).send(eq("abc"), content("Ok"));
   }
 
   @Test
   void repeatAsIntermediateEvent() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-intermediate.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/execute"));
 
-    verify(messageService, timeout(5000)).send("abc", "start");
+    verify(messageService, timeout(5000)).send(eq("abc"), content("start"));
     // executed only once because the process ends after
-    verify(messageService, timeout(5000)).send("abc", "repeat");
+    verify(messageService, timeout(5000)).send(eq("abc"), content("repeat"));
   }
 
   @Test
   void repeatMixedWithOtherEvents() throws IOException, ProcessingException {
-    final Workflow workflow = WorkflowBuilder.fromYaml(getClass().getResourceAsStream(
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-mixed.swadl.yaml"));
-    when(messageService.send(anyString(), anyString())).thenReturn(message("msgId"));
 
     engine.execute(workflow);
     engine.onEvent(messageReceived("/execute"));
 
     // wait for multiple executions: 1 with message, 2 by timer
-    verify(messageService, timeout(5000).times(3)).send("abc", "Ok");
+    verify(messageService, timeout(5000).times(3)).send(eq("abc"), content("Ok"));
   }
 
 }

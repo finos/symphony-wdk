@@ -1,0 +1,13 @@
+name: update-user-status
+activities:
+  - update-user:
+      id: update
+      on:
+        message-received:
+          content: /update-user
+      user-id: "123"
+      status: DISABLED
+  - execute-script:
+      id: script
+      script: |
+        assert update.outputs.user != null

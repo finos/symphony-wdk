@@ -1,0 +1,11 @@
+name: get-connections
+activities:
+  - get-connections:
+      id: getConnections
+      on:
+        message-received:
+          content: /get-connections
+      user-ids:
+        - 666
+        - 777
+      status: ACCEPTED

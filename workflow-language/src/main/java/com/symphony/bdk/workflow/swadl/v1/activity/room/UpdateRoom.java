@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,15 +23,60 @@ public class UpdateRoom extends BaseActivity {
   private String roomDescription;
   private Map<String, String> keywords;
 
-  private Boolean membersCanInvite;
-  private Boolean discoverable;
+  private String membersCanInvite;
+  private String discoverable;
   @JsonProperty("public")
-  private Boolean isPublic;
-  private Boolean readOnly;
-  private Boolean copyProtected;
-  private Boolean crossPod;
-  private Boolean viewHistory;
-  private Boolean multiLateralRoom;
+  private String isPublic;
+  private String readOnly;
+  private String copyProtected;
+  private String crossPod;
+  private String viewHistory;
+  private String multiLateralRoom;
 
-  private Boolean active;
+  private String active;
+
+  @JsonIgnore
+  public Boolean getMembersCanInviteAsBool() {
+    return toBoolean(membersCanInvite);
+  }
+
+  @JsonIgnore
+  public Boolean getDiscoverableAsBool() {
+    return toBoolean(discoverable);
+  }
+
+  @JsonIgnore
+  public Boolean getIsPublicAsBool() {
+    return toBoolean(isPublic);
+  }
+
+  @JsonIgnore
+  public Boolean getReadOnlyAsBool() {
+    return toBoolean(readOnly);
+  }
+
+  @JsonIgnore
+  public Boolean getCopyProtectedAsBool() {
+    return toBoolean(copyProtected);
+  }
+
+  @JsonIgnore
+  public Boolean getCrossPodAsBool() {
+    return toBoolean(crossPod);
+  }
+
+  @JsonIgnore
+  public Boolean getViewHistoryAsBool() {
+    return toBoolean(viewHistory);
+  }
+
+  @JsonIgnore
+  public Boolean getMultiLateralRoomAsBool() {
+    return toBoolean(multiLateralRoom);
+  }
+
+  @JsonIgnore
+  public Boolean getActiveAsBool() {
+    return toBoolean(active);
+  }
 }

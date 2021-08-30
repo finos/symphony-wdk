@@ -95,3 +95,5 @@ workflow-bot-app/*.png
 
 workflow-bot-app/workflows
 !workflow-bot-app/workflows/README.txt
+
+workflow-bot-app/src/main/resources/application-local.yaml

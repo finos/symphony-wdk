@@ -1,0 +1,27 @@
+name: create-user
+activities:
+  - create-user:
+      id: create
+      on:
+        message-received:
+          content: /create-user
+      email: john@mail.com
+      username: john
+      firstname: John
+      lastname: Lee
+      display-name: John Lee
+      roles:
+        - ADMINISTRATOR
+        - USER_PROVISIONING
+      status: DISABLED
+      entitlements:
+        canCreatePublicRoom: true
+        canJoinMultiLateralRoom: false
+      contact:
+        mobile-phone-number: "123456789"
+      business:
+        division: Space
+  - execute-script:
+      id: script
+      script: |
+        assert create.outputs.user != null
