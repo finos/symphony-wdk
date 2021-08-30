@@ -1,6 +1,6 @@
-# Workflow Bot
+# Symphony Workflow Developer Kit (WDK)
 
-_Also known as Workflow API_, check out the [documentation on Confluence](https://perzoinc.atlassian.net/wiki/spaces/DevX/pages/1455556023/10.+Workflow+API)
+_Also known as Workflow API or Workflow bot_, check out the [documentation on Confluence](https://perzoinc.atlassian.net/wiki/spaces/DevX/pages/1455556023/10.+Workflow+API)
 
 ## Usage
 
