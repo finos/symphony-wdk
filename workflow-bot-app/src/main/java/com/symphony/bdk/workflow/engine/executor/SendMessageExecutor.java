@@ -36,7 +36,8 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     String streamId = resolveStreamId(execution, activity, execution.bdk().streams());
     log.debug("Sending message to room {}", streamId);
 
-    if (streamId.endsWith("=")) { // TODO should be done in the BDK: https://perzoinc.atlassian.net/browse/PLAT-11214
+    // TODO remove once https://github.com/finos/symphony-bdk-java/pull/567 is released
+    if (streamId.endsWith("=")) {
       streamId = StreamUtil.toUrlSafeStreamId(streamId);
     }
 

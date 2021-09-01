@@ -21,7 +21,7 @@ public class GetMessagesExecutor implements ActivityExecutor<GetMessages> {
     GetMessages activity = context.getActivity();
     String streamId = activity.getStreamId();
 
-    //TODO: remove when https://perzoinc.atlassian.net/browse/PLAT-11214 is done
+    // TODO remove once https://github.com/finos/symphony-bdk-java/pull/567 is released
     if (streamId != null && streamId.endsWith("=")) {
       streamId = StreamUtil.toUrlSafeStreamId(streamId);
     }
