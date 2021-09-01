@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - checkout
-      - run: gradle check
+      - run: ./gradlew check
       - run:
           name: Save test results
           command: |
@@ -35,7 +35,7 @@ jobs:
     steps:
       - checkout
       - run: printf "$GPG_KEY_BASE64" | base64 --decode > ./secring.gpg
-      - run: gradle publish closeAndReleaseRepository -Pversion=CIRCLE_BRANCH -PmavenRepoUsername=MAVEN_USERNAME -PmavenRepoPassword=MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=./secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE
+      - run: ./gradlew publish closeAndReleaseRepository -Pversion=CIRCLE_BRANCH -PmavenRepoUsername=MAVEN_USERNAME -PmavenRepoPassword=MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=./secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE
 
 
 workflows:
