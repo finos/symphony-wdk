@@ -8,7 +8,7 @@ activities:
       script: println "act1"
   - execute-script:
       id: act2
-      if: ${"1" == "2"}
+      if: ${1 == 2}
       script: println "act2"
   - execute-script:
       id: act3

@@ -8,14 +8,14 @@ activities:
       script: println "test1"
   - execute-script:
       id: act2
-      if: ${"1" == "2"}
+      if: ${1 == 2}
       script: println "test2"
   - execute-script:
       id: act3
       on:
         activity-completed:
           activity-id: act1
-      if: ${"1" == "1"}
+      if: ${1 == 1}
       script: println "test3"
   - execute-script:
       id: act4
