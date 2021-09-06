@@ -1,4 +1,4 @@
-name: get-message-by-stream-id-with-pagination
+id: get-message-by-stream-id-with-pagination
 activities:
   - get-messages:
       id: listMessagesWithPagination

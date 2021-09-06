@@ -1,4 +1,4 @@
-name: execute-script-sets-variable
+id: execute-script-sets-variable
 variables:
   foo: doo
 activities:

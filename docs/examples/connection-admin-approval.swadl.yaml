@@ -27,7 +27,7 @@ activities:
       id: formReplyAccept
       on:
         form-replied:
-          id: form
+          form-id: form
       if: ${form.action == 'accept'}
       user-id: ${variables.user}
   - send-message:
@@ -41,7 +41,7 @@ activities:
       on:
         one-of:
           - form-replied:
-              id: form
+              form-id: form
           - activity-completed:
               activity-id: form
       if: ${form.action == 'reject'}

@@ -1,4 +1,4 @@
-name: second-if-join
+id: second-if-join
 activities:
   - execute-script:
       id: act1

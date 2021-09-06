@@ -1,4 +1,4 @@
-name: if
+id: if
 variables:
   foo: foo
 activities:

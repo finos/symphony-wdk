@@ -1,4 +1,4 @@
-name: create-system-user
+id: create-system-user
 activities:
   - create-system-user:
       id: create

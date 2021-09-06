@@ -1,4 +1,4 @@
-name: update-system-user
+id: update-system-user
 activities:
   - update-system-user:
       id: update

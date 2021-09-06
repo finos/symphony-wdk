@@ -1,4 +1,4 @@
-name: get-message-by-id-unfound
+id: get-message-by-id-unfound
 activities:
   - get-message:
       id: getMessageByIdUnfound

@@ -11,8 +11,7 @@ import java.util.Optional;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Workflow {
-  private String name;
-  private int version;
+  private String id;
   private Map<String, Object> variables = Collections.emptyMap();
   private List<Activity> activities;
 

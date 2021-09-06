@@ -1,4 +1,4 @@
-name: get-streams-pagination
+id: get-streams-pagination
 activities:
   - get-streams:
       id: act1

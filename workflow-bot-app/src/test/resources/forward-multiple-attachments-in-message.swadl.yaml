@@ -1,8 +1,7 @@
-name: forward-multiple-attachments-in-message
+id: forward-multiple-attachments-in-message
 activities:
   - send-message:
       id: forwardMultiple
-      description: send message with multiple provided attachments
       on:
         message-received:
           content: /forward-multiple

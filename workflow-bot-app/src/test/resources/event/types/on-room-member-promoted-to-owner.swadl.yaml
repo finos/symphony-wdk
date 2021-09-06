@@ -1,4 +1,4 @@
-name: on-room-member-promoted-to-owner
+id: on-room-member-promoted-to-owner
 activities:
   - execute-script:
       id: doIt

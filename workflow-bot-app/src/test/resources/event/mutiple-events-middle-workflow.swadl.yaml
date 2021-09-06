@@ -1,4 +1,4 @@
-name: multiple-events-middle-workflow
+id: multiple-events-middle-workflow
 activities:
   - send-message:
       id: one

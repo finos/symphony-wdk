@@ -1,4 +1,4 @@
-name: remove-connection
+id: remove-connection
 activities:
   - remove-connection:
       id: removeConnection

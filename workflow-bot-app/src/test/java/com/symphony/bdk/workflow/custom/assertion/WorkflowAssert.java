@@ -91,7 +91,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
   public static Optional<String> lastProcess(Workflow workflow) {
     List<HistoricProcessInstance> processes = IntegrationTest.historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionName(workflow.getName())
+        .processDefinitionName(workflow.getId())
         .orderByProcessInstanceStartTime().desc()
         .list();
     if (processes.isEmpty()) {

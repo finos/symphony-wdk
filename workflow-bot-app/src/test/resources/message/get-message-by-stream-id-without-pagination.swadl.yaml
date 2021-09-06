@@ -1,4 +1,4 @@
-name: get-message-by-stream-id-without-pagination
+id: get-message-by-stream-id-without-pagination
 activities:
   - get-messages:
       id: listMessagesWithoutPagination

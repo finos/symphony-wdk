@@ -1,4 +1,4 @@
-name: get-user-streams
+id: get-user-streams
 activities:
   - get-user-streams:
       id: act1

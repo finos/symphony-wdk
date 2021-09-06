@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -32,6 +33,9 @@ public class CamundaEngine implements WorkflowEngine {
 
   @Override
   public void execute(Workflow workflow) throws IOException {
+    if (workflow.getId() == null) {
+      workflow.setId("workflow_" + UUID.randomUUID());
+    }
     Deployment deployment = bpmnBuilder.addWorkflow(workflow);
     log.info("Deployed workflow {}", deployment.getId());
     auditTrailLogger.deployed(deployment);

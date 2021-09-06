@@ -1,4 +1,4 @@
-name: no-start-command
+id: no-start-command
 activities:
   - send-message:
       id: sendMsg1

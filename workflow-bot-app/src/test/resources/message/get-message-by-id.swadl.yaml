@@ -1,4 +1,4 @@
-name: get-message-by-id
+id: get-message-by-id
 activities:
   - get-message:
       id: getMessageByIdFound

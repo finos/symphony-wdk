@@ -1,4 +1,4 @@
-name: on-room-member-demoted-from-owner
+id: on-room-member-demoted-from-owner
 activities:
   - execute-script:
       id: doIt

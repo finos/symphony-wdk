@@ -1,8 +1,7 @@
-name: create-room-invalid-workflow
+id: create-room-invalid-workflow
 activities:
   - create-room:
       id: "create-room-invalid"
-      description: "Not public and user ids not set"
       on:
         message-received:
           content: "/create-room-invalid"

@@ -7,5 +7,5 @@ import lombok.Data;
  */
 @Data
 public class FormRepliedEvent {
-  private String id;
+  private String formId;
 }

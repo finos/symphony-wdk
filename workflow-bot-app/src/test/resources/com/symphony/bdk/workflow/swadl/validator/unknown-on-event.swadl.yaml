@@ -1,7 +1,7 @@
-name: test
+id: test
 activities:
   - send-message:
       on:
         unknown
-      id: '123'
+      id: 'a123'
       content: "abc"

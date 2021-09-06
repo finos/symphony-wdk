@@ -1,4 +1,4 @@
-name: custom-activity
+id: custom-activity
 activities:
   - not-existing:
       id: doIt

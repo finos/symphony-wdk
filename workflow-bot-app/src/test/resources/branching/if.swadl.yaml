@@ -1,4 +1,3 @@
-name: if
 variables:
   foo: foo
 activities:

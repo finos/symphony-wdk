@@ -14,9 +14,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class SwadlParser {
 
@@ -38,5 +41,20 @@ public class SwadlParser {
     String yamlString = IOUtils.toString(yaml, StandardCharsets.UTF_8);
     SwadlValidator.validateYaml(yamlString);
     return MAPPER.readValue(yamlString, Workflow.class);
+  }
+
+  public static Workflow fromYaml(File workflowFile) throws IOException, ProcessingException {
+    String yamlString = new String(Files.readAllBytes(workflowFile.toPath()));
+    SwadlValidator.validateYaml(yamlString);
+    Workflow workflow = MAPPER.readValue(yamlString, Workflow.class);
+    if (workflow.getId() == null) {
+      workflow.setId(Path.of(workflowFile.getAbsolutePath())
+          .getFileName()
+          .toString()
+          .replaceAll(".swadl", "")
+          .replaceAll(".yaml", ""));
+    }
+
+    return workflow;
   }
 }

@@ -1,4 +1,4 @@
-name: smoke-test-connections
+id: smoke-test-connections
 activities:
   - create-connection:
       id: createConnection

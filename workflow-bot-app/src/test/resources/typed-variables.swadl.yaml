@@ -1,4 +1,4 @@
-name: typed-variables
+id: typed-variables
 variables:
   aString: abc
   aNumber: 123

@@ -1,4 +1,4 @@
-name: custom-activity
+id: custom-activity
 activities:
   - duplicate-custom-activity:
       id: doIt

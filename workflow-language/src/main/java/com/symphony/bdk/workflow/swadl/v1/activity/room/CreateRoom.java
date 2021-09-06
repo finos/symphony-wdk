@@ -18,18 +18,18 @@ import java.util.stream.Collectors;
 public class CreateRoom extends BaseActivity {
   private String roomName;
   private String roomDescription;
-  private List<String> uids;
+  private List<String> userIds;
 
   @JsonProperty("public")
   private String isPublic;
 
   // to support the usage of variables
   @JsonIgnore
-  public List<Long> getUuidsAsLongs() {
-    if (uids == null) {
+  public List<Long> getUserIdsAsLongs() {
+    if (userIds == null) {
       return null;
     }
-    return uids.stream().map(Long::parseLong).collect(Collectors.toList());
+    return userIds.stream().map(Long::parseLong).collect(Collectors.toList());
   }
 
   @JsonIgnore

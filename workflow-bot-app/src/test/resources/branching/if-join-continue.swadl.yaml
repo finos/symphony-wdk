@@ -1,4 +1,4 @@
-name: if-join-continue
+id: if-join-continue
 activities:
   - execute-script:
       id: act1

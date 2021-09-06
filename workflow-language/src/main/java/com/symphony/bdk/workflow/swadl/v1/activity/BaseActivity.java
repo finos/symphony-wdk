@@ -25,11 +25,6 @@ public abstract class BaseActivity {
   private String name;
 
   /**
-   * A longer text to describe the activity.
-   */
-  private String description;
-
-  /**
    * The event triggering the activity's execution,
    * if not set the activity is triggered automatically once the activity before it finishes.
    */

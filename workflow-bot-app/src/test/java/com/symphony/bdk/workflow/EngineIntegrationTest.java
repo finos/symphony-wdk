@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.lastProcess;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +56,7 @@ class EngineIntegrationTest extends IntegrationTest {
     when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.execute(workflow);
-    engine.stop(workflow.getName());
+    engine.stop(workflow.getId());
 
     engine.onEvent(messageReceived("/message"));
     assertThat(lastProcess(workflow)).isEmpty();

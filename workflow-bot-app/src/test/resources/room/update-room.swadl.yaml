@@ -1,4 +1,4 @@
-name: update-room
+id: update-room
 activities:
   - update-room:
       id: updateRoom

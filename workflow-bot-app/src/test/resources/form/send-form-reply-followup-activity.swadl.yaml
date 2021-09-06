@@ -1,4 +1,4 @@
-name: send-form-reply
+id: send-form-reply
 activities:
   - send-message:
       id: sendForm
@@ -20,7 +20,7 @@ activities:
       id: pongReply
       on:
         form-replied:
-          id: sendForm
+          form-id: sendForm
       to:
         stream-id: "123"
       content: |

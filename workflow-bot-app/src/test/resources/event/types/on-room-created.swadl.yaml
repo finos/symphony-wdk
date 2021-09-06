@@ -1,4 +1,4 @@
-name: on-room-created
+id: on-room-created
 activities:
   - execute-script:
       id: doIt

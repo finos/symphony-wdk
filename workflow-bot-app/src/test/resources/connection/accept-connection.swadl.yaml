@@ -1,4 +1,4 @@
-name: accept-connection
+id: accept-connection
 activities:
   - accept-connection:
       id: acceptConnection

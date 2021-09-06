@@ -1,5 +1,5 @@
-# yaml-language-server: $schema=/Users/youri.bonnaffe/src/workflow-bot/workflow-language/src/main/resources/swadl-schema.json
-name: my-proposal
+# yaml-language-server: $schema=/Users/youri.bonnaffe/src/workflow-bot/workflow-language/src/main/resources/swadl-schema-1.0.json
+id: my-proposal
 variables:
   var1: "variable1"
   var2: "variable2"
@@ -10,7 +10,6 @@ activities:
 
   - send-message:
       id: "123"
-      description: "activity to send a message when a /command is sent to the bot"
       on:
         message-received:
           content: "/message"

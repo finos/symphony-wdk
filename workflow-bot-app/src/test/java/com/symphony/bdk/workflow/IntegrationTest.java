@@ -195,7 +195,7 @@ public abstract class IntegrationTest {
 
   protected Optional<String> lastProcess(Workflow workflow) {
     List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionName(workflow.getName())
+        .processDefinitionName(workflow.getId())
         .orderByProcessInstanceStartTime().desc()
         .list();
     if (processes.isEmpty()) {

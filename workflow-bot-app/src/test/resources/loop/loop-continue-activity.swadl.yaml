@@ -1,4 +1,4 @@
-name: loop-continue-activity
+id: loop-continue-activity
 variables:
   execution: 0
 activities:

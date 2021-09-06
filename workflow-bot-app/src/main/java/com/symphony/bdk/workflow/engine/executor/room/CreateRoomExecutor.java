@@ -20,7 +20,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
   @Override
   public void execute(ActivityExecutorContext<CreateRoom> execution) {
     CreateRoom activity = execution.getActivity();
-    List<Long> uids = activity.getUuidsAsLongs();
+    List<Long> uids = activity.getUserIdsAsLongs();
     String name = activity.getRoomName();
     String description = activity.getRoomDescription();
     boolean isPublic = activity.isPublicAsBool();

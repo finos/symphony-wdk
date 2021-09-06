@@ -1,4 +1,4 @@
-name: reject-connection
+id: reject-connection
 activities:
   - reject-connection:
       id: rejectConnection

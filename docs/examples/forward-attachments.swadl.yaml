@@ -18,7 +18,7 @@ activities:
           - activity-completed:
               activity-id: nextIteration
               if: ${variables.idx < variables.max}
-      uids:
+      user-ids:
         - ${mentions(event)[variables.idx]}
   - send-message:
       id: forward

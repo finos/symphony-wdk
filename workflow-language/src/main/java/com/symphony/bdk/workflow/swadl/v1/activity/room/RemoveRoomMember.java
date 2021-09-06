@@ -16,5 +16,5 @@ import java.util.List;
 @Data
 public class RemoveRoomMember extends BaseActivity {
   private String streamId;
-  private List<String> uids = Collections.emptyList();
+  private List<String> userIds = Collections.emptyList();
 }

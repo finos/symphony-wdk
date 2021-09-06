@@ -8,7 +8,7 @@ activities:
       user-id: ${mentions(event)[0]}
   - create-room:
       id: createOneToOne
-      uids:
+      user-ids:
         - ${mentions(event)[1]}
   - send-message:
       id: sendDetails

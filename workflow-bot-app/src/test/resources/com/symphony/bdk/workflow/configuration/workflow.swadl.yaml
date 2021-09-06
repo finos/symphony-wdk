@@ -1,8 +1,7 @@
-name: send-message-on-message
+id: send-message-on-message
 activities:
   - send-message:
-      id: "send-message-id-1"
-      description: "activity to send a message when a /command is sent to the bot"
+      id: sendMessageId
       on:
         message-received:
           content: "/message"

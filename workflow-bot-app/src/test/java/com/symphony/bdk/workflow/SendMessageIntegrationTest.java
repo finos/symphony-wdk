@@ -103,7 +103,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
 
-    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUids"), message);
+    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message);
   }
 
   @Test

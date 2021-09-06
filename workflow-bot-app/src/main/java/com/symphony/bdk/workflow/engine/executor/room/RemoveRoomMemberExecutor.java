@@ -13,7 +13,7 @@ public class RemoveRoomMemberExecutor implements ActivityExecutor<RemoveRoomMemb
   public void execute(ActivityExecutorContext<RemoveRoomMember> execution) {
     RemoveRoomMember removeRoomMember = execution.getActivity();
 
-    for (String uid : removeRoomMember.getUids()) {
+    for (String uid : removeRoomMember.getUserIds()) {
       log.debug("Remove member {} from room {}", uid, removeRoomMember.getStreamId());
       execution.bdk().streams().removeMemberFromRoom(Long.valueOf(uid), removeRoomMember.getStreamId());
     }

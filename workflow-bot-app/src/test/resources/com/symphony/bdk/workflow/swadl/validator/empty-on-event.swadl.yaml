@@ -1,8 +1,6 @@
-name: test
-version: |
-  Hello
+id: test
 activities:
   - send-message:
       on:
-      id: '123'
+      id: 'a123'
       content: "abc"

@@ -1,12 +1,11 @@
-name: create-mim-with-details-members-workflow
+id: create-mim-with-details-members-workflow
 activities:
   - create-room:
       id: "create_room_with_details_members"
-      description: "activity to create room when receiving /create-room slash command"
       on:
         message-received:
           content: "/create-room-members"
-      uids:
+      user-ids:
         - 666
         - 777
         - 999

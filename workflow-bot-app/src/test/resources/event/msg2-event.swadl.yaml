@@ -1,4 +1,4 @@
-name: msg2-event
+id: msg2-event
 activities:
   - send-message:
       id: one

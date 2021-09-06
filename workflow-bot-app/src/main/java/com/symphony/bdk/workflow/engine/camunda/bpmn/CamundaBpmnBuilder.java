@@ -64,12 +64,12 @@ public class CamundaBpmnBuilder {
 
     try {
       return repositoryService.createDeployment()
-          .name(workflow.getName())
-          .addModelInstance(workflow.getName() + ".bpmn", instance)
+          .name(workflow.getId())
+          .addModelInstance(workflow.getId() + ".bpmn", instance)
           .deploy();
     } finally {
       if (log.isDebugEnabled()) {
-        WorkflowDebugger.generateDebugFiles(workflow.getName(), instance);
+        WorkflowDebugger.generateDebugFiles(workflow.getId(), instance);
       }
     }
   }
@@ -82,7 +82,7 @@ public class CamundaBpmnBuilder {
 
   @SneakyThrows
   private BpmnModelInstance workflowToBpmn(Workflow workflow) {
-    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow)).name(workflow.getName());
+    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow)).name(workflow.getId());
 
     // a workflow starts with at least one named signal event
     List<AbstractFlowNodeBuilder<?, ?>> eventsToConnect = new ArrayList<>();
@@ -329,7 +329,13 @@ public class CamundaBpmnBuilder {
 
   private static String createUniqueProcessId(Workflow workflow) {
     // spaces are not supported in BPMN here
-    return workflow.getName().replaceAll("\\s+", "_") + "-" + UUID.randomUUID();
+    // workflow name should not start with a numerical value
+    String suffix = UUID.randomUUID().toString();
+    if (workflow.getId() != null) {
+      return workflow.getId().replaceAll("\\s+", "_") + "-" + suffix;
+    } else {
+      return "workflow_" + suffix;
+    }
   }
 
   private static boolean onFormRepliedEvent(BaseActivity baseActivity) {
@@ -360,7 +366,7 @@ public class CamundaBpmnBuilder {
         .startEvent()
         .camundaAsyncBefore()
         .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-        .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getId())
+        .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
         .name("formReply");
     return builder;
   }

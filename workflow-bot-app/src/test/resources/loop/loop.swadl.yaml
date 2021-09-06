@@ -1,4 +1,4 @@
-name: loop
+id: loop
 variables:
   execution: 0
 activities:

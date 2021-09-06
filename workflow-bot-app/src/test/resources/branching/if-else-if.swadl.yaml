@@ -1,4 +1,4 @@
-name: if-else-if
+id: if-else-if
 variables:
   foo: foo
 activities:

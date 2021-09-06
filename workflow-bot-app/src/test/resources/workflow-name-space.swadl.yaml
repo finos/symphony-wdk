@@ -1,8 +1,7 @@
-name: workflow has spaces in name
+id: workflow has spaces in name
 activities:
   - send-message:
       id: sendMsg1
-      description: "activity to send a message when a /command is sent to the bot"
       on:
         message-received:
           content: "/message"

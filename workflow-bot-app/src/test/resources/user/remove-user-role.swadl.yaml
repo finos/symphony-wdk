@@ -1,4 +1,4 @@
-name: add-user-role
+id: add-user-role
 activities:
   - remove-user-role:
       id: user

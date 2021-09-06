@@ -1,8 +1,7 @@
-name: test
+id: test
 activities:
   - send-message:
       id: 123 # invalid type
-      description: "activity to send a message when a /command is sent to the bot"
       on:
         message-received:
           content: "/message"

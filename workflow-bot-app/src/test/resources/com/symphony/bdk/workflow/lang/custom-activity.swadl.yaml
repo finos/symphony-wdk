@@ -1,4 +1,4 @@
-name: custom-activity
+id: custom-activity
 activities:
   - do-something:
       id: doIt

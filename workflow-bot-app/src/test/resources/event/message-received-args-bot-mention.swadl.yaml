@@ -1,4 +1,4 @@
-name: message-received-args-bot-mention
+id: message-received-args-bot-mention
 activities:
   - send-message:
       id: act

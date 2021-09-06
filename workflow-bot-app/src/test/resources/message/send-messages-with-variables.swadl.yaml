@@ -1,10 +1,9 @@
-name: send-message-on-message-with-variables
+id: send-message-on-message-with-variables
 variables:
   streamId: "1234"
 activities:
   - send-message:
       id: "sendmessageid"
-      description: "send message"
       on:
         message-received:
           content: "/send"

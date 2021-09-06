@@ -1,4 +1,4 @@
-name: if-else-nested
+id: if-else-nested
 variables:
   foo: foo
 #  act1

@@ -15,5 +15,5 @@ import java.util.List;
 @Data
 public class PromoteRoomOwner extends BaseActivity {
   private String streamId;
-  private List<String> uids = Collections.emptyList();
+  private List<String> userIds = Collections.emptyList();
 }

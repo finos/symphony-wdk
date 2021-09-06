@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
@@ -132,11 +131,9 @@ public class WorkflowFolderWatcher {
   }
 
   private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
-    try (FileInputStream yaml = new FileInputStream(workflowFile.toFile())) {
-      Workflow workflow = SwadlParser.fromYaml(yaml);
-      workflowEngine.execute(workflow);
-      deployedWorkflows.put(workflowFile, workflow.getName());
-    }
+    Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
+    workflowEngine.execute(workflow);
+    deployedWorkflows.put(workflowFile, workflow.getId());
   }
 
   private void removeWorkflow(Path workflowFile) {

@@ -1,4 +1,4 @@
-name: on-message-suppressed
+id: on-message-suppressed
 activities:
   - execute-script:
       id: doIt

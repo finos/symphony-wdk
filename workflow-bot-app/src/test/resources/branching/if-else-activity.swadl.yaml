@@ -1,4 +1,4 @@
-name: if-nested
+id: if-nested
 variables:
   foo: bar
 activities:

@@ -1,8 +1,7 @@
-name: forward-all-attachments-in-message
+id: forward-all-attachments-in-message
 activities:
   - send-message:
       id: forwardAll
-      description: send message with all attachments
       on:
         message-received:
           content: /forward-all

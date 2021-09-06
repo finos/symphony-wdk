@@ -1,35 +1,25 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "SWADL Schema",
     "description": "SWADL (Symphony Workflow Automation Definition Language) is a language to describe workflows on Symphony.",
     "default": {},
     "type": "object",
     "additionalProperties": false,
     "required": [
-        "name",
         "activities"
     ],
     "properties": {
-        "name": {
+        "id": {
             "type": "string",
-            "title": "Workflow's name",
-            "description": "A descriptive name for the workflow, it will appear in logs and audit trails.",
+            "description": "Workflow's id should start with a letter. It is optional. If no id is provided, the workflow filename is used. Otherwise, it will be generated. The id will appear in logs and audit trails.",
+            "pattern": "^[a-zA-Z]",
             "default": "my-workflow"
-        },
-        "version": {
-            "type": "string",
-            "title": "Workflow's version",
-            "description": "For now the v1 version is the only and default one.",
-            "default": "v1"
         },
         "variables": {
             "type": "object",
-            "title": "Workflow's variables",
             "description": "Variables are accessible and editable within the entire workflow. A map of key: value entries is expected."
         },
         "activities": {
             "type": "array",
-            "title": "Workflow's activities",
             "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
             "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
@@ -37,6 +27,8 @@
                 "additionalProperties": false,
                 "properties": {
                     "create-room": {
+                        "description": "Creates a new chatroom.",
+                        "x-intellij-html-description": "<html><p>Creates a new chatroom.\n</p><a href=\"https://developers.symphony.com/restapi/reference#create-room-v3\">https://developers.symphony.com/restapi/reference#create-room-v3</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -47,6 +39,8 @@
                         ]
                     },
                     "update-room": {
+                        "description": "Updates the attributes of an existing chat room.",
+                        "x-intellij-html-description": "<html><p>Updates the attributes of an existing chat room.\n</p><a href=\"https://developers.symphony.com/restapi/reference#update-room-v3\">https://developers.symphony.com/restapi/reference#update-room-v3</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -57,6 +51,8 @@
                         ]
                     },
                     "add-room-member": {
+                        "description": "Adds new members to an existing room.",
+                        "x-intellij-html-description": "<html><p>Adds a new members to an existing room.\n</p><a href=\"https://developers.symphony.com/restapi/reference#add-member\">https://developers.symphony.com/restapi/reference#add-member</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -67,6 +63,8 @@
                         ]
                     },
                     "remove-room-member": {
+                        "description": "Removes an existing member from an existing room.",
+                        "x-intellij-html-description": "<html><p>Removes an existing member from an existing room.\n</p><a href=\"https://developers.symphony.com/restapi/reference#remove-member\">https://developers.symphony.com/restapi/reference#remove-member</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -77,6 +75,8 @@
                         ]
                     },
                     "promote-room-owner": {
+                        "description": "Promotes user to owner of the chat room.",
+                        "x-intellij-html-description": "<html><p>Promotes user to owner of the chat room.\n</p><a href=\"https://developers.symphony.com/restapi/reference#promote-owner\">https://developers.symphony.com/restapi/reference#promote-owner</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -87,6 +87,8 @@
                         ]
                     },
                     "demote-room-owner": {
+                        "description": "Demotes room owner to a participant in the chat room.",
+                        "x-intellij-html-description": "<html><p>Demotes room owner to a participant in the chat room.</p><a href=\"https://developers.symphony.com/restapi/reference#demote-owner\">https://developers.symphony.com/restapi/reference#demote-owner</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -97,6 +99,8 @@
                         ]
                     },
                     "send-message": {
+                        "description": "Posts a message to an existing stream.",
+                        "x-intellij-html-description": "<html><p>Posts a message to an existing stream.</p><a href=\"https://developers.symphony.com/restapi/reference#create-message-v4\">https://developers.symphony.com/restapi/reference#create-message-v4</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -107,6 +111,8 @@
                         ]
                     },
                     "execute-script": {
+                        "description": "Executes a Groovy script.",
+                        "x-intellij-html-description": "<html><p>Executes a Groovy script.</p></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -117,6 +123,8 @@
                         ]
                     },
                     "create-user": {
+                        "description": "Creates a new end user.",
+                        "x-intellij-html-description": "<html><p>Creates a new end user.</p><a href=\"https://developers.symphony.com/restapi/reference#create-user-v2\">https://developers.symphony.com/restapi/reference#create-user-v2</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -134,6 +142,8 @@
                         ]
                     },
                     "update-user": {
+                        "description": "Updates an existing end user.",
+                        "x-intellij-html-description": "<html><p>Updates an existing end user.</p><a href=\"https://developers.symphony.com/restapi/reference#update-user-v2\">https://developers.symphony.com/restapi/reference#update-user-v2</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -155,6 +165,8 @@
                         ]
                     },
                     "create-system-user": {
+                        "description": "Creates a new service user.",
+                        "x-intellij-html-description": "<html><p>Creates a new service user.</p><a href=\"https://developers.symphony.com/restapi/reference#create-user-v2\">https://developers.symphony.com/restapi/reference#create-user-v2</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -170,6 +182,8 @@
                         ]
                     },
                     "update-system-user": {
+                        "description": "Updates an existing service user.",
+                        "x-intellij-html-description": "<html><p>Updates an existing service user.</p><a href=\"https://developers.symphony.com/restapi/reference#update-user-v2\">https://developers.symphony.com/restapi/reference#update-user-v2</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -191,6 +205,8 @@
                         ]
                     },
                     "add-user-role": {
+                        "description": "Adds a role or optional entitleable action to a user’s account.",
+                        "x-intellij-html-description": "<html><p>Adds a role or optional entitleable action to a user’s account.</p><a href=\"https://developers.symphony.com/restapi/reference#add-role\">https://developers.symphony.com/restapi/reference#add-role</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -201,6 +217,8 @@
                         ]
                     },
                     "remove-user-role": {
+                        "description": "Removes a role or optional entitleable action from a user’s account.",
+                        "x-intellij-html-description": "<html><p>Removes a role or optional entitleable action from a user’s account.</p><a href=\"https://developers.symphony.com/restapi/reference#remove-role\">https://developers.symphony.com/restapi/reference#remove-role</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -211,6 +229,8 @@
                         ]
                     },
                     "get-user": {
+                        "description": "Returns details for a particular user.",
+                        "x-intellij-html-description": "<html><p>Returns details for a particular user.</p><a href=\"https://developers.symphony.com/restapi/reference#get-user-v2\">https://developers.symphony.com/restapi/reference#get-user-v2</a></html>",
                         "type": "object",
                         "allOf": [
                             {
@@ -222,6 +242,8 @@
                         ]
                     },
                     "get-users": {
+                        "description": "Returns a list of users ID, including user metadata.",
+                        "x-intellij-html-description": "<html><p>Returns a list of users ID, including user metadata.</p><a href=\"https://developers.symphony.com/restapi/reference#list-users-v2\">https://developers.symphony.com/restapi/reference#list-users-v2</a></html>",
                         "type": "object",
                         "allOf": [
                             {
@@ -235,6 +257,7 @@
                     "get-stream": {
                         "type": "object",
                         "description": "Returns information about a particular stream.",
+                        "x-intellij-html-description": "<htmL><p>Returns information about a particular stream.</p><a href=\"https://developers.symphony.com/restapi/reference#list-users-v2\">https://developers.symphony.com/restapi/reference#list-users-v2</a></html",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -247,6 +270,7 @@
                     "get-room": {
                         "type": "object",
                         "description": "Returns information about a particular chat room.",
+                        "x-intellij-html-description": "<html><p>Returns information about a particular chat room.</p><a href=\"https://developers.symphony.com/restapi/reference#room-info-v3\">https://developers.symphony.com/restapi/reference#room-info-v3</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -256,9 +280,10 @@
                             }
                         ]
                     },
-                    "get-message": {
+                    "get-message":  {
                         "type": "object",
                         "description": "Returns a message found by id.",
+                        "x-intellij-html-description": "<html><p>Returns a message found by id.</p><a href=\"https://developers.symphony.com/restapi/reference#get-message-v1\">https://developers.symphony.com/restapi/reference#get-message-v1</html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -271,6 +296,7 @@
                     "get-stream-members": {
                         "type": "object",
                         "description": "Returns a list of all the current members of a stream (IM, MIM, or chatroom).",
+                        "x-intellij-html-description": "<html><p>Returns a list of all the current members of a stream (IM, MIM, or chatroom).</p><a href=\"https://developers.symphony.com/restapi/reference#room-members\">https://developers.symphony.com/restapi/reference#room-members</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -283,6 +309,7 @@
                     "get-room-members": {
                         "type": "object",
                         "description": "Lists the current members of an existing room.",
+                        "x-intellij-html-description": "<html><p>Lists the current members of an existing room.</p><a href=\"https://developers.symphony.com/restapi/reference#room-members\">https://developers.symphony.com/restapi/reference#room-members</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -295,6 +322,7 @@
                     "get-user-streams": {
                         "type": "object",
                         "description": "Returns a list of all the streams of which the requesting user is a member, sorted by creation date (ascending - oldest to newest).",
+                        "x-intellij-html-description": "<html><p>Returns a list of all the streams of which the requesting user is a member, sorted by creation date (ascending - oldest to newest).</p><a href=\"https://developers.symphony.com/restapi/reference#list-user-streams\">https://developers.symphony.com/restapi/reference#list-user-streams</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -307,6 +335,7 @@
                     "get-streams": {
                         "type": "object",
                         "description": "Returns a list of all the streams (IMs, MIMs, and chatrooms) for the calling user's company, sorted by creation date (ascending – oldest to newest).",
+                        "x-intellij-html-description": "<html><p>Returns a list of all the streams (IMs, MIMs, and chatrooms) for the calling user's company, sorted by creation date (ascending – oldest to newest).</p><a href\"https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2\">https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -319,6 +348,7 @@
                     "get-connection": {
                         "type": "object",
                         "description": "Get one connection status.",
+                        "x-intellij-html-description": "<html><p>Get one connection status.</p><a href=\"https://developers.symphony.com/restapi/reference#get-connection\">https://developers.symphony.com/restapi/reference#get-connection</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -331,6 +361,7 @@
                     "create-connection": {
                         "type": "object",
                         "description": "Send a connection request to another user.",
+                        "x-intellij-html-description": "<html><p>Send a connection request to another user.</p><a href=\"https://developers.symphony.com/restapi/reference#create-connection\">https://developers.symphony.com/restapi/reference#create-connection</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -343,6 +374,7 @@
                     "accept-connection": {
                         "type": "object",
                         "description": "Accept the connection request for a requesting user.",
+                        "x-intellij-html-description": "<html><p>Accept the connection request for a requesting user.</p><a href=\"https://developers.symphony.com/restapi/reference#accepted-connection\">https://developers.symphony.com/restapi/reference#accepted-connection</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -355,6 +387,7 @@
                     "reject-connection": {
                         "type": "object",
                         "description": "Reject the connection request from a requesting user.",
+                        "x-intellij-html-description": "<html><p>Reject the connection request from a requesting user.</p><a href=\"https://developers.symphony.com/restapi/reference#reject-connection\">https://developers.symphony.com/restapi/reference#reject-connection</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -367,6 +400,7 @@
                     "remove-connection": {
                         "type": "object",
                         "description": "Remove a connection with a user.",
+                        "x-intellij-html-description": "<html><p>Remove a connection with a user.</p><a href=\"https://developers.symphony.com/restapi/reference#remove-connection\">https://developers.symphony.com/restapi/reference#remove-connection</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -379,6 +413,7 @@
                     "get-rooms": {
                         "type": "object",
                         "description": "Search for rooms, querying name, description, and specified keywords.",
+                        "x-intellij-html-description": "<html><p>Search for rooms, querying name, description, and specified keywords.</p><a href=\"https://developers.symphony.com/restapi/reference#search-rooms-v3\">https://developers.symphony.com/restapi/reference#search-rooms-v3</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -390,7 +425,8 @@
                     },
                     "get-messages": {
                         "type": "object",
-                        "description": "Get message by id and list stream's messages.",
+                        "description": "Get messages from an existing stream (IM, MIM, or chatroom).\nAdditionally returns any attachments associated with the message.",
+                        "x-intellij-html-description": "<html><p>Get messages from an existing stream (IM, MIM, or chatroom).\nAdditionally returns any attachments associated with the message.</p><a href=\"https://developers.symphony.com/restapi/reference#messages-v4\">https://developers.symphony.com/restapi/reference#messages-v4</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -403,6 +439,7 @@
                     "get-connections": {
                         "type": "object",
                         "description": "Get one or multiple connections statuses",
+                        "x-intellij-html-description": "<html><p>Get one or multiple connections statuses</p><a href=\"https://developers.symphony.com/restapi/reference#list-connections\">https://developers.symphony.com/restapi/reference#list-connections</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -416,7 +453,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                  "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
@@ -447,6 +484,7 @@
         },
         "on": {
             "description": "Events that can trigger the activity execution.",
+            "x-intellij-html-description": "<html><p>Events that can trigger the activity execution.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events\">List of real-time events: https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events</a></html>",
             "type": "object",
             "allOf": [
                 {
@@ -525,21 +563,12 @@
                 }
             ]
         },
-        "user-joined-event": {
-            "type": "object",
-            "properties": {
-                "user-joined-room": {
-                    "$ref": "#/definitions/user-joined-event-inner"
-                }
-            },
-            "required": [
-                "user-joined-room"
-            ]
-        },
         "form-replied-event": {
             "type": "object",
             "properties": {
                 "form-replied": {
+                    "description": "Generated when a user replies to a bot message that contains an interactive form with UX components such as text fields, radio buttons, checkboxes, person selectors and more.",
+                    "x-intellij-html-description": "<html><p>Generated when a user replies to a bot message that contains an interactive form with UX components such as text fields, radio buttons, checkboxes, person selectors and more. Please refer to <a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/symphony-elements\">Symphony Elements.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#symphony-elements-action\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#symphony-elements-action</a></html>",
                     "$ref": "#/definitions/form-replied-event-inner"
                 }
             },
@@ -551,6 +580,8 @@
             "type": "object",
             "properties": {
                 "message-received": {
+                    "description": "Generated when a message is sent in an IM, MIM, or chatroom of which the user in context is a member, including messages sent by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a message is sent in an IM, MIM, or chatroom of which the user in context is a member, including messages sent by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent</a></html>",
                     "$ref": "#/definitions/message-received-event-inner"
                 }
             },
@@ -562,6 +593,8 @@
             "type": "object",
             "properties": {
                 "message-suppressed": {
+                    "description": "Generated when messages are suppressed.",
+                    "x-intellij-html-description": "<html><p>Generated when messages are suppressed.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#messages-suppressed\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#messages-suppressed</a></html>",
                     "$ref": "#/definitions/message-suppressed-event-inner"
                 }
             },
@@ -573,6 +606,8 @@
             "type": "object",
             "properties": {
                 "post-shared": {
+                    "description": "Generated when either the user in context shares a wall post written by another user or another user shares a wall post written by the user in context.",
+                    "x-intellij-html-description": "<html><p>Generated when either:<li>The user in context shares a wall post written by another user.</li><li>Another user shares a wall post written by the user in context.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#shared-wall-posts\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#shared-wall-posts</a></html>",
                     "$ref": "#/definitions/post-shared-event-inner"
                 }
             },
@@ -584,6 +619,8 @@
             "type": "object",
             "properties": {
                 "im-created": {
+                    "description": "Generated when an IM or MIM is created with the user in context as a member, initiated either by the user in context or another user.",
+                    "x-intellij-html-description": "<html><p>Generated when an IM or MIM is created with the user in context as a member, initiated either by the user in context or another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#im-mim-created\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#im-mim-created</a></html>",
                     "$ref": "#/definitions/im-created-event-inner"
                 }
             },
@@ -595,6 +632,8 @@
             "type": "object",
             "properties": {
                 "room-created": {
+                    "description": "Generated when a room is created by the user in context.",
+                    "x-intellij-html-description": "<html><p>Generated when a room is created by the user in context.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-created\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-created</a></html>",
                     "$ref": "#/definitions/room-created-event-inner"
                 }
             },
@@ -606,6 +645,8 @@
             "type": "object",
             "properties": {
                 "room-updated": {
+                    "description": "Generated when a room of which the user in context is a member is updated, including rooms updated by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a room of which the user in context is a member is updated, including rooms updated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-updated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-updated-message</a></html>",
                     "$ref": "#/definitions/room-updated-event-inner"
                 }
             },
@@ -617,6 +658,8 @@
             "type": "object",
             "properties": {
                 "room-deactivated": {
+                    "description": "Generated when a room of which the user in context is a member is deactivated, including rooms deactivated by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a room of which the user in context is a member is deactivated, including rooms deactivated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-deactivated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-deactivated-message</a></html>",
                     "$ref": "#/definitions/room-deactivated-event-inner"
                 }
             },
@@ -628,6 +671,8 @@
             "type": "object",
             "properties": {
                 "room-reactivated": {
+                    "description": "Generated when a room of which the user in context is a member is reactivated, including rooms reactivated by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a room of which the user in context is a member is reactivated, including rooms reactivated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-reactivated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-reactivated-message</a></html>",
                     "$ref": "#/definitions/room-reactivated-event-inner"
                 }
             },
@@ -639,6 +684,8 @@
             "type": "object",
             "properties": {
                 "room-member-promoted-to-owner": {
+                    "description": "Generated when a user is promoted from a participant to an owner of a room of which the user in context is a member, including when the user himself is promoted to an owner or promotes another user.",
+                    "x-intellij-html-description": "<html><p>Generated when a user is promoted from a participant to an owner of a room of which the user in context is a member, including when the user himself is promoted to an owner or promotes another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-promoted-to-owner\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-promoted-to-owner</a></html>",
                     "$ref": "#/definitions/room-member-promoted-to-owner-event-inner"
                 }
             },
@@ -650,6 +697,8 @@
             "type": "object",
             "properties": {
                 "room-member-demoted-from-owner": {
+                    "description": "Generated when a user is demoted from an owner to a participant of a room of which the user in context is a member, including when the user himself is demoted to a participant or demotes another user.",
+                    "x-intellij-html-description": "<html><p>Generated when a user is demoted from an owner to a participant of a room of which the user in context is a member, including when the user himself is demoted to a participant or demotes another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-demoted-from-owner\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-demoted-from-owner</a></html>",
                     "$ref": "#/definitions/room-member-demoted-from-owner-event-inner"
                 }
             },
@@ -661,6 +710,8 @@
             "type": "object",
             "properties": {
                 "user-joined-room": {
+                    "description": "Generated when a new user joins or is added to a room of which the user in context is a member, including when the user himself joins or is added to a room.",
+                    "x-intellij-html-description": "<html><p>Generated when a new user joins or is added to a room of which the user in context is a member, including when the user himself joins or is added to a room.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-joined-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-joined-room</a></html>",
                     "$ref": "#/definitions/user-joined-room-event-inner"
                 }
             },
@@ -672,6 +723,8 @@
             "type": "object",
             "properties": {
                 "user-left-room": {
+                    "description": "Generated when a user leaves or is removed from a room of which the user in context is a member, including when the user himself leaves or is removed from a room.",
+                    "x-intellij-html-description": "<html><p>Generated when a user leaves or is removed from a room of which the user in context is a member, including when the user himself leaves or is removed from a room.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-left-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-left-room</a></html>",
                     "$ref": "#/definitions/user-left-room-event-inner"
                 }
             },
@@ -683,6 +736,8 @@
             "type": "object",
             "properties": {
                 "user-requested-join-room": {
+                    "description": "Generated when a user requests to join a room. Only the user who requested to join the room and the owners of that room will receive this event on their datafeeds.",
+                    "x-intellij-html-description": "<html><p>Generated when a user requests to join a room. Only the user who requested to join the room and the owners of that room will receive this event on their datafeeds.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-requested-to-join-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-requested-to-join-room</a></html>",
                     "$ref": "#/definitions/user-requested-join-room-event-inner"
                 }
             },
@@ -694,6 +749,8 @@
             "type": "object",
             "properties": {
                 "connection-requested": {
+                    "description": "Generated when a connection request is sent, either by the user in context to another user or to the user in context by another user.",
+                    "x-intellij-html-description": "<html><p>Generated when a connection request is sent, either:<li>Sent by the user in context to another user.</li><li>Sent to the user in context by another user.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-requested\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-requested</a></html>",
                     "$ref": "#/definitions/connection-requested-event-inner"
                 }
             },
@@ -705,6 +762,8 @@
             "type": "object",
             "properties": {
                 "connection-accepted": {
+                    "description": "Generated when a connection request is accepted, either sent by the user in context and accepted by another user or sent by another user and accepted by the user in context.",
+                    "x-intellij-html-description": "<html><p>Generated when a connection request is accepted, either:<li>Sent by the user in context and accepted by another user.</li><li>Sent by another user and accepted by the user in context.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-accepted\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-accepted</a></html>",
                     "$ref": "#/definitions/connection-accepted-event-inner"
                 }
             },
@@ -716,6 +775,7 @@
             "type": "object",
             "properties": {
                 "activity-expired": {
+                    "description": "Generated when the given activity has expired without ending completely. Note this is not a Datafeed real-time event.",
                     "$ref": "#/definitions/activity-expired-event-inner"
                 }
             },
@@ -727,6 +787,8 @@
             "type": "object",
             "properties": {
                 "activity-completed": {
+                    "description": "Generated when the given activity is completed. Note this is not a Datafeed real-time event.",
+                    "x-intellij-html-description": "<html><p>Generated when the given activity is completed. Note this is not a Datafeed real-time event.</p></html>",
                     "$ref": "#/definitions/activity-completed-event-inner"
                 },
                 "if": {
@@ -741,6 +803,8 @@
             "type": "object",
             "properties": {
                 "one-of": {
+                    "description": "Used to receive at least one of the listed events. Note this is not a Datafeed real-time event.",
+                    "x-intellij-html-description": "Used to receive at least one of the listed events. Note this is not a Datafeed real-time event.",
                     "type": "array",
                     "items": {
                         "oneOf": [
@@ -814,6 +878,8 @@
             "type": "object",
             "properties": {
                 "timer-fired": {
+                    "description": "Timer based event. It is either triggered at a given point in time using the keyword \"at\" or repeated using the keyword \"repeat\". Note this is not a Datafeed real-time event.",
+                    "x-intellij-html-description": "<html><p>Timer based event. It is either triggered at: <li>a given point in time using the keyword <i>\"at\"</i>.</li><li>repeated using the keyword <i>\"repeat\"</i>.</li> Note this is not a Datafeed real-time event.</p></html>",
                     "$ref": "#/definitions/timer-fired-event-inner"
                 }
             },
@@ -826,30 +892,27 @@
             "type": "object",
             "properties": {
                 "repeat": {
-                    "type": "string"
+                    "description": "ISO 8601 repeating intervals to repeat the current activity.",
+                    "type": "string",
+                    "default": "R/PT0.1S"
                 },
                 "at": {
-                    "type": "string"
-                }
-            }
-        },
-        "user-joined-event-inner": {
-            "type": "object",
-            "properties": {
-                "stream-id": {
-                    "type": "string"
+                    "description": "ISO 8601 date presenting a point in time when the current activity should be executed.",
+                    "type": "string",
+                    "default": "2021-08-31T-15:50+00"
                 }
             }
         },
         "form-replied-event-inner": {
             "type": "object",
             "properties": {
-                "id": {
+                "form-id": {
+                    "description": "Form's id. The id should be the same as activity's one that defines the form.",
                     "type": "string"
                 }
             },
             "required": [
-                "id"
+                "form-id"
             ]
         },
         "message-received-event-inner": {
@@ -857,9 +920,11 @@
             "additionalProperties": false,
             "properties": {
                 "content": {
+                    "description": "Message content to listen to.",
                     "type": "string"
                 },
                 "requires-bot-mention": {
+                    "description": "If true, the event is only triggered if the bot is mentioned.",
                     "type": "boolean",
                     "default": false
                 }
@@ -939,7 +1004,8 @@
             "type": "object",
             "properties": {
                 "activity-id": {
-                    "type": "string"
+                    "description": "The activity id that the expiration triggers this event.",
+                    "$ref": "#/definitions/id"
                 }
             }
         },
@@ -947,29 +1013,29 @@
             "type": "object",
             "properties": {
                 "activity-id": {
-                    "type": "string"
+                    "description": "The activity id that the completion triggers this event.",
+                    "$ref": "#/definitions/id"
                 }
             }
         },
         "basic-activity-inner": {
             "type": "object",
+            "description": "Inner property having common properties for every activity.",
             "properties": {
                 "id": {
                     "description": "Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
                     "type": "string",
-                    "pattern": "^[a-zA-Z0-9_]+$"
-                },
-                "description": {
-                    "description": "Activity's description, mostly used for documentation purpose.",
-                    "type": "string"
+                    "pattern": "^[a-zA-Z][a-zA-Z0-9_]+$"
                 },
                 "on": {
                     "$ref": "#/definitions/on"
                 },
                 "if": {
+                    "description": "Property to specify an activity to be executed if the condition is true",
                     "type": "string"
                 },
                 "else": {
+                    "description": "Property to specify an activity to be executed if the condition is false",
                     "type": "object"
                 }
             },
@@ -977,9 +1043,48 @@
                 "id"
             ]
         },
+        "room-name": {
+            "anyOf": [
+                {
+                    "enum": ["${TASK_ID.outputs.room.roomAttributes.name}", "${TASK_ID.outputs.stream.roomAttributes.name}", "${variables.VARIABLE_NAME}"]
+                },
+                {
+                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
+                    "type": "string",
+                    "maxLength": 50
+                }
+            ]
+        },
+        "room-description": {
+            "anyOf": [
+                {
+                    "enum": ["${TASK_ID.outputs.room.description}", "${variables.VARIABLE_NAME}"]
+                },
+                {
+                    "description": "Room's description.",
+                    "type": "string"
+                }
+            ]
+        },
         "create-room-inner": {
             "type": "object",
-            "description": "Create a room, IM or MIM",
+            "properties": {
+                "room-name": {
+                 "$ref": "#/definitions/room-name"
+                },
+                "room-description": {
+                   "$ref": "#/definitions/room-description"
+                },
+                "public": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ]
+                },
+                "user-ids": {
+                    "$ref": "#/definitions/user-ids-inner"
+                }
+            },
             "anyOf": [
                 {
                     "required": [
@@ -989,30 +1094,10 @@
                 },
                 {
                     "required": [
-                        "uids"
+                        "user-ids"
                     ]
                 }
-            ],
-            "properties": {
-                "room-name": {
-                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "room-description": {
-                    "description": "Room's description.",
-                    "type": "string"
-                },
-                "public": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ]
-                },
-                "uids": {
-                    "type": "array"
-                }
-            }
+            ]
         },
         "update-room-inner": {
             "type": "object",
@@ -1021,158 +1106,194 @@
             ],
             "properties": {
                 "stream-id": {
-                    "type": "string"
+                    "description": "Stream's id to update.",
+                    "$ref": "#/definitions/stream-id-inner"
                 },
                 "room-name": {
-                    "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
-                    "type": "string",
-                    "maxLength": 50
+                    "$ref": "#/definitions/room-name"
                 },
                 "room-description": {
-                    "description": "Room's description.",
-                    "type": "string"
+                    "$ref": "#/definitions/room-description"
                 },
                 "keywords": {
+                    "description": "A list of key-value pairs, describing additional properties of the room.",
                     "type": "object"
                 },
                 "membersCanInvite": {
+                    "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "default": false
                 },
                 "discoverable": {
+                    "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "default": false
                 },
                 "public": {
+                    "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+                    "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "default": false
                 },
                 "readOnly": {
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+                    "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+                    "default": false
                 },
                 "copyProtected": {
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
+                    "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
+                    "default": false
                 },
                 "crossPod": {
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "description": "If true, this room is a cross-pod room.",
+                    "default": false
                 },
                 "viewHistory": {
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "description": "If true, new members can view the room chat history of the room.",
+                    "default": false
                 },
                 "multiLateralRoom": {
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
+                    "default": false
                 },
                 "active": {
                     "type": [
                         "boolean",
                         "string"
-                    ]
+                    ],
+                    "description": "If false, the room is not active anymore.",
+                    "default": false
                 }
             }
         },
         "add-room-member-inner": {
             "type": "object",
-            "required": [
-                "stream-id",
-                "uids"
-            ],
             "properties": {
                 "stream-id": {
-                    "type": "string"
+                    "description": "Stream id where to add user(s).",
+                    "$ref": "#/definitions/stream-id-inner"
                 },
-                "uids": {
-                    "type": "array"
+                "user-ids": {
+                    "description": "User ids to add to the room.",
+                    "$ref": "#/definitions/user-ids-inner"
                 }
-            }
+            },
+            "required": [
+                "stream-id",
+                "user-ids"
+            ]
         },
         "remove-room-member-inner": {
             "type": "object",
-            "required": [
-                "stream-id",
-                "uids"
-            ],
             "properties": {
                 "stream-id": {
-                    "type": "string"
+                    "description": "Stream id where to remove user(s).",
+                    "$ref": "#/definitions/stream-id-inner"
                 },
-                "uids": {
-                    "type": "array"
+                "user-ids": {
+                    "description": "User ids to remove from the room.",
+                    "$ref": "#/definitions/user-ids-inner"
                 }
-            }
+            },
+            "required": [
+                "stream-id",
+                "user-ids"
+            ]
         },
         "promote-room-owner-inner": {
             "type": "object",
-            "required": [
-                "stream-id",
-                "uids"
-            ],
             "properties": {
                 "stream-id": {
-                    "type": "string"
+                    "description": "Stream id where to promote user.",
+                    "$ref": "#/definitions/stream-id-inner"
                 },
-                "uids": {
-                    "type": "array"
+                "user-ids": {
+                    "description": "User ids to promote in the room.",
+                    "$ref": "#/definitions/user-ids-inner"
                 }
-            }
+            },
+            "required": [
+                "stream-id",
+                "user-ids"
+            ]
         },
         "demote-room-owner-inner": {
             "type": "object",
-            "required": [
-                "stream-id",
-                "uids"
-            ],
             "properties": {
                 "stream-id": {
-                    "type": "string"
+                    "description": "Stream id where to demote user.",
+                    "$ref": "#/definitions/stream-id-inner"
                 },
-                "uids": {
-                    "type": "array"
+                "user-ids": {
+                    "description": "User ids to demote in the room.",
+                    "$ref": "#/definitions/user-ids-inner"
                 }
-            }
+            },
+            "required": [
+                "stream-id",
+                "user-ids"
+            ]
         },
         "send-message-inner": {
             "type": "object",
-            "required": [
-                "content"
-            ],
             "properties": {
                 "to": {
                     "description": "The recipient (conversation, IM, MI or chatroom) in which the message should be posted.",
                     "$ref": "#/definitions/to"
                 },
                 "content": {
-                    "description": "The content of the message in MessageML format. Must contain at least one space.",
-                    "type": "string"
+                    "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the send-message activity one.",
+                    "anyOf": [
+                        {
+                            "enum": ["${variables.VARIABLE_NAME}", "${text(TASK_ID.outputs.message.message)}"]
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 0
+                        }
+                    ]
                 },
                 "attachments": {
                     "description": "One or more attachments to be sent along with the message.",
                     "type": "array",
                     "items": {
-                        "$ref":"#/definitions/attachment"
+                        "$ref": "#/definitions/attachment"
                     }
                 }
-            }
+            },
+            "required": [
+                "content"
+            ]
         },
         "execute-script-inner": {
             "type": "object",
@@ -1187,34 +1308,214 @@
                 }
             }
         },
+        "email": {
+            "description": "Email address, must be unique",
+            "$comment": "Variable or email regex is accepted.",
+            "anyOf": [
+                {
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.emailAddress"]
+                },
+                {
+                    "type": "string",
+                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                }
+            ]
+        },
+        "name": {
+            "anyOf": [
+                {
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.firstName}", "${TASK_ID.outputs.user.userAttributes.lastName}", "${TASK_ID.outputs.user.userAttributes.userName}", "${TASK_ID.outputs.user.userAttributes.displayName}"]
+                },
+                {
+                    "type": "string",
+                    "minLength": 1
+                }
+            ]
+        },
+        "phoneNumber": {
+            "description": "The user's work phone number.",
+            "anyOf": [
+                {
+                    "enum": ["${variables.VARIABLE_NAME", "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}", "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}", "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"]
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[0-9]*$|^\\+[0-9]*$"
+                }
+            ]
+        },
+        "business": {
+            "type": "object",
+            "description": "Business information",
+            "additionalProperties": false,
+            "properties": {
+                "company-name": {
+                    "type": "string",
+                    "description": "The user's company name.\nIf not specified, it is set with the default company name."
+                },
+                "department": {
+                    "type": "string",
+                    "description": "The user's department."
+                },
+                "division": {
+                    "type": "string",
+                    "description": "The user's division."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The user's title."
+                },
+                "location": {
+                    "type": "string",
+                    "description": "The user's location."
+                },
+                "job-function": {
+                    "type": "string",
+                    "description": "The user's job function.",
+                    "enum": [
+                        "Analyst",
+                        "Other",
+                        "Business Development Executive",
+                        "Corporate Access",
+                        "Developer",
+                        "Director",
+                        "Economist",
+                        "Portfolio Manager",
+                        "Project Manager",
+                        "Research Analyst",
+                        "Sales",
+                        "Strategist",
+                        "Trader"
+                    ]
+                },
+                "asset-classes": {
+                    "type": "array",
+                    "description": "The user's asset classes (one or more).",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Equities",
+                            "Cash Equities",
+                            "Securities Lending",
+                            "Fixed Income",
+                            "Government Bonds",
+                            "Prime Brokerage",
+                            "Commodities",
+                            "Municipal Bonds",
+                            "Currencies",
+                            "Corporate Bonds"
+                        ]
+                    }
+                },
+                "industries": {
+                    "type": "array",
+                    "description": "The user's job industries (one or more).",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Healthcare",
+                            "Consumer Non-Cyclicals",
+                            "Transportation",
+                            "Technology",
+                            "Real Estate",
+                            "Basic Materials",
+                            "Financials",
+                            "Energy & Utilities",
+                            "Conglomerates",
+                            "Consumer Cyclicals",
+                            "Services"
+                        ]
+                    }
+                },
+                "functions": {
+                    "type": "array",
+                    "description": "The user's job functions (one or more).",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Collateral",
+                            "Confirmation",
+                            "Trade Processing",
+                            "Pre-Matching",
+                            "Margin",
+                            "Matching",
+                            "Claims Processing",
+                            "Middle Office",
+                            "Liquidity Management",
+                            "Allocation",
+                            "Trade Management",
+                            "Regulatory Outreach",
+                            "Settlements",
+                            "Post Trade Management"
+                        ]
+                    }
+                },
+                "market-coverages": {
+                    "type": "array",
+                    "description": "The user's market coverage (one or more).",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "EMEA",
+                            "NA",
+                            "APAC",
+                            "LATAM"
+                        ]
+                    }
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "description": "The user's responsibilities (one or more).",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "BAU",
+                            "Escalation"
+                        ]
+                    }
+                },
+                "instruments": {
+                    "type": "array",
+                    "description": "The user's instruments (one or more).",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "Securities",
+                            "Fixed Income",
+                            "Equities"
+                        ]
+                    }
+                }
+            }
+        },
         "create-user-inner": {
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string",
                     "description": "Email address, must be unique",
-                    "$comment": "Variable or email regex is accepted.",
-                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                    "$ref": "#/definitions/email"
                 },
                 "firstname": {
-                    "type": "string",
-                    "description": "The user's first name. Required for NORMAL users.",
-                    "minLength": 1
+                    "description": "User's first name.",
+                    "$ref": "#/definitions/name"
                 },
                 "lastname": {
-                    "type": "string",
-                    "description": "The user's last name. Required for NORMAL users.",
-                    "minLength": 1
+                    "description": "User's last name.",
+                    "$ref": "#/definitions/name"
                 },
                 "username": {
-                    "type": "string",
-                    "description": "Must be unique.",
-                    "minLength": 1
+                    "description": "User's username.",
+                    "$ref": "#/definitions/name"
                 },
                 "display-name": {
-                    "type": "string",
-                    "description": "The user's display name. Required upon creation.",
-                    "minLength": 1
+                    "description": "User's display name.",
+                    "$ref": "#/definitions/name"
                 },
                 "recommended-language": {
                     "type": "string",
@@ -1227,172 +1528,26 @@
                     "additionalProperties": false,
                     "properties": {
                         "work-phone-number": {
-                            "type": "string",
-                            "description": "The user's work phone number."
+                            "description": "User's work phone number.",
+                            "$ref": "#/definitions/phoneNumber"
                         },
                         "mobile-phone-number": {
-                            "type": "string",
-                            "description": "The user's mobile number."
+                            "description": "User's mobile phone number.",
+                            "$ref": "#/definitions/phoneNumber"
                         },
                         "two-factor-auth-number": {
-                            "type": "string",
-                            "description": "The user's two factor authentication mobile phone number."
+                            "description": "User's two factor auth number.",
+                            "$ref": "#/definitions/phoneNumber"
                         },
                         "sms-number": {
-                            "type": "string",
-                            "description": "The user's SMS number."
+                            "description": "User's sms phone number.",
+                            "$ref": "#/definitions/phoneNumber"
                         }
                     }
                 },
                 "business": {
-                    "type": "object",
-                    "description": "Business information",
-                    "additionalProperties": false,
-                    "properties": {
-                        "company-name": {
-                            "type": "string",
-                            "description": "The user's company name.\nIf not specified, it is set with the default company name."
-                        },
-                        "department": {
-                            "type": "string",
-                            "description": "The user's department."
-                        },
-                        "division": {
-                            "type": "string",
-                            "description": "The user's division."
-                        },
-                        "title": {
-                            "type": "string",
-                            "description": "The user's title."
-                        },
-                        "location": {
-                            "type": "string",
-                            "description": "The user's location."
-                        },
-                        "job-function": {
-                            "type": "string",
-                            "description": "The user's job function.",
-                            "enum": [
-                                "Analyst",
-                                "Other",
-                                "Business Development Executive",
-                                "Corporate Access",
-                                "Developer",
-                                "Director",
-                                "Economist",
-                                "Portfolio Manager",
-                                "Project Manager",
-                                "Research Analyst",
-                                "Sales",
-                                "Strategist",
-                                "Trader"
-                            ]
-                        },
-                        "asset-classes": {
-                            "type": "array",
-                            "description": "The user's asset classes (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Equities",
-                                    "Cash Equities",
-                                    "Securities Lending",
-                                    "Fixed Income",
-                                    "Government Bonds",
-                                    "Prime Brokerage",
-                                    "Commodities",
-                                    "Municipal Bonds",
-                                    "Currencies",
-                                    "Corporate Bonds"
-                                ]
-                            }
-                        },
-                        "industries": {
-                            "type": "array",
-                            "description": "The user's job industries (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Healthcare",
-                                    "Consumer Non-Cyclicals",
-                                    "Transportation",
-                                    "Technology",
-                                    "Real Estate",
-                                    "Basic Materials",
-                                    "Financials",
-                                    "Energy & Utilities",
-                                    "Conglomerates",
-                                    "Consumer Cyclicals",
-                                    "Services"
-                                ]
-                            }
-                        },
-                        "functions": {
-                            "type": "array",
-                            "description": "The user's job functions (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Collateral",
-                                    "Confirmation",
-                                    "Trade Processing",
-                                    "Pre-Matching",
-                                    "Margin",
-                                    "Matching",
-                                    "Claims Processing",
-                                    "Middle Office",
-                                    "Liquidity Management",
-                                    "Allocation",
-                                    "Trade Management",
-                                    "Regulatory Outreach",
-                                    "Settlements",
-                                    "Post Trade Management"
-                                ]
-                            }
-                        },
-                        "market-coverages": {
-                            "type": "array",
-                            "description": "The user's market coverage (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "EMEA",
-                                    "NA",
-                                    "APAC",
-                                    "LATAM"
-                                ]
-                            }
-                        },
-                        "responsibilities": {
-                            "type": "array",
-                            "description": "The user's responsibilities (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "BAU",
-                                    "Escalation"
-                                ]
-                            }
-                        },
-                        "instruments": {
-                            "type": "array",
-                            "description": "The user's instruments (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Securities",
-                                    "Fixed Income",
-                                    "Equities"
-                                ]
-                            }
-                        }
-                    }
+                    "description": "User's business information.",
+                    "$ref": "#/definitions/business"
                 },
                 "password": {
                     "type": "object",
@@ -1426,13 +1581,17 @@
                     }
                 },
                 "roles": {
+                    "description": "The roles object consists of the following possibilities:\nFor end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER\nFor service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT",
+                    "x-intellij-html-description": "<html><p>The roles object consists of the following possibilities:<li>For end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER</li><li>For service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT</li><br/><a href=\"https://developers.symphony.com/restapi/reference#roles-object\">https://developers.symphony.com/restapi/reference#roles-object</a></p></html>",
                     "$ref": "#/definitions/roles-inner"
                 },
                 "entitlements": {
+                    "description": "User entitlements.",
                     "$ref": "#/definitions/entitlements-inner"
                 },
                 "status": {
                     "type": "string",
+                    "description": "User status: ENABLED or DISABLED.",
                     "enum": [
                         "ENABLED",
                         "DISABLED"
@@ -1444,170 +1603,20 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string",
                     "description": "Email address, must be unique",
-                    "$comment": "Variable or email regex is accepted.",
-                    "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                    "$ref": "#/definitions/email"
                 },
                 "username": {
-                    "type": "string",
-                    "description": "Must be unique.",
-                    "minLength": 1
+                    "description": "User's username.",
+                    "$ref": "#/definitions/name"
                 },
                 "display-name": {
-                    "type": "string",
-                    "description": "The user's display name. Required upon creation.",
-                    "minLength": 1
+                    "description": "User's display name.",
+                    "$ref": "#/definitions/name"
                 },
                 "business": {
-                    "type": "object",
-                    "description": "Business information",
-                    "additionalProperties": false,
-                    "properties": {
-                        "company-name": {
-                            "type": "string",
-                            "description": "The user's company name.\nIf not specified, it is set with the default company name."
-                        },
-                        "department": {
-                            "type": "string",
-                            "description": "The user's department."
-                        },
-                        "division": {
-                            "type": "string",
-                            "description": "The user's division."
-                        },
-                        "title": {
-                            "type": "string",
-                            "description": "The user's title."
-                        },
-                        "location": {
-                            "type": "string",
-                            "description": "The user's location."
-                        },
-                        "job-function": {
-                            "type": "string",
-                            "description": "The user's job function.",
-                            "enum": [
-                                "Analyst",
-                                "Other",
-                                "Business Development Executive",
-                                "Corporate Access",
-                                "Developer",
-                                "Director",
-                                "Economist",
-                                "Portfolio Manager",
-                                "Project Manager",
-                                "Research Analyst",
-                                "Sales",
-                                "Strategist",
-                                "Trader"
-                            ]
-                        },
-                        "asset-classes": {
-                            "type": "array",
-                            "description": "The user's asset classes (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Equities",
-                                    "Cash Equities",
-                                    "Securities Lending",
-                                    "Fixed Income",
-                                    "Government Bonds",
-                                    "Prime Brokerage",
-                                    "Commodities",
-                                    "Municipal Bonds",
-                                    "Currencies",
-                                    "Corporate Bonds"
-                                ]
-                            }
-                        },
-                        "industries": {
-                            "type": "array",
-                            "description": "The user's job industries (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Healthcare",
-                                    "Consumer Non-Cyclicals",
-                                    "Transportation",
-                                    "Technology",
-                                    "Real Estate",
-                                    "Basic Materials",
-                                    "Financials",
-                                    "Energy & Utilities",
-                                    "Conglomerates",
-                                    "Consumer Cyclicals",
-                                    "Services"
-                                ]
-                            }
-                        },
-                        "functions": {
-                            "type": "array",
-                            "description": "The user's job functions (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Collateral",
-                                    "Confirmation",
-                                    "Trade Processing",
-                                    "Pre-Matching",
-                                    "Margin",
-                                    "Matching",
-                                    "Claims Processing",
-                                    "Middle Office",
-                                    "Liquidity Management",
-                                    "Allocation",
-                                    "Trade Management",
-                                    "Regulatory Outreach",
-                                    "Settlements",
-                                    "Post Trade Management"
-                                ]
-                            }
-                        },
-                        "market-coverages": {
-                            "type": "array",
-                            "description": "The user's market coverage (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "EMEA",
-                                    "NA",
-                                    "APAC",
-                                    "LATAM"
-                                ]
-                            }
-                        },
-                        "responsibilities": {
-                            "type": "array",
-                            "description": "The user's responsibilities (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "BAU",
-                                    "Escalation"
-                                ]
-                            }
-                        },
-                        "instruments": {
-                            "type": "array",
-                            "description": "The user's instruments (one or more).",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "Securities",
-                                    "Fixed Income",
-                                    "Equities"
-                                ]
-                            }
-                        }
-                    }
+                    "description": "User's business information.",
+                    "$ref": "#/definitions/business"
                 },
                 "keys": {
                     "type": "object",
@@ -1622,13 +1631,16 @@
                     }
                 },
                 "roles": {
-                    "$ref": "#/definitions/roles-inner"
-                },
+                    "description": "The roles object consists of the following possibilities:\nFor end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER\nFor service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT",
+                    "x-intellij-html-description": "<html><p>The roles object consists of the following possibilities:<li>For end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER</li><li>For service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT</li><br/><a href=\"https://developers.symphony.com/restapi/reference#roles-object\">https://developers.symphony.com/restapi/reference#roles-object</a></p></html>",
+                    "$ref": "#/definitions/roles-inner"                },
                 "entitlements": {
+                    "description": "User entitlements.",
                     "$ref": "#/definitions/entitlements-inner"
                 },
                 "status": {
                     "type": "string",
+                    "description": "User status: ENABLED or DISABLED.",
                     "enum": [
                         "ENABLED",
                         "DISABLED"
@@ -1949,7 +1961,8 @@
         },
         "roles-inner": {
             "type": "array",
-            "description": "The roles consists of the following possibilities:\n\nFor end-user accounts (NORMAL), roles are:\nINDIVIDUAL\nADMINISTRATOR\nSUPER_ADMINISTRATOR\nL1_SUPPORT\nL2_SUPPORT\nCOMPLIANCE_OFFICER\nSUPER_COMPLIANCE_OFFICER\nFor service accounts (SYSTEM), roles are:\nINDIVIDUAL\nUSER_PROVISIONING\nSCOPE_MANAGEMENT\nCONTENT_MANAGEMENT\nMALWARE_SCAN_MANAGER\nMALWARE_SCAN_STATE_USER\nAUDIT_TRAIL_MANAGEMENT\nPlease note that, for end-user accounts, if no role is specified at creation, then the INDIVIDUAL value is assigned.",
+            "description": "The roles object consists of the following possibilities:\nFor end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER\nFor service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT",
+            "x-intellij-html-description": "<html><p>The roles object consists of the following possibilities:<li>For end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER</li><li>For service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT</li><br/><a href=\"https://developers.symphony.com/restapi/reference#roles-object\">https://developers.symphony.com/restapi/reference#roles-object</a></p></html>",
             "uniqueItems": true,
             "items": {
                 "type": "string",
@@ -2016,23 +2029,13 @@
             "type": "object",
             "properties": {
                 "user-ids": {
-                    "type": "array",
-                    "description": "List of user ids. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
-                    "items": {
-                        "type": [
-                            "string",
-                            "integer"
-                        ]
-                    },
-                    "minLength": 1
+                    "$ref": "#/definitions/user-ids-inner"
                 },
                 "emails": {
                     "type": "array",
                     "description": "List of email addresses. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
                     "items": {
-                        "type": "string",
-                        "$comment": "Variable or email regex is accepted.",
-                        "pattern": "([$][{].+})|(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
+                        "$ref": "#/definitions/email"
                     },
                     "minLength": 1
                 },
@@ -2040,7 +2043,7 @@
                     "type": "array",
                     "description": "List of usernames. If username is specified, local must be set to true. It is possible to search for more than one username by separating them by comma. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/name"
                     },
                     "minLength": 1
                 },
@@ -2064,11 +2067,7 @@
         "get-stream-inner": {
             "properties": {
                 "stream-id": {
-                    "description": "Id of the stream for which to get information.",
-                    "type": [
-                        "string"
-                    ],
-                    "minLength": 1
+                   "$ref": "#/definitions/stream-id-inner"
                 }
             },
             "required": [
@@ -2078,11 +2077,7 @@
         "get-room-inner": {
             "properties": {
                 "stream-id": {
-                    "description": "Room streamId.",
-                    "type": [
-                        "string"
-                    ],
-                    "minLength": 1
+                        "$ref": "#/definitions/stream-id-inner"
                 }
             },
             "required": [
@@ -2093,41 +2088,24 @@
             "type": "object",
             "properties": {
                 "user-id": {
-                    "description": "User id with whom to get/accept/reject/remove the connection status.",
-                    "type": [
-                        "string",
-                        "integer"
-                    ],
-                    "minLength": 1
+                    "$ref": "#/definitions/user-id"
                 }
             },
-            "required": ["user-id"]
+            "required": [
+                "user-id"
+            ]
         },
         "get-stream-members-inner": {
             "properties": {
                 "stream-id": {
                     "description": "Id of the stream for which to return members.",
-                    "type": [
-                        "string"
-                    ],
-                    "minLength": 1
+                    "$ref": "#/definitions/stream-id-inner"
                 },
                 "limit": {
-                    "description": "Maximum number of members to be returned - used for pagination. Maximum allowed is 1000.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "maximum": 1000,
-                    "minimum": 1
+                    "$ref": "#/definitions/limit"
                 },
                 "skip": {
-                    "description": "Number of members to be skipped during return - used for pagination.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "minimum": 0
+                    "$ref": "#/definitions/skip"
                 }
             },
             "required": [
@@ -2138,10 +2116,7 @@
             "properties": {
                 "stream-id": {
                     "description": "Id of the stream for which to return members.",
-                    "type": [
-                        "string"
-                    ],
-                    "minLength": 1
+                    "$ref": "#/definitions/stream-id-inner"
                 }
             },
             "required": [
@@ -2171,21 +2146,10 @@
                     "description": "Whether to include inactive conversations. A chatroom is inactive if it has been deactivated by an owner or admin. An IM or MIM is inactive if one of the participating users has been deactivated by an admin. If not specified, only active streams are returned."
                 },
                 "limit": {
-                    "description": "Maximum number of streams to return.\nIf limit is not set, a maximum of 50 streams will be returned.\nIf limit=0, all user streams will be returned.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "default": 50,
-                    "minimum": 0
+                   "$ref": "#/definitions/limit"
                 },
                 "skip": {
-                    "description": "Number of stream results to skip.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "minimum": 0
+                   "$ref": "#/definitions/skip"
                 }
             }
         },
@@ -2193,11 +2157,12 @@
             "properties": {
                 "message-id": {
                     "description": "The message identifier.",
-                    "type": "string",
-                    "minLength": 1
+                    "$ref": "#/definitions/message-id-inner"
                 }
             },
-            "required": ["message-id"]
+            "required": [
+                "message-id"
+            ]
         },
         "get-streams-inner": {
             "properties": {
@@ -2254,21 +2219,10 @@
                     "description": "Restricts result set to rooms that have been modified prior to this date (an Epoch timestamp specified in milliseconds). When specified along with startDate, enables the developer to specify rooms modified within a given time range."
                 },
                 "limit": {
-                    "description": "Maximum number of streams to be returned - used for pagination. Maximum allowed is 100.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "minimum": 1,
-                    "maximum": 100
+                   "$ref": "#/definitions/limit"
                 },
                 "skip": {
-                    "description": "Number of streams to be skipped during return - used for pagination.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "minimum": 0
+                    "$ref": "#/definitions/skip"
                 }
             }
         },
@@ -2333,21 +2287,10 @@
                     "description": "Sort algorithm to be used. Supports two values: BASIC (legacy algorithm) and RELEVANCE (enhanced algorithm)."
                 },
                 "limit": {
-                    "description": "Maximum number of rooms to return. Must be a positive integer that doesn’t exceed 100.",
-                    "type": [
-                        "string",
-                        "integer"
-                    ],
-                    "minimum": 1,
-                    "maximum": 100
+                    "$ref": "#/definitions/limit"
                 },
                 "skip": {
-                    "description": "Number of room search results to skip.",
-                    "type": [
-                        "string",
-                        "integer"
-                    ],
-                    "minimum": 0
+                    "$ref": "#/definitions/skip"
                 }
             },
             "required": [
@@ -2359,48 +2302,38 @@
             "properties": {
                 "stream-id": {
                     "description": "Stream identifier.",
-                    "type": "string",
-                    "minLength": 1
+                    "$ref": "#/definitions/stream-id-inner"
                 },
                 "since": {
                     "description": "Date, in ISO 8601 format, of the earliest possible data of the first message returned.",
-                    "type": "string",
-                    "minLength": 1
+                    "anyOf": [
+                        {
+                            "enum": ["${variables.VARIABLE_NAME}"]
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
                 },
                 "skip": {
-                    "description": "Number of messages search to skip.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "minimum": 0
+                    "$ref": "#/definitions/skip"
                 },
                 "limit": {
-                    "description": "Maximum number of messages to return. Default limit is 50.",
-                    "type": [
-                        "integer",
-                        "string"
-                    ],
-                    "minimum": 0
+                   "$ref": "#/definitions/limit"
                 }
             },
-            "required": ["stream-id", "since"]
+            "required": [
+                "stream-id",
+                "since"
+            ]
         },
         "get-connections-inner": {
             "type": "object",
             "properties": {
                 "user-ids": {
                     "description": "List of user ids that this activity results will be restricted to their connections.",
-                    "type": "array",
-                    "uniqueItems": true,
-                    "minItems": 1,
-                    "items": {
-                        "type": [
-                            "string",
-                            "integer"
-                        ],
-                        "minLength": 1
-                    }
+                    "$ref": "#/definitions/user-ids-inner"
                 },
                 "status": {
                     "type": "string",
@@ -2413,7 +2346,10 @@
                     ]
                 }
             },
-            "required": ["user-ids", "status"]
+            "required": [
+                "user-ids",
+                "status"
+            ]
         },
         "to": {
             "type": "object",
@@ -2426,42 +2362,119 @@
                 }
             ]
         },
+        "skip": {
+            "description": "Number of members to be skipped during return - used for pagination.",
+            "anyOf": [
+                {
+                    "enum": ["${variables.VARIABLE_NAME}"]
+                },
+                {
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "minimum": 0
+                }
+            ]
+        },
+        "limit": {
+            "description": "Maximum number of members to be returned - used for pagination. Maximum allowed is 1000.",
+            "anyOf": [
+                {
+                    "enum": ["${variables.VARIABLE_NAME}"]
+                },
+                {
+                    "type": [
+                        "integer",
+                        "string"
+                    ],
+                    "maximum": 1000,
+                    "minimum": 1
+                }
+            ]
+        },
+        "id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "message-id-inner": {
+            "description": "Message identifier. Both safe url and Base64 encoded url are accepted.",
+            "anyOf": [
+                {
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.message.messageId}"]
+                },
+                {
+                    "$ref": "#/definitions/id"
+                }
+            ]
+        },
+        "stream-id-inner": {
+            "description": "Stream identifier. Both safe url and Base64 encoded url are accepted.",
+            "anyOf": [
+                {
+                    "enum": ["event.source.stream.streamId", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
+                },
+                {
+                    "$ref": "#/definitions/id"
+                }
+            ]
+        },
         "stream-id": {
             "type": "object",
+            "description": "Stream id object with the key \"stream-id\"",
+            "x-intellij-html-description": "<html><p>Stream id object with the key <i>stream-id</i></p></html>",
             "properties": {
                 "stream-id": {
-                    "description": "Stream ID where to send the message",
-                    "title": "Stream ID to send the message",
-                    "type": "string",
-                    "minLength": 1
+                    "$ref": "#/definitions/stream-id-inner"
                 }
             },
-            "required": ["stream-id"]
+            "required": [
+                "stream-id"
+            ]
         },
-        "user-ids": {
-            "type": "object",
-            "properties": {
-                "user-ids": {
-                    "description": "User ids to send the message to",
-                    "title": "User ids to send the message to",
+        "user-ids-inner": {
+            "description": "User identifiers list.",
+            "anyOf": [
+                {
                     "type": "array",
                     "items": {
-                       "$ref": "#/definitions/user-id"
+                        "$ref": "#/definitions/user-id"
                     },
                     "minLength": 1,
                     "uniqueItems": true
+                },
+                {
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.userIds"]
+                }
+            ]
+        },
+        "user-ids": {
+            "type": "object",
+            "description": "List of user ids.",
+            "properties": {
+                "user-ids": {
+                   "$ref": "#/definitions/user-ids-inner"
                 }
             },
-            "required": ["user-ids"]
+            "required": [
+                "user-ids"
+            ]
         },
         "user-id": {
-            "description": "User identifier",
-            "title": "User ids to send the message to",
-            "type": [
-                "string",
-                "integer"
-            ],
-            "minLength": 1
+            "description": "User id.",
+            "anyOf": [
+                {
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1
+                },
+                {
+                    "enum": ["${TASK_ID.outputs.user.userSystemInfo.id}", "${event.initiator.user.userId}", "${event.source.fromUser.userId}",  "${event.source.toUser.userId}"]
+                }
+            ]
+
         },
         "attachment": {
             "type": "object",
@@ -2478,26 +2491,43 @@
             "type": "object",
             "properties": {
                 "message-id": {
-                    "description": "Message id having the attachment to forward.",
-                    "type": "string",
-                    "minLength": 1
+                    "description": "Message id having the attachment to forward. Both url safe and base64 encoded url are accepted.",
+                    "$ref": "#/definitions/message-id-inner"
                 },
                 "attachment-id": {
-                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded.",
-                    "type": "string",
-                    "minLength": 1
+                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64 encoded url are accepted.",
+                    "anyOf": [
+                        {
+                            "enum": ["${variables.VARIABLE_NAME}"]
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
                 }
             },
-            "required": ["message-id"]
+            "required": [
+                "message-id"
+            ]
         },
         "attachment-file": {
             "type": "object",
-            "required": ["content-path"],
+            "required": [
+                "content-path"
+            ],
             "properties": {
                 "content-path": {
                     "description": "Path to the file to be attached to the message. The path is relative to the workflows folder.",
-                    "type": "string",
-                    "minLength": 1
+                    "anyOf": [
+                        {
+                            "enum": ["${variables.VARIABLE_NAME}"]
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
                 }
             }
         }

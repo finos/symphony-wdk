@@ -1,4 +1,4 @@
-name: get-rooms
+id: get-rooms
 activities:
   - get-rooms:
       id: act1

@@ -1,4 +1,4 @@
-name: on-im-created
+id: on-im-created
 activities:
   - execute-script:
       id: doIt

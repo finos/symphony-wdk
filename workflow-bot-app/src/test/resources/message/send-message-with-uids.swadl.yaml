@@ -1,7 +1,7 @@
-name: send-message-with-uids
+id: send-message-with-userids
 activities:
   - send-message:
-      id: sendMessageWithUids
+      id: sendMessageWithUserIds
       content: "<messageML>hello</messageML>"
       on:
         message-received:

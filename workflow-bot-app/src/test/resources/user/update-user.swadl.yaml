@@ -1,4 +1,4 @@
-name: update-user
+id: update-user
 activities:
   - update-user:
       id: update

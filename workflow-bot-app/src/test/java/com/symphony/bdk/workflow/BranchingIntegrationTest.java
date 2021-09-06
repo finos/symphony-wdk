@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.lastProcess;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.symphony.bdk.workflow.swadl.SwadlParser;

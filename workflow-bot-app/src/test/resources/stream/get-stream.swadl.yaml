@@ -1,4 +1,4 @@
-name: get-stream
+id: get-stream
 activities:
   - get-stream:
       id: act1

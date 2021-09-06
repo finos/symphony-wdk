@@ -1,4 +1,4 @@
-name: timer-at
+id: timer-at
 activities:
   - send-message:
       id: at_time

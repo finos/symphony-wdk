@@ -1,13 +1,12 @@
-name: my-proposal
+id: my-proposal
 activities:
   - create-room: #has as output {"streamId": "AbcDEFgHiJK"}
       id: createRoom
-      description: "activity to create room when receiving /create-room slash command"
       on:
         message-received:
           content: "/create-room"
       room-name: Test
-      uids: #optional if name is set
+      user-ids:  #optional if name is set
         - 1234
         - 5678
       public: true

@@ -1,8 +1,7 @@
-name: forward-provided-attachment-in-message
+id: forward-provided-attachment-in-message
 activities:
   - send-message:
       id: forwardprovidedattachmentinmessageid
-      description: send message with one provided attachment
       on:
         message-received:
           content: /forward-specific

@@ -1,4 +1,4 @@
-name: execute-sends-a-message
+id: execute-sends-a-message
 variables:
   foo: bar
 activities:

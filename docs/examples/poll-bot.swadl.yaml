@@ -24,7 +24,7 @@ activities:
       id: poll
       on:
         form-replied:
-          id: createPoll
+          form-id: createPoll
       to:
         stream-id: ${createPoll.room}
       content:
@@ -41,7 +41,7 @@ activities:
       id: collect-replies
       on:
         form-replied:
-          id: poll
+          form-id: poll
       script:
         if (poll.answers == "1") {
           variables.answer1++

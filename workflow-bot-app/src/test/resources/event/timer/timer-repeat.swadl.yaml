@@ -1,4 +1,4 @@
-name: timer-repeat
+id: timer-repeat
 activities:
   - send-message:
       id: every_second

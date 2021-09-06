@@ -1,4 +1,4 @@
-name: if-else-more-activities
+id: if-else-more-activities
 variables:
   foo: bar
 activities:

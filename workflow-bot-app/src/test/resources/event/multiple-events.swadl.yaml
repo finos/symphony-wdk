@@ -1,4 +1,4 @@
-name: multiple-events
+id: multiple-events
 activities:
   - send-message:
       id: one

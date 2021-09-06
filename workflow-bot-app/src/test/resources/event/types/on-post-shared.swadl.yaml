@@ -1,4 +1,4 @@
-name: on-post-shared
+id: on-post-shared
 activities:
   - execute-script:
       id: doIt

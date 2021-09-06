@@ -26,21 +26,21 @@ class SwadlValidatorTest {
             List.of(Pair.of(-1, "Missing property 'activities' for root object"))),
 
         arguments("null-properties.swadl.yaml",
-            List.of(Pair.of(1, "Invalid property 'name', expecting string type, got null"))),
+            List.of(Pair.of(1, "Invalid property 'id', expecting string type, got null"))),
 
         arguments("wrong-type-properties.swadl.yaml",
-            List.of(Pair.of(2, "Invalid property 'version', expecting string type, got integer"))),
+            List.of(Pair.of(1, "Invalid property 'id', expecting string type, got integer"))),
 
         arguments("multiple-errors.swadl.yaml",
-            List.of(Pair.of(1, "Invalid property 'name', expecting string type, got null"),
-                Pair.of(2, "Invalid property 'version', expecting string type, got integer"))),
+            List.of(Pair.of(4, "Invalid property 'id', expecting string type, got integer"),
+                Pair.of(1, "Invalid property 'id', expecting string type, got null"))),
 
         arguments("unknown-activity.swadl.yaml",
             List.of(Pair.of(3, "Unknown property 'send-message-unknown'"))),
 
         // escaping the expected pattern as we are matching over a pattern in the assertions
         arguments("invalid-id-property.swadl.yaml",
-            List.of(Pair.of(4, "Invalid property 'id', must match pattern \\^\\[a-zA-Z0-9_\\]\\+\\$"))),
+            List.of(Pair.of(4, "Invalid property 'id', must match pattern \\^\\[a-zA-Z\\]\\[a-zA-Z0-9_\\]\\+\\$"))),
 
         arguments("missing-property-activity.swadl.yaml",
             List.of(Pair.of(3, "Missing property 'id' for send-message object"))),
@@ -49,7 +49,7 @@ class SwadlValidatorTest {
             List.of(Pair.of(4, "Invalid property 'id', expecting string type, got integer"))),
 
         arguments("empty-on-event.swadl.yaml",
-            List.of(Pair.of(6, "Invalid property 'on', expecting object type, got null"))),
+            List.of(Pair.of(4, "Invalid property 'on', expecting object type, got null"))),
 
         arguments("null-variables.swadl.yaml",
             List.of(Pair.of(2, "Invalid property 'variables', expecting object type, got null"))),

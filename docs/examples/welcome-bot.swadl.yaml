@@ -4,7 +4,7 @@ activities:
       id: createOneToOne
       on:
         user-joined-room: { }
-      uids:
+      user-ids:
         - ${event.initiator.user.userId}
   - send-message:
       id: welcomeMessage

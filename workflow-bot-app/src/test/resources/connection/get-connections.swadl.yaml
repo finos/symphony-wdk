@@ -1,4 +1,4 @@
-name: get-connections
+id: get-connections
 activities:
   - get-connections:
       id: getConnections

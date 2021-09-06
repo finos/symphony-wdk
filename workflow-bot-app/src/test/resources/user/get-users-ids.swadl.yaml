@@ -1,4 +1,4 @@
-name: get-users-ids
+id: get-users-ids
 activities:
   - get-users:
       id: get

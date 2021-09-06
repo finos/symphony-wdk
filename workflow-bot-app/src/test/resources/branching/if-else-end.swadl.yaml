@@ -1,4 +1,4 @@
-name: if-else-end
+id: if-else-end
 variables:
   foo: bar
 activities:

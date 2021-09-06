@@ -1,4 +1,4 @@
-name: on-message-received
+id: on-message-received
 activities:
   - send-message:
       id: echo

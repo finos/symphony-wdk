@@ -1,4 +1,4 @@
-name: test
+id: test
 activities:
   - send-message:
       id: test

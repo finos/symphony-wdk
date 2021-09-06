@@ -1,4 +1,4 @@
-name: update-room-activate
+id: update-room-activate
 activities:
   - update-room:
       id: updateRoom

@@ -1,4 +1,4 @@
-name: get-room-members
+id: get-room-members
 activities:
   - get-room-members:
       id: act1

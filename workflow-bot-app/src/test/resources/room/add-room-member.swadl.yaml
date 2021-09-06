@@ -1,4 +1,4 @@
-name: add-room-member
+id: add-room-member
 activities:
   - add-room-member:
       id: addRoomMember
@@ -6,6 +6,6 @@ activities:
         message-received:
           content: "/add-room-member"
       stream-id: abc
-      uids:
+      user-ids:
         - 123
         - 456

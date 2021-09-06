@@ -1,4 +1,4 @@
-name: message-received-hashtags
+id: message-received-hashtags
 activities:
   - send-message:
       id: act

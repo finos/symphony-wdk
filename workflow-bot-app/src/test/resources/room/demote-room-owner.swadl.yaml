@@ -1,4 +1,4 @@
-name: demote-room-owner
+id: demote-room-owner
 activities:
   - demote-room-owner:
       id: demoteRoomOwner
@@ -6,6 +6,6 @@ activities:
         message-received:
           content: "/demote-room-owner"
       stream-id: abc
-      uids:
+      user-ids:
         - 123
         - 456

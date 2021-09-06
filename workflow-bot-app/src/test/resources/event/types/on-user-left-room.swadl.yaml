@@ -1,4 +1,4 @@
-name: on-user-left-roon
+id: on-user-left-roon
 activities:
   - execute-script:
       id: doIt

@@ -1,9 +1,7 @@
-name:
-version: 123
+id:
 activities:
   - send-message:
-      id: sendMessageId1
-      description: "activity to send a message when a /command is sent to the bot"
+      id: 123
       on:
         message-received:
           content: "/message"

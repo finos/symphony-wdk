@@ -1,4 +1,4 @@
-name: message-received-args
+id: message-received-args
 activities:
   - send-message:
       id: act

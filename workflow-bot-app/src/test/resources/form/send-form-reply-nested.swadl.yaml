@@ -1,4 +1,4 @@
-name: send-form-reply-nested
+id: send-form-reply-nested
 activities:
   - send-message:
       id: sendForm
@@ -20,7 +20,7 @@ activities:
       on:
         timeout: PT1S
         form-replied:
-          id: sendForm
+          form-id: sendForm
       to:
         stream-id: abc
       content: |
@@ -36,7 +36,7 @@ activities:
       on:
         timeout: PT1S
         form-replied:
-          id: sendSecondForm
+          form-id: sendSecondForm
       script: println "collect"
 
   - send-message:

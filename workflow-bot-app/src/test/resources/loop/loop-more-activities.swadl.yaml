@@ -1,4 +1,4 @@
-name: loop-more-activities
+id: loop-more-activities
 variables:
   execution: 0
 activities:

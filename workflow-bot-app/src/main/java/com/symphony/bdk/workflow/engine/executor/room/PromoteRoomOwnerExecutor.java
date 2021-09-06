@@ -13,7 +13,7 @@ public class PromoteRoomOwnerExecutor implements ActivityExecutor<PromoteRoomOwn
   public void execute(ActivityExecutorContext<PromoteRoomOwner> execution) {
     PromoteRoomOwner promoteRoomOwner = execution.getActivity();
 
-    for (String uid : promoteRoomOwner.getUids()) {
+    for (String uid : promoteRoomOwner.getUserIds()) {
       log.debug("Demote owner {} for room {}", uid, promoteRoomOwner.getStreamId());
       execution.bdk().streams().promoteUserToRoomOwner(Long.valueOf(uid), promoteRoomOwner.getStreamId());
     }

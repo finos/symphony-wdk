@@ -1,4 +1,4 @@
-name: smoke-test-rooms
+id: smoke-test-rooms
 activities:
   - execute-script:
       id: createRoomName
@@ -16,7 +16,7 @@ activities:
   - add-room-member:
       id: addUser
       stream-id: ${createRoom.outputs.roomId}
-      uids:
+      user-ids:
         - ${event.initiator.user.userId}
   - get-room:
       id: getRoom

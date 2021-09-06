@@ -1,4 +1,4 @@
-name: timer-repeat-intermediate
+id: timer-repeat-intermediate
 activities:
   - send-message:
       id: start

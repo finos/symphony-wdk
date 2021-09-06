@@ -1,4 +1,4 @@
-name: get-rooms-pagination
+id: get-rooms-pagination
 variables:
   skip: 10
   limit: 10

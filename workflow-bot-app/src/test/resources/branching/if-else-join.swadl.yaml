@@ -1,4 +1,4 @@
-name: if-else-join
+id: if-else-join
 activities:
   - execute-script:
       id: act1
