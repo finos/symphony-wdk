@@ -1070,10 +1070,10 @@
             "type": "object",
             "properties": {
                 "room-name": {
-                 "$ref": "#/definitions/room-name"
+                    "$ref": "#/definitions/room-name"
                 },
                 "room-description": {
-                   "$ref": "#/definitions/room-description"
+                    "$ref": "#/definitions/room-description"
                 },
                 "public": {
                     "type": [
@@ -1313,7 +1313,7 @@
             "$comment": "Variable or email regex is accepted.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.emailAddress"]
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.emailAddress}"]
                 },
                 {
                     "type": "string",
@@ -1336,7 +1336,7 @@
             "description": "The user's work phone number.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME", "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}", "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}", "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"]
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}", "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}", "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"]
                 },
                 {
                     "type": "string",
@@ -2067,7 +2067,7 @@
         "get-stream-inner": {
             "properties": {
                 "stream-id": {
-                   "$ref": "#/definitions/stream-id-inner"
+                    "$ref": "#/definitions/stream-id-inner"
                 }
             },
             "required": [
@@ -2077,7 +2077,7 @@
         "get-room-inner": {
             "properties": {
                 "stream-id": {
-                        "$ref": "#/definitions/stream-id-inner"
+                    "$ref": "#/definitions/stream-id-inner"
                 }
             },
             "required": [
@@ -2146,10 +2146,10 @@
                     "description": "Whether to include inactive conversations. A chatroom is inactive if it has been deactivated by an owner or admin. An IM or MIM is inactive if one of the participating users has been deactivated by an admin. If not specified, only active streams are returned."
                 },
                 "limit": {
-                   "$ref": "#/definitions/limit"
+                    "$ref": "#/definitions/limit"
                 },
                 "skip": {
-                   "$ref": "#/definitions/skip"
+                    "$ref": "#/definitions/skip"
                 }
             }
         },
@@ -2219,7 +2219,7 @@
                     "description": "Restricts result set to rooms that have been modified prior to this date (an Epoch timestamp specified in milliseconds). When specified along with startDate, enables the developer to specify rooms modified within a given time range."
                 },
                 "limit": {
-                   "$ref": "#/definitions/limit"
+                    "$ref": "#/definitions/limit"
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
@@ -2320,7 +2320,7 @@
                     "$ref": "#/definitions/skip"
                 },
                 "limit": {
-                   "$ref": "#/definitions/limit"
+                    "$ref": "#/definitions/limit"
                 }
             },
             "required": [
@@ -2412,7 +2412,7 @@
             "description": "Stream identifier. Both safe url and Base64 encoded url are accepted.",
             "anyOf": [
                 {
-                    "enum": ["event.source.stream.streamId", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
+                    "enum": ["${event.source.stream.streamId}", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2453,7 +2453,7 @@
             "description": "List of user ids.",
             "properties": {
                 "user-ids": {
-                   "$ref": "#/definitions/user-ids-inner"
+                    "$ref": "#/definitions/user-ids-inner"
                 }
             },
             "required": [
