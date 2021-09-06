@@ -9,8 +9,9 @@ blocks often calling REST API endpoints of the Symphony platform or can even be 
 
 - [Getting started](./getting-started.md): a quick guide to run your first workflow
 - [Concepts](./concepts.md): high-level view of the key concepts behind workflows
-- Architecture: technical bits on the execution of workflows
-- Deployment: how to run and configure the workflow bot
+- [Architecture](./architecture.md): technical bits on the execution of workflows
+- [Deployment](./deployment.md): how to run and configure the workflow bot
 - [Custom activities](./custom-activities.md): step-by-step guide on how to implement your own activities
-- Examples: concrete and advanced workflows
-- SWADL Reference: syntax reference for the Symphony Workflow Automation Language used to write workflows
+- [Examples](./examples): concrete and advanced workflows
+- [SWADL Reference](./reference.md): syntax reference for the Symphony Workflow Automation Definition Language used to
+  write workflows

@@ -10,8 +10,8 @@ To accelerate the development of bots, the WDK, built on top of the BDK takes it
 to **create applications without writing code**. Workflows are written in a declarative manner, giving access to most of
 the Symphony APIs to react on events and perform actions as common as sending messages to users.
 
-Workflows are executed by a generic bot that runs a workflow execution engine. The only responsibilities of a workflow
-developer are writing the workflow and running the workflow bot providing it the written workflows as inputs.
+Workflows are executed by a generic bot that runs a workflow execution engine. As a workflow developer, you simply write
+workflows in files and provide them to the bot for execution.
 
 ## Workflows
 
@@ -25,7 +25,7 @@ simply [YAML](https://yaml.org/) that we picked for its brevity, popularity and 
 handy to maintain complex workflows!).
 
 We defined SWADL as a [JSON Schema](https://json-schema.org/) that is supported by a variety of editors (including
-[Visual Studio Code](https://github.com/redhat-developer/vscode-yaml)
+Visual Studio Code with an [additional plugin](https://github.com/redhat-developer/vscode-yaml) to install
 and [Intellij IDEA](https://www.jetbrains.com/help/idea/json.html#ws_json_using_schemas)) so that as a workflow writer
 you get autocompletion, documentation and validation on the fly.
 
@@ -74,7 +74,7 @@ executed. In the [Events](#events) section more details are provided on how acti
 
 ### Custom activities
 
-The WDK comes a predefined set of activities, most of them giving access to the public Symphony APIs. As a workflow
+The WDK comes with a predefined set of activities, most of them giving access to the public Symphony APIs. As a workflow
 developer you might want to implement your own logic and reuse it in
 workflows. [Custom activities](./custom-activities.md) are supported and can be added to the workflow bot without
 changing it.
@@ -100,8 +100,44 @@ start executing activities. This means the first activity of a workflow must def
 Workflow activities are executed sequentially by default meaning the default event (if no others are defined) for an
 activity is the `activity-completed` one with completed activity id being the activity declared before.
 
+```yaml
+name: my-workflow
+activities:
+  - send-message:
+      id: sendHello
+      on:
+        message-received:
+          content: /hello
+      content: "Hello"
+  - send-message:
+      id: sendBye
+      content: "Bye"
+```
+
+In the example above, `sendHello` is executed first when a _/hello_ message is sent, then `sendBye`.
+
 Intermediate events can be defined too, for instance for a workflow when the user has to provide multiple inputs to move
 through the activities or if the workflow sent a form and is waiting for a reply.
+
+```yaml
+name: my-workflow
+activities:
+  - send-message:
+      id: sendHello
+      on:
+        message-received:
+          content: /hello
+      content: "Hello"
+  - send-message:
+      id: sendBye
+        on:
+        message-received:
+          content: /bye
+      content: "Bye"
+```
+
+In the example above, `sendHello` is executed first when a _/hello_ message is sent, then the workflow waits for another
+message (_/bye_) to execute `sendBye`.
 
 ### Datafeed events
 
@@ -123,19 +159,6 @@ instance every monday to send a weekly report to users.
 
 While the default order of execution for activities is sequential more complex use cases can require controlling the
 execution of activities.
-
-```yaml
-name: my-workflow
-activities:
-  - send-message:
-      id: sendHello
-      content: "Hello"
-  - send-message:
-      id: sendBy
-      content: "Bye"
-```
-
-In the example above, `sendHello` is executed first, then `sendBy`.
 
 #### Branching
 

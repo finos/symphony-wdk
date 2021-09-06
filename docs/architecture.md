@@ -3,7 +3,7 @@
 In this section we provide details on how the WDK is implemented. While we don't expect workflow developers to change
 the workflow bot, knowing a bit more about its inner working helps understand its capabilities and limitations.
 
-The WDK is made of different pieces:
+The WDK is made of:
 
 - a definition language for workflows, SWADL. It comes with a JSON Schema to help with autocompletion, validation and
   documentation.
@@ -18,7 +18,8 @@ re-implementing our own. Camunda can be embedded in a Java application, with a S
 with the BDK Spring Boot starter was quite easy.
 
 We made sure that the usage of Camunda stays an implementation detail and that another execution engine could be used
-instead without impacting workflow developers. Hence, SWADL, a simpler and
+instead without impacting workflow developers. Hence, SWADL, a simpler and higher level to define workflows (compared to
+BPMN).
 
 To put it simply, deploying a workflow means taking a SWADL file translating it to BPMN and have Camunda run it. The
 workflow bot also takes care of dispatching datafeed events as events understood by Camunda to trigger workflow
@@ -42,8 +43,8 @@ executor is configured to run frequently by default to be as reactive as possibl
 
 The WDK, especially in its first version, obviously comes with trade-offs and limitations. The main one being that for
 now an in-memory database is used to persist workflows. This means that restarting the workflow bot stops running
-workflows and that they won't recover on restart. Camunda supports many databases so in the future we might use a
-persistent one.
+workflows and that they won't recover on restart. Executions history is lost on restart too. Camunda supports many
+databases so in the future we might use a persistent one.
 
 Related to the way persistence is implemented right now, high availability that can be achieved by running multiple
 instances of the workflow bot is not possible. A unique database, shared by the bot instances would have to be used for
@@ -69,7 +70,7 @@ Plurals are used (such as `get-users`) when the activity returns a list of resul
 ### Events
 
 Events are named following the format _something-happened_, the past is used to indicate that the event already
-occurred.
+occurred. For instance: `message-received` or `user-joined-room`.
 
 ### Variables
 
@@ -91,5 +92,5 @@ activities:
       user-id: ${variables.userId}
 ```
 
-While the `user-id` attribute is a number, in order to support the usage of variables we must also allow for strings to
-be used in the JSON Schema.
+While the API to get a user takes a number as the user id, in the JSON schema we still declare `user-id` to be of types
+number **and** string to support the usage of variables as shown above.
