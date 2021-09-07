@@ -1,4 +1,3 @@
-name: connection-admin-approval
 variables:
   # a user that is validating connection requests made to the bot
   administrator: 13056700579841

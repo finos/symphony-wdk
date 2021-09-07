@@ -1,4 +1,3 @@
-name: poll
 variables:
   answer1: 0
   answer2: 0

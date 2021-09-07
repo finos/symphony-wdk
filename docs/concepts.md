@@ -46,7 +46,6 @@ running or finished.
 Let's say we deploy this workflow:
 
 ```yaml
-name: my-workflow
 activities:
   - send-message:
       id: pingPong
@@ -101,7 +100,6 @@ Workflow activities are executed sequentially by default meaning the default eve
 activity is the `activity-completed` one with completed activity id being the activity declared before.
 
 ```yaml
-name: my-workflow
 activities:
   - send-message:
       id: sendHello
@@ -120,7 +118,6 @@ Intermediate events can be defined too, for instance for a workflow when the use
 through the activities or if the workflow sent a form and is waiting for a reply.
 
 ```yaml
-name: my-workflow
 activities:
   - send-message:
       id: sendHello
@@ -196,7 +193,6 @@ Variables exist within the scope of a workflow instance and are resolved at runt
 values. Those changes will be reflected in subsequent activities.
 
 ```yaml
-name: my-workflow
 variables:
   userName: "John"
 activities:
@@ -220,7 +216,6 @@ of data and should not for instance be used for large files.
 Variables can be defined at the workflow level and will be created automatically once a workflow instance is started.
 
 ```yaml
-name: my-workflow
 variables:
   userId: 123
   userName: "John"

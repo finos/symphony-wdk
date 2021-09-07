@@ -80,7 +80,6 @@ primitive type + the string type.
 For instance for the `get-user` activity:
 
 ```yaml
-name: get-user
 variables:
   userId: 123
 activities:

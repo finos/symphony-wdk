@@ -1,4 +1,3 @@
-name: create-user-account
 activities:
   - create-user:
       id: create

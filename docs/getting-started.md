@@ -53,7 +53,6 @@ docker run -ti workflow-bot
 The generated workflow bot comes with a sample workflow:
 
 ```yaml
-name: ping-pong-workflow
 activities:
   - send-message:
       id: pingPong
