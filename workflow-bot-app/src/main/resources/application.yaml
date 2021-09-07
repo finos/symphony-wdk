@@ -28,13 +28,23 @@ camunda:
 spring:
   main:
     banner-mode: off
+    # To completely disable listening to a HTTP port
+    # web-application-type: none
+  groovy:
+    template:
+      # Avoid warning log during startup
+      check-template-location: false
+
+# Logging configuration
 logging:
   level:
     com.symphony: DEBUG
-    # troubleshoot Camunda
-    org.camunda: INFO
-    # audit trail can be disabled with WARN level
+    # Troubleshoot Camunda by setting lower log level
+    org.camunda: WARN
+    # Audit trail can be disabled with WARN level
     #audit-trail: WARN
+    # Disable BPMN image generation
+    com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: INFO
 
 # Actuator endpoint is enabled by default on port 8080
 management:

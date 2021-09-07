@@ -114,7 +114,7 @@ ij_java_for_statement_wrap = normal
 ij_java_generate_final_locals = false
 ij_java_generate_final_parameters = false
 ij_java_if_brace_force = always
-ij_java_imports_layout = $*,|,com.symphony.**,com.gs.ti.wpt.**,|,*,|,java.**,javax.**
+ij_java_imports_layout = $*, |, com.symphony.**, com.gs.ti.wpt.**, |, *, |, java.**, javax.**
 ij_java_indent_case_from_switch = true
 ij_java_insert_inner_class_imports = false
 ij_java_insert_override_annotation = true
@@ -290,3 +290,6 @@ ij_properties_spaces_around_key_value_delimiter = false
 indent_size = 2
 ij_yaml_keep_indents_on_empty_lines = false
 ij_yaml_keep_line_breaks = true
+
+[*.md]
+indent_size = 2
