@@ -20,6 +20,7 @@
         },
         "activities": {
             "type": "array",
+            "minLength": 1,
             "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
             "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
@@ -792,7 +793,8 @@
                     "$ref": "#/definitions/activity-completed-event-inner"
                 },
                 "if": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^\\$\\{.*\\}$"
                 }
             },
             "required": [
@@ -888,20 +890,32 @@
                 "timer-fired"
             ]
         },
-        "timer-fired-event-inner": {
-            "type": "object",
+        "repeat": {
             "properties": {
                 "repeat": {
                     "description": "ISO 8601 repeating intervals to repeat the current activity.",
                     "type": "string",
                     "default": "R/PT0.1S"
-                },
+                }
+            },
+            "required": ["repeat"]
+        },
+        "at": {
+            "properties": {
                 "at": {
                     "description": "ISO 8601 date presenting a point in time when the current activity should be executed.",
                     "type": "string",
-                    "default": "2021-08-31T-15:50+00"
+                    "default": "2021-08-31T-15:50:00"
                 }
-            }
+            },
+            "required": ["at"]
+        },
+        "timer-fired-event-inner": {
+            "type": "object",
+            "oneOf": [
+                {"$ref":  "#/definitions/repeat"},
+                {"$ref":  "#/definitions/at"}
+            ]
         },
         "form-replied-event-inner": {
             "type": "object",
@@ -1007,7 +1021,8 @@
                     "description": "The activity id that the expiration triggers this event.",
                     "$ref": "#/definitions/id"
                 }
-            }
+            },
+            "required": ["activity-id"]
         },
         "activity-completed-event-inner": {
             "type": "object",
@@ -1016,7 +1031,8 @@
                     "description": "The activity id that the completion triggers this event.",
                     "$ref": "#/definitions/id"
                 }
-            }
+            },
+            "required": ["activity-id"]
         },
         "basic-activity-inner": {
             "type": "object",
@@ -1058,7 +1074,7 @@
         "room-description": {
             "anyOf": [
                 {
-                    "enum": ["${TASK_ID.outputs.room.description}", "${variables.VARIABLE_NAME}"]
+                    "enum": ["${TASK_ID.outputs.room.roomAttributes.description}", "${variables.VARIABLE_NAME}"]
                 },
                 {
                     "description": "Room's description.",
@@ -1275,7 +1291,7 @@
                     "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the send-message activity one.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}", "${text(TASK_ID.outputs.message.message)}"]
+                            "enum": ["${variables.VARIABLE_NAME}", "${text(TASK_ID.outputs.message.message)}", "<mention uid='${TASK_ID.outputs.user.userSystemInfo.id}'/>", "<mention uid='${event.initiator.user.userId}'/>"]
                         },
                         {
                             "type": "string",
@@ -2314,7 +2330,8 @@
                             "type": "string",
                             "minLength": 1
                         }
-                    ]
+                    ],
+                    "default": "2021-08-31T15:50:00Z"
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
@@ -2401,7 +2418,7 @@
             "description": "Message identifier. Both safe url and Base64 encoded url are accepted.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.message.messageId}"]
+                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.msgId}"]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2412,7 +2429,7 @@
             "description": "Stream identifier. Both safe url and Base64 encoded url are accepted.",
             "anyOf": [
                 {
-                    "enum": ["${event.source.stream.streamId}", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
+                    "enum": ["${event.source.message.stream.streamId}", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2436,15 +2453,15 @@
             "description": "User identifiers list.",
             "anyOf": [
                 {
+                    "enum": []
+                },
+                {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/user-id"
                     },
                     "minLength": 1,
                     "uniqueItems": true
-                },
-                {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.userIds"]
                 }
             ]
         },

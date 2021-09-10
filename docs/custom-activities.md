@@ -54,6 +54,7 @@ let you know if the activity is not known before execution._
 Let's go back to the `custom-activity-example` project:
 
 ```yaml
+id: custom-activity-example
 activities:
   - my-activity:
       id: first

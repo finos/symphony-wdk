@@ -8,4 +8,4 @@ activities:
       stream-id: STREAM_ID
       skip: 0
       limit: 2
-      since: 1997-01-19T09:59:51.300Z
+      since: 1997-01-19T09:59:51Z

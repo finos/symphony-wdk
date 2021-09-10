@@ -1,3 +1,4 @@
+id: paginate-rooms
 variables:
   skip: 0
   count: 1000

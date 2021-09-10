@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Base implementation of an activity providing data shared across all activities.
@@ -20,20 +21,18 @@ public abstract class BaseActivity {
   private String id;
 
   /**
-   * A short name to describe the activity.
-   */
-  private String name;
-
-  /**
    * The event triggering the activity's execution,
    * if not set the activity is triggered automatically once the activity before it finishes.
    */
+  @Nullable
   private Event on;
 
   @JsonProperty("if")
+  @Nullable
   private String ifCondition;
 
   @JsonProperty("else")
+  @Nullable
   private Object elseCondition;
 
   /**

@@ -7,8 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /**
  * @see <a href="https://developers.symphony.com/restapi/reference#create-room-v3">Create room API</a>
@@ -16,9 +18,9 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CreateRoom extends BaseActivity {
-  private String roomName;
-  private String roomDescription;
-  private List<String> userIds;
+  @Nullable private String roomName;
+  @Nullable private String roomDescription;
+  @Nullable private List<String> userIds;
 
   @JsonProperty("public")
   private String isPublic;
@@ -27,7 +29,7 @@ public class CreateRoom extends BaseActivity {
   @JsonIgnore
   public List<Long> getUserIdsAsLongs() {
     if (userIds == null) {
-      return null;
+      return Collections.emptyList();
     }
     return userIds.stream().map(Long::parseLong).collect(Collectors.toList());
   }

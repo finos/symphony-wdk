@@ -7,11 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Workflow {
-  private String id;
+  @Nullable private String id;
   private Map<String, Object> variables = Collections.emptyMap();
   private List<Activity> activities;
 

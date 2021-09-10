@@ -44,7 +44,7 @@ public class SwadlParser {
   }
 
   public static Workflow fromYaml(File workflowFile) throws IOException, ProcessingException {
-    String yamlString = new String(Files.readAllBytes(workflowFile.toPath()));
+    String yamlString = Files.readString(workflowFile.toPath(), StandardCharsets.UTF_8);
     SwadlValidator.validateYaml(yamlString);
     Workflow workflow = MAPPER.readValue(yamlString, Workflow.class);
     if (workflow.getId() == null) {

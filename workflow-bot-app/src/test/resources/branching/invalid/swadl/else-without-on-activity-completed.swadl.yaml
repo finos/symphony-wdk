@@ -1,0 +1,19 @@
+id: else-without-on-activity-completed
+activities:
+  - execute-script:
+      id: ac0
+      on:
+        message-received:
+          content: /execute
+      script: |
+
+  - send-message:
+      id: ac1
+      content: hello
+      if: ${1 == 0}
+
+  - send-message:
+      id: ac2
+      content: hello-2
+      else: {}
+

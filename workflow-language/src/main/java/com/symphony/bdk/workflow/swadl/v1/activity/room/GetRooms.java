@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Get rooms API</a>
@@ -16,19 +17,20 @@ import java.util.List;
 @Data
 public class GetRooms extends BaseActivity {
   private String query;
-  private List<String> labels;
-  private String active;
+  @Nullable private List<String> labels;
+  @Nullable private String active;
+
   @JsonProperty("private")
-  private String isPrivate;
+  @Nullable private String isPrivate;
 
-  private String creatorId;
-  private String ownerId;
-  private String memberId;
+  @Nullable private String creatorId;
+  @Nullable private String ownerId;
+  @Nullable private String memberId;
 
-  private String sortOrder;
+  @Nullable private String sortOrder;
 
-  private String limit;
-  private String skip;
+  @Nullable private String limit;
+  @Nullable private String skip;
 
   @JsonIgnore
   public Boolean getActiveAsBool() {

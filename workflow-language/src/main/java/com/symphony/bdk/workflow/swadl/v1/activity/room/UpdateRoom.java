@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * @see <a href="https://developers.symphony.com/restapi/reference#update-room-v3">Update room API</a>
@@ -19,21 +20,23 @@ import java.util.Map;
 public class UpdateRoom extends BaseActivity {
   private String streamId;
 
-  private String roomName;
-  private String roomDescription;
-  private Map<String, String> keywords;
+  @Nullable private String roomName;
+  @Nullable private String roomDescription;
+  @Nullable private Map<String, String> keywords;
 
-  private String membersCanInvite;
-  private String discoverable;
+  @Nullable private String membersCanInvite;
+  @Nullable private String discoverable;
+
   @JsonProperty("public")
-  private String isPublic;
-  private String readOnly;
-  private String copyProtected;
-  private String crossPod;
-  private String viewHistory;
-  private String multiLateralRoom;
+  @Nullable private String isPublic;
 
-  private String active;
+  @Nullable private String readOnly;
+  @Nullable private String copyProtected;
+  @Nullable private String crossPod;
+  @Nullable private String viewHistory;
+  @Nullable private String multiLateralRoom;
+
+  @Nullable private String active;
 
   @JsonIgnore
   public Boolean getMembersCanInviteAsBool() {

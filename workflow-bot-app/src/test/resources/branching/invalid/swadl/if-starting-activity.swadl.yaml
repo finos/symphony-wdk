@@ -1,0 +1,10 @@
+id: if-in-starting-activity
+activities:
+  - send-message:
+      id: startingActivity
+      on:
+        message-received:
+          content: /execute
+      content: hello
+      if: ${1 == 1}
+

@@ -5,6 +5,8 @@ import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.camunda.listener.ScriptTaskAuditListener;
 import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
 import com.symphony.bdk.workflow.swadl.ActivityRegistry;
+import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
+import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Event;
@@ -14,7 +16,6 @@ import com.symphony.bdk.workflow.swadl.v1.activity.ExecuteScript;
 import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.engine.RepositoryService;
@@ -59,7 +60,7 @@ public class CamundaBpmnBuilder {
     this.eventToMessage = eventToMessage;
   }
 
-  public Deployment addWorkflow(Workflow workflow) {
+  public Deployment addWorkflow(Workflow workflow) throws JsonProcessingException {
     BpmnModelInstance instance = workflowToBpmn(workflow);
 
     try {
@@ -77,11 +78,17 @@ public class CamundaBpmnBuilder {
   private List<Event> getStartingEvents(Workflow workflow) {
     return workflow.getFirstActivity()
         .map(Activity::getEvents)
-        .orElseThrow(NoStartingEventException::new);
+        .orElseThrow(() -> new NoStartingEventException(workflow.getId()));
   }
 
-  @SneakyThrows
-  private BpmnModelInstance workflowToBpmn(Workflow workflow) {
+  private void checkParentIsKnown(Map<String, String> parentActivities, String workflowId, String activityId,
+      String parentId) {
+    if (!parentActivities.containsKey(parentId)) {
+      throw new ActivityNotFoundException(workflowId, parentId, activityId);
+    }
+  }
+
+  private BpmnModelInstance workflowToBpmn(Workflow workflow) throws JsonProcessingException {
     ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow)).name(workflow.getId());
 
     // a workflow starts with at least one named signal event
@@ -103,11 +110,13 @@ public class CamundaBpmnBuilder {
       builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity);
 
       // process events starting the activity
-      if (onFormRepliedEvent(activity)) {
+      if (onFormRepliedEvent(activity) && activity.getOn() != null) {
+        checkParentIsKnown(parentActivities, workflow.getId(), activity.getId(),
+            activity.getOn().getFormReplied().getFormId());
         builder = formReply(builder, activity, formExpirations);
       }
 
-      if (onActivityExpired(activity)) {
+      if (onActivityExpired(activity) && activity.getOn() != null) {
         // add the activity as a form expiration
         AbstractFlowNodeBuilder<?, ?> formExpirationBuilder =
             formExpirations.get(activity.getOn().getActivityExpired().getActivityId());
@@ -135,10 +144,12 @@ public class CamundaBpmnBuilder {
           }
         }
 
+        String parentId = parentActivities.get(activity.getId());
+
         if (onConditional(activity)) {
-          if (gateways.containsKey(parentActivities.get(activity.getId()))) {
+          if (gateways.containsKey(parentId)) {
             // we already opened a gateway, so it is an 'else if'
-            builder = gateways.get(parentActivities.get(activity.getId()));
+            builder = gateways.get(parentId);
             builder = builder.moveToLastGateway();
           } else {
             // otherwise, it is a new 'if'
@@ -148,17 +159,39 @@ public class CamundaBpmnBuilder {
         }
 
         if (activity.getElseCondition() != null) {
-          builder = gateways.get(parentActivities.get(activity.getId()));
-          builder = builder.moveToLastGateway();
-          // this condition is now closed, remove it
-          gateways.remove(parentActivities.get(activity.getId()));
+          if (gateways.isEmpty()) {
+            throw new InvalidActivityException(workflow.getId(),
+                "Expecting \"if\" keyword to open a new conditional branching, got \"else\"");
+          }
+
+          builder = gateways.get(parentId);
+
+          if (builder == null) {
+            log.error(
+                "This error happens when an activity with \"else\" operation has activity-completed referencing an activity that has another conditional branching, a non existing activity id or no activity-completed is provided");
+            throw new InvalidActivityException(workflow.getId(),
+                String.format("Expecting activity %s not to have a parent activity with conditional branching, got %s",
+                    activity.getId(), parentId));
+          } else {
+            builder = builder.moveToLastGateway();
+            // this condition is now closed, remove it
+            gateways.remove(parentId);
+          }
         }
 
         builder = addTask(builder, activity);
 
         if (onConditional(activity)) {
           // store it to continue other conditional flows (else if, else)
-          gateways.put(parentActivities.get(activity.getId()), builder);
+          if (parentId == null) {
+            throw new InvalidActivityException(workflow.getId(), String.format(
+                "Expecting activity %s not to have a parent activity with conditional branching, got an unknown activity id",
+                activity.getId()));
+          } else if (parentId.equals("")) {
+            throw new InvalidActivityException(workflow.getId(),
+                String.format("Starting activity %s cannot have a conditional branching", activity.getId()));
+          }
+          gateways.put(parentId, builder);
         }
 
         for (ActivityCompletedEvent activityCompletedEvent : activityCompletedEvents) {
@@ -262,7 +295,7 @@ public class CamundaBpmnBuilder {
     List<Event> events = getStartingEvents(workflow);
     AbstractFlowNodeBuilder<?, ?> builder = null;
     if (events.isEmpty()) {
-      throw new NoStartingEventException();
+      throw new NoStartingEventException(workflow.getId());
     } else {
       for (Event event : events) {
         if (event.getTimerFired() != null) {
@@ -280,7 +313,7 @@ public class CamundaBpmnBuilder {
         }
       }
       if (builder == null || multipleEvents.isEmpty()) {
-        throw new NoStartingEventException();
+        throw new NoStartingEventException(workflow.getId());
       }
       // last start event is automatically connected, so we don't need it
       multipleEvents.remove(multipleEvents.size() - 1);
@@ -329,7 +362,7 @@ public class CamundaBpmnBuilder {
 
   private static String createUniqueProcessId(Workflow workflow) {
     // spaces are not supported in BPMN here
-    // workflow name should not start with a numerical value
+    // workflow id should not start with a numerical value
     String suffix = UUID.randomUUID().toString();
     if (workflow.getId() != null) {
       return workflow.getId().replaceAll("\\s+", "_") + "-" + suffix;
@@ -356,18 +389,20 @@ public class CamundaBpmnBuilder {
       Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies) {
     SubProcessBuilder subProcess = builder.subProcess();
 
-    AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
-        .startEvent()
-        .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
-    formReplies.put(activity.getId(), formExpirationBuilder);
+    if (activity.getOn() != null) {
+      AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
+          .startEvent()
+          .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
+      formReplies.put(activity.getId(), formExpirationBuilder);
 
-    // we add the form reply event sub process inside the subprocess
-    builder = subProcess.embeddedSubProcess().eventSubProcess()
-        .startEvent()
-        .camundaAsyncBefore()
-        .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
-        .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
-        .name("formReply");
+      // we add the form reply event sub process inside the subprocess
+      builder = subProcess.embeddedSubProcess().eventSubProcess()
+          .startEvent()
+          .camundaAsyncBefore()
+          .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
+          .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
+          .name("formReply");
+    }
     return builder;
   }
 
@@ -385,7 +420,7 @@ public class CamundaBpmnBuilder {
       ExecuteScript scriptActivity) {
     builder = builder.scriptTask()
         .id(scriptActivity.getId())
-        .name(Objects.toString(scriptActivity.getName(), scriptActivity.getId()))
+        .name(scriptActivity.getId())
         .scriptText(scriptActivity.getScript())
         .scriptFormat(ExecuteScript.SCRIPT_ENGINE)
         .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ScriptTaskAuditListener.class);
@@ -396,7 +431,7 @@ public class CamundaBpmnBuilder {
       BaseActivity activity) throws JsonProcessingException {
     builder = builder.serviceTask()
         .id(activity.getId())
-        .name(Objects.toString(activity.getName(), activity.getId()))
+        .name(activity.getId())
         .camundaClass(CamundaExecutor.class)
         .camundaInputParameter(CamundaExecutor.EXECUTOR,
             ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())

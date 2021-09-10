@@ -24,8 +24,9 @@ public class CreateUser extends BaseActivity {
   private String firstname;
   private String lastname;
   private String displayName;
-  private String recommendedLanguage;
 
+  @Nullable
+  private String recommendedLanguage;
   @Nullable
   private Contact contact;
   @Nullable

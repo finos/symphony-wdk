@@ -36,7 +36,8 @@ public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
           .listUsersByEmails(getUsers.getEmails(), getUsers.getLocalAsBool(), getUsers.getActiveAsBool());
 
     } else {
-      throw new IllegalArgumentException("Usernames or user ids or emails must be set");
+      throw new IllegalArgumentException(
+          String.format("Usernames or user ids or emails must be set in activity %s", getUsers.getId()));
     }
 
     context.setOutputVariable(OUTPUT_USERS_KEY, users);
