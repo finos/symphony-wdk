@@ -52,7 +52,7 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
         || updateRoom.getCopyProtectedAsBool() != null
         || updateRoom.getCrossPodAsBool() != null
         || updateRoom.getViewHistoryAsBool() != null
-        || updateRoom.getMultiLateralRoomAsBool() != null;
+        || updateRoom.getMultilateralRoomAsBool() != null;
   }
 
   private V3RoomAttributes toAttributes(UpdateRoom updateRoom) {
@@ -79,7 +79,7 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     attributes.copyProtected(updateRoom.getCopyProtectedAsBool());
     attributes.crossPod(updateRoom.getCrossPodAsBool());
     attributes.viewHistory(updateRoom.getViewHistoryAsBool());
-    attributes.multiLateralRoom(updateRoom.getMultiLateralRoomAsBool());
+    attributes.multiLateralRoom(updateRoom.getMultilateralRoomAsBool());
 
     return attributes;
   }

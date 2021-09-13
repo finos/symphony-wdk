@@ -29,7 +29,6 @@ activities:
       on:
         activity-completed:
           activity-id: act1
-      # will be executed because of the if
       else: { }
       script: |
         println "act4"

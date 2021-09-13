@@ -45,7 +45,7 @@ public class SwadlValidator {
   private static final JsonNode jsonSchema;
 
   static {
-    // load it only once as it won't change dynamically (i.e we don't support adding new custom activities on the fly)
+    // load it only once as it won't change dynamically (i.e. we don't support adding new custom activities on the fly)
     try (InputStream schemaStream = SwadlValidator.class.getResourceAsStream(JSON_SCHEMA_FILE)) {
       if (schemaStream == null) {
         throw new IOException("Could not read JSON schema from classpath location: " + JSON_SCHEMA_FILE);

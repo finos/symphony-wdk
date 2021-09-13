@@ -19,7 +19,7 @@ import java.util.Optional;
  * </pre>
  *
  * <p>This is handled by a specific deserializer when processing the workflow. This also allows to support
- * activity types found at runtime (i.e custom activities).
+ * activity types found at runtime (i.e. custom activities).
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

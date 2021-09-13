@@ -26,7 +26,7 @@ activities:
 # mix of event + form reply
 # /cancel form command?
 
-# what it i want an activity right in the middle of the flow, i.e a subprocess waiting for something?
+# what it i want an activity right in the middle of the flow, i.e. a subprocess waiting for something?
 
 # loop on yourself? allow it?
 
