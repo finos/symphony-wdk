@@ -1075,8 +1075,8 @@
             "anyOf": [
                 {
                     "enum": [
-                        "${TASK_ID.outputs.room.roomAttributes.name}",
-                        "${TASK_ID.outputs.stream.roomAttributes.name}",
+                        "${ACTIVITY_ID.outputs.room.roomAttributes.name}",
+                        "${ACTIVITY_ID.outputs.stream.roomAttributes.name}",
                         "${variables.VARIABLE_NAME}"
                     ]
                 },
@@ -1091,7 +1091,7 @@
             "anyOf": [
                 {
                     "enum": [
-                        "${TASK_ID.outputs.room.roomAttributes.description}",
+                        "${ACTIVITY_ID.outputs.room.roomAttributes.description}",
                         "${variables.VARIABLE_NAME}"
                     ]
                 },
@@ -1312,8 +1312,8 @@
                         {
                             "enum": [
                                 "${variables.VARIABLE_NAME}",
-                                "${text(TASK_ID.outputs.message.message)}",
-                                "<mention uid='${TASK_ID.outputs.user.userSystemInfo.id}'/>",
+                                "${text(ACTIVITY_ID.outputs.message.message)}",
+                                "<mention uid='${ACTIVITY_ID.outputs.user.userSystemInfo.id}'/>",
                                 "<mention uid='${event.initiator.user.userId}'/>"
                             ]
                         },
@@ -1355,7 +1355,7 @@
                 {
                     "enum": [
                         "${variables.VARIABLE_NAME}",
-                        "${TASK_ID.outputs.user.userAttributes.emailAddress}"
+                        "${ACTIVITY_ID.outputs.user.userAttributes.emailAddress}"
                     ]
                 },
                 {
@@ -1369,10 +1369,10 @@
                 {
                     "enum": [
                         "${variables.VARIABLE_NAME}",
-                        "${TASK_ID.outputs.user.userAttributes.firstName}",
-                        "${TASK_ID.outputs.user.userAttributes.lastName}",
-                        "${TASK_ID.outputs.user.userAttributes.userName}",
-                        "${TASK_ID.outputs.user.userAttributes.displayName}"
+                        "${ACTIVITY_ID.outputs.user.userAttributes.firstName}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.lastName}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.userName}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.displayName}"
                     ]
                 },
                 {
@@ -1387,9 +1387,9 @@
                 {
                     "enum": [
                         "${variables.VARIABLE_NAME}",
-                        "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}",
-                        "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}",
-                        "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"
+                        "${ACTIVITY_ID.outputs.user.userAttributes.workPhoneNumber}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.mobilePhoneNumber}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.twoFactorAuthPhone}"
                     ]
                 },
                 {
@@ -2314,7 +2314,7 @@
                         "string",
                         "number"
                     ],
-                    "description": "If provided, restricts the search to rooms created by the specified user.",
+                    "description": "If provided, restrict the search to rooms created by the specified user.",
                     "minLength": 1
                 },
                 "owner-id": {
@@ -2322,7 +2322,7 @@
                         "string",
                         "number"
                     ],
-                    "description": "If provided, restricts the search to rooms owned by the specified user.",
+                    "description": "If provided, restrict the search to rooms owned by the specified user.",
                     "minLength": 1
                 },
                 "member-id": {
@@ -2330,7 +2330,7 @@
                         "string",
                         "number"
                     ],
-                    "description": "If provided, restricts the search to rooms where the specified user is a member.",
+                    "description": "If provided, restrict the search to rooms where the specified user is a member.",
                     "minLength": 1
                 },
                 "sort-order": {
@@ -2460,12 +2460,12 @@
             "minLength": 1
         },
         "message-id-inner": {
-            "description": "Message identifier. Both safe url and Base64 encoded url are accepted.",
+            "description": "Message identifier. Both safe url and Base64 encoded urls are accepted.",
             "anyOf": [
                 {
                     "enum": [
                         "${variables.VARIABLE_NAME}",
-                        "${TASK_ID.outputs.msgId}"
+                        "${ACTIVITY_ID.outputs.msgId}"
                     ]
                 },
                 {
@@ -2474,14 +2474,14 @@
             ]
         },
         "stream-id-inner": {
-            "description": "Stream identifier. Both safe url and Base64 encoded url are accepted.",
+            "description": "Stream identifier. Both safe url and Base64 encoded urls are accepted.",
             "anyOf": [
                 {
                     "enum": [
                         "${event.source.message.stream.streamId}",
                         "${variables.VARIABLE_NAME}",
-                        "${TASK_ID.outputs.roomId}",
-                        "${TASK_ID.outputs.stream.id}"
+                        "${ACTIVITY_ID.outputs.roomId}",
+                        "${ACTIVITY_ID.outputs.stream.id}"
                     ]
                 },
                 {
@@ -2541,7 +2541,7 @@
                 },
                 {
                     "enum": [
-                        "${TASK_ID.outputs.user.userSystemInfo.id}",
+                        "${ACTIVITY_ID.outputs.user.userSystemInfo.id}",
                         "${event.initiator.user.userId}",
                         "${event.source.fromUser.userId}",
                         "${event.source.toUser.userId}"
@@ -2564,11 +2564,11 @@
             "type": "object",
             "properties": {
                 "message-id": {
-                    "description": "Message id having the attachment to forward. Both url safe and base64 encoded url are accepted.",
+                    "description": "Message id having the attachment to forward. Both url safe and base64 encoded urls are accepted.",
                     "$ref": "#/definitions/message-id-inner"
                 },
                 "attachment-id": {
-                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64 encoded url are accepted.",
+                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64 encoded urls are accepted.",
                     "anyOf": [
                         {
                             "enum": [

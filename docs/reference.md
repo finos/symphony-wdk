@@ -18,7 +18,7 @@ Example:
 ```yaml
 id: myWorkflow
 variables:
-  myVar: "aValue
+  myVar: "aValue"
   activities:
     - send-message:
         id: myActivity
@@ -76,8 +76,8 @@ The [welcome-bot](./examples/welcome-bot.swadl.yaml) example shows how outputs c
 
 ### <a name="activity-id"></a>id (activity)
 
-Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical
-characters are allowed (`_` can be used a separator).
+Activity's identifier should be unique across workflows. As it can be used as a variable identifier only alphanumeric
+characters are allowed (`_` can be used as a separator).
 
 Example:
 
@@ -92,7 +92,7 @@ activities:
 
 Events that can trigger the activity execution. **The first activity of a workflow is expected to have an event**.
 
-`on` can contain either a specific event directly or a list of event as part of the `one-of` key.
+`on` can contain either a specific event directly or a list of events as part of the `one-of` key.
 
 [List of real-time events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
 
@@ -148,6 +148,9 @@ the activity. It can be either one of them.
 Conditional execution of the activity based on a boolean expression. Workflow variables can be used within the
 expression. This condition applies to all the events that can start the activity.
 
+The first activity of a workflow cannot have an `if` condition (to avoid triggering workflows and then have to evaluate
+the first condition and stop the workflow without any activity being executed).
+
 ```yaml
 activities:
   - send-message:
@@ -157,7 +160,9 @@ activities:
 
 ### else
 
-Default execution of the activity when `if` conditions are used for previous activities. This is an empty object.
+Default execution of the activity when `if` conditions are used for previous activities. This is an empty object. This
+is combined with an `activity-completed` event to properly chain the `else` activity with the activity before the `if`
+branch of the workflow.
 
 Example:
 
@@ -165,6 +170,9 @@ Example:
 activities:
   - send-message:
       id: myActivity
+      on:
+        activity-completed:
+          activity-id: BEFORE_IF_ACTIVITY_ID
       else: { }
 ```
 
@@ -202,8 +210,9 @@ activities:
 Message content to listen to. Can be a simple string, usually a /command to trigger a workflow. It can also be a
 template like `/run {myArg}` where `myArg` will be bound to `${event.args.myArg}`.
 
-Templates are handled as Ant-matching expression, similar to Spring Boot controllers. Multiple patterns can be used, for
-instance `/run {myArg1} {myArg2}` with whitespace being used as a separator. User mentions or tags can be captured too.
+Templates are handled as Ant-matching expressions, similar to Spring Boot controllers. Multiple patterns can be used,
+for instance `/run {myArg1} {myArg2}` with whitespace being used as a separator. User mentions or tags can be captured
+too.
 
 Example:
 
@@ -278,12 +287,11 @@ An advanced usage of forms can be found in the examples: [simple poll bot](./exa
 
 #### form-id
 
-The id should be the same as activity's one that sent the form.
+The id should be the same as the activity's one that sent the form.
 
 ### message-suppressed
 
-Generated when a user replies to a bot message that contains an interactive form with UX components such as text fields,
-radio buttons, checkboxes, person selectors and more.
+Generated when messages are suppressed.
 
 [Payload reference](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4MessageSuppressed.html)
 
@@ -454,7 +462,7 @@ activities:
 
 #### <a name="expired-activity-id"></a>activity-id
 
-The activity id that the expiration triggers this event.
+The id of the activity which expiration's triggers the event.
 
 ### activity-completed
 
@@ -501,7 +509,7 @@ activities:
       on:
         activity-completed:
           activity-id: start
-      # will not be executed because the else if was
+      # will not be executed because the else if was executed
       else: { }
       content: Else
 ```
@@ -535,7 +543,7 @@ activities:
 
 #### <a name="completed-activity-id"></a>activity-id
 
-The activity id that the completion triggers this event.
+The id of the activity which completion's triggers this event.
 
 #### <a name="completed-if"></a>if
 
@@ -551,7 +559,7 @@ Key | Type | Required |
 [at](#at) | String | Yes |
 [repeat](#repeat) | String | Yes |
 
-_At least one of the key `at` or `repeat` must be set._
+_Only one of the key `at` or `repeat` can be set._
 
 #### at
 
@@ -609,13 +617,15 @@ activities:
 
 The recipient (conversation, IM, MIM or chatroom) in which the message should be posted.
 
-If not set the stream associated with the latest received event is used. This makes replying to a command sent by a user
-easy.
+If not set, the stream associated with the latest received event is used. This makes replying to a command sent by a
+user easy.
 
 Key | Type | Required |
 ------------ | -------| --- | 
-[stream-id](#stream-id) | String | No |
-[user-ids](#user-ids) | Map | No |
+[stream-id](#stream-id) | String | Yes |
+[user-ids](#user-ids) | Map | Yes |
+
+_If `to` is used then one of the key `stream-id` or `user-ids` must be set._
 
 Example:
 
@@ -632,7 +642,7 @@ activities:
 
 ##### stream-id
 
-Stream id to send the message to.
+Stream id to send the message to. Both url safe and base64 encoded urls are accepted.
 
 ##### user-ids
 
@@ -642,8 +652,8 @@ Users to send the message to. An IM or MIM stream will be created or reused.
 
 The content of the message
 in [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) format.
-Must contain at least one space. **In case the content is a form, this latter's id should be the same as the
-send-message activity one.**
+Must contain at least one space. **In case the content is a form, the latter's id should be the same as the send-message
+activity one.**
 
 Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
@@ -652,7 +662,7 @@ the `<messageML>` tags or can be simple text too (<messageML> are automatically 
 #### attachments
 
 One or more attachments to be sent along with the message. It can be either an existing attachment from another message
-or a file local to the bot.
+or a file local to the bot. Previews are not supported.
 
 Key | Type | Required |
 ------------ | -------| --- | 
@@ -669,12 +679,12 @@ Example: [forwarding attachments](./examples/forward-attachments.swadl.yaml)
 
 ##### message-id
 
-Message id having the attachment to forward. Both url safe and base64 encoded url are accepted.
+Message id having the attachment to forward. Both url safe and base64 encoded urls are accepted.
 
 ##### attachment-id
 
 Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64
-encoded url are accepted.
+encoded urls are accepted.
 
 ##### content-path
 
@@ -815,7 +825,7 @@ activities:
 
 #### <a name="update-room-stream-id"></a>stream-id
 
-Stream's id to update.
+Stream's id to update. Both url safe and base64 encoded urls are accepted.
 
 #### keywords
 
@@ -1042,15 +1052,15 @@ where the calling user is a member will be in the search scope; read the box “
 
 #### creator-id
 
-If provided, restricts the search to rooms created by the specified user.
+If provided, restrict the search to rooms created by the specified user.
 
 #### owner-id
 
-If provided, restricts the search to rooms owned by the specified user.
+If provided, restrict the search to rooms owned by the specified user.
 
 #### member-id
 
-If provided, restricts the search to rooms where the specified user is a member.
+If provided, restrict the search to rooms where the specified user is a member.
 
 #### sort-order
 
@@ -1629,10 +1639,6 @@ Remove a connection with a user.
 Key | Type | Required |
 ------------ | -------| --- |
 user-id | String | Yes |
-
-Output | Type |
-----|----|
-connection | [UserConnection](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/UserConnection.html)
 
 [API reference](https://developers.symphony.com/restapi/reference#remove-connection)
 
