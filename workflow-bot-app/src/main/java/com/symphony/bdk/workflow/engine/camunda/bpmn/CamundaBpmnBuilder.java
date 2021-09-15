@@ -402,7 +402,7 @@ public class CamundaBpmnBuilder {
       builder = subProcess.embeddedSubProcess().eventSubProcess()
           .startEvent()
           .camundaAsyncBefore()
-          .interrupting(false) // run multiple instances of the sub process (i.e multiple replies)
+          .interrupting(false) // run multiple instances of the sub process (i.e. multiple replies)
           .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
           .name("formReply");
     }

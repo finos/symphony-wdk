@@ -34,7 +34,7 @@ public class UpdateRoom extends BaseActivity {
   @Nullable private String copyProtected;
   @Nullable private String crossPod;
   @Nullable private String viewHistory;
-  @Nullable private String multiLateralRoom;
+  @Nullable private String multilateralRoom;
 
   @Nullable private String active;
 
@@ -74,8 +74,8 @@ public class UpdateRoom extends BaseActivity {
   }
 
   @JsonIgnore
-  public Boolean getMultiLateralRoomAsBool() {
-    return toBoolean(multiLateralRoom);
+  public Boolean getMultilateralRoomAsBool() {
+    return toBoolean(multilateralRoom);
   }
 
   @JsonIgnore

@@ -19,6 +19,6 @@ activities:
         variables.execution++
   - execute-script:
       id: act3
-      # = on/activity-completed: act2 without an if, i.e the default flow after act2
+      # = on/activity-completed: act2 without an if, i.e. the default flow after act2
       script: |
         println "act3"

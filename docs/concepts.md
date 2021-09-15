@@ -161,7 +161,7 @@ execution of activities.
 
 Conditional execution of activities is controlled via conditions applied at event level. Multiple conditions can be
 defined to express an if/else if structure. The default execution in case conditions evaluate to false can be expressed
-too (i.e an else).
+too (i.e. an else).
 
 <!-- TODO link to examples --> 
 
