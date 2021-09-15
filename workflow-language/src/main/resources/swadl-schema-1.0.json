@@ -21,7 +21,7 @@
         "activities": {
             "type": "array",
             "minLength": 1,
-            "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
+            "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-completed events.",
             "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
                 "type": "object",
@@ -493,8 +493,8 @@
                     "properties": {
                         "timeout": {
                             "type": "string",
-                            "description": "Timeout while waiting for events, expressed as an ISO 8601 duration.",
-                            "pattern": "(\\${.+})|(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
+                            "description": "Timeout while waiting for form-replied events, expressed as an ISO 8601 duration. Default value is 24 hours.",
+                            "pattern": "^P(?!$)(\\d+(?:\\.\\d+)?Y)?(\\d+(?:\\.\\d+)?M)?(\\d+(?:\\.\\d+)?W)?(\\d+(?:\\.\\d+)?D)?(T(?=\\d)(\\d+(?:\\.\\d+)?H)?(\\d+(?:\\.\\d+)?M)?(\\d+(?:\\.\\d+)?S)?)?$"
                         }
                     }
                 },
@@ -1053,7 +1053,8 @@
                 "id": {
                     "description": "Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
                     "type": "string",
-                    "pattern": "^[a-zA-Z][a-zA-Z0-9_]+$"
+                    "$comment": "variables is forbidden to avoid conflict with variables.output... that would override the workflows variables",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
                 },
                 "on": {
                     "$ref": "#/definitions/on"

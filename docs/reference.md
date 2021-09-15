@@ -3,9 +3,10 @@
 This reference documentation covers the Symphony Workflow Automation Definition Language (SWADL)
 defined as a [JSON schema](../workflow-language/src/main/resources/swadl-schema-1.0.json).
 
-SWADL is based on YAML, written in files usually suffixed with _.swadl.yaml_.
+SWADL is based on YAML, written in files usually suffixed with _.swadl.yaml_. If you are not familiar with YAML, you can
+read about its syntax on [Wikipedia](https://en.wikipedia.org/wiki/YAML#Syntax).
 
-At the top level, you mainly define the activities part of the workflow.
+In SWADL, at the top level, you mainly define the activities part of the workflow.
 
 Key     | Type    | Required |
 --------------|---------|----------| 
@@ -19,9 +20,9 @@ Example:
 id: myWorkflow
 variables:
   myVar: "aValue"
-  activities:
-    - send-message:
-        id: myActivity
+activities:
+  - send-message:
+      id: myActivity
 ```
 
 ## id
@@ -58,8 +59,10 @@ variables:
 ## activities
 
 A list of activities to be executed by the workflow. By default, the execution is sequential but complex logic can be
-orchestrated with if/else conditions as well as on/activity-finished events. [Built-in activities](#built-in-activities)
-are provided. All activities share common keys.
+orchestrated with if/else conditions ([if](#if)) as well as on/[activity-completed](#activity-completed)
+events.
+
+[Built-in activities](#built-in-activities) are provided to support most of the public APIs of Symphony.
 
 Activities have common keys listed below:
 
@@ -71,13 +74,13 @@ Key | Type | Required |
 [else](#else) | Map | No |
 
 Activities also produce outputs that are accessible via `${ACTIVITY_ID.outputs.OUTPUT_NAME}`. For each activity
-referenced [below](#built-in-activities), its outputs are described too.
+referenced [below](#built-in-activities), its outputs are described too with a reference to the underlying BDK object.
 The [welcome-bot](./examples/welcome-bot.swadl.yaml) example shows how outputs can be used.
 
 ### <a name="activity-id"></a>id (activity)
 
 Activity's identifier should be unique across workflows. As it can be used as a variable identifier only alphanumeric
-characters are allowed (`_` can be used as a separator).
+characters are allowed (`_` can be used as a separator). _variables_ cannot be used as an activity id.
 
 Example:
 
@@ -133,8 +136,9 @@ Checkout the [welcome bot example](./examples/welcome-bot.swadl.yaml) to see how
 
 #### timeout
 
-Timeout while waiting for events, expressed as an [ISO 8601 duration](https://en.wikipedia.org/wiki/ISO_8601#Durations).
-Upon expiration, another activity can be triggered with an [activity-expired](#activity-expired) event.
+Timeout while waiting for `form-replied` events, expressed as
+an [ISO 8601 duration](https://en.wikipedia.org/wiki/ISO_8601#Durations). Upon expiration, another activity can be
+triggered with an [activity-expired](#activity-expired) event. Default value is 24 hours.
 
 Example: _PT60S_ for a 60 seconds timeout.
 
@@ -155,7 +159,7 @@ the first condition and stop the workflow without any activity being executed).
 activities:
   - send-message:
       id: myActivity
-      if: ${variables.myVar == "123"}
+      if: ${variables.myVar == '123'}
 ```
 
 ### else
@@ -233,7 +237,17 @@ activities:
 ```
 
 The [contact sharing](./examples/contact-sharing.swadl.yaml) workflow from the examples uses templated `content` to
-match messages.
+match messages. It uses a function named `mentions` to retrieve the mentioned user ids. Similar functions
+from [MessageParser](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/message/util/MessageParser.html)
+are exposed too.
+
+Examples:
+
+- `${mentions(event)}` returns the list of mentioned user ids from a `message-received` event
+- `${mentions(event)[0]}` to get the first mentioned user id from a `message-received` event
+- `${cashTags(event)}` returns the first cashtag from a `message-received` event
+- `${hashTags(event)}` returns the first hashtag from a `message-received` event
+- `${emojis(event)}` returns a map of the emojis from a `message-received` event
 
 #### requires-bot-mention
 
@@ -659,6 +673,23 @@ Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
+In case the content to send is PresentationML. The `text` function might come handy, it uses
+the [PresentationMLParser](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/message/util/PresentationMLParser.html)
+from the BDK to extract the text content of a PresentationML message.
+
+Example:
+
+```yaml
+activities:
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /echo
+      content:
+        ${text(event.source.message.message)}
+```
+
 #### attachments
 
 One or more attachments to be sent along with the message. It can be either an existing attachment from another message
@@ -936,6 +967,10 @@ stream | [V2StreamAttributes](https://javadoc.io/doc/org.finos.symphony.bdk/symp
 
 [API reference](https://developers.symphony.com/restapi/reference#stream-info-v2)
 
+Example:
+
+- `${ACTIVITY_ID.outputs.stream.roomAttributes.name}` to access the stream's name.
+
 ### get-room
 
 Returns information about a particular chat room.
@@ -949,6 +984,10 @@ Output | Type |
 room | [V3RoomDetail](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V3RoomDetail.html)
 
 [API reference](https://developers.symphony.com/restapi/reference#room-info-v3)
+
+Example:
+
+- `${ACTIVITY_ID.outputs.room.roomAttributes.name}` to access the room's name.
 
 ### get-streams
 
@@ -1166,7 +1205,11 @@ user | [V2UserDetail](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk
 
 [API reference](https://developers.symphony.com/restapi/reference#create-user-v2)
 
-Example: [create user workflow](./examples/create-user-account.swadl.yaml)
+Examples:
+
+- [create user workflow](./examples/create-user-account.swadl.yaml)
+- `${ACTIVITY_ID.outputs.user.userAttributes.firstName}` to access the created user's firstname
+- `${ACTIVITY_ID.outputs.user.userSystemInfo.id}` to access the created user's id
 
 #### email
 
@@ -1530,6 +1573,10 @@ Output | Type |
 user | [V2UserDetail](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V2UserDetail.html)
 
 [API reference](https://developers.symphony.com/restapi/reference#get-user-v2)
+
+Example:
+
+- `${ACTIVITY_ID.outputs.user.userAttributes.firstName}` to access the user's firstname
 
 ### get-users
 
