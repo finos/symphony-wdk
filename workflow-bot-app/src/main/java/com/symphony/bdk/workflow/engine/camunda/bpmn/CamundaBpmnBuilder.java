@@ -168,7 +168,9 @@ public class CamundaBpmnBuilder {
 
           if (builder == null) {
             log.error(
-                "This error happens when an activity with \"else\" operation has activity-completed referencing an activity that has another conditional branching, a non existing activity id or no activity-completed is provided");
+                "This error happens when an activity with \"else\" operation has activity-completed referencing "
+                    + "an activity that has another conditional branching, a non existing activity id "
+                    + "or no activity-completed is provided");
             throw new InvalidActivityException(workflow.getId(),
                 String.format("Expecting activity %s not to have a parent activity with conditional branching, got %s",
                     activity.getId(), parentId));
@@ -185,7 +187,8 @@ public class CamundaBpmnBuilder {
           // store it to continue other conditional flows (else if, else)
           if (parentId == null) {
             throw new InvalidActivityException(workflow.getId(), String.format(
-                "Expecting activity %s not to have a parent activity with conditional branching, got an unknown activity id",
+                "Expecting activity %s not to have a parent activity with conditional branching, "
+                    + "got an unknown activity id",
                 activity.getId()));
           } else if (parentId.equals("")) {
             throw new InvalidActivityException(workflow.getId(),

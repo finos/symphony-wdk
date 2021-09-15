@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
@@ -21,6 +22,15 @@ public class CreateRoom extends BaseActivity {
   @Nullable private String roomName;
   @Nullable private String roomDescription;
   @Nullable private List<String> userIds;
+  @Nullable private Map<String, String> keywords;
+  @Nullable private String membersCanInvite;
+  @Nullable private String discoverable;
+  @Nullable private String readOnly;
+  @Nullable private String copyProtected;
+  @Nullable private String crossPod;
+  @Nullable private String viewHistory;
+  @Nullable private String multiLateralRoom;
+  @Nullable private String subType;
 
   @JsonProperty("public")
   private String isPublic;

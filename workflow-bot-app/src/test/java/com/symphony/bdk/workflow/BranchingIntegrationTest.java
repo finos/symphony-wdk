@@ -36,6 +36,7 @@ class BranchingIntegrationTest extends IntegrationTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:LineLength")
   static Stream<Arguments> expectedErrors() {
     return Stream.of(
         arguments("/branching/invalid/swadl/if-starting-activity.swadl.yaml", InvalidActivityException.class,

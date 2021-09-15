@@ -1,0 +1,32 @@
+id: update-user-business
+activities:
+  - update-user:
+      id: update
+      on:
+        message-received:
+          content: /update-user-business
+      user-id: "123"
+      business:
+        company-name: "abc"
+        department: "IT"
+        division: "div"
+        asset-classes:
+          - Equities
+        location: "SA"
+        job-function: Developer
+        functions:
+          - Allocation
+        industries:
+          - Technology
+        instruments:
+          - Securities
+        market-coverages:
+          - APAC
+        title: BackEnd Engineer
+        responsibilities:
+          - BAU
+
+  - execute-script:
+      id: script
+      script: |
+        assert update.outputs.user != null

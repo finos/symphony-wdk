@@ -244,7 +244,7 @@
                     },
                     "get-users": {
                         "description": "Returns a list of users ID, including user metadata.",
-                        "x-intellij-html-description": "<html><p>Returns a list of users ID, including user metadata.</p><a href=\"https://developers.symphony.com/restapi/reference#list-users-v2\">https://developers.symphony.com/restapi/reference#list-users-v2</a></html>",
+                        "x-intellij-html-description": "<html><p>Returns a list of users ID, including user metadata.</p><a href=\"https://developers.symphony.com/restapi/reference#users-lookup-v3\">https://developers.symphony.com/restapi/reference#users-lookup-v3</a></html>",
                         "type": "object",
                         "allOf": [
                             {
@@ -281,7 +281,7 @@
                             }
                         ]
                     },
-                    "get-message":  {
+                    "get-message": {
                         "type": "object",
                         "description": "Returns a message found by id.",
                         "x-intellij-html-description": "<html><p>Returns a message found by id.</p><a href=\"https://developers.symphony.com/restapi/reference#get-message-v1\">https://developers.symphony.com/restapi/reference#get-message-v1</html>",
@@ -898,7 +898,9 @@
                     "default": "R/PT0.1S"
                 }
             },
-            "required": ["repeat"]
+            "required": [
+                "repeat"
+            ]
         },
         "at": {
             "properties": {
@@ -908,13 +910,19 @@
                     "default": "2021-08-31T-15:50:00"
                 }
             },
-            "required": ["at"]
+            "required": [
+                "at"
+            ]
         },
         "timer-fired-event-inner": {
             "type": "object",
             "oneOf": [
-                {"$ref":  "#/definitions/repeat"},
-                {"$ref":  "#/definitions/at"}
+                {
+                    "$ref": "#/definitions/repeat"
+                },
+                {
+                    "$ref": "#/definitions/at"
+                }
             ]
         },
         "form-replied-event-inner": {
@@ -1022,7 +1030,9 @@
                     "$ref": "#/definitions/id"
                 }
             },
-            "required": ["activity-id"]
+            "required": [
+                "activity-id"
+            ]
         },
         "activity-completed-event-inner": {
             "type": "object",
@@ -1032,7 +1042,9 @@
                     "$ref": "#/definitions/id"
                 }
             },
-            "required": ["activity-id"]
+            "required": [
+                "activity-id"
+            ]
         },
         "basic-activity-inner": {
             "type": "object",
@@ -1062,7 +1074,11 @@
         "room-name": {
             "anyOf": [
                 {
-                    "enum": ["${TASK_ID.outputs.room.roomAttributes.name}", "${TASK_ID.outputs.stream.roomAttributes.name}", "${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${TASK_ID.outputs.room.roomAttributes.name}",
+                        "${TASK_ID.outputs.stream.roomAttributes.name}",
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
@@ -1074,12 +1090,100 @@
         "room-description": {
             "anyOf": [
                 {
-                    "enum": ["${TASK_ID.outputs.room.roomAttributes.description}", "${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${TASK_ID.outputs.room.roomAttributes.description}",
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "description": "Room's description.",
                     "type": "string"
                 }
+            ]
+        },
+        "keywords": {
+            "description": "A list of key-value pairs, describing additional properties of the room.",
+            "type": "object"
+        },
+        "members-can-invite": {
+            "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "discoverable": {
+            "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "public": {
+            "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "read-only": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+            "default": false
+        },
+        "copy-protected": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
+            "default": false
+        },
+        "cross-pod": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, this room is a cross-pod room.",
+            "default": false
+        },
+        "view-history": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, new members can view the room chat history of the room.",
+            "default": false
+        },
+        "multilateral-room": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
+            "default": false
+        },
+        "active": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If false, the room is not active anymore.",
+            "default": false
+        },
+        "sub-type": {
+            "type": "string",
+            "enum": [
+                "EMAIL"
             ]
         },
         "create-room-inner": {
@@ -1092,13 +1196,37 @@
                     "$ref": "#/definitions/room-description"
                 },
                 "public": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ]
+                    "$ref": "#/definitions/public"
                 },
                 "user-ids": {
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "keywords": {
+                    "$ref": "#/definitions/keywords"
+                },
+                "members-can-invite": {
+                    "$ref": "#/definitions/members-can-invite"
+                },
+                "discoverable": {
+                    "$ref": "#/definitions/discoverable"
+                },
+                "read-only": {
+                    "$ref": "#/definitions/read-only"
+                },
+                "copy-protected": {
+                    "$ref": "#/definitions/copy-protected"
+                },
+                "cross-pod": {
+                    "$ref": "#/definitions/cross-pod"
+                },
+                "view-history": {
+                    "$ref": "#/definitions/view-history"
+                },
+                "multilateral-room": {
+                    "$ref": "#/definitions/multilateral-room"
+                },
+                "sub-type": {
+                    "$ref": "#/definitions/sub-type"
                 }
             },
             "anyOf": [
@@ -1132,83 +1260,34 @@
                     "$ref": "#/definitions/room-description"
                 },
                 "keywords": {
-                    "description": "A list of key-value pairs, describing additional properties of the room.",
-                    "type": "object"
+                    "$ref": "#/definitions/keywords"
                 },
-                "membersCanInvite": {
-                    "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                "members-can-invite": {
+                    "$ref": "#/definitions/members-can-invite"
                 },
                 "discoverable": {
-                    "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/discoverable"
                 },
                 "public": {
-                    "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/public"
                 },
-                "readOnly": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "default": false
+                "read-only": {
+                    "$ref": "#/definitions/read-only"
                 },
-                "copyProtected": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "default": false
+                "copy-protected": {
+                    "$ref": "#/definitions/copy-protected"
                 },
-                "crossPod": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, this room is a cross-pod room.",
-                    "default": false
+                "cross-pod": {
+                    "$ref": "#/definitions/cross-pod"
                 },
-                "viewHistory": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, new members can view the room chat history of the room.",
-                    "default": false
+                "view-history": {
+                    "$ref": "#/definitions/view-history"
                 },
-                "multiLateralRoom": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
-                    "default": false
+                "multilateral-room": {
+                    "$ref": "#/definitions/multilateral-room"
                 },
                 "active": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If false, the room is not active anymore.",
-                    "default": false
+                    "$ref": "#/definitions/active"
                 }
             }
         },
@@ -1291,7 +1370,12 @@
                     "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the send-message activity one.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}", "${text(TASK_ID.outputs.message.message)}", "<mention uid='${TASK_ID.outputs.user.userSystemInfo.id}'/>", "<mention uid='${event.initiator.user.userId}'/>"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}",
+                                "${text(TASK_ID.outputs.message.message)}",
+                                "<mention uid='${TASK_ID.outputs.user.userSystemInfo.id}'/>",
+                                "<mention uid='${event.initiator.user.userId}'/>"
+                            ]
                         },
                         {
                             "type": "string",
@@ -1329,7 +1413,10 @@
             "$comment": "Variable or email regex is accepted.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.emailAddress}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${TASK_ID.outputs.user.userAttributes.emailAddress}"
+                    ]
                 },
                 {
                     "type": "string",
@@ -1340,7 +1427,13 @@
         "name": {
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.firstName}", "${TASK_ID.outputs.user.userAttributes.lastName}", "${TASK_ID.outputs.user.userAttributes.userName}", "${TASK_ID.outputs.user.userAttributes.displayName}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${TASK_ID.outputs.user.userAttributes.firstName}",
+                        "${TASK_ID.outputs.user.userAttributes.lastName}",
+                        "${TASK_ID.outputs.user.userAttributes.userName}",
+                        "${TASK_ID.outputs.user.userAttributes.displayName}"
+                    ]
                 },
                 {
                     "type": "string",
@@ -1352,7 +1445,12 @@
             "description": "The user's work phone number.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}", "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}", "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}",
+                        "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}",
+                        "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"
+                    ]
                 },
                 {
                     "type": "string",
@@ -1649,7 +1747,8 @@
                 "roles": {
                     "description": "The roles object consists of the following possibilities:\nFor end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER\nFor service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT",
                     "x-intellij-html-description": "<html><p>The roles object consists of the following possibilities:<li>For end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER</li><li>For service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT</li><br/><a href=\"https://developers.symphony.com/restapi/reference#roles-object\">https://developers.symphony.com/restapi/reference#roles-object</a></p></html>",
-                    "$ref": "#/definitions/roles-inner"                },
+                    "$ref": "#/definitions/roles-inner"
+                },
                 "entitlements": {
                     "description": "User entitlements.",
                     "$ref": "#/definitions/entitlements-inner"
@@ -2078,7 +2177,24 @@
                     ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                 }
-            }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "user-ids"
+                    ]
+                },
+                {
+                    "required": [
+                        "emails"
+                    ]
+                },
+                {
+                    "required": [
+                        "usernames"
+                    ]
+                }
+            ]
         },
         "get-stream-inner": {
             "properties": {
@@ -2167,6 +2283,14 @@
                 "skip": {
                     "$ref": "#/definitions/skip"
                 }
+            },
+            "dependencies": {
+                "skip": [
+                    "limit"
+                ],
+                "limit": [
+                    "skip"
+                ]
             }
         },
         "get-message-inner": {
@@ -2324,7 +2448,9 @@
                     "description": "Date, in ISO 8601 format, of the earliest possible data of the first message returned.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
                         },
                         {
                             "type": "string",
@@ -2383,7 +2509,9 @@
             "description": "Number of members to be skipped during return - used for pagination.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "type": [
@@ -2398,7 +2526,9 @@
             "description": "Maximum number of members to be returned - used for pagination. Maximum allowed is 1000.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "type": [
@@ -2418,7 +2548,10 @@
             "description": "Message identifier. Both safe url and Base64 encoded url are accepted.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.msgId}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${TASK_ID.outputs.msgId}"
+                    ]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2429,7 +2562,12 @@
             "description": "Stream identifier. Both safe url and Base64 encoded url are accepted.",
             "anyOf": [
                 {
-                    "enum": ["${event.source.message.stream.streamId}", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
+                    "enum": [
+                        "${event.source.message.stream.streamId}",
+                        "${variables.VARIABLE_NAME}",
+                        "${TASK_ID.outputs.roomId}",
+                        "${TASK_ID.outputs.stream.id}"
+                    ]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2488,10 +2626,14 @@
                     "minLength": 1
                 },
                 {
-                    "enum": ["${TASK_ID.outputs.user.userSystemInfo.id}", "${event.initiator.user.userId}", "${event.source.fromUser.userId}",  "${event.source.toUser.userId}"]
+                    "enum": [
+                        "${TASK_ID.outputs.user.userSystemInfo.id}",
+                        "${event.initiator.user.userId}",
+                        "${event.source.fromUser.userId}",
+                        "${event.source.toUser.userId}"
+                    ]
                 }
             ]
-
         },
         "attachment": {
             "type": "object",
@@ -2515,7 +2657,9 @@
                     "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64 encoded url are accepted.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
                         },
                         {
                             "type": "string",
@@ -2538,7 +2682,9 @@
                     "description": "Path to the file to be attached to the message. The path is relative to the workflows folder.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
                         },
                         {
                             "type": "string",
