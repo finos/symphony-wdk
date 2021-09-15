@@ -1379,7 +1379,7 @@ Allowed values for normal users:
 
 Allowed values for system users:
 
-- INDIVIDUAL-
+- INDIVIDUAL
 - USER_PROVISIONING
 - SCOPE_MANAGEMENT
 - CONTENT_MANAGEMENT
