@@ -40,7 +40,7 @@ class SwadlValidatorTest {
 
         // escaping the expected pattern as we are matching over a pattern in the assertions
         arguments("invalid-id-property.swadl.yaml",
-            List.of(Pair.of(4, "Invalid property 'id', must match pattern \\^\\[a-zA-Z\\]\\[a-zA-Z0-9_\\]\\+\\$"))),
+            List.of(Pair.of(4, "Invalid property 'id', must match pattern .*"))),
 
         arguments("missing-property-activity.swadl.yaml",
             List.of(Pair.of(3, "Missing property 'id' for send-message object"))),
