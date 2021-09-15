@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow;
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.POST;
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.ROOM;
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.timeout;
@@ -18,6 +19,7 @@ import com.symphony.bdk.gen.api.model.V2AdminStreamType;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
@@ -138,5 +140,14 @@ class StreamIntegrationTest extends IntegrationTest {
 
     verify(streamService, timeout(5000)).listStreams(refEq(filter), refEq(new PaginationAttribute(10, 10)));
     assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getUserStreamsBadPagination() {
+    assertThatThrownBy(
+        () -> SwadlParser.fromYaml(
+            getClass().getResourceAsStream("/stream/get-user-streams-bad-pagination.swadl.yaml")))
+        .describedAs("Should fail at validation time because only skip property is set without limit")
+        .isInstanceOf(SwadlNotValidException.class);
   }
 }

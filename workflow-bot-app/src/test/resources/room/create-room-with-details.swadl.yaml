@@ -8,3 +8,15 @@ activities:
       room-name: "The best room ever"
       room-description: "this is room description"
       public: true
+      view-history: true
+      keywords:
+        A: AA
+        B: BB
+      discoverable: false
+      read-only: true
+      copy-protected: true
+      cross-pod: true
+      multilateral-room: false
+      sub-type: EMAIL
+
+

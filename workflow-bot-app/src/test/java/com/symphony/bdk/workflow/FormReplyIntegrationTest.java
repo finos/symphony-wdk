@@ -111,6 +111,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq("abc"), contains("expiration-outer"));
   }
 
+  @SuppressWarnings("checkstyle:LineLength")
   @Test
   void sendFormInvalidFormId() throws Exception {
     final Workflow workflow = SwadlParser.fromYaml(

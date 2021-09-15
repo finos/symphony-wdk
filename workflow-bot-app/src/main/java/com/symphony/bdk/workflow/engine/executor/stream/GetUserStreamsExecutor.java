@@ -27,11 +27,8 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
     if (getUserStreams.getLimitAsInt() != null && getUserStreams.getSkipAsInt() != null) {
       userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams),
           new PaginationAttribute(getUserStreams.getSkipAsInt(), getUserStreams.getLimitAsInt()));
-    } else if (getUserStreams.getLimitAsInt() == null && getUserStreams.getSkipAsInt() == null) {
-      userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams));
     } else {
-      throw new IllegalArgumentException(
-          String.format("Skip and limit should both be set to get user streams %s", getUserStreams.getId()));
+      userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams));
     }
 
     execution.setOutputVariable(OUTPUTS_STREAMS_KEY, userStreams);

@@ -1,0 +1,22 @@
+id: get-user-streams-bad-pagination
+activities:
+  - get-user-streams:
+      id: act1
+      on:
+        message-received:
+          content: /get-user-streams-bad-pagination
+      types:
+        - ROOM
+        - POST
+      include-inactive-streams: true
+      skip: 2
+      limit: 3
+  - get-user-streams:
+      id: act1
+      on:
+        message-received:
+          content: /get-user-streams-bad-pagination
+      types:
+        - ROOM
+        - POST
+      skip: 2

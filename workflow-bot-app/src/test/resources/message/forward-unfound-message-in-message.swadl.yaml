@@ -1,0 +1,14 @@
+id: forward-provided-unfound-message-in-message
+activities:
+  - send-message:
+      id: forwardUnfoundMessage
+      on:
+        message-received:
+          content: /forward-unfound-message
+      to:
+        stream-id: "123"
+      content: <messageML>here is a msg with attachment from unfound message</messageML>
+      attachments:
+        - message-id: "MSG_ID"
+          attachment-id: "ATTACHMENT_ID"
+

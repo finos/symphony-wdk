@@ -21,7 +21,9 @@ public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
     log.debug("Searching users");
     GetUsers getUsers = context.getActivity();
 
-    List<UserV2> users;
+    List<UserV2> users = null;
+
+    // Since the workflow is validated by swadl-schema, at least one of the following attributes is not null
     if (getUsers.getUsernames() != null) {
       users = context.bdk().users().listUsersByUsernames(getUsers.getUsernames(), getUsers.getActiveAsBool());
 
@@ -35,9 +37,6 @@ public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
           .users()
           .listUsersByEmails(getUsers.getEmails(), getUsers.getLocalAsBool(), getUsers.getActiveAsBool());
 
-    } else {
-      throw new IllegalArgumentException(
-          String.format("Usernames or user ids or emails must be set in activity %s", getUsers.getId()));
     }
 
     context.setOutputVariable(OUTPUT_USERS_KEY, users);

@@ -1102,6 +1102,91 @@
                 }
             ]
         },
+        "keywords": {
+            "description": "A list of key-value pairs, describing additional properties of the room.",
+            "type": "object"
+        },
+        "members-can-invite": {
+            "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "discoverable": {
+            "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "public": {
+            "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "read-only": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+            "default": false
+        },
+        "copy-protected": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
+            "default": false
+        },
+        "cross-pod": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, this room is a cross-pod room.",
+            "default": false
+        },
+        "view-history": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, new members can view the room chat history of the room.",
+            "default": false
+        },
+        "multilateral-room": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
+            "default": false
+        },
+        "active": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If false, the room is not active anymore.",
+            "default": false
+        },
+        "sub-type": {
+            "type": "string",
+            "enum": [
+                "EMAIL"
+            ]
+        },
         "create-room-inner": {
             "type": "object",
             "properties": {
@@ -1112,13 +1197,37 @@
                     "$ref": "#/definitions/room-description"
                 },
                 "public": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ]
+                    "$ref": "#/definitions/public"
                 },
                 "user-ids": {
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "keywords": {
+                    "$ref": "#/definitions/keywords"
+                },
+                "members-can-invite": {
+                    "$ref": "#/definitions/members-can-invite"
+                },
+                "discoverable": {
+                    "$ref": "#/definitions/discoverable"
+                },
+                "read-only": {
+                    "$ref": "#/definitions/read-only"
+                },
+                "copy-protected": {
+                    "$ref": "#/definitions/copy-protected"
+                },
+                "cross-pod": {
+                    "$ref": "#/definitions/cross-pod"
+                },
+                "view-history": {
+                    "$ref": "#/definitions/view-history"
+                },
+                "multilateral-room": {
+                    "$ref": "#/definitions/multilateral-room"
+                },
+                "sub-type": {
+                    "$ref": "#/definitions/sub-type"
                 }
             },
             "anyOf": [
@@ -1152,83 +1261,34 @@
                     "$ref": "#/definitions/room-description"
                 },
                 "keywords": {
-                    "description": "A list of key-value pairs, describing additional properties of the room.",
-                    "type": "object"
+                    "$ref": "#/definitions/keywords"
                 },
                 "members-can-invite": {
-                    "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/members-can-invite"
                 },
                 "discoverable": {
-                    "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/discoverable"
                 },
                 "public": {
-                    "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/public"
                 },
                 "read-only": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "default": false
+                    "$ref": "#/definitions/read-only"
                 },
                 "copy-protected": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "default": false
+                    "$ref": "#/definitions/copy-protected"
                 },
                 "cross-pod": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, this room is a cross-pod room.",
-                    "default": false
+                    "$ref": "#/definitions/cross-pod"
                 },
                 "view-history": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, new members can view the room chat history of the room.",
-                    "default": false
+                    "$ref": "#/definitions/view-history"
                 },
                 "multilateral-room": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
-                    "default": false
+                    "$ref": "#/definitions/multilateral-room"
                 },
                 "active": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If false, the room is not active anymore.",
-                    "default": false
+                    "$ref": "#/definitions/active"
                 }
             }
         },
@@ -2118,7 +2178,24 @@
                     ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                 }
-            }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "user-ids"
+                    ]
+                },
+                {
+                    "required": [
+                        "emails"
+                    ]
+                },
+                {
+                    "required": [
+                        "usernames"
+                    ]
+                }
+            ]
         },
         "get-stream-inner": {
             "properties": {
@@ -2207,6 +2284,14 @@
                 "skip": {
                     "$ref": "#/definitions/skip"
                 }
+            },
+            "dependencies": {
+                "skip": [
+                    "limit"
+                ],
+                "limit": [
+                    "skip"
+                ]
             }
         },
         "get-message-inner": {

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class SwadlParser {
 
@@ -48,9 +47,7 @@ public class SwadlParser {
     SwadlValidator.validateYaml(yamlString);
     Workflow workflow = MAPPER.readValue(yamlString, Workflow.class);
     if (workflow.getId() == null) {
-      workflow.setId(Path.of(workflowFile.getAbsolutePath())
-          .getFileName()
-          .toString()
+      workflow.setId(workflowFile.getName()
           .replaceAll(".swadl", "")
           .replaceAll(".yaml", ""));
     }

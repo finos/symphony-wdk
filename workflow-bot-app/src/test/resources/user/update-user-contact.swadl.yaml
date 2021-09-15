@@ -1,0 +1,17 @@
+id: update-user-contact
+activities:
+  - update-user:
+      id: update
+      on:
+        message-received:
+          content: /update-user-contact
+      user-id: "123"
+      contact:
+        mobile-phone-number: "123456789"
+        sms-number: "123456789"
+        two-factor-auth-number: "123456789"
+        work-phone-number: "123456789"
+  - execute-script:
+      id: script
+      script: |
+        assert update.outputs.user != null

@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -13,6 +14,7 @@ import com.symphony.bdk.gen.api.model.V2UserAttributes;
 import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -92,6 +94,70 @@ class UsersIntegrationTest extends IntegrationTest {
 
     verify(userService, timeout(5000)).updateStatus(any(), any());
     verify(userService, timeout(5000)).updateFeatureEntitlements(any(), any());
+
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void updateUserContact() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/update-user-contact.swadl.yaml"));
+
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("/update-user-contact"));
+
+    ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
+    verify(userService, timeout(5000)).update(any(), userUpdate.capture());
+
+    assertThat(userUpdate.getValue()).satisfies(user -> {
+      assertThat(user.getMobilePhoneNumber()).isEqualTo("123456789");
+      assertThat(user.getWorkPhoneNumber()).isEqualTo("123456789");
+      assertThat(user.getTwoFactorAuthPhone()).isEqualTo("123456789");
+      assertThat(user.getSmsNumber()).isEqualTo("123456789");
+    });
+
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void updateUserBusiness() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/user/update-user-business.swadl.yaml"));
+
+    when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
+
+    engine.execute(workflow);
+    engine.onEvent(messageReceived("/update-user-business"));
+
+    ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
+    verify(userService, timeout(5000)).update(any(), userUpdate.capture());
+
+    assertThat(userUpdate.getValue()).satisfies(user -> {
+      assertThat(user.getCompanyName()).isEqualTo("abc");
+      assertThat(user.getDepartment()).isEqualTo("IT");
+      assertThat(user.getDivision()).isEqualTo("div");
+      assertThat(user.getJobFunction()).isEqualTo("Developer");
+      assertThat(user.getAssetClasses()).isNotNull();
+      assertThat(user.getAssetClasses().size()).isEqualTo(1);
+      assertThat(user.getAssetClasses().get(0)).isEqualTo("Equities");
+      assertThat(user.getLocation()).isEqualTo("SA");
+      assertThat(user.getTitle()).isEqualTo("BackEnd Engineer");
+      assertThat(user.getJobFunction()).isEqualTo("Developer");
+      assertThat(user.getFunction()).isNotNull();
+      assertThat(user.getFunction().size()).isEqualTo(1);
+      assertThat(user.getFunction().get(0)).isEqualTo("Allocation");
+      assertThat(user.getIndustries()).isNotNull();
+      assertThat(user.getIndustries().size()).isEqualTo(1);
+      assertThat(user.getIndustries().get(0)).isEqualTo("Technology");
+      assertThat(user.getInstrument()).isNotNull();
+      assertThat(user.getInstrument().size()).isEqualTo(1);
+      assertThat(user.getInstrument().get(0)).isEqualTo("Securities");
+      assertThat(user.getResponsibility()).isNotNull();
+      assertThat(user.getResponsibility().size()).isEqualTo(1);
+      assertThat(user.getResponsibility().get(0)).isEqualTo("BAU");
+    });
 
     assertThat(workflow).isExecuted();
   }
@@ -203,5 +269,13 @@ class UsersIntegrationTest extends IntegrationTest {
 
     verify(userService, timeout(5000)).listUsersByUsernames(List.of("bob", "eve"), false);
     assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getUsersInvalidWorkflow() {
+    assertThatThrownBy(
+        () -> SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-invalid-workflow.swadl.yaml")))
+        .describedAs("Should fail at validation time because none of user-ids, username or emails are given")
+        .isInstanceOf(SwadlNotValidException.class);
   }
 }
