@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.annotation.Nullable;
+
 /**
  * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages API</a>
  */
@@ -15,8 +17,8 @@ import lombok.EqualsAndHashCode;
 public class GetMessages extends BaseActivity {
   private String streamId;
   private String since;
-  private String skip;
-  private String limit;
+  @Nullable private String skip;
+  @Nullable private String limit;
 
   @JsonIgnore
   public Integer getSkipAsInt() {

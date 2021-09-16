@@ -21,12 +21,12 @@ activities:
         println "act1"
   - execute-script:
       id: act2
-      if: ${variables.foo == "foo"}
+      if: ${variables.foo == 'foo'}
       script: |
         println "act2"
   - execute-script:
       id: act2_2
-      if: ${variables.foo == "bar"}
+      if: ${variables.foo == 'bar'}
       script: |
         println "act2-2"
   - execute-script:

@@ -1,4 +1,4 @@
-name: create-user-account
+id: create-user-account
 activities:
   - create-user:
       id: create

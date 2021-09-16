@@ -22,18 +22,19 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
     GetRooms getRooms = execution.getActivity();
     V3RoomSearchResults rooms;
     if (getRooms.getLimitAsInt() != null && getRooms.getSkipAsInt() != null) {
-      rooms = execution.bdk().streams().searchRooms(toCritera(getRooms),
+      rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms),
           new PaginationAttribute(getRooms.getSkipAsInt(), getRooms.getLimitAsInt()));
     } else if (getRooms.getLimitAsInt() == null && getRooms.getSkipAsInt() == null) {
-      rooms = execution.bdk().streams().searchRooms(toCritera(getRooms));
+      rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms));
     } else {
-      throw new IllegalArgumentException("skip and limit should both be set to get rooms");
+      throw new IllegalArgumentException(
+          String.format("Skip and limit should both be set to get rooms in activity %s", getRooms.getId()));
     }
 
     execution.setOutputVariable(OUTPUTS_ROOMS_KEY, rooms);
   }
 
-  private V2RoomSearchCriteria toCritera(GetRooms getRooms) {
+  private V2RoomSearchCriteria toCriteria(GetRooms getRooms) {
     V2RoomSearchCriteria criteria = new V2RoomSearchCriteria()
         .query(getRooms.getQuery())
         .labels(getRooms.getLabels())

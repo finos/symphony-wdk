@@ -1,0 +1,14 @@
+id: else-without-if
+activities:
+  - send-message:
+      id: ac1
+      on:
+        message-received:
+          content: /execute
+      content: hello
+
+  - send-message:
+      id: ac2
+      content: hello
+      else: {}
+

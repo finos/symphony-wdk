@@ -1,4 +1,4 @@
-name: poll
+id: poll
 variables:
   answer1: 0
   answer2: 0
@@ -38,7 +38,7 @@ activities:
         </messageML>
 
   - execute-script:
-      id: collect-replies
+      id: collectReplies
       on:
         form-replied:
           form-id: poll
@@ -50,11 +50,11 @@ activities:
         }
 
   - send-message:
-      id: show-reply
+      id: showReply
       on:
         timeout: PT30S
         activity-expired:
-          activity-id: collect-replies
+          activity-id: collectReplies
       to:
         stream-id: ${createPoll.room}
       content: |

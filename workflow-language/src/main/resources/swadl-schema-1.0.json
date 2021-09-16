@@ -20,7 +20,8 @@
         },
         "activities": {
             "type": "array",
-            "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-finished events.",
+            "minLength": 1,
+            "description": "A list of activities to be executed by the workflow. By default the execution is sequential but complex logic can be orchestrated with if/else conditions as well as on/activity-completed events.",
             "$comment": "Defined like this to support both validation and autocompletion, even with custom activities. Last item is removed on the fly during validation and replaced by known custom activities.",
             "items": {
                 "type": "object",
@@ -63,8 +64,8 @@
                         ]
                     },
                     "remove-room-member": {
-                        "description": "Removes an existing member from an existing room.",
-                        "x-intellij-html-description": "<html><p>Removes an existing member from an existing room.\n</p><a href=\"https://developers.symphony.com/restapi/reference#remove-member\">https://developers.symphony.com/restapi/reference#remove-member</a></html>",
+                        "description": "Removes members from an existing room.",
+                        "x-intellij-html-description": "<html><p>Removes members from an existing room.\n</p><a href=\"https://developers.symphony.com/restapi/reference#remove-member\">https://developers.symphony.com/restapi/reference#remove-member</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -99,8 +100,8 @@
                         ]
                     },
                     "send-message": {
-                        "description": "Posts a message to an existing stream.",
-                        "x-intellij-html-description": "<html><p>Posts a message to an existing stream.</p><a href=\"https://developers.symphony.com/restapi/reference#create-message-v4\">https://developers.symphony.com/restapi/reference#create-message-v4</a></html>",
+                        "description": "Posts a message to a stream.",
+                        "x-intellij-html-description": "<html><p>Posts a message to a stream.</p><a href=\"https://developers.symphony.com/restapi/reference#create-message-v4\">https://developers.symphony.com/restapi/reference#create-message-v4</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -205,7 +206,7 @@
                         ]
                     },
                     "add-user-role": {
-                        "description": "Adds a role or optional entitleable action to a user’s account.",
+                        "description": "Adds roles to user accounts.",
                         "x-intellij-html-description": "<html><p>Adds a role or optional entitleable action to a user’s account.</p><a href=\"https://developers.symphony.com/restapi/reference#add-role\">https://developers.symphony.com/restapi/reference#add-role</a></html>",
                         "allOf": [
                             {
@@ -217,7 +218,7 @@
                         ]
                     },
                     "remove-user-role": {
-                        "description": "Removes a role or optional entitleable action from a user’s account.",
+                        "description": "Removes roles from user accounts.",
                         "x-intellij-html-description": "<html><p>Removes a role or optional entitleable action from a user’s account.</p><a href=\"https://developers.symphony.com/restapi/reference#remove-role\">https://developers.symphony.com/restapi/reference#remove-role</a></html>",
                         "allOf": [
                             {
@@ -243,7 +244,7 @@
                     },
                     "get-users": {
                         "description": "Returns a list of users ID, including user metadata.",
-                        "x-intellij-html-description": "<html><p>Returns a list of users ID, including user metadata.</p><a href=\"https://developers.symphony.com/restapi/reference#list-users-v2\">https://developers.symphony.com/restapi/reference#list-users-v2</a></html>",
+                        "x-intellij-html-description": "<html><p>Returns a list of users ID, including user metadata.</p><a href=\"https://developers.symphony.com/restapi/reference#users-lookup-v3\">https://developers.symphony.com/restapi/reference#users-lookup-v3</a></html>",
                         "type": "object",
                         "allOf": [
                             {
@@ -257,7 +258,7 @@
                     "get-stream": {
                         "type": "object",
                         "description": "Returns information about a particular stream.",
-                        "x-intellij-html-description": "<htmL><p>Returns information about a particular stream.</p><a href=\"https://developers.symphony.com/restapi/reference#list-users-v2\">https://developers.symphony.com/restapi/reference#list-users-v2</a></html",
+                        "x-intellij-html-description": "<htmL><p>Returns information about a particular stream.</p><a href=\"https://developers.symphony.com/restapi/reference#stream-info-v2\">https://developers.symphony.com/restapi/reference#stream-info-v2</a></html",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -280,7 +281,7 @@
                             }
                         ]
                     },
-                    "get-message":  {
+                    "get-message": {
                         "type": "object",
                         "description": "Returns a message found by id.",
                         "x-intellij-html-description": "<html><p>Returns a message found by id.</p><a href=\"https://developers.symphony.com/restapi/reference#get-message-v1\">https://developers.symphony.com/restapi/reference#get-message-v1</html>",
@@ -296,7 +297,7 @@
                     "get-stream-members": {
                         "type": "object",
                         "description": "Returns a list of all the current members of a stream (IM, MIM, or chatroom).",
-                        "x-intellij-html-description": "<html><p>Returns a list of all the current members of a stream (IM, MIM, or chatroom).</p><a href=\"https://developers.symphony.com/restapi/reference#room-members\">https://developers.symphony.com/restapi/reference#room-members</a></html>",
+                        "x-intellij-html-description": "<html><p>Returns a list of all the current members of a stream (IM, MIM, or chatroom).</p><a href=\"https://developers.symphony.com/restapi/reference#stream-members\">https://developers.symphony.com/restapi/reference#stream-members</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
@@ -492,8 +493,8 @@
                     "properties": {
                         "timeout": {
                             "type": "string",
-                            "description": "Timeout while waiting for events, expressed as an ISO 8601 duration.",
-                            "pattern": "(\\${.+})|(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?"
+                            "description": "Timeout while waiting for form-replied events, expressed as an ISO 8601 duration. Default value is 24 hours.",
+                            "pattern": "^P(?!$)(\\d+(?:\\.\\d+)?Y)?(\\d+(?:\\.\\d+)?M)?(\\d+(?:\\.\\d+)?W)?(\\d+(?:\\.\\d+)?D)?(T(?=\\d)(\\d+(?:\\.\\d+)?H)?(\\d+(?:\\.\\d+)?M)?(\\d+(?:\\.\\d+)?S)?)?$"
                         }
                     }
                 },
@@ -580,8 +581,8 @@
             "type": "object",
             "properties": {
                 "message-received": {
-                    "description": "Generated when a message is sent in an IM, MIM, or chatroom of which the user in context is a member, including messages sent by the user him/herself.",
-                    "x-intellij-html-description": "<html><p>Generated when a message is sent in an IM, MIM, or chatroom of which the user in context is a member, including messages sent by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent</a></html>",
+                    "description": "Generated when a message is sent in an IM, MIM, or chatroom of which the workflow bot is a member, including messages sent by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a message is sent in an IM, MIM, or chatroom of which the workflow bot is a member, including messages sent by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent</a></html>",
                     "$ref": "#/definitions/message-received-event-inner"
                 }
             },
@@ -606,8 +607,8 @@
             "type": "object",
             "properties": {
                 "post-shared": {
-                    "description": "Generated when either the user in context shares a wall post written by another user or another user shares a wall post written by the user in context.",
-                    "x-intellij-html-description": "<html><p>Generated when either:<li>The user in context shares a wall post written by another user.</li><li>Another user shares a wall post written by the user in context.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#shared-wall-posts\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#shared-wall-posts</a></html>",
+                    "description": "Generated when either the workflow bot shares a wall post written by another user or another user shares a wall post written by the workflow bot.",
+                    "x-intellij-html-description": "<html><p>Generated when either:<li>The workflow bot shares a wall post written by another user.</li><li>Another user shares a wall post written by the workflow bot.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#shared-wall-posts\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#shared-wall-posts</a></html>",
                     "$ref": "#/definitions/post-shared-event-inner"
                 }
             },
@@ -619,8 +620,8 @@
             "type": "object",
             "properties": {
                 "im-created": {
-                    "description": "Generated when an IM or MIM is created with the user in context as a member, initiated either by the user in context or another user.",
-                    "x-intellij-html-description": "<html><p>Generated when an IM or MIM is created with the user in context as a member, initiated either by the user in context or another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#im-mim-created\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#im-mim-created</a></html>",
+                    "description": "Generated when an IM or MIM is created with the workflow bot as a member, initiated either by the workflow bot or another user.",
+                    "x-intellij-html-description": "<html><p>Generated when an IM or MIM is created with the workflow bot as a member, initiated either by the workflow bot or another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#im-mim-created\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#im-mim-created</a></html>",
                     "$ref": "#/definitions/im-created-event-inner"
                 }
             },
@@ -632,8 +633,8 @@
             "type": "object",
             "properties": {
                 "room-created": {
-                    "description": "Generated when a room is created by the user in context.",
-                    "x-intellij-html-description": "<html><p>Generated when a room is created by the user in context.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-created\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-created</a></html>",
+                    "description": "Generated when a room is created by the workflow bot.",
+                    "x-intellij-html-description": "<html><p>Generated when a room is created by the workflow bot.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-created\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-created</a></html>",
                     "$ref": "#/definitions/room-created-event-inner"
                 }
             },
@@ -645,8 +646,8 @@
             "type": "object",
             "properties": {
                 "room-updated": {
-                    "description": "Generated when a room of which the user in context is a member is updated, including rooms updated by the user him/herself.",
-                    "x-intellij-html-description": "<html><p>Generated when a room of which the user in context is a member is updated, including rooms updated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-updated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-updated-message</a></html>",
+                    "description": "Generated when a room of which the workflow bot is a member is updated, including rooms updated by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a room of which the workflow bot is a member is updated, including rooms updated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-updated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-updated-message</a></html>",
                     "$ref": "#/definitions/room-updated-event-inner"
                 }
             },
@@ -658,8 +659,8 @@
             "type": "object",
             "properties": {
                 "room-deactivated": {
-                    "description": "Generated when a room of which the user in context is a member is deactivated, including rooms deactivated by the user him/herself.",
-                    "x-intellij-html-description": "<html><p>Generated when a room of which the user in context is a member is deactivated, including rooms deactivated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-deactivated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-deactivated-message</a></html>",
+                    "description": "Generated when a room of which the workflow bot is a member is deactivated, including rooms deactivated by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a room of which the workflow bot is a member is deactivated, including rooms deactivated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-deactivated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-deactivated-message</a></html>",
                     "$ref": "#/definitions/room-deactivated-event-inner"
                 }
             },
@@ -671,8 +672,8 @@
             "type": "object",
             "properties": {
                 "room-reactivated": {
-                    "description": "Generated when a room of which the user in context is a member is reactivated, including rooms reactivated by the user him/herself.",
-                    "x-intellij-html-description": "<html><p>Generated when a room of which the user in context is a member is reactivated, including rooms reactivated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-reactivated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-reactivated-message</a></html>",
+                    "description": "Generated when a room of which the workflow bot is a member is reactivated, including rooms reactivated by the user him/herself.",
+                    "x-intellij-html-description": "<html><p>Generated when a room of which the workflow bot is a member is reactivated, including rooms reactivated by the user him/herself.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-reactivated-message\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-reactivated-message</a></html>",
                     "$ref": "#/definitions/room-reactivated-event-inner"
                 }
             },
@@ -684,8 +685,8 @@
             "type": "object",
             "properties": {
                 "room-member-promoted-to-owner": {
-                    "description": "Generated when a user is promoted from a participant to an owner of a room of which the user in context is a member, including when the user himself is promoted to an owner or promotes another user.",
-                    "x-intellij-html-description": "<html><p>Generated when a user is promoted from a participant to an owner of a room of which the user in context is a member, including when the user himself is promoted to an owner or promotes another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-promoted-to-owner\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-promoted-to-owner</a></html>",
+                    "description": "Generated when a user is promoted from a participant to an owner of a room of which the workflow bot is a member, including when the user himself is promoted to an owner or promotes another user.",
+                    "x-intellij-html-description": "<html><p>Generated when a user is promoted from a participant to an owner of a room of which the workflow bot is a member, including when the user himself is promoted to an owner or promotes another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-promoted-to-owner\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-promoted-to-owner</a></html>",
                     "$ref": "#/definitions/room-member-promoted-to-owner-event-inner"
                 }
             },
@@ -697,8 +698,8 @@
             "type": "object",
             "properties": {
                 "room-member-demoted-from-owner": {
-                    "description": "Generated when a user is demoted from an owner to a participant of a room of which the user in context is a member, including when the user himself is demoted to a participant or demotes another user.",
-                    "x-intellij-html-description": "<html><p>Generated when a user is demoted from an owner to a participant of a room of which the user in context is a member, including when the user himself is demoted to a participant or demotes another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-demoted-from-owner\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-demoted-from-owner</a></html>",
+                    "description": "Generated when a user is demoted from an owner to a participant of a room of which the workflow bot is a member, including when the user himself is demoted to a participant or demotes another user.",
+                    "x-intellij-html-description": "<html><p>Generated when a user is demoted from an owner to a participant of a room of which the workflow bot is a member, including when the user himself is demoted to a participant or demotes another user.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-demoted-from-owner\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#room-member-demoted-from-owner</a></html>",
                     "$ref": "#/definitions/room-member-demoted-from-owner-event-inner"
                 }
             },
@@ -710,8 +711,8 @@
             "type": "object",
             "properties": {
                 "user-joined-room": {
-                    "description": "Generated when a new user joins or is added to a room of which the user in context is a member, including when the user himself joins or is added to a room.",
-                    "x-intellij-html-description": "<html><p>Generated when a new user joins or is added to a room of which the user in context is a member, including when the user himself joins or is added to a room.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-joined-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-joined-room</a></html>",
+                    "description": "Generated when a new user joins or is added to a room of which the workflow bot is a member, including when the user himself joins or is added to a room.",
+                    "x-intellij-html-description": "<html><p>Generated when a new user joins or is added to a room of which the workflow bot is a member, including when the user himself joins or is added to a room.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-joined-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-joined-room</a></html>",
                     "$ref": "#/definitions/user-joined-room-event-inner"
                 }
             },
@@ -723,8 +724,8 @@
             "type": "object",
             "properties": {
                 "user-left-room": {
-                    "description": "Generated when a user leaves or is removed from a room of which the user in context is a member, including when the user himself leaves or is removed from a room.",
-                    "x-intellij-html-description": "<html><p>Generated when a user leaves or is removed from a room of which the user in context is a member, including when the user himself leaves or is removed from a room.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-left-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-left-room</a></html>",
+                    "description": "Generated when a user leaves or is removed from a room of which the workflow bot is a member, including when the user himself leaves or is removed from a room.",
+                    "x-intellij-html-description": "<html><p>Generated when a user leaves or is removed from a room of which the workflow bot is a member, including when the user himself leaves or is removed from a room.</p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-left-room\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#user-left-room</a></html>",
                     "$ref": "#/definitions/user-left-room-event-inner"
                 }
             },
@@ -749,8 +750,8 @@
             "type": "object",
             "properties": {
                 "connection-requested": {
-                    "description": "Generated when a connection request is sent, either by the user in context to another user or to the user in context by another user.",
-                    "x-intellij-html-description": "<html><p>Generated when a connection request is sent, either:<li>Sent by the user in context to another user.</li><li>Sent to the user in context by another user.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-requested\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-requested</a></html>",
+                    "description": "Generated when a connection request is sent, either by the workflow bot to another user or to the workflow bot by another user.",
+                    "x-intellij-html-description": "<html><p>Generated when a connection request is sent, either:<li>Sent by the workflow bot to another user.</li><li>Sent to the workflow bot by another user.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-requested\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-requested</a></html>",
                     "$ref": "#/definitions/connection-requested-event-inner"
                 }
             },
@@ -762,8 +763,8 @@
             "type": "object",
             "properties": {
                 "connection-accepted": {
-                    "description": "Generated when a connection request is accepted, either sent by the user in context and accepted by another user or sent by another user and accepted by the user in context.",
-                    "x-intellij-html-description": "<html><p>Generated when a connection request is accepted, either:<li>Sent by the user in context and accepted by another user.</li><li>Sent by another user and accepted by the user in context.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-accepted\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-accepted</a></html>",
+                    "description": "Generated when a connection request is accepted, either sent by the workflow bot and accepted by another user or sent by another user and accepted by the workflow bot.",
+                    "x-intellij-html-description": "<html><p>Generated when a connection request is accepted, either:<li>Sent by the workflow bot and accepted by another user.</li><li>Sent by another user and accepted by the workflow bot.</li></p><a href=\"https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-accepted\">https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#connection-accepted</a></html>",
                     "$ref": "#/definitions/connection-accepted-event-inner"
                 }
             },
@@ -775,7 +776,7 @@
             "type": "object",
             "properties": {
                 "activity-expired": {
-                    "description": "Generated when the given activity has expired without ending completely. Note this is not a Datafeed real-time event.",
+                    "description": "Generated when the given activity event timeout has expired. Note this is not a Datafeed real-time event.",
                     "$ref": "#/definitions/activity-expired-event-inner"
                 }
             },
@@ -792,7 +793,8 @@
                     "$ref": "#/definitions/activity-completed-event-inner"
                 },
                 "if": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^\\$\\{.*\\}$"
                 }
             },
             "required": [
@@ -803,8 +805,8 @@
             "type": "object",
             "properties": {
                 "one-of": {
-                    "description": "Used to receive at least one of the listed events. Note this is not a Datafeed real-time event.",
-                    "x-intellij-html-description": "Used to receive at least one of the listed events. Note this is not a Datafeed real-time event.",
+                    "description": "Used to receive at least one of the listed events.",
+                    "x-intellij-html-description": "Used to receive at least one of the listed events.",
                     "type": "array",
                     "items": {
                         "oneOf": [
@@ -888,26 +890,46 @@
                 "timer-fired"
             ]
         },
-        "timer-fired-event-inner": {
-            "type": "object",
+        "repeat": {
             "properties": {
                 "repeat": {
                     "description": "ISO 8601 repeating intervals to repeat the current activity.",
                     "type": "string",
                     "default": "R/PT0.1S"
-                },
-                "at": {
-                    "description": "ISO 8601 date presenting a point in time when the current activity should be executed.",
-                    "type": "string",
-                    "default": "2021-08-31T-15:50+00"
                 }
-            }
+            },
+            "required": [
+                "repeat"
+            ]
+        },
+        "at": {
+            "properties": {
+                "at": {
+                    "description": "ISO 8601 date representing a point in time when the current activity should be executed.",
+                    "type": "string",
+                    "default": "2021-08-31T-15:50:00"
+                }
+            },
+            "required": [
+                "at"
+            ]
+        },
+        "timer-fired-event-inner": {
+            "type": "object",
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/repeat"
+                },
+                {
+                    "$ref": "#/definitions/at"
+                }
+            ]
         },
         "form-replied-event-inner": {
             "type": "object",
             "properties": {
                 "form-id": {
-                    "description": "Form's id. The id should be the same as activity's one that defines the form.",
+                    "description": "Form's id. The id should be the same as activity's one that sent the form.",
                     "type": "string"
                 }
             },
@@ -1007,7 +1029,10 @@
                     "description": "The activity id that the expiration triggers this event.",
                     "$ref": "#/definitions/id"
                 }
-            }
+            },
+            "required": [
+                "activity-id"
+            ]
         },
         "activity-completed-event-inner": {
             "type": "object",
@@ -1016,7 +1041,10 @@
                     "description": "The activity id that the completion triggers this event.",
                     "$ref": "#/definitions/id"
                 }
-            }
+            },
+            "required": [
+                "activity-id"
+            ]
         },
         "basic-activity-inner": {
             "type": "object",
@@ -1025,17 +1053,18 @@
                 "id": {
                     "description": "Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
                     "type": "string",
-                    "pattern": "^[a-zA-Z][a-zA-Z0-9_]+$"
+                    "$comment": "variables is forbidden to avoid conflict with variables.output... that would override the workflows variables",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
                 },
                 "on": {
                     "$ref": "#/definitions/on"
                 },
                 "if": {
-                    "description": "Property to specify an activity to be executed if the condition is true",
+                    "description": "Conditional execution of the activity based on a boolean expression.",
                     "type": "string"
                 },
                 "else": {
-                    "description": "Property to specify an activity to be executed if the condition is false",
+                    "description": "Default execution of the activity when if conditions are used for previous activities.",
                     "type": "object"
                 }
             },
@@ -1046,7 +1075,11 @@
         "room-name": {
             "anyOf": [
                 {
-                    "enum": ["${TASK_ID.outputs.room.roomAttributes.name}", "${TASK_ID.outputs.stream.roomAttributes.name}", "${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${ACTIVITY_ID.outputs.room.roomAttributes.name}",
+                        "${ACTIVITY_ID.outputs.stream.roomAttributes.name}",
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "description": "Room's name. Room names will be considered the same if they only differ in capitalization and whitespace. E.g. \"room1\" and \"R O O M 1\" are considered the same. Also, room names must be shorter than 50 characters.",
@@ -1058,12 +1091,100 @@
         "room-description": {
             "anyOf": [
                 {
-                    "enum": ["${TASK_ID.outputs.room.description}", "${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${ACTIVITY_ID.outputs.room.roomAttributes.description}",
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "description": "Room's description.",
                     "type": "string"
                 }
+            ]
+        },
+        "keywords": {
+            "description": "A list of key-value pairs, describing additional properties of the room.",
+            "type": "object"
+        },
+        "members-can-invite": {
+            "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "discoverable": {
+            "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "public": {
+            "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "default": false
+        },
+        "read-only": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
+            "default": false
+        },
+        "copy-protected": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
+            "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
+            "default": false
+        },
+        "cross-pod": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, this room is a cross-pod room.",
+            "default": false
+        },
+        "view-history": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, new members can view the room chat history of the room.",
+            "default": false
+        },
+        "multilateral-room": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
+            "default": false
+        },
+        "active": {
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "description": "If false, the room is not active anymore.",
+            "default": false
+        },
+        "sub-type": {
+            "type": "string",
+            "enum": [
+                "EMAIL"
             ]
         },
         "create-room-inner": {
@@ -1076,13 +1197,37 @@
                     "$ref": "#/definitions/room-description"
                 },
                 "public": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ]
+                    "$ref": "#/definitions/public"
                 },
                 "user-ids": {
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "keywords": {
+                    "$ref": "#/definitions/keywords"
+                },
+                "members-can-invite": {
+                    "$ref": "#/definitions/members-can-invite"
+                },
+                "discoverable": {
+                    "$ref": "#/definitions/discoverable"
+                },
+                "read-only": {
+                    "$ref": "#/definitions/read-only"
+                },
+                "copy-protected": {
+                    "$ref": "#/definitions/copy-protected"
+                },
+                "cross-pod": {
+                    "$ref": "#/definitions/cross-pod"
+                },
+                "view-history": {
+                    "$ref": "#/definitions/view-history"
+                },
+                "multilateral-room": {
+                    "$ref": "#/definitions/multilateral-room"
+                },
+                "sub-type": {
+                    "$ref": "#/definitions/sub-type"
                 }
             },
             "anyOf": [
@@ -1116,83 +1261,34 @@
                     "$ref": "#/definitions/room-description"
                 },
                 "keywords": {
-                    "description": "A list of key-value pairs, describing additional properties of the room.",
-                    "type": "object"
+                    "$ref": "#/definitions/keywords"
                 },
-                "membersCanInvite": {
-                    "description": "If true, any chat room participant can add new participants. If false, only owners can add new participants.",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                "members-can-invite": {
+                    "$ref": "#/definitions/members-can-invite"
                 },
                 "discoverable": {
-                    "description": "If true, this chat room (name, description and messages) non-participants can search for this room. If false, only participants can search for this room.",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/discoverable"
                 },
                 "public": {
-                    "description": "If true, this is a public chatroom. If false, a private chatroom.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, this is a public chatroom. If false, a private chatroom.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "default": false
+                    "$ref": "#/definitions/public"
                 },
-                "readOnly": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, only stream owners can send messages.\nNote: Once this value is set for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, only stream owners can send messages.<br/><i>Note: Once this value is set for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "default": false
+                "read-only": {
+                    "$ref": "#/definitions/read-only"
                 },
-                "copyProtected": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, users cannot copy content from this room.\nNote: Once this value is set to true for a room, it is read-only and can’t be updated.",
-                    "x-intellij-html-description": "<html><p>If true, users cannot copy content from this room.<br/><i>Note: Once this value is set to true for a room, it is read-only and can’t be updated.</i></p></html>",
-                    "default": false
+                "copy-protected": {
+                    "$ref": "#/definitions/copy-protected"
                 },
-                "crossPod": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, this room is a cross-pod room.",
-                    "default": false
+                "cross-pod": {
+                    "$ref": "#/definitions/cross-pod"
                 },
-                "viewHistory": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, new members can view the room chat history of the room.",
-                    "default": false
+                "view-history": {
+                    "$ref": "#/definitions/view-history"
                 },
-                "multiLateralRoom": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If true, this is a multilateral room where users belonging to more than 2 companies can be found.",
-                    "default": false
+                "multilateral-room": {
+                    "$ref": "#/definitions/multilateral-room"
                 },
                 "active": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "description": "If false, the room is not active anymore.",
-                    "default": false
+                    "$ref": "#/definitions/active"
                 }
             }
         },
@@ -1268,14 +1364,19 @@
             "type": "object",
             "properties": {
                 "to": {
-                    "description": "The recipient (conversation, IM, MI or chatroom) in which the message should be posted.",
+                    "description": "The recipient (conversation, IM, MIM or chatroom) in which the message should be posted.",
                     "$ref": "#/definitions/to"
                 },
                 "content": {
                     "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the send-message activity one.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}", "${text(TASK_ID.outputs.message.message)}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}",
+                                "${text(ACTIVITY_ID.outputs.message.message)}",
+                                "<mention uid='${ACTIVITY_ID.outputs.user.userSystemInfo.id}'/>",
+                                "<mention uid='${event.initiator.user.userId}'/>"
+                            ]
                         },
                         {
                             "type": "string",
@@ -1313,7 +1414,10 @@
             "$comment": "Variable or email regex is accepted.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.emailAddress}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.emailAddress}"
+                    ]
                 },
                 {
                     "type": "string",
@@ -1324,7 +1428,13 @@
         "name": {
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.firstName}", "${TASK_ID.outputs.user.userAttributes.lastName}", "${TASK_ID.outputs.user.userAttributes.userName}", "${TASK_ID.outputs.user.userAttributes.displayName}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.firstName}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.lastName}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.userName}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.displayName}"
+                    ]
                 },
                 {
                     "type": "string",
@@ -1336,7 +1446,12 @@
             "description": "The user's work phone number.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.user.userAttributes.workPhoneNumber}", "${TASK_ID.outputs.user.userAttributes.mobilePhoneNumber}", "${TASK_ID.outputs.user.userAttributes.twoFactorAuthPhone}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.workPhoneNumber}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.mobilePhoneNumber}",
+                        "${ACTIVITY_ID.outputs.user.userAttributes.twoFactorAuthPhone}"
+                    ]
                 },
                 {
                     "type": "string",
@@ -1498,7 +1613,7 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "description": "Email address, must be unique",
+                    "description": "Email address, must be unique.",
                     "$ref": "#/definitions/email"
                 },
                 "firstname": {
@@ -1510,7 +1625,7 @@
                     "$ref": "#/definitions/name"
                 },
                 "username": {
-                    "description": "User's username.",
+                    "description": "Unique identifier for the user.",
                     "$ref": "#/definitions/name"
                 },
                 "display-name": {
@@ -1551,29 +1666,29 @@
                 },
                 "password": {
                     "type": "object",
-                    "description": "User's password. The password object is optional for end-user accounts (NORMAL). For example, if your organization utilizes SSO, you may not want to specify the password.\n\nPlease note the password object is not used for service accounts (SYSTEM) and therefore cannot be entered in the request payload.",
+                    "description": "User's password. The password object is optional for end-user accounts (NORMAL). For example, if your organization utilizes SSO, you may not want to specify the password.",
                     "additionalProperties": false,
                     "required": [
-                        "hashedPassword",
-                        "hashedSalt"
+                        "hashed-password",
+                        "hashed-salt"
                     ],
                     "properties": {
-                        "hashedPassword": {
+                        "hashed-password": {
                             "description": "A base64-encoded string. The hashed password. This is the hashed version of the password the user would use to login.",
                             "type": "string",
                             "minLength": 1
                         },
-                        "hashedSalt": {
+                        "hashed-salt": {
                             "description": "A base64-encoded string. The salt used for hashing the hPassword.",
                             "type": "string",
                             "minLength": 1
                         },
-                        "hashedKmPassword": {
+                        "hashed-km-password": {
                             "description": "A base64-encoded string. The hashed password to be used for authenticating to the key manager.",
                             "type": "string",
                             "minLength": 1
                         },
-                        "hashedKmSalt": {
+                        "hashed-km-salt": {
                             "description": "A base64-encoded string. The salt used for hashing the khPassword.",
                             "type": "string",
                             "minLength": 1
@@ -1620,7 +1735,7 @@
                 },
                 "keys": {
                     "type": "object",
-                    "description": "For SYSTEM users, to setup the RSA keys for authentication.",
+                    "description": "For SYSTEM users, to set up the RSA keys for authentication.",
                     "properties": {
                         "current": {
                             "$ref": "#/definitions/key-inner"
@@ -1633,7 +1748,8 @@
                 "roles": {
                     "description": "The roles object consists of the following possibilities:\nFor end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER\nFor service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT",
                     "x-intellij-html-description": "<html><p>The roles object consists of the following possibilities:<li>For end-user accounts: INDIVIDUAL, ADMINISTRATOR, SUPER_ADMINISTRATOR, L1_SUPPORT, L2_SUPPORT, COMPLIANCE_OFFICER, SUPER_COMPLIANCE_OFFICER</li><li>For service accounts: INDIVIDUAL, USER_PROVISIONING, SCOPE_MANAGEMENT, CONTENT_MANAGEMENT, MALWARE_SCAN_MANAGER, MALWARE_SCAN_STATE_USER, AUDIT_TRAIL_MANAGEMENT</li><br/><a href=\"https://developers.symphony.com/restapi/reference#roles-object\">https://developers.symphony.com/restapi/reference#roles-object</a></p></html>",
-                    "$ref": "#/definitions/roles-inner"                },
+                    "$ref": "#/definitions/roles-inner"
+                },
                 "entitlements": {
                     "description": "User entitlements.",
                     "$ref": "#/definitions/entitlements-inner"
@@ -2041,7 +2157,7 @@
                 },
                 "usernames": {
                     "type": "array",
-                    "description": "List of usernames. If username is specified, local must be set to true. It is possible to search for more than one username by separating them by comma. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
+                    "description": "List of usernames. If username is specified, local must be set to true. Note that for this activity, you can use either the user-ids, the emails or the usernames, but only one at a time, you cannot mix and match them.",
                     "items": {
                         "$ref": "#/definitions/name"
                     },
@@ -2062,7 +2178,24 @@
                     ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                 }
-            }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "user-ids"
+                    ]
+                },
+                {
+                    "required": [
+                        "emails"
+                    ]
+                },
+                {
+                    "required": [
+                        "usernames"
+                    ]
+                }
+            ]
         },
         "get-stream-inner": {
             "properties": {
@@ -2151,6 +2284,14 @@
                 "skip": {
                     "$ref": "#/definitions/skip"
                 }
+            },
+            "dependencies": {
+                "skip": [
+                    "limit"
+                ],
+                "limit": [
+                    "skip"
+                ]
             }
         },
         "get-message-inner": {
@@ -2200,7 +2341,7 @@
                         "PRIVATE",
                         "PUBLIC"
                     ],
-                    "description": "The privacy setting of the room: PRIVATE (members must be added) OR PUBLIC (anyone can join). If not specified, returns both private and public rooms. Only applies to chatrooms with internal scope."
+                    "description": "The privacy setting of the room: PRIVATE (members must be added) or PUBLIC (anyone can join). If not specified, returns both private and public rooms. Only applies to chatrooms with internal scope."
                 },
                 "status": {
                     "type": "string",
@@ -2212,11 +2353,11 @@
                 },
                 "start-date": {
                     "type": "string",
-                    "description": "Restricts result set to rooms that have been modified since this date (an Epoch timestamp specified in milliseconds). When specified along with endDate, enables the developer to specify rooms modified within a given time range."
+                    "description": "Restricts result set to rooms that have been modified since this date (ISO 8601). When specified along with end-date, enables the developer to specify rooms modified within a given time range."
                 },
                 "end-date": {
                     "type": "string",
-                    "description": "Restricts result set to rooms that have been modified prior to this date (an Epoch timestamp specified in milliseconds). When specified along with startDate, enables the developer to specify rooms modified within a given time range."
+                    "description": "Restricts result set to rooms that have been modified prior to this date (ISO 8601). When specified along with start-date, enables the developer to specify rooms modified within a given time range."
                 },
                 "limit": {
                     "$ref": "#/definitions/limit"
@@ -2229,7 +2370,7 @@
         "get-rooms-inner": {
             "properties": {
                 "query": {
-                    "description": "The query which is searched for in room name, description, and optionally keywords. Case insensitive.",
+                    "description": "The query which is searched for in room name, description, and optionally keywords. Case-insensitive.",
                     "type": "string",
                     "minLength": 1
                 },
@@ -2259,7 +2400,7 @@
                         "string",
                         "number"
                     ],
-                    "description": "If provided, restricts the search to rooms created by the specified user.",
+                    "description": "If provided, restrict the search to rooms created by the specified user.",
                     "minLength": 1
                 },
                 "owner-id": {
@@ -2267,7 +2408,7 @@
                         "string",
                         "number"
                     ],
-                    "description": "If provided, restricts the search to rooms owned by the specified user.",
+                    "description": "If provided, restrict the search to rooms owned by the specified user.",
                     "minLength": 1
                 },
                 "member-id": {
@@ -2275,7 +2416,7 @@
                         "string",
                         "number"
                     ],
-                    "description": "If provided, restricts the search to rooms where the specified user is a member.",
+                    "description": "If provided, restrict the search to rooms where the specified user is a member.",
                     "minLength": 1
                 },
                 "sort-order": {
@@ -2308,13 +2449,16 @@
                     "description": "Date, in ISO 8601 format, of the earliest possible data of the first message returned.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
                         },
                         {
                             "type": "string",
                             "minLength": 1
                         }
-                    ]
+                    ],
+                    "default": "2021-08-31T15:50:00Z"
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
@@ -2363,10 +2507,12 @@
             ]
         },
         "skip": {
-            "description": "Number of members to be skipped during return - used for pagination.",
+            "description": "Number of elements to be skipped during return - used for pagination.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "type": [
@@ -2378,10 +2524,12 @@
             ]
         },
         "limit": {
-            "description": "Maximum number of members to be returned - used for pagination. Maximum allowed is 1000.",
+            "description": "Maximum number of elements to be returned - used for pagination.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}"
+                    ]
                 },
                 {
                     "type": [
@@ -2398,10 +2546,13 @@
             "minLength": 1
         },
         "message-id-inner": {
-            "description": "Message identifier. Both safe url and Base64 encoded url are accepted.",
+            "description": "Message identifier. Both safe url and Base64 encoded urls are accepted.",
             "anyOf": [
                 {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.message.messageId}"]
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${ACTIVITY_ID.outputs.msgId}"
+                    ]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2409,10 +2560,15 @@
             ]
         },
         "stream-id-inner": {
-            "description": "Stream identifier. Both safe url and Base64 encoded url are accepted.",
+            "description": "Stream identifier. Both safe url and Base64 encoded urls are accepted.",
             "anyOf": [
                 {
-                    "enum": ["${event.source.stream.streamId}", "${variables.VARIABLE_NAME}", "${TASK_ID.outputs.roomId}", "${TASK_ID.outputs.stream.id}"]
+                    "enum": [
+                        "${event.source.message.stream.streamId}",
+                        "${variables.VARIABLE_NAME}",
+                        "${ACTIVITY_ID.outputs.roomId}",
+                        "${ACTIVITY_ID.outputs.stream.id}"
+                    ]
                 },
                 {
                     "$ref": "#/definitions/id"
@@ -2421,8 +2577,7 @@
         },
         "stream-id": {
             "type": "object",
-            "description": "Stream id object with the key \"stream-id\"",
-            "x-intellij-html-description": "<html><p>Stream id object with the key <i>stream-id</i></p></html>",
+            "description": "Stream id to sent the message to",
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
@@ -2436,15 +2591,15 @@
             "description": "User identifiers list.",
             "anyOf": [
                 {
+                    "enum": []
+                },
+                {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/user-id"
                     },
                     "minLength": 1,
                     "uniqueItems": true
-                },
-                {
-                    "enum": ["${variables.VARIABLE_NAME}", "${TASK_ID.outputs.userIds"]
                 }
             ]
         },
@@ -2471,10 +2626,14 @@
                     "minLength": 1
                 },
                 {
-                    "enum": ["${TASK_ID.outputs.user.userSystemInfo.id}", "${event.initiator.user.userId}", "${event.source.fromUser.userId}",  "${event.source.toUser.userId}"]
+                    "enum": [
+                        "${ACTIVITY_ID.outputs.user.userSystemInfo.id}",
+                        "${event.initiator.user.userId}",
+                        "${event.source.fromUser.userId}",
+                        "${event.source.toUser.userId}"
+                    ]
                 }
             ]
-
         },
         "attachment": {
             "type": "object",
@@ -2491,14 +2650,16 @@
             "type": "object",
             "properties": {
                 "message-id": {
-                    "description": "Message id having the attachment to forward. Both url safe and base64 encoded url are accepted.",
+                    "description": "Message id having the attachment to forward. Both url safe and base64 encoded urls are accepted.",
                     "$ref": "#/definitions/message-id-inner"
                 },
                 "attachment-id": {
-                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64 encoded url are accepted.",
+                    "description": "Attachment id to forward. If not set, all attachments in the provided message are forwarded. Both url safe and base64 encoded urls are accepted.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
                         },
                         {
                             "type": "string",
@@ -2521,7 +2682,9 @@
                     "description": "Path to the file to be attached to the message. The path is relative to the workflows folder.",
                     "anyOf": [
                         {
-                            "enum": ["${variables.VARIABLE_NAME}"]
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
                         },
                         {
                             "type": "string",

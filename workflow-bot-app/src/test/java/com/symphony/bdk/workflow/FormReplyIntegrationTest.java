@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
@@ -8,6 +10,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
@@ -106,5 +109,17 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // bot should not run the on/activity-expired activity after 1s because it is attached to the second form that
     // has not been replied to
     verify(messageService, timeout(5000)).send(eq("abc"), contains("expiration-outer"));
+  }
+
+  @SuppressWarnings("checkstyle:LineLength")
+  @Test
+  void sendFormInvalidFormId() throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/form/invalid/swadl/send-form-reply-unknown-activity-id.swadl.yaml"));
+
+    assertThatExceptionOfType(ActivityNotFoundException.class)
+        .isThrownBy(() -> engine.execute(workflow))
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
+            "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));
   }
 }

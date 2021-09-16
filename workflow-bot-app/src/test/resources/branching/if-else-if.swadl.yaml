@@ -12,7 +12,7 @@ activities:
   - execute-script:
       id: act2
       # will not be executed because of the if
-      if: ${variables.foo == "bar"}
+      if: ${variables.foo == 'bar'}
       script: |
         println "act2"
   - execute-script:
@@ -21,7 +21,7 @@ activities:
         activity-completed:
           activity-id: act1
       # will be executed because of the if
-      if: ${variables.foo == "foo"}
+      if: ${variables.foo == 'foo'}
       script: |
         println "act3"
   - execute-script:
@@ -29,7 +29,6 @@ activities:
       on:
         activity-completed:
           activity-id: act1
-      # will be executed because of the if
       else: { }
       script: |
         println "act4"

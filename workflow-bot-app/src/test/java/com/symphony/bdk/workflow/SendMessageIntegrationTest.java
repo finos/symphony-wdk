@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -113,7 +114,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "this specific file is sent in a new message")
   void sendMessageWithSpecificAttachment() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/forward-specific-attachment-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream(
+            "/message/forward-specific-attachment-in-message.swadl.yaml"));
     final V4Message messageToReturn = message("msgId");
 
     final String streamId = "123";
@@ -149,11 +151,50 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
   @Test
   @DisplayName(
+      "Given a message without attachments, when I send a new message with the attachment id, the message is not sent")
+  void sendMessageWithUnfoundMessage() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(
+            "/message/forward-unfound-message-in-message.swadl.yaml"));
+
+    final String messageId = "MSG_ID";
+
+    when(messageService.getMessage(messageId)).thenReturn(new V4Message());
+
+    engine.execute(workflow);
+
+    engine.onEvent(messageReceived("/forward-unfound-message"));
+
+    verify(messageService, never()).send(anyString(), any(Message.class));
+  }
+
+  @Test
+  @DisplayName(
+      "Given an unfound message, when I send a new message with the attachment id, the message is not sent")
+  void sendMessageWithUnfoundAttachment() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(
+            "/message/forward-unfound-attachment-in-message.swadl.yaml"));
+
+    final String messageId = "MSG_ID";
+
+    when(messageService.getMessage(messageId)).thenReturn(null);
+
+    engine.execute(workflow);
+
+    engine.onEvent(messageReceived("/forward-unfound-attachment"));
+
+    verify(messageService, never()).send(anyString(), any(Message.class));
+  }
+
+  @Test
+  @DisplayName(
       "Given a message with attachments, when I send a new message with multiple attachment ids,"
           + "then only theses attachments are sent in a new message")
   void sendMessageWithMultipleAttachments() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/forward-multiple-attachments-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream(
+            "/message/forward-multiple-attachments-in-message.swadl.yaml"));
     final V4Message messageToReturn = message("msgId");
 
     final String streamId = "123";
@@ -197,7 +238,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then all message's attachments are sent in a new message")
   void sendMessageWithAllAttachments() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/forward-all-attachments-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/forward-all-attachments-in-message.swadl.yaml"));
     final V4Message messageToReturn = message("msgId");
 
     final String streamId = "123";
@@ -241,7 +282,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
           + "then the file is sent as attachment in a new message")
   void sendMessageWithAttachmentsFromFile() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/send-attachments-from-file-in-message.swadl.yaml"));
+        SwadlParser.fromYaml(
+            getClass().getResourceAsStream("/message/send-attachments-from-file-in-message.swadl.yaml"));
     final String content = "<messageML>here is a msg with attachment</messageML>";
 
     engine.execute(workflow);

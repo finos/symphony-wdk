@@ -11,7 +11,6 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.workflow.swadl.v1.activity.SendMessage;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
@@ -30,8 +29,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   private static final String OUTPUT_MESSAGE_KEY = "message";
 
   @Override
-  @SneakyThrows
-  public void execute(ActivityExecutorContext<SendMessage> execution) {
+  public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {
     SendMessage activity = execution.getActivity();
     String streamId = resolveStreamId(execution, activity, execution.bdk().streams());
     log.debug("Sending message to room {}", streamId);
@@ -42,7 +40,6 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
 
     Message messageToSend = this.buildMessage(execution);
-
     V4Message message = execution.bdk().messages().send(streamId, messageToSend);
 
     execution.setOutputVariable(OUTPUT_MESSAGE_KEY, message);
@@ -71,7 +68,8 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       return event.getStream().getStreamId();
 
     } else {
-      throw new IllegalArgumentException("No stream id set to send a message");
+      throw new IllegalArgumentException(
+          String.format("No stream id set to send a message in activity %s", activity.getId()));
     }
   }
 

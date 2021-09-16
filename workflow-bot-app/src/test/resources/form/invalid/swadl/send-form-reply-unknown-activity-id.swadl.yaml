@@ -1,0 +1,29 @@
+id: send-form-reply-invalid-activity-id
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        message-received:
+          content: "/message"
+      to:
+        stream-id: "123"
+      content: |
+        <messageML>
+          <form id="sendForm">
+            <text-field name="aField" placeholder="Anything you want to say" required="true"/>
+            <button name="send-answers" type="action">Send</button>
+            <button type="reset">Clear</button>
+          </form>
+        </messageML>
+
+  - send-message:
+      id: pongReply
+      on:
+        form-replied:
+          form-id: unknownActivityId
+      to:
+        stream-id: "123"
+      content: |
+        <messageML>
+          ${sendForm.aField}
+        </messageML>

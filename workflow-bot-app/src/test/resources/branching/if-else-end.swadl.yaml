@@ -12,7 +12,7 @@ activities:
   - execute-script:
       id: act2
       # will not be executed because of the if
-      if: ${variables.foo == "foo"}
+      if: ${variables.foo == 'foo'}
       script: |
         println "act2"
 

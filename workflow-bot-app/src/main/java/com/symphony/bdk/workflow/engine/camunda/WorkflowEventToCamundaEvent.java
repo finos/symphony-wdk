@@ -232,37 +232,41 @@ public class WorkflowEventToCamundaEvent {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void messageSentToMessage(RealTimeEvent<V4MessageSent> event,
       Map<String, Object> processVariables) throws PresentationMLParserException {
-    String presentationMl = event.getSource().getMessage().getMessage();
-    String receivedContent = PresentationMLParser.getTextContent(presentationMl);
 
-    List<EventSubscription> subscribedSignals = runtimeService.createEventSubscriptionQuery()
-        .eventType(EventType.SIGNAL.name())
-        .list();
+    // Event's message cannot be null, this if statement is only added to fix Sonar warnings
+    if (event.getSource().getMessage() != null) {
+      String presentationMl = event.getSource().getMessage().getMessage();
+      String receivedContent = PresentationMLParser.getTextContent(presentationMl);
 
-    // we want to avoid sending the same signals twice otherwise workflows would be triggered multiple times
-    // meaning only the first matching /command is picked
-    Set<String> alreadySentSignals = new HashSet<>();
-    for (EventSubscription signal : subscribedSignals) {
-      if (!alreadySentSignals.contains(signal.getEventName())) {
-        String content = messageReceivedContentfromSignalName(signal.getEventName());
-        if (MESSAGE_RECEIVED_CONTENT_MATCHER.match(content, receivedContent)) {
-          // match the arguments and add them to the event holder
-          Map<String, String> args =
-              MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
-          ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+      List<EventSubscription> subscribedSignals = runtimeService.createEventSubscriptionQuery()
+          .eventType(EventType.SIGNAL.name())
+          .list();
 
-          runtimeService.createSignalEvent(signal.getEventName())
-              .setVariables(processVariables)
-              .send();
-          alreadySentSignals.add(signal.getEventName());
+      // we want to avoid sending the same signals twice otherwise workflows would be triggered multiple times
+      // meaning only the first matching /command is picked
+      Set<String> alreadySentSignals = new HashSet<>();
+      for (EventSubscription signal : subscribedSignals) {
+        if (!alreadySentSignals.contains(signal.getEventName())) {
+          String content = messageReceivedContentfromSignalName(signal.getEventName());
+          if (MESSAGE_RECEIVED_CONTENT_MATCHER.match(content, receivedContent)) {
+            // match the arguments and add them to the event holder
+            Map<String, String> args =
+                MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
+            ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+
+            runtimeService.createSignalEvent(signal.getEventName())
+                .setVariables(processVariables)
+                .send();
+            alreadySentSignals.add(signal.getEventName());
+          }
         }
       }
-    }
 
-    // we send another signal for workflows listening to any message (without content being set)
-    runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX)
-        .setVariables(processVariables)
-        .send();
+      // we send another signal for workflows listening to any message (without content being set)
+      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_PREFIX)
+          .setVariables(processVariables)
+          .send();
+    }
   }
 
   private static String messageReceivedContentfromSignalName(String signalName) {

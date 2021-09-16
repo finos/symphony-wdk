@@ -1,4 +1,4 @@
-name: welcome
+id: welcome
 activities:
   - create-room:
       id: createOneToOne

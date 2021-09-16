@@ -1,4 +1,4 @@
-name: contact-sharing
+id: contact-sharing
 activities:
   - get-user:
       id: getUser

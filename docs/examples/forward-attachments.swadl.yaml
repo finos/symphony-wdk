@@ -1,4 +1,4 @@
-name: forward-attachments
+id: forward-attachments
 activities:
   - execute-script:
       id: command

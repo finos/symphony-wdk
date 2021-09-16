@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.RoomSystemInfo;
+import com.symphony.bdk.gen.api.model.RoomTag;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
@@ -60,8 +61,19 @@ class RoomIntegrationTest extends IntegrationTest {
     final String roomName = "The best room ever";
     final String roomDescription = "this is room description";
     final boolean isRoomPublic = true;
+    final boolean viewHistory = true;
+    final boolean discoverable = false;
+    final boolean readOnly = true;
+    final boolean crossPod = true;
+    final boolean copyProtected = true;
+    final boolean multilateralRoom = false;
+    final String subType = "EMAIL";
+    final List<RoomTag> keywords =
+        Arrays.asList(new RoomTag().key("A").value("AA"), new RoomTag().key("B").value("BB"));
 
-    final V3RoomDetail v3RoomDetail = this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic);
+    final V3RoomDetail v3RoomDetail =
+        this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic, viewHistory, discoverable, readOnly,
+            crossPod, copyProtected, multilateralRoom, subType, keywords);
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.execute(workflow);
@@ -72,7 +84,9 @@ class RoomIntegrationTest extends IntegrationTest {
 
     final V3RoomAttributes captorValue = argumentCaptor.getValue();
 
-    final V3RoomAttributes expectedRoomAttributes = this.buildRoomAttributes(roomName, roomDescription, isRoomPublic);
+    final V3RoomAttributes expectedRoomAttributes =
+        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, viewHistory, discoverable, readOnly, crossPod,
+            copyProtected, multilateralRoom, subType, keywords);
     assertRoomAttributes(expectedRoomAttributes, captorValue);
   }
 
@@ -87,7 +101,9 @@ class RoomIntegrationTest extends IntegrationTest {
     final boolean isRoomPublic = false;
     final List<Long> uids = Arrays.asList(666L, 777L, 999L);
 
-    final V3RoomDetail v3RoomDetail = this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic);
+    final V3RoomDetail v3RoomDetail =
+        this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic, null, null, null, null, null, null, null,
+            null);
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.execute(workflow);
@@ -100,7 +116,9 @@ class RoomIntegrationTest extends IntegrationTest {
 
     final V3RoomAttributes captorValue = argumentCaptor.getValue();
 
-    final V3RoomAttributes expectedRoomAttributes = this.buildRoomAttributes(roomName, roomDescription, isRoomPublic);
+    final V3RoomAttributes expectedRoomAttributes =
+        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, null, null, null, null, null, null, null,
+            null);
     assertRoomAttributes(expectedRoomAttributes, captorValue);
   }
 
@@ -118,21 +136,48 @@ class RoomIntegrationTest extends IntegrationTest {
     assertThat(expected.getPublic()).isEqualTo(actual.getPublic());
   }
 
-  private V3RoomDetail buildRoomDetail(String id, String name, String description, boolean isPublic) {
+  private V3RoomDetail buildRoomDetail(String id, String name, String description, boolean isPublic,
+      Boolean viewHistory,
+      Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected, Boolean multilateralRoom,
+      String subType,
+      List<RoomTag> keywords) {
     V3RoomDetail v3RoomDetail = new V3RoomDetail();
     RoomSystemInfo roomSystemInfo = new RoomSystemInfo();
     roomSystemInfo.setId(id);
     V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
-    v3RoomAttributes.name(name).description(description)._public(isPublic);
+    v3RoomAttributes.name(name)
+        .description(description)
+        ._public(isPublic)
+        .viewHistory(viewHistory)
+        .discoverable(discoverable)
+        .readOnly(readOnly)
+        .crossPod(crossPod)
+        .copyProtected(copyProtected)
+        .multiLateralRoom(multilateralRoom)
+        .subType(subType)
+        .keywords(keywords);
     v3RoomDetail.setRoomSystemInfo(roomSystemInfo);
     v3RoomDetail.setRoomAttributes(v3RoomAttributes);
 
     return v3RoomDetail;
   }
 
-  private V3RoomAttributes buildRoomAttributes(String name, String description, boolean isPublic) {
+  private V3RoomAttributes buildRoomAttributes(String name, String description, Boolean isPublic, Boolean viewHistory,
+      Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected, Boolean multilateralRoom,
+      String subType,
+      List<RoomTag> keywords) {
     V3RoomAttributes expectedRoomAttributes = new V3RoomAttributes();
-    return expectedRoomAttributes.name(name).description(description)._public(isPublic);
+    return expectedRoomAttributes.name(name)
+        .description(description)
+        ._public(isPublic)
+        .viewHistory(viewHistory)
+        .discoverable(discoverable)
+        .readOnly(readOnly)
+        .crossPod(crossPod)
+        .multiLateralRoom(multilateralRoom)
+        .copyProtected(copyProtected)
+        .subType(subType)
+        .keywords(keywords);
   }
 
   @Test

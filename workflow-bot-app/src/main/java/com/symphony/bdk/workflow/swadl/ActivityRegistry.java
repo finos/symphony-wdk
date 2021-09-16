@@ -45,7 +45,12 @@ public final class ActivityRegistry {
         .map(Class.class::cast)
         .collect(Collectors.toMap(ActivityRegistry::findMatchingActivity, Function.identity()));
 
-    log.info("Found these activities: {} and executors: {}", activityTypes, activityExecutors);
+    log.info("Found these activities: {}", activityTypes.stream()
+        .map(Class::getSimpleName)
+        .sorted()
+        .collect(Collectors.toList()));
+    // in TRACE level print the full class names and matching executors
+    log.trace("Found these activities: {} and executors: {}", activityTypes, activityExecutors);
   }
 
   private static Class<? extends BaseActivity> findMatchingActivity(
