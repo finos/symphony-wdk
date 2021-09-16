@@ -24,9 +24,9 @@ a [GitHub Issue](https://github.com/SymphonyOSF/symphony-wdk/issues).
 
 1. Fork it
 2. Create your feature branch (`git checkout -b feature/fooBar`)
-3Commit your changes (`git commit -am 'Add some fooBar'`)
-4Push to the branch (`git push origin feature/fooBar`)
-5Create a new Pull Request
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
 
 ## License
 
