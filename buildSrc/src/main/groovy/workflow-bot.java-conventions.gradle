@@ -61,7 +61,7 @@ publishing {
         maven(MavenPublication) {
             from(components.java)
             pom {
-                url = 'https://github.com/SymphonyOSF/symphony-wdk'
+                url = 'https://github.com/SymphonyPlatformSolutions/symphony-wdk'
                 licenses {
                     license {
                         name = 'Apache License, Version 2.0'
@@ -77,9 +77,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/SymphonyOSF/symphony-wdk.git'
-                    developerConnection = 'scm:git:ssh://github.com/SymphonyOSF/symphony-wdk.git'
-                    url = 'https://github.com/SymphonyOSF/symphony-wdk.git'
+                    connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-wdk.git'
+                    developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-wdk.git'
+                    url = 'https://github.com/SymphonyPlatformSolutions/symphony-wdk.git'
                 }
             }
         }
