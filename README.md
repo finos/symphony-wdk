@@ -22,7 +22,7 @@ Java (JDK) 11 is required and Gradle is used to build the project.
 In order to get in touch with the project team, please open
 a [GitHub Issue](https://github.com/SymphonyOSF/symphony-wdk/issues).
 
-1. Fork it (<https://github.com/SymphonyOSF/symphony-wdk/fork>)
+1. Fork it
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3Commit your changes (`git commit -am 'Add some fooBar'`)
 4Push to the branch (`git push origin feature/fooBar`)
