@@ -1,23 +1,37 @@
 # Symphony Workflow Developer Kit (WDK)
 
-_Also known as Workflow API or Workflow bot_, check out the [documentation on Confluence](https://perzoinc.atlassian.net/wiki/spaces/DevX/pages/1455556023/10.+Workflow+API)
+_Also known as Workflow API or Workflow bot_, check out the  [documentation](./docs).
+
+:warning: _The WDK is very much in its inception and we are actually looking to get feedback on its usage. It also means
+all the APIs and the SWADL format are subject to change._
 
 ## Usage
 
-The bot reacts to direct messages, executing the workflow attached to the message.
+Check out the [Getting starting guide](./docs/getting-started.md) for an introduction.
 
 ## How to build
 
-Java 11 is required and Gradle is used to build the project.
+Java (JDK) 11 is required and Gradle is used to build the project.
 
 ```shell
 ./gradlew build
 ``` 
 
-## CI/CD
+## Contributing
 
-Pull requests are built on [Warpdrive](https://warpdrive.dev.symphony.com/jenkins/job/SymphonyOSF/job/workflow-bot).
+In order to get in touch with the project team, please open
+a [GitHub Issue](https://github.com/SymphonyOSF/symphony-wdk/issues).
 
-Changes on the `master` branch trigger a deployment on 
-[GCP](https://console.cloud.google.com/kubernetes/deployment/us-central1/devx-autopilot-private-cluster/dev/workflow-bot/overview?project=sym-dev-plat)
-where an instance of the bot runs against devx3 pod.
+1. Fork it
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3Commit your changes (`git commit -am 'Add some fooBar'`)
+4Push to the branch (`git push origin feature/fooBar`)
+5Create a new Pull Request
+
+## License
+
+Copyright 2021 Symphony LLC
+
+Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+SPDX-License-Identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)

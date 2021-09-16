@@ -6,7 +6,13 @@ plugins {
     // code quality
     id 'checkstyle'
     id 'com.github.spotbugs'
+
+    // deployment
+    id 'maven-publish'
+    id 'signing'
 }
+
+group = 'com.symphony.platformsolutions'
 
 repositories {
     mavenCentral()
@@ -43,9 +49,54 @@ checkstyle {
 }
 
 // Enable HTML report for spotbugs
-tasks.matching {task -> task.name.startsWith('spotbugs')}.forEach {
+tasks.matching { task -> task.name.startsWith('spotbugs') }.forEach {
     it.reports {
         html.enabled = true
         xml.enabled = false
     }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+            pom {
+                url = 'https://github.com/SymphonyOSF/symphony-wdk'
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Symphony Platform Solutions'
+                        email = 'platformsolutions@symphony.com'
+                        organization = 'Symphony Communication Services'
+                        organizationUrl = 'https://symphony.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/SymphonyOSF/symphony-wdk.git'
+                    developerConnection = 'scm:git:ssh://github.com/SymphonyOSF/symphony-wdk.git'
+                    url = 'https://github.com/SymphonyOSF/symphony-wdk.git'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
+                password project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
+            }
+            url project.properties['mavenRepoUrl'] ?: (project.version.endsWith('SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/')
+        }
+    }
+}
+
+signing {
+    required { !project.version.endsWith('SNAPSHOT') }
+    sign publishing.publications.maven
 }

@@ -57,3 +57,12 @@ bootJar {
         attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
     }
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            // publish the fat executable jar to be used by the Symphony generator
+            artifact bootJar
+        }
+    }
+}
