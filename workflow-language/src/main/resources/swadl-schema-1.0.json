@@ -513,6 +513,9 @@
                             "$ref": "#/definitions/message-received-event"
                         },
                         {
+                            "$ref": "#/definitions/request-received-event"
+                        },
+                        {
                             "$ref": "#/definitions/message-suppressed-event"
                         },
                         {
@@ -575,6 +578,18 @@
             },
             "required": [
                 "form-replied"
+            ]
+        },
+        "request-received-event": {
+            "title": "object",
+            "properties": {
+                "request-received": {
+                    "description": "Generated when an HTTP request is received in order to trigger a workflow.",
+                    "$ref": "#/definitions/request-received-event-inner"
+                }
+            },
+            "required": [
+                "request-received"
             ]
         },
         "message-received-event": {
@@ -823,6 +838,9 @@
                                 "$ref": "#/definitions/message-received-event"
                             },
                             {
+                                "$ref": "#/definitions/request-received-event"
+                            },
+                            {
                                 "$ref": "#/definitions/message-suppressed-event"
                             },
                             {
@@ -951,6 +969,20 @@
                     "default": false
                 }
             }
+        },
+        "request-received-event-inner": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "token": {
+                    "description": "Token to authorize incoming http requests.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "token"
+            ]
         },
         "message-suppressed-event-inner": {
             "type": "object",
@@ -1374,6 +1406,7 @@
                             "enum": [
                                 "${variables.VARIABLE_NAME}",
                                 "${text(ACTIVITY_ID.outputs.message.message)}",
+                                "${event.args.content}",
                                 "<mention uid='${ACTIVITY_ID.outputs.user.userSystemInfo.id}'/>",
                                 "<mention uid='${event.initiator.user.userId}'/>"
                             ]

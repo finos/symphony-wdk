@@ -2,18 +2,23 @@ package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.spring.events.RealTimeEvent;
+import com.symphony.bdk.workflow.engine.ExecutionParameters;
+import com.symphony.bdk.workflow.engine.UnauthorizedException;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
 import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +42,7 @@ public class CamundaEngine implements WorkflowEngine {
   private AuditTrailLogger auditTrailLogger;
 
   @Override
-  public void execute(Workflow workflow) throws IOException {
+  public void deploy(Workflow workflow) throws IOException {
     checkIdsAreUnique(workflow);
     if (workflow.getId() == null) {
       workflow.setId("workflow_" + UUID.randomUUID());
@@ -48,7 +53,40 @@ public class CamundaEngine implements WorkflowEngine {
   }
 
   @Override
-  public void stop(String workflowName) {
+  public void execute(String workflowId, ExecutionParameters parameters) {
+
+    // check workflow id
+    ProcessDefinition processDefinition = this.repositoryService.createProcessDefinitionQuery()
+        .active()
+        .list()
+        .stream()
+        .filter(process -> process.getName().equals(workflowId))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("No workflow found with id " + workflowId));
+
+    // check token
+    String workflowToken = repositoryService.getDeploymentResources(processDefinition.getDeploymentId())
+        .stream()
+        .filter(resource -> resource.getName().equals(CamundaBpmnBuilder.DEPLOYMENT_RESOURCE_TOKEN_KEY))
+        .map(resource -> new String(resource.getBytes(), StandardCharsets.UTF_8))
+        .findFirst()
+        .orElse("");
+
+    if (!workflowToken.isEmpty() && !workflowToken.equals(parameters.getToken())) {
+      throw new UnauthorizedException("Request token is not valid");
+    }
+
+    // dispatch event
+    try {
+      events.dispatch(toRealTimeEvent(parameters));
+    } catch (PresentationMLParserException e) {
+      log.debug("Failed to parse MessageML, should not happen", e);
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void undeploy(String workflowName) {
     for (Deployment deployment : repositoryService.createDeploymentQuery().deploymentName(workflowName).list()) {
       stop(deployment);
     }
@@ -61,7 +99,7 @@ public class CamundaEngine implements WorkflowEngine {
   }
 
   @Override
-  public void stopAll() {
+  public void undeployAll() {
     for (Deployment deployment : repositoryService.createDeploymentQuery().list()) {
       CamundaEngine.this.stop(deployment);
     }
@@ -90,5 +128,12 @@ public class CamundaEngine implements WorkflowEngine {
     if (!duplicatedIds.isEmpty()) {
       throw new UniqueIdViolationException(workflow.getId(), duplicatedIds);
     }
+  }
+
+  private RealTimeEvent<RequestReceivedEvent> toRealTimeEvent(ExecutionParameters parameters) {
+    RequestReceivedEvent requestReceivedEvent = new RequestReceivedEvent();
+    requestReceivedEvent.setBodyArguments(parameters.getArguments());
+    requestReceivedEvent.setToken(parameters.getToken());
+    return new RealTimeEvent<>(null, requestReceivedEvent);
   }
 }

@@ -7,11 +7,14 @@ import java.io.IOException;
 
 public interface WorkflowEngine {
 
-  void execute(Workflow workflow) throws IOException;
+  void deploy(Workflow workflow) throws IOException;
+
+  void execute(String workflowId, ExecutionParameters parameters)
+      throws UnauthorizedException, IllegalArgumentException;
 
   <T> void onEvent(RealTimeEvent<T> event);
 
-  void stop(String workflowName);
+  void undeploy(String workflowName);
 
-  void stopAll();
+  void undeployAll();
 }

@@ -31,7 +31,7 @@ class EngineIntegrationTest extends IntegrationTest {
     when(messageService.send(streamId, content)).thenReturn(message);
 
     assertThrows(NoStartingEventException.class,
-        () -> engine.execute(workflow));
+        () -> engine.deploy(workflow));
   }
 
   @Test
@@ -39,7 +39,7 @@ class EngineIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/workflow-name-space.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/message"));
 
     verify(messageService, timeout(5000)).send(anyString(), any(Message.class));
@@ -55,8 +55,8 @@ class EngineIntegrationTest extends IntegrationTest {
     final String content = "<messageML>Hello!</messageML>";
     when(messageService.send(streamId, content)).thenReturn(message);
 
-    engine.execute(workflow);
-    engine.stop(workflow.getId());
+    engine.deploy(workflow);
+    engine.undeploy(workflow.getId());
 
     engine.onEvent(messageReceived("/message"));
     assertThat(lastProcess(workflow)).isEmpty();

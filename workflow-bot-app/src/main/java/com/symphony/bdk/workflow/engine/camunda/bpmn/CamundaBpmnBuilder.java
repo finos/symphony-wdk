@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.repository.Deployment;
+import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class CamundaBpmnBuilder {
+  public static final String DEPLOYMENT_RESOURCE_TOKEN_KEY = "WORKFLOW_TOKEN";
 
   private final RepositoryService repositoryService;
   private final WorkflowEventToCamundaEvent eventToMessage;
@@ -64,15 +66,31 @@ public class CamundaBpmnBuilder {
     BpmnModelInstance instance = workflowToBpmn(workflow);
 
     try {
-      return repositoryService.createDeployment()
+      DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
           .name(workflow.getId())
-          .addModelInstance(workflow.getId() + ".bpmn", instance)
-          .deploy();
+          .addModelInstance(workflow.getId() + ".bpmn", instance);
+
+      deploymentBuilder = setWorkflowTokenIfExists(deploymentBuilder, workflow);
+      return deploymentBuilder.deploy();
     } finally {
       if (log.isDebugEnabled()) {
         WorkflowDebugger.generateDebugFiles(workflow.getId(), instance);
       }
     }
+  }
+
+  private DeploymentBuilder setWorkflowTokenIfExists(DeploymentBuilder deploymentBuilder, Workflow workflow) {
+    workflow.getActivities().forEach(activity -> {
+      Optional<String> token = activity.getEvents()
+          .stream()
+          .filter(event -> event.getRequestReceived() != null && event.getRequestReceived().getToken() != null)
+          .map(event -> event.getRequestReceived().getToken())
+          .findFirst();
+
+      token.ifPresent(s -> deploymentBuilder.addString(DEPLOYMENT_RESOURCE_TOKEN_KEY, s));
+    });
+
+    return deploymentBuilder;
   }
 
   private List<Event> getStartingEvents(Workflow workflow) {

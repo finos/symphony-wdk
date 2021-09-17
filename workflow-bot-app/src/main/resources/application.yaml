@@ -35,6 +35,11 @@ spring:
       # Avoid warning log during startup
       check-template-location: false
 
+# Server Configuration, listen on port 8080 by default
+server:
+  servlet:
+    contextPath: /wdk
+
 # Logging configuration
 logging:
   level:
@@ -46,7 +51,7 @@ logging:
     # Disable BPMN image generation
     com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: INFO
 
-# Actuator endpoint is enabled by default on port 8080
+# Actuator endpoint is enabled by default on port 8081
 management:
   health:
     camunda:
@@ -55,4 +60,5 @@ management:
     web:
       exposure:
         include: "*"
-
+  server:
+    port: 8081

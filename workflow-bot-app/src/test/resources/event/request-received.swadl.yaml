@@ -1,0 +1,13 @@
+id: my-workflow
+activities:
+  - send-message:
+      id: sendmsg
+      to:
+        stream-id: "123"
+      content: ${event.args.content}
+      on:
+        request-received:
+          token: myToken
+
+
+

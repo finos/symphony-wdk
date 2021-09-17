@@ -24,6 +24,7 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.engine.executor.SendMessageExecutor;
 import com.symphony.bdk.workflow.swadl.v1.Event;
+import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
@@ -62,6 +63,7 @@ public class WorkflowEventToCamundaEvent {
   private static final String USER_LEFT_ROOM = "user-left-room";
   private static final String CONNECTION_REQUESTED = "connection-requested";
   private static final String CONNECTION_ACCEPTED = "connection-accepted";
+  private static final String REQUEST_RECEIVED = "request-received";
 
   private static final AntPathMatcher MESSAGE_RECEIVED_CONTENT_MATCHER = new AntPathMatcher();
 
@@ -127,6 +129,9 @@ public class WorkflowEventToCamundaEvent {
 
     } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
       return toSignalName(event.getOneOf().get(0));
+
+    } else if (event.getRequestReceived() != null) {
+      return Optional.of(REQUEST_RECEIVED);
     }
 
     return Optional.empty();
@@ -209,6 +214,8 @@ public class WorkflowEventToCamundaEvent {
     } else if (event.getSource() instanceof V4ConnectionAccepted) {
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_ACCEPTED)
           .setVariables(processVariables).send();
+    } else if (event.getSource() instanceof RequestReceivedEvent) {
+      requestReceivedToRequest((RequestReceivedEvent) event.getSource(), processVariables);
     }
   }
 
@@ -227,6 +234,14 @@ public class WorkflowEventToCamundaEvent {
             implEvent.getFormMessageId())
         .setVariables(processVariables)
         .correlateAll();
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private void requestReceivedToRequest(RequestReceivedEvent eventSource, Map<String, Object> processVariables) {
+    Map<String, Object> args = eventSource.getBodyArguments();
+    ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+    runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.REQUEST_RECEIVED)
+        .setVariables(processVariables).send();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})

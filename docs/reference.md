@@ -594,6 +594,52 @@ Examples:
 - _R/PT10S_ to repeat an activity every 10 seconds
 - _R/1970-01-01T00:00:00Z/P1D_ to repeat every day at midnight
 
+### request-received
+
+Generated when an HTTP request is received in order to trigger a workflow. The workflow bot exposes an API that can be
+called by external users to manually trigger a workflow execution. This event can only be used on the first activity of
+a workflow.
+
+Key | Type | Required |
+------------ | -------| --- | 
+[token](#token) | String | Yes |
+
+Example:
+
+```yaml
+id: myWorkflow
+activities:
+  - send-message:
+      id: sendMsg
+      on:
+        request-received:
+          token: myToken
+      to:
+        stream-id: A_STREAM
+      content: ${event.args.content}
+```
+
+The workflow above is triggered when an HTTP request is sent to the bot. Arguments can be passed along the request and
+retrieved in the `${event.args}` variable. For instance:
+
+```
+curl --request POST 'http://127.0.0.1:8080/wdk/v1/workflows/myWorkflow/execute' \
+--header 'X-Workflow-Token: myToken' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "args": {
+    "content": "Hola from api"
+  }
+}
+'
+```
+
+#### token
+
+Token to authorize incoming HTTP requests. This token should be passed when calling the HTTP API to trigger the workflow
+in the `X-Workflow-Token` header. This is a shared secret between the workflow writer and the users that can trigger the
+workflow via API.
+
 ## <a name="built-in-activities"></a>Built-in activities
 
 Below are all the supported activities that can be listed under the `activities`

@@ -38,7 +38,7 @@ class WorkflowFolderWatcherTest {
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
 
-    verify(engine, timeout(5_000)).execute(any());
+    verify(engine, timeout(5_000)).deploy(any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -52,7 +52,7 @@ class WorkflowFolderWatcherTest {
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     copyWorkflow();
 
-    verify(engine, timeout(10_000)).execute(any());
+    verify(engine, timeout(10_000)).deploy(any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -65,10 +65,10 @@ class WorkflowFolderWatcherTest {
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).execute(any());
+    verify(engine, timeout(5_000)).deploy(any());
 
     FileUtils.forceDelete(new File(workflowsFolder, "workflow.swadl.yaml"));
-    verify(engine, timeout(10_000)).stop(any());
+    verify(engine, timeout(10_000)).undeploy(any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -81,11 +81,11 @@ class WorkflowFolderWatcherTest {
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).execute(any());
+    verify(engine, timeout(5_000)).deploy(any());
 
     copyWorkflow();
-    verify(engine, timeout(10_000)).stop(any());
-    verify(engine, timeout(10_000).times(2)).execute(any());
+    verify(engine, timeout(10_000)).undeploy(any());
+    verify(engine, timeout(10_000).times(2)).deploy(any());
 
     watcher.stopMonitoring();
     watcherThread.join();

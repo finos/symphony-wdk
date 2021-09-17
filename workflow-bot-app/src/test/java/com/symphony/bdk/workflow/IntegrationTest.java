@@ -122,7 +122,7 @@ public abstract class IntegrationTest {
   void removeAllWorkflows() throws InterruptedException {
     for (int i = 0; i < 5; i++) {
       try {
-        engine.stopAll();
+        engine.undeployAll();
         return;
       } catch (Exception e) {
         // this might fail if processes are running at the same time, wait a bit a retry one more time

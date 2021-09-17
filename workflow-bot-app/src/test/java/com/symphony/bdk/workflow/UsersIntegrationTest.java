@@ -33,7 +33,7 @@ class UsersIntegrationTest extends IntegrationTest {
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/create-user"));
 
     ArgumentCaptor<V2UserCreate> userCreate = ArgumentCaptor.forClass(V2UserCreate.class);
@@ -59,7 +59,7 @@ class UsersIntegrationTest extends IntegrationTest {
     when(userService.create(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/create-user"));
 
     ArgumentCaptor<V2UserCreate> userCreate = ArgumentCaptor.forClass(V2UserCreate.class);
@@ -80,7 +80,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
     ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
@@ -105,7 +105,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user-contact"));
 
     ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
@@ -128,7 +128,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user-business"));
 
     ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
@@ -169,7 +169,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail().userSystemInfo(new UserSystemInfo()));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
     ArgumentCaptor<V2UserAttributes> userUpdate = ArgumentCaptor.forClass(V2UserAttributes.class);
@@ -189,7 +189,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000)).updateStatus(any(), any());
@@ -203,7 +203,7 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/user/add-user-role.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000).times(2)).addRole(any(), any());
@@ -215,7 +215,7 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/user/remove-user-role.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-user"));
 
     verify(userService, timeout(5000).times(2)).removeRole(any(), any());
@@ -228,7 +228,7 @@ class UsersIntegrationTest extends IntegrationTest {
 
     when(userService.getUserDetail(any())).thenReturn(new V2UserDetail());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-user"));
 
     verify(userService, timeout(5000)).getUserDetail(123L);
@@ -240,7 +240,7 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-ids.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByIds(List.of(123L, 456L), true, false);
@@ -252,7 +252,7 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-emails.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByEmails(List.of("bob@mail.com", "eve@mail.com"), true, false);
@@ -264,7 +264,7 @@ class UsersIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/user/get-users-usernames.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-users"));
 
     verify(userService, timeout(5000)).listUsersByUsernames(List.of("bob", "eve"), false);

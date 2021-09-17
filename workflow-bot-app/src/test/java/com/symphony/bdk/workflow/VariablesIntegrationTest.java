@@ -29,7 +29,7 @@ class VariablesIntegrationTest extends IntegrationTest {
     final String content = "<messageML>Have a nice day !</messageML>\n";
 
     when(messageService.send("1234", content)).thenReturn(message);
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -44,7 +44,7 @@ class VariablesIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/typed-variables.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/typed"));
     String processId = lastProcess().get();
 

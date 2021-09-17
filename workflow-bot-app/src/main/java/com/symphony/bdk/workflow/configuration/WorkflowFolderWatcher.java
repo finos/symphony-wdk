@@ -136,13 +136,13 @@ public class WorkflowFolderWatcher {
 
   private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
-    workflowEngine.execute(workflow);
+    workflowEngine.deploy(workflow);
     deployedWorkflows.put(workflowFile, workflow.getId());
   }
 
   private void removeWorkflow(Path workflowFile) {
     if (deployedWorkflows.containsKey(workflowFile)) {
-      workflowEngine.stop(deployedWorkflows.get(workflowFile));
+      workflowEngine.undeploy(deployedWorkflows.get(workflowFile));
     }
     deployedWorkflows.remove(workflowFile);
   }

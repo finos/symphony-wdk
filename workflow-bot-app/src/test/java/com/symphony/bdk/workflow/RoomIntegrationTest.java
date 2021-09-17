@@ -46,7 +46,7 @@ class RoomIntegrationTest extends IntegrationTest {
     stream.setId("0000");
     when(streamService.create(uids)).thenReturn(stream);
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/create-mim"));
     verify(streamService, timeout(5000)).create(uids);
   }
@@ -76,7 +76,7 @@ class RoomIntegrationTest extends IntegrationTest {
             crossPod, copyProtected, multilateralRoom, subType, keywords);
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(IntegrationTest.messageReceived("/create-room"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
@@ -106,7 +106,7 @@ class RoomIntegrationTest extends IntegrationTest {
             null);
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(IntegrationTest.messageReceived("/create-room-members"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
@@ -190,7 +190,7 @@ class RoomIntegrationTest extends IntegrationTest {
     roomDetail.setRoomSystemInfo(info);
     when(streamService.getRoomInfo("abc")).thenReturn(roomDetail);
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-room"));
 
     ArgumentCaptor<V3RoomAttributes> attributes = ArgumentCaptor.forClass(V3RoomAttributes.class);
@@ -215,7 +215,7 @@ class RoomIntegrationTest extends IntegrationTest {
     roomDetail.setRoomSystemInfo(info);
     when(streamService.getRoomInfo("abc")).thenReturn(roomDetail);
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-room"));
 
     verify(streamService, timeout(5000)).setRoomActive("abc", true);
@@ -226,7 +226,7 @@ class RoomIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/add-room-member.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/add-room-member"));
 
     verify(streamService, timeout(5000)).addMemberToRoom(123L, "abc");
@@ -238,7 +238,7 @@ class RoomIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/remove-room-member.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/remove-room-member"));
 
     verify(streamService, timeout(5000)).removeMemberFromRoom(123L, "abc");
@@ -250,7 +250,7 @@ class RoomIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/promote-room-owner.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/promote-room-owner"));
 
     verify(streamService, timeout(5000)).promoteUserToRoomOwner(123L, "abc");
@@ -262,7 +262,7 @@ class RoomIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/demote-room-owner.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/demote-room-owner"));
 
     verify(streamService, timeout(5000)).demoteUserToRoomParticipant(123L, "abc");
@@ -274,7 +274,7 @@ class RoomIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/room/get-room.swadl.yaml"));
     when(streamService.getRoomInfo("abc")).thenReturn(new V3RoomDetail());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-room"));
 
     verify(streamService, timeout(5000)).getRoomInfo("abc");
@@ -287,7 +287,7 @@ class RoomIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/get-room-members.swadl.yaml"));
     when(streamService.listRoomMembers("abc")).thenReturn(Collections.emptyList());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-room-members"));
 
     verify(streamService, timeout(5000)).listRoomMembers("abc");
@@ -306,7 +306,7 @@ class RoomIntegrationTest extends IntegrationTest {
         .sortOrder(V2RoomSearchCriteria.SortOrderEnum.BASIC);
     when(streamService.searchRooms(refEq(query))).thenReturn(new V3RoomSearchResults());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-rooms"));
 
     verify(streamService, timeout(5000)).searchRooms(refEq(query));
@@ -326,7 +326,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(streamService.searchRooms(refEq(query), refEq(new PaginationAttribute(10, 10))))
         .thenReturn(new V3RoomSearchResults());
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-rooms-pagination"));
 
     verify(streamService, timeout(5000)).searchRooms(refEq(query), refEq(new PaginationAttribute(10, 10)));

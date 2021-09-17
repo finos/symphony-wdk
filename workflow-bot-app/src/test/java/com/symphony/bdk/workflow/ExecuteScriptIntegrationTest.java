@@ -17,7 +17,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/execute-script.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");
@@ -28,7 +28,7 @@ class ExecuteScriptIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/execute-script-sets-variable.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/execute"));
 
     verify(messageService, timeout(5000)).send("123", "bar");

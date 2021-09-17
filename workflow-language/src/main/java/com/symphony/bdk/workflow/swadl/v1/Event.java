@@ -9,6 +9,7 @@ import com.symphony.bdk.workflow.swadl.v1.event.ImCreatedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.MessageReceivedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.MessageSuppressedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.PostSharedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RoomCreatedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RoomDeactivatedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RoomMemberPromotedToOwnerEvent;
@@ -68,4 +69,6 @@ public class Event {
   private ConnectionAcceptedEvent connectionAccepted;
 
   private TimerFiredEvent timerFired;
+
+  private RequestReceivedEvent requestReceived;
 }

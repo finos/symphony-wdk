@@ -49,20 +49,24 @@ The logging levels can be interesting to tune for troubleshooting:
 - `logging.level.com.symphony` by default set to DEBUG
 - `logging.level.org.camunda` by default set to WARN
 
-Monitoring can be disabled too via properties, by default it is enabled on port 8080 and endpoints are accessible to
+The bot is listening on port 8080 by default to receive requests to trigger workflows. Exposing such service can be
+disabled with:
+
+- `spring.main.web-application-type` can be set to _none_ to prevent the bot from listening on any port
+
+Monitoring can be disabled too via properties, by default it is enabled on port 8081 and endpoints are accessible to
 retrieve metrics.
 
-- `spring.main.web-application-type` can be set to _none_ to prevent the bot from listening on a port
 - `management.endpoints.web.exposure` can be used to control which endpoints to expose
 
 ## Monitoring
 
-By default, metrics are available on port 8080 under the `/actuator` path.
+By default, metrics are available on port 8081 under the `/actuator` path.
 
 For instance:
 
-- http://127.0.0.1:8080/actuator/metrics to list the available metrics
-- http://127.0.0.1:8080/actuator/prometheus for metrics that can be used Prometheus
+- http://127.0.0.1:8081/actuator/metrics to list the available metrics
+- http://127.0.0.1:8081/actuator/prometheus for metrics that can be used Prometheus
 
 Workflow specific metrics are exposed, to get basic statistics on the number of deployed or running workflows,
 including:

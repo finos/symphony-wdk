@@ -26,7 +26,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     // set workflow to execute once in the future
     Instant future = Instant.now().plus(1, ChronoUnit.SECONDS);
     workflow.getFirstActivity().get().getEvent().get().getTimerFired().setAt(future.toString());
-    engine.execute(workflow);
+    engine.deploy(workflow);
 
     // wait for execution
     verify(messageService, timeout(5000)).send(eq("abc"), content("Ok"));
@@ -37,7 +37,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
 
     // wait for multiple executions
     verify(messageService, timeout(5000).times(2)).send(eq("abc"), content("Ok"));
@@ -48,7 +48,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-intermediate.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/execute"));
 
     verify(messageService, timeout(5000)).send(eq("abc"), content("start"));
@@ -61,7 +61,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-mixed.swadl.yaml"));
 
-    engine.execute(workflow);
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/execute"));
 
     // wait for multiple executions: 1 with message, 2 by timer
