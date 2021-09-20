@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class RequestReceivedDto {
+public class WorkflowExecutionRequest {
   private Map<String, Object> args;
 }

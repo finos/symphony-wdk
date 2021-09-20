@@ -48,7 +48,7 @@ public class CamundaEngine implements WorkflowEngine {
       workflow.setId("workflow_" + UUID.randomUUID());
     }
     Deployment deployment = bpmnBuilder.addWorkflow(workflow);
-    log.info("Deployed workflow {}", deployment.getId());
+    log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);
   }
 

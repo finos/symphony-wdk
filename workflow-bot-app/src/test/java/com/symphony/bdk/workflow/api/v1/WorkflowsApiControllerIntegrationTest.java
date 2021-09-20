@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -81,14 +82,12 @@ class WorkflowsApiControllerIntegrationTest {
     doThrow(new IllegalArgumentException("No workflow found with id wfId")).when(workflowEngine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
-    MvcResult mvcResult = mockMvc.perform(request(HttpMethod.POST, PATH)
+    mockMvc.perform(request(HttpMethod.POST, PATH)
             .header("X-Workflow-Token", "myToken")
             .contentType("application/json")
             .content("{\"args\": {\"content\":\"hello\"}}"))
         .andExpect(status().isNotFound())
-        .andReturn();
-
-    assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("No workflow found with id wfId");
+        .andExpect(jsonPath("$.message").value("No workflow found with id wfId"));
   }
 
   @Test
@@ -96,13 +95,11 @@ class WorkflowsApiControllerIntegrationTest {
     doThrow(new UnauthorizedException("Token is not valid")).when(workflowEngine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
-    MvcResult mvcResult = mockMvc.perform(request(HttpMethod.POST, PATH)
+    mockMvc.perform(request(HttpMethod.POST, PATH)
             .header("X-Workflow-Token", "myToken")
             .contentType("application/json")
             .content("{\"args\": {\"content\":\"hello\"}}"))
         .andExpect(status().isUnauthorized())
-        .andReturn();
-
-    assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("Token is not valid");
+        .andExpect(jsonPath("$.message").value("Token is not valid"));
   }
 }
