@@ -1406,7 +1406,7 @@
                             "enum": [
                                 "${variables.VARIABLE_NAME}",
                                 "${text(ACTIVITY_ID.outputs.message.message)}",
-                                "${event.args.content}",
+                                "${event.args.NAME}",
                                 "<mention uid='${ACTIVITY_ID.outputs.user.userSystemInfo.id}'/>",
                                 "<mention uid='${event.initiator.user.userId}'/>"
                             ]
@@ -2622,19 +2622,12 @@
         },
         "user-ids-inner": {
             "description": "User identifiers list.",
-            "anyOf": [
-                {
-                    "enum": []
-                },
-                {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user-id"
-                    },
-                    "minLength": 1,
-                    "uniqueItems": true
-                }
-            ]
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/user-id"
+            },
+            "minLength": 1,
+            "uniqueItems": true
         },
         "user-ids": {
             "type": "object",
