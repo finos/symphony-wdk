@@ -1,0 +1,53 @@
+{
+    "info": {
+        "_postman_id": "beb319e6-ddd2-411c-b03c-7128d85315c4",
+        "name": "Workflow Bot",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Workflow execution endpoint",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "X-Workflow-Token",
+                        "value": "myToken",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"args\": {\n    \"content\": \"This is a message content\",\n    \"streamId\": \"zWHIGfp556G72HI-AmQmUX7-zzA\"\n  }\n}\n",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/execute",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "wdk",
+                        "v1",
+                        "workflows",
+                        ":workflowId",
+                        "execute"
+                    ],
+                    "variable": [
+                        {
+                            "key": "workflowId",
+                            "value": "workflowId"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}
