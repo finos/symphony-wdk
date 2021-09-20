@@ -47,6 +47,25 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void listConnectionsNoParam() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/connection/get-connections-no-params.swadl.yaml"));
+
+    final List<UserConnection> userConnections = Arrays.asList(connection(666L, UserConnection.StatusEnum.ACCEPTED),
+        connection(777L, UserConnection.StatusEnum.ACCEPTED));
+
+    when(connectionService.listConnections(null, null)).thenReturn(userConnections);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/get-connections-no-params"));
+
+    verify(connectionService, timeout(5000)).listConnections(null, null);
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_CONNECTIONS_KEY, "getConnections"), userConnections);
+  }
+
+  @Test
   @DisplayName("Given a connection with a user, when the workflow is triggered, then the connection is returned")
   void getConnectionStatus() throws IOException, ProcessingException {
     final Workflow workflow =
