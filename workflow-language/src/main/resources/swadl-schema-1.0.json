@@ -2787,11 +2787,7 @@
                         "ALL"
                     ]
                 }
-            },
-            "required": [
-                "user-ids",
-                "status"
-            ]
+            }
         },
         "to": {
             "type": "object",

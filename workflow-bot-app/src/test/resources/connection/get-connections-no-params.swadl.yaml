@@ -1,0 +1,7 @@
+id: get-connections-no-params
+activities:
+  - get-connections:
+      id: getConnections
+      on:
+        message-received:
+          content: /get-connections-no-params
