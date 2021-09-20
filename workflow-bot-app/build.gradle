@@ -5,7 +5,6 @@ plugins {
 
 dependencies {
     implementation project(':workflow-language')
-    implementation project(':custom-activity-example')
 
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.2.1')
 
