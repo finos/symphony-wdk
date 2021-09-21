@@ -2535,6 +2535,9 @@
                     "$ref": "#/definitions/stream-id"
                 },
                 {
+                    "$ref": "#/definitions/stream-ids"
+                },
+                {
                     "$ref": "#/definitions/user-ids"
                 }
             ]
@@ -2610,7 +2613,7 @@
         },
         "stream-id": {
             "type": "object",
-            "description": "Stream id to sent the message to",
+            "description": "Stream id to sent the message to.",
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
@@ -2618,6 +2621,23 @@
             },
             "required": [
                 "stream-id"
+            ]
+        },
+        "stream-ids": {
+            "type": "object",
+            "description": "Stream ids to sent the message to (blast message).",
+            "properties": {
+                "stream-ids": {
+                    "type": "array",
+                    "minLength": 1,
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                }
+            },
+            "required": [
+                "stream-ids"
             ]
         },
         "user-ids-inner": {

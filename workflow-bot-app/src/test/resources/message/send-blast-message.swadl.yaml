@@ -1,0 +1,12 @@
+id: send-blast-message
+activities:
+  - send-message:
+      id: sendMessageWithUserIds
+      on:
+        message-received:
+          content: /send-blast
+      to:
+        stream-ids:
+          - ABC
+          - DEF
+      content: "<messageML>hello</messageML>"

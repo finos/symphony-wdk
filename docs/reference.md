@@ -683,9 +683,10 @@ user easy.
 Key | Type | Required |
 ------------ | -------| --- | 
 [stream-id](#stream-id) | String | Yes |
+[stream-ids](#stream-ids) | String | Yes |
 [user-ids](#user-ids) | Map | Yes |
 
-_If `to` is used then one of the key `stream-id` or `user-ids` must be set._
+_If `to` is used then one of the key `stream-id` or `stream-ids` or `user-ids` must be set._
 
 Example:
 
@@ -703,6 +704,10 @@ activities:
 ##### stream-id
 
 Stream id to send the message to. Both url safe and base64 encoded urls are accepted.
+
+##### stream-ids
+
+Stream ids to send the blast message to. Both url safe and base64 encoded urls are accepted.
 
 ##### user-ids
 
