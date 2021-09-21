@@ -4,6 +4,7 @@ import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -34,8 +35,12 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 class EventTypesIntegrationTest extends IntegrationTest {
 
@@ -48,6 +53,42 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("123", "/execute"));
 
     verify(messageService, timeout(5000)).send(eq("123"), content("/execute"));
+  }
+
+  static Stream<Arguments> eventsStream() {
+    return Stream.of(
+        arguments(connectionAccepted()),
+        arguments(messageReceived("123", "/message")),
+        arguments(connectionRequested()),
+        arguments(imCreatedEvent()),
+        arguments(postSharedEvent()),
+        arguments(requestReceivedEvent("token")),
+        arguments(roomCreatedEvent()),
+        arguments(roomDeactivated()),
+        arguments(roomMemberDemotedFromOwner()),
+        arguments(roomMemberPromotedToOwner()),
+        arguments(roomReactivated()),
+        arguments(roomUpdated()),
+        arguments(userJoinedRoom()),
+        arguments(userLeftRoom()),
+        arguments(userRequestedToJoinRoom()),
+        arguments(messageSuppressed("123")),
+        arguments(activityExpired("ac1")),
+        arguments(activityCompleted("ac1"))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("eventsStream")
+  void oneOfTest(RealTimeEvent<?> event) throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/types/one-of-events.swadl.yaml"));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(event);
+
+    verify(messageService, timeout(5000)).send(eq("123"), content("content"));
   }
 
   @Test
@@ -306,7 +347,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     return new RealTimeEvent<>(initiator(), event);
   }
 
-  private RealTimeEvent<V4MessageSuppressed> messageSuppressed(String messageId) {
+  private static RealTimeEvent<V4MessageSuppressed> messageSuppressed(String messageId) {
     V4MessageSuppressed event = new V4MessageSuppressed();
     event.setMessageId(messageId);
     return new RealTimeEvent<>(initiator(), event);
@@ -368,7 +409,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     return new RealTimeEvent<>(initiator(), event);
   }
 
-  private V4Initiator initiator() {
+  private static V4Initiator initiator() {
     V4Initiator initiator = new V4Initiator();
     V4User user = new V4User();
     user.setUserId(123L);

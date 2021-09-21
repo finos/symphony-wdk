@@ -1,0 +1,35 @@
+id: on-message-received
+activities:
+  - send-message:
+      id: echo
+      on:
+        one-of:
+          - message-received:
+              content: /message
+          - message-suppressed: {}
+          - activity-expired:
+              activity-id: ac1
+          - connection-accepted: {}
+          - connection-requested: {}
+          - im-created: {}
+          - post-shared: {}
+          - request-received:
+              token: token
+          - room-created: {}
+          - room-deactivated: {}
+          - room-member-demoted-from-owner: {}
+          - room-member-promoted-to-owner: {}
+          - room-reactivated: {}
+          - room-updated: {}
+          - user-joined-room: {}
+          - user-left-room: {}
+          - user-requested-join-room: {}
+          - activity-completed:
+              activity-id: ac1
+      content:
+        "content"
+      to:
+        stream-id: "123"
+  - execute-script:
+      id: ac1
+      script: |

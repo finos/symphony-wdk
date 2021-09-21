@@ -129,9 +129,11 @@ public class CamundaBpmnBuilder {
 
       // process events starting the activity
       if (onFormRepliedEvent(activity) && activity.getOn() != null) {
-        checkParentIsKnown(parentActivities, workflow.getId(), activity.getId(),
-            activity.getOn().getFormReplied().getFormId());
-        builder = formReply(builder, activity, formExpirations);
+        Optional<String> formId = extractFormId(activity);
+        if (formId.isPresent()) { // should be always present as onFormRepliedEvent ensures it
+          checkParentIsKnown(parentActivities, workflow.getId(), activity.getId(), formId.get());
+          builder = formReply(builder, activity, formExpirations);
+        }
       }
 
       if (onActivityExpired(activity) && activity.getOn() != null) {
@@ -393,7 +395,7 @@ public class CamundaBpmnBuilder {
   }
 
   private static boolean onFormRepliedEvent(BaseActivity baseActivity) {
-    return baseActivity.getOn() != null && baseActivity.getOn().getFormReplied() != null;
+    return extractFormId(baseActivity).isPresent();
   }
 
   private static boolean onActivityExpired(BaseActivity activity) {
@@ -410,7 +412,9 @@ public class CamundaBpmnBuilder {
       Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies) {
     SubProcessBuilder subProcess = builder.subProcess();
 
-    if (activity.getOn() != null) {
+    Optional<String> formId = extractFormId(activity);
+
+    if (activity.getOn() != null && formId.isPresent()) {
       AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
           .startEvent()
           .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
@@ -421,10 +425,27 @@ public class CamundaBpmnBuilder {
           .startEvent()
           .camundaAsyncBefore()
           .interrupting(false) // run multiple instances of the sub process (i.e. multiple replies)
-          .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
+          .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + formId.get())
           .name("formReply");
     }
     return builder;
+  }
+
+  private static Optional<String> extractFormId(BaseActivity activity) {
+    Optional<String> parentId = Optional.empty();
+
+    if (activity.getOn() != null && activity.getOn().getFormReplied() != null) {
+      parentId = Optional.of(activity.getOn().getFormReplied().getFormId());
+    } else if (activity.getOn() != null && activity.getOn().getOneOf() != null) {
+      parentId = activity.getOn()
+          .getOneOf()
+          .stream()
+          .filter(event -> event.getFormReplied() != null)
+          .map(event -> event.getFormReplied().getFormId())
+          .findFirst();
+    }
+
+    return parentId;
   }
 
   private AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)

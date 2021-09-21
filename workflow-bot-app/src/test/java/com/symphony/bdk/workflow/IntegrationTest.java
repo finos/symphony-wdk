@@ -29,6 +29,22 @@ import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityExpiredEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ConnectionAcceptedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ConnectionRequestedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ImCreatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.PostSharedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomCreatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomDeactivatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomMemberDemotedFromOwnerEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomMemberPromotedToOwnerEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomReactivatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomUpdatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.UserLeftRoomEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.UserRequestedToJoinRoomEvent;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.camunda.bpm.engine.HistoryService;
@@ -129,6 +145,76 @@ public abstract class IntegrationTest {
         Thread.sleep(100); // NOSONAR
       }
     }
+  }
+
+  public static RealTimeEvent<ActivityExpiredEvent> activityExpired(String activityId) {
+    ActivityExpiredEvent activityExpiredEvent = new ActivityExpiredEvent();
+    activityExpiredEvent.setActivityId(activityId);
+    return new RealTimeEvent<>(null, activityExpiredEvent);
+  }
+
+  public static RealTimeEvent<ConnectionAcceptedEvent> connectionAccepted() {
+    return new RealTimeEvent<>(null, new ConnectionAcceptedEvent());
+  }
+
+  public static RealTimeEvent<ConnectionRequestedEvent> connectionRequested() {
+    return new RealTimeEvent<>(null, new ConnectionRequestedEvent());
+  }
+
+  public static RealTimeEvent<ImCreatedEvent> imCreatedEvent() {
+    return new RealTimeEvent<>(null, new ImCreatedEvent());
+  }
+
+  public static RealTimeEvent<PostSharedEvent> postSharedEvent() {
+    return new RealTimeEvent<>(null, new PostSharedEvent());
+  }
+
+  public static RealTimeEvent<RequestReceivedEvent> requestReceivedEvent(String token) {
+    RequestReceivedEvent requestReceivedEvent = new RequestReceivedEvent();
+    requestReceivedEvent.setToken(token);
+    return new RealTimeEvent<>(null, requestReceivedEvent);
+  }
+
+  public static RealTimeEvent<RoomCreatedEvent> roomCreatedEvent() {
+    return new RealTimeEvent<>(null, new RoomCreatedEvent());
+  }
+
+  public static RealTimeEvent<RoomDeactivatedEvent> roomDeactivated() {
+    return new RealTimeEvent<>(null, new RoomDeactivatedEvent());
+  }
+
+  public static RealTimeEvent<RoomReactivatedEvent> roomReactivated() {
+    return new RealTimeEvent<>(null, new RoomReactivatedEvent());
+  }
+
+  public static RealTimeEvent<RoomUpdatedEvent> roomUpdated() {
+    return new RealTimeEvent<>(null, new RoomUpdatedEvent());
+  }
+
+  public static RealTimeEvent<RoomMemberDemotedFromOwnerEvent> roomMemberDemotedFromOwner() {
+    return new RealTimeEvent<>(null, new RoomMemberDemotedFromOwnerEvent());
+  }
+
+  public static RealTimeEvent<RoomMemberPromotedToOwnerEvent> roomMemberPromotedToOwner() {
+    return new RealTimeEvent<>(null, new RoomMemberPromotedToOwnerEvent());
+  }
+
+  public static RealTimeEvent<UserJoinedRoomEvent> userJoinedRoom() {
+    return new RealTimeEvent<>(null, new UserJoinedRoomEvent());
+  }
+
+  public static RealTimeEvent<UserLeftRoomEvent> userLeftRoom() {
+    return new RealTimeEvent<>(null, new UserLeftRoomEvent());
+  }
+
+  public static RealTimeEvent<UserRequestedToJoinRoomEvent> userRequestedToJoinRoom() {
+    return new RealTimeEvent<>(null, new UserRequestedToJoinRoomEvent());
+  }
+
+  public static RealTimeEvent<ActivityCompletedEvent> activityCompleted(String activityId) {
+    ActivityCompletedEvent activityCompletedEvent = new ActivityCompletedEvent();
+    activityCompletedEvent.setActivityId(activityId);
+    return new RealTimeEvent<>(null, activityCompletedEvent);
   }
 
   public static RealTimeEvent<V4MessageSent> messageReceived(String streamId, String content) {
