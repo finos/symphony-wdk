@@ -14,9 +14,11 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.ExecuteScript;
 import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityFailedEvent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
@@ -24,6 +26,7 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.builder.AbstractActivityBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
@@ -134,6 +137,21 @@ public class CamundaBpmnBuilder {
         builder = formReply(builder, activity, formExpirations);
       }
 
+      // activity-failed events are handled as boundary error events
+      ActivityFailedEvent firstOnActivityFailedEvent = firstOnActivityFailedEvent(activity);
+      if (firstOnActivityFailedEvent != null) {
+        AbstractFlowNodeBuilder<?, ?> failedActivity = builder.moveToNode(firstOnActivityFailedEvent.getActivityId());
+        if (failedActivity instanceof AbstractActivityBuilder) {
+          builder = ((AbstractActivityBuilder<?, ?>) failedActivity).boundaryEvent()
+              .name("error_" + activity.getId())
+              .error();
+        } else {
+          throw new InvalidActivityException(workflow.getId(),
+              String.format("Could not find activity with id %s referenced by activity-failed event",
+                  firstOnActivityFailedEvent.getActivityId()));
+        }
+      }
+
       if (onActivityExpired(activity) && activity.getOn() != null) {
         // add the activity as a form expiration
         AbstractFlowNodeBuilder<?, ?> formExpirationBuilder =
@@ -215,6 +233,8 @@ public class CamundaBpmnBuilder {
           gateways.put(parentId, builder);
         }
 
+        connectAdditionalActivityFailedEvents(workflow, builder, activity);
+
         for (ActivityCompletedEvent activityCompletedEvent : activityCompletedEvents) {
           if (parentActivities.containsKey(activityCompletedEvent.getActivityId())) {
             builder.moveToNode(activityCompletedEvent.getActivityId()).connectTo(activity.getId());
@@ -239,12 +259,19 @@ public class CamundaBpmnBuilder {
 
       // do we need to create a flow for this activity?
       if (flowsToCreate.containsKey(activity.getId())) {
-        String loopId = "loop_" + activity.getId();
-        builder = builder.exclusiveGateway().id(loopId)
-            .condition("if",
-                flowsToCreate.get(activity.getId()).getRight().getActivityCompleted().getIfCondition())
-            .connectTo(flowsToCreate.get(activity.getId()).getLeft().getId())
-            .moveToNode(loopId);
+        Pair<BaseActivity, Event> flowToCreate = flowsToCreate.get(activity.getId());
+        if (StringUtils.isNotEmpty(flowToCreate.getRight().getActivityCompleted().getIfCondition())) {
+          // conditional flow with a gateway
+          String loopId = "loop_" + activity.getId();
+          builder = builder.exclusiveGateway().id(loopId);
+          builder = builder.condition("if",
+              flowToCreate.getRight().getActivityCompleted().getIfCondition());
+          builder = builder.connectTo(flowToCreate.getLeft().getId())
+              .moveToNode(loopId);
+        } else {
+          // straight flow to a given activity
+          builder.connectTo(flowToCreate.getLeft().getId());
+        }
         flowsToCreate.remove(activity.getId());
       }
 
@@ -261,7 +288,7 @@ public class CamundaBpmnBuilder {
       gatewayWithoutElse.moveToLastGateway().endEvent();
     }
 
-    // we have a flow/loop left open, without any default flow, set one
+    // we have a conditional flow/loop left open, without any default flow, set one
     if (builder instanceof ExclusiveGatewayBuilder) {
       builder = builder.endEvent();
     }
@@ -398,6 +425,56 @@ public class CamundaBpmnBuilder {
 
   private static boolean onActivityExpired(BaseActivity activity) {
     return activity.getOn() != null && activity.getOn().getActivityExpired() != null;
+  }
+
+  private static ActivityFailedEvent firstOnActivityFailedEvent(BaseActivity activity) {
+    if (activity.getOn() != null) {
+      if (activity.getOn().getActivityFailed() != null
+          && activity.getOn().getActivityFailed().getActivityId() != null) {
+        return activity.getOn().getActivityFailed();
+      } else if (activity.getOn().getOneOf() != null) {
+        return activity.getOn().getOneOf().stream()
+            .filter(e -> e.getActivityFailed() != null)
+            .findFirst()
+            .map(Event::getActivityFailed)
+            .orElse(null);
+      }
+    }
+    return null;
+  }
+
+  private static List<ActivityFailedEvent> otherOnActivityFailedEvents(BaseActivity activity) {
+    if (activity.getOn() != null && activity.getOn().getOneOf() != null) {
+      List<ActivityFailedEvent> failedEvents = activity.getOn().getOneOf().stream()
+          .map(Event::getActivityFailed)
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList());
+
+      if (!failedEvents.isEmpty()) {
+        // skip the first one it has already been handled
+        failedEvents.remove(0);
+      }
+      return failedEvents;
+    }
+    return Collections.emptyList();
+  }
+
+  private void connectAdditionalActivityFailedEvents(Workflow workflow, AbstractFlowNodeBuilder<?, ?> builder,
+      BaseActivity activity) {
+    List<ActivityFailedEvent> otherActivityFailedEvents = otherOnActivityFailedEvents(activity);
+    for (ActivityFailedEvent failedEvent : otherActivityFailedEvents) {
+      AbstractFlowNodeBuilder<?, ?> failedActivity = builder.moveToNode(failedEvent.getActivityId());
+      if (failedActivity instanceof AbstractActivityBuilder) {
+        ((AbstractActivityBuilder<?, ?>) failedActivity).boundaryEvent()
+            .name("error_" + activity.getId())
+            .error()
+            .connectTo(activity.getId());
+      } else {
+        throw new InvalidActivityException(workflow.getId(),
+            String.format("Could not find activity with id %s referenced by activity-failed event",
+                failedEvent.getActivityId()));
+      }
+    }
   }
 
   /*

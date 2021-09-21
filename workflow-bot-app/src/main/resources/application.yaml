@@ -23,6 +23,8 @@ camunda:
       properties:
         # Avoid requests to the outside world
         telemetryReporterActivate: false
+    # Upon failures, do not retry, this is left to the workflow's developer to control
+    default-number-of-retries: 1
 
 # Spring boot configuration
 spring:
