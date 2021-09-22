@@ -10,28 +10,28 @@ It can be installed with:
 npm install -g yo generator-symphony
 ```
 
-Then in an empty folder, run the `yo symphony 2.0` command.
+Then in an empty folder, run the `yo symphony` command.
 
 You will be guided as shown below to configure your bot. Make sure to select _Workflow Application_.
 
 ```
-~/dist $ yo symphony 2.0
+~/dist $ yo symphony
  __   __     ___                 _
  \ \ / /__  / __|_  _ _ __  _ __| |_  ___ _ _ _  _
   \ V / _ \ \__ \ || | '  \| '_ \ ' \/ _ \ ' \ || |
    |_|\___/ |___/\_, |_|_|_| .__/_||_\___/_||_\_, |
-                 |__/      |_|                |__/
-	https://developers.symphony.com
+                 |__/      |_|                |__/ 
+        https://developers.symphony.com
 
-Welcome to Symphony Generator v1.7.0
-Application files will be generated in folder: ~/dist
+Welcome to Symphony Generator v2.1.0
+Application files will be generated in folder: dist
 ______________________________________________________________________________________________________
 ? Enter your pod host acme.symphony.com
 ? Enter your bot username my-bot
-? Select your type of application
-  Bot Application
-  Extension App Application
-❯ Workflow Application
+? Select your type of application 
+  Bot Application 
+  Extension App Application 
+❯ Workflow Application (WDK) 
 ```
 
 The generator creates for you the configuration file of the bot, along with its credentials. As the workflow bot is made
@@ -53,6 +53,7 @@ docker run -ti workflow-bot
 The generated workflow bot comes with a sample workflow:
 
 ```yaml
+id: ping-pong-workflow
 activities:
   - send-message:
       id: pingPong
