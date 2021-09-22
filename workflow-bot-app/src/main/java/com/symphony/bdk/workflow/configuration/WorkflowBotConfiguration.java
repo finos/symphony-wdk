@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.configuration;
 
+import com.symphony.bdk.workflow.engine.ResourceFolderProvider;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,5 +19,11 @@ public class WorkflowBotConfiguration {
   public ResourceProvider workflowResourcesProvider(@Value("${workflows.folder}") String resourcesFolder) {
     // ./workflows folder is used both to load workflows and local resources
     return path -> new FileInputStream(StringUtils.appendIfMissing(resourcesFolder, "/") + path);
+  }
+
+  @Bean("workflowResourcesFolderProvider")
+  public ResourceFolderProvider workflowResourcesFolderProvider(@Value("${workflows.folder}") String resourcesFolder) {
+    // ./workflows folder is used both to load workflows and local resources
+    return () -> StringUtils.appendIfMissing(resourcesFolder, "/");
   }
 }

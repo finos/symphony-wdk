@@ -26,13 +26,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 class SendMessageIntegrationTest extends IntegrationTest {
 
@@ -298,8 +296,4 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(messageSent.getAttachments().size()).as("The sent message has 2 attachments").isEqualTo(2);
   }
 
-  private static byte[] mockBase64ByteArray() {
-    String randomString = UUID.randomUUID().toString();
-    return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
-  }
 }

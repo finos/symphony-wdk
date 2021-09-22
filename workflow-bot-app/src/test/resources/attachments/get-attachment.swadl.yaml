@@ -1,0 +1,9 @@
+id: get-attachment-workflow
+activities:
+  - get-attachment:
+      id: getattachment
+      message-id: "MSG_ID"
+      attachment-id: "ATTACHMENT_ID"
+      on:
+        message-received:
+          content: /get-attachment

@@ -42,9 +42,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -250,5 +253,9 @@ public abstract class IntegrationTest {
     return Message.builder().content(content).attachments(attachments).build();
   }
 
+  protected static byte[] mockBase64ByteArray() {
+    String randomString = UUID.randomUUID().toString();
+    return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
+  }
 
 }

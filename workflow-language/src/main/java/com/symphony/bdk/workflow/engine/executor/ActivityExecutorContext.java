@@ -50,4 +50,6 @@ public interface ActivityExecutorContext<T> {
    * @return Resource file stored with the workflow.
    */
   InputStream getResource(String resourcePath) throws IOException;
+
+  String getResourcesFolder();
 }

@@ -806,6 +806,22 @@ message returned.
 
 Example: _2021-08-31T15:50:00Z_
 
+### get-attachment
+
+Downloads an attachment to file system and returns its path.
+
+Key | Type | Required |
+------------ | -------| --- |
+message-id | String | Yes |
+attachment-id | String | Yes |
+
+Output | Type |
+----|----|
+attachmentPath | String
+
+[API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs as the api response)
+
+
 ### create-room
 
 Creates a new chatroom.

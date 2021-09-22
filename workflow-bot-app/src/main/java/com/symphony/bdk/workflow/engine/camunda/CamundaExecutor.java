@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import com.symphony.bdk.workflow.engine.ResourceFolderProvider;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
@@ -52,12 +53,15 @@ public class CamundaExecutor implements JavaDelegate {
   private final BdkGateway bdk;
   private final AuditTrailLogger auditTrailLogger;
   private final ResourceProvider resourceLoader;
+  private final ResourceFolderProvider resourceFolderProvider;
 
   public CamundaExecutor(BdkGateway bdk, AuditTrailLogger auditTrailLogger,
-      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader) {
+      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader,
+      @Qualifier("workflowResourcesFolderProvider") ResourceFolderProvider resourceFolderProvider) {
     this.bdk = bdk;
     this.auditTrailLogger = auditTrailLogger;
     this.resourceLoader = resourceLoader;
+    this.resourceFolderProvider = resourceFolderProvider;
   }
 
   @Override
@@ -77,8 +81,8 @@ public class CamundaExecutor implements JavaDelegate {
     try {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
-      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event,
-          resourceLoader, bdk));
+      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader,
+          resourceFolderProvider, bdk));
     } finally {
       clearMdc();
     }
@@ -99,14 +103,16 @@ public class CamundaExecutor implements JavaDelegate {
     private final T activity;
     private final EventHolder<Object> event;
     private final ResourceProvider resourceLoader;
+    private final ResourceFolderProvider resourceFolderProvider;
     private final BdkGateway bdk;
 
     public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event,
-        ResourceProvider resourceLoader, BdkGateway bdk) {
+        ResourceProvider resourceLoader, ResourceFolderProvider resourceFolderProvider, BdkGateway bdk) {
       this.execution = execution;
       this.activity = activity;
       this.event = event;
       this.resourceLoader = resourceLoader;
+      this.resourceFolderProvider = resourceFolderProvider;
       this.bdk = bdk;
     }
 
@@ -152,6 +158,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public InputStream getResource(String resourcePath) throws IOException {
       return resourceLoader.getResource(resourcePath);
+    }
+
+    @Override
+    public String getResourcesFolder() {
+      return resourceFolderProvider.getResourcesFolder();
     }
   }
 }
