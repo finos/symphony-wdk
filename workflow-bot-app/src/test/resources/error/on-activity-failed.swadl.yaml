@@ -1,0 +1,18 @@
+id: on-activity-failed
+activities:
+  - send-message:
+      id: failing
+      on:
+        message-received:
+          content: /failure
+      to:
+        stream-id: STREAM
+      content: On success
+  - send-message:
+      id: fallback
+      on:
+        activity-failed:
+          activity-id: failing
+      to:
+        stream-id: STREAM
+      content: On failure

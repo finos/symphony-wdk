@@ -510,6 +510,9 @@
                             "$ref": "#/definitions/activity-completed-event"
                         },
                         {
+                            "$ref": "#/definitions/activity-failed-event"
+                        },
+                        {
                             "$ref": "#/definitions/message-received-event"
                         },
                         {
@@ -799,6 +802,18 @@
                 "activity-expired"
             ]
         },
+        "activity-failed-event": {
+            "type": "object",
+            "properties": {
+                "activity-failed": {
+                    "description": "Generated when the given activity has failed. Note this is not a Datafeed real-time event.",
+                    "$ref": "#/definitions/activity-failed-event-inner"
+                }
+            },
+            "required": [
+                "activity-failed"
+            ]
+        },
         "activity-completed-event": {
             "type": "object",
             "properties": {
@@ -833,6 +848,9 @@
                             },
                             {
                                 "$ref": "#/definitions/activity-completed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-failed-event"
                             },
                             {
                                 "$ref": "#/definitions/message-received-event"
@@ -1058,7 +1076,19 @@
             "type": "object",
             "properties": {
                 "activity-id": {
-                    "description": "The activity id that the expiration triggers this event.",
+                    "description": "The expiring activity triggering this event.",
+                    "$ref": "#/definitions/id"
+                }
+            },
+            "required": [
+                "activity-id"
+            ]
+        },
+        "activity-failed-event-inner": {
+            "type": "object",
+            "properties": {
+                "activity-id": {
+                    "description": "The failing activity triggering this event.",
                     "$ref": "#/definitions/id"
                 }
             },
@@ -1070,7 +1100,7 @@
             "type": "object",
             "properties": {
                 "activity-id": {
-                    "description": "The activity id that the completion triggers this event.",
+                    "description": "The completed (without errors) activity triggering this event.",
                     "$ref": "#/definitions/id"
                 }
             },

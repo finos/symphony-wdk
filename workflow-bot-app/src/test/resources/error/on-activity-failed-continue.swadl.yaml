@@ -1,0 +1,27 @@
+id: on-activity-failed-continue
+activities:
+  - send-message:
+      id: failing
+      on:
+        message-received:
+          content: /failure
+      to:
+        stream-id: STREAM
+      content: On success
+  - send-message:
+      id: fallback
+      on:
+        activity-failed:
+          activity-id: failing
+      to:
+        stream-id: STREAM
+      content: On failure
+  - send-message:
+      id: continue
+      on:
+        activity-completed:
+          # connect it back to first activity
+          activity-id: failing
+      to:
+        stream-id: STREAM
+      content: Will not be executed

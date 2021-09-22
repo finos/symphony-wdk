@@ -557,11 +557,45 @@ activities:
 
 #### <a name="completed-activity-id"></a>activity-id
 
-The id of the activity which completion's triggers this event.
+The completed (without errors) activity triggering this event.
 
 #### <a name="completed-if"></a>if
 
 Similar to the [if](#if) at `on` level but applied to a single completed activity.
+
+### activity-failed
+
+Generated when the given activity has failed. **Note this is not a Datafeed real-time event.**
+
+Exceptions raised by activities will trigger this event. This gives a way to let the user know about a failure.
+
+Key | Type | Required |
+------------ | -------| --- | 
+[activity-id](#failed-activity-id) | String | Yes |
+
+Example:
+
+```yaml
+activities:
+  - send-message:
+      id: sendHello
+      on:
+        message-received:
+          content: /execute
+      to:
+        stream-id: NON_EXISTING_STREAM
+      content: Hello
+  - send-message:
+      id: errorHandling
+      on:
+        activity-failed:
+          activity-id: sendHello
+      content: Sending a message failed
+```
+
+#### <a name="failed-activity-id"></a>activity-id
+
+The failing activity triggering this event.
 
 ### timer-fired
 
