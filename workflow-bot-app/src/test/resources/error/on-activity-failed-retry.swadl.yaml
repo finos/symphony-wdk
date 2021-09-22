@@ -1,0 +1,26 @@
+id: on-activity-failed-retry
+variables:
+  attempt: 0
+activities:
+  - execute-script:
+      id: failing
+      on:
+        one-of:
+          - message-received:
+              content: /failure
+          - activity-completed:
+              activity-id: fallback
+      # first execution will fail, but it will be executed one more time
+      script: |
+        if (variables.attempt == 0) {
+            variables.attempt++
+            throw new RuntimeException("Fail first time")
+        }
+  - send-message:
+      id: fallback
+      on:
+        activity-failed:
+          activity-id: failing
+      to:
+        stream-id: STREAM
+      content: On failure

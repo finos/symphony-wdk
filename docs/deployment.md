@@ -39,6 +39,10 @@ We are mainly interested in the `camunda.bpm.job-execution` properties to config
 workflows, for instance the wait time to detect new events to process. It is configured with a low value by default to
 ensure the bot is reactive.
 
+Camunda is configured to retry on activity/task errors. Part of the error handling is done via the BDK that already
+support retrying on failed API calls and then error handling can also be done when writing workflows with
+the [activity-failed event](./reference.md#activity-failed).
+
 ### Spring Boot specific configuration
 
 The [common application properties](https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html)

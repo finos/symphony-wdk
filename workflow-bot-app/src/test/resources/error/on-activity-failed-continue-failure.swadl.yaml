@@ -1,0 +1,25 @@
+id: on-activity-failed-continue-failure
+activities:
+  - send-message:
+      id: failing
+      on:
+        message-received:
+          content: /failure
+      to:
+        stream-id: STREAM
+      content: On success
+  - send-message:
+      id: continue
+      on:
+        activity-failed:
+          activity-id: failing
+      to:
+        stream-id: STREAM
+      content: On failure
+  - send-message:
+      # executed after continue, i.e. default sequential behavior
+      id: continue2
+      to:
+        stream-id: STREAM
+      content: On failure 2
+

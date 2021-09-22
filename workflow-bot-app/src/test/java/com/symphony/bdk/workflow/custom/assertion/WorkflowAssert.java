@@ -77,6 +77,12 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
     return this;
   }
 
+  public WorkflowAssert executed(String... activities) {
+    isNotNull();
+    assertExecuted(activities);
+    return this;
+  }
+
   public WorkflowAssert isExecutedWithProcessAndActivities(Optional<String> process, List<String> activities) {
     isNotNull();
     assertExecuted(process, activities);
@@ -162,6 +168,9 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
     org.assertj.core.api.Assertions.assertThat(processes)
         .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
+        .filteredOn(p -> !p.getActivityType().equals("exclusiveGateway"))
+        .filteredOn(p -> !p.getActivityType().equals("boundaryError"))
+        .filteredOn(p -> !p.isCanceled())
         .extracting(HistoricActivityInstance::getActivityName)
         .containsExactly(activityIds);
   }

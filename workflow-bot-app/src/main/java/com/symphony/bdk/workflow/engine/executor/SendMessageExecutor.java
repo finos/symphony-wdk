@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor;
 
+import static java.util.Collections.singletonList;
+
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.StreamService;
@@ -7,6 +9,7 @@ import com.symphony.bdk.core.service.stream.util.StreamUtil;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.workflow.swadl.v1.activity.SendMessage;
@@ -31,41 +34,62 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   @Override
   public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {
     SendMessage activity = execution.getActivity();
-    String streamId = resolveStreamId(execution, activity, execution.bdk().streams());
-    log.debug("Sending message to room {}", streamId);
+    List<String> streamIds = resolveStreamId(execution, activity, execution.bdk().streams());
+    log.debug("Sending message to rooms {}", streamIds);
 
     // TODO remove once https://github.com/finos/symphony-bdk-java/pull/567 is released
-    if (streamId.endsWith("=")) {
-      streamId = StreamUtil.toUrlSafeStreamId(streamId);
-    }
+    streamIds = streamIds.stream()
+        .map(streamId -> {
+          if (streamId.endsWith("=")) {
+            return StreamUtil.toUrlSafeStreamId(streamId);
+          } else {
+            return streamId;
+          }
+        })
+        .collect(Collectors.toList());
 
     Message messageToSend = this.buildMessage(execution);
-    V4Message message = execution.bdk().messages().send(streamId, messageToSend);
+
+    V4Message message;
+    if (streamIds.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("No stream ids set to send a message in activity %s", activity.getId()));
+
+    } else if (streamIds.size() == 1) {
+      message = execution.bdk().messages().send(streamIds.get(0), messageToSend);
+
+    } else {
+      V4MessageBlastResponse response = execution.bdk().messages().send(streamIds, messageToSend);
+      message = response.getMessages().get(0); // assume at least one message has been sent
+    }
 
     execution.setOutputVariable(OUTPUT_MESSAGE_KEY, message);
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
   }
 
-  private String resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
+  private List<String> resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
       StreamService streamService) {
     if (activity.getTo() != null && activity.getTo().getStreamId() != null) {
       // either the stream id is set explicitly in the workflow
-      return activity.getTo().getStreamId();
+      return singletonList(activity.getTo().getStreamId());
+
+    } else if (activity.getTo() != null && activity.getTo().getStreamIds() != null) {
+      return activity.getTo().getStreamIds();
 
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
-      return this.createOrGetStreamId(activity.getTo().getUserIds(), streamService);
+      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
 
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
       // or retrieved from the current even
       V4MessageSent event = (V4MessageSent) execution.getEvent().getSource();
-      return event.getMessage().getStream().getStreamId();
+      return singletonList(event.getMessage().getStream().getStreamId());
 
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
       V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
-      return event.getStream().getStreamId();
+      return singletonList(event.getStream().getStreamId());
 
     } else {
       throw new IllegalArgumentException(

@@ -296,4 +296,19 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(messageSent.getAttachments().size()).as("The sent message has 2 attachments").isEqualTo(2);
   }
 
+  @Test
+  void sendBlastMessage() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-blast-message.swadl.yaml"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/send-blast"));
+
+    verify(messageService, timeout(5000)).send(eq(List.of("ABC", "DEF")), any());
+  }
+
+  private static byte[] mockBase64ByteArray() {
+    String randomString = UUID.randomUUID().toString();
+    return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
+  }
 }

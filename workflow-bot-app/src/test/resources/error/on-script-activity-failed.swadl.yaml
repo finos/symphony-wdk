@@ -1,0 +1,19 @@
+id: on-script-activity-failed
+activities:
+  - execute-script:
+      id: failing
+      on:
+        message-received:
+          content: /failure
+      to:
+        stream-id: STREAM
+      script: |
+        throw new RuntimeException("Failure")
+  - send-message:
+      id: fallback
+      on:
+        activity-failed:
+          activity-id: failing
+      to:
+        stream-id: STREAM
+      content: On failure

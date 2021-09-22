@@ -16,6 +16,7 @@ public class SendMessage extends BaseActivity {
   @Data
   public static class To {
     @Nullable private String streamId;
+    @Nullable private List<String> streamIds;
     @Nullable private List<String> userIds;
   }
 

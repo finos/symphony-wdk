@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
@@ -83,6 +84,10 @@ public class CamundaExecutor implements JavaDelegate {
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader,
           resourceFolderProvider, bdk));
+    } catch (Exception e) {
+      log.error(String.format("Activity %s from workflow %s failed",
+          execution.getActivityInstanceId(), execution.getProcessInstanceId()), e);
+      throw new BpmnError("FAILURE", e);
     } finally {
       clearMdc();
     }
