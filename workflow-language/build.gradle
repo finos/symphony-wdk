@@ -10,3 +10,11 @@ dependencies {
 
     api 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
