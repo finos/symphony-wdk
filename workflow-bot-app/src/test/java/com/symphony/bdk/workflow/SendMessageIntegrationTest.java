@@ -307,8 +307,4 @@ class SendMessageIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq(List.of("ABC", "DEF")), any());
   }
 
-  private static byte[] mockBase64ByteArray() {
-    String randomString = UUID.randomUUID().toString();
-    return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
-  }
 }
