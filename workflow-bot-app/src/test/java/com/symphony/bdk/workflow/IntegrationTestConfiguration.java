@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import com.symphony.bdk.workflow.engine.ResourceFolderProvider;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 
 import org.springframework.boot.test.context.TestConfiguration;
@@ -14,12 +13,6 @@ import java.nio.file.Paths;
 public class IntegrationTestConfiguration {
   @Bean("workflowResourcesProvider")
   public ResourceProvider workflowResourcesProvider() {
-    Class<?> currentTestClass = getClass();
-    return currentTestClass::getResourceAsStream;
-  }
-
-  @Bean("workflowResourcesFolderProvider")
-  public ResourceFolderProvider workflowResourcesFolderProvider() {
-    return () -> Paths.get("src", "test", "resources").toFile().getAbsolutePath();
+    return new WorkflowResourcesProvider(Paths.get("src", "test", "resources").toFile().getAbsolutePath());
   }
 }

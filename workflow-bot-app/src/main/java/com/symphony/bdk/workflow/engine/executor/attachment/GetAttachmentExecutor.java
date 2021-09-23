@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.attachment;
 
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
@@ -9,8 +8,6 @@ import com.symphony.bdk.workflow.swadl.v1.activity.attachment.GetAttachment;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
@@ -40,44 +37,20 @@ public class GetAttachmentExecutor implements ActivityExecutor<GetAttachment> {
             String.format("No attachment with id %s found in message with id %s", activity.getAttachmentId(),
                 activity.getMessageId())));
 
+    String attachmentPath =
+        downloadAndStoreAttachment(attachmentInfo.getName(), actualMessage.getStream().getStreamId(),
+            actualMessage.getMessageId(), attachmentInfo.getId(), execution);
 
-    String attachmentName = execution.getResourcesFolder() + attachmentInfo.getName();
-    downloadAndStoreAttachment(attachmentName, actualMessage.getStream().getStreamId(), actualMessage.getMessageId(),
-        attachmentInfo.getId(), execution.bdk().messages());
-
-    execution.setOutputVariable(OUTPUT_ATTACHMENT_PATH_KEY, attachmentName);
+    execution.setOutputVariable(OUTPUT_ATTACHMENT_PATH_KEY, attachmentPath);
   }
 
-  private void downloadAndStoreAttachment(String attachmentName, String streamId, String messageId,
-      String attachmentId, MessageService messages) {
-    byte[] attachmentFromMessage = messages.getAttachment(streamId, messageId, attachmentId);
+
+  private String downloadAndStoreAttachment(String attachmentName, String streamId, String messageId,
+      String attachmentId, ActivityExecutorContext<GetAttachment> execution) {
+    byte[] attachmentFromMessage = execution.bdk().messages().getAttachment(streamId, messageId, attachmentId);
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
 
-    try {
-      File file = new File(attachmentName);
-      if (file.createNewFile()) {
-        log.info("File {} has been created", attachmentName);
-      } else {
-        log.info("File {} already exist", attachmentName);
-      }
-
-      writeToFile(file, decodedAttachmentFromMessage, attachmentName);
-
-    } catch (IOException exception) {
-      log.debug("File {} creation failed", attachmentName, exception);
-      throw new RuntimeException(exception);
-    }
+    return execution.saveResource(attachmentName, decodedAttachmentFromMessage);
   }
-
-  private void writeToFile(File file, byte[] content, String attachmentName) {
-    try (FileOutputStream outputStream = new FileOutputStream(file)) {
-      log.info("File {} content has been written", attachmentName);
-      outputStream.write(content);
-    } catch (Exception exception) {
-      log.debug("File {} writing failed", attachmentName, exception);
-      throw new RuntimeException(exception);
-    }
-  }
-
 
 }

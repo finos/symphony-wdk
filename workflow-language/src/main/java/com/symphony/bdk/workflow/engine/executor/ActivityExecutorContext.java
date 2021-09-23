@@ -51,5 +51,5 @@ public interface ActivityExecutorContext<T> {
    */
   InputStream getResource(String resourcePath) throws IOException;
 
-  String getResourcesFolder();
+  String saveResource(String name, byte[] content);
 }
