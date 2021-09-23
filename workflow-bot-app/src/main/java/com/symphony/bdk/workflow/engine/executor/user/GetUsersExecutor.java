@@ -25,25 +25,25 @@ public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
 
     // Since the workflow is validated by swadl-schema, at least one of the following attributes is not null
     if (getUsers.getUsernames() != null) {
-      users = context.bdk().users().listUsersByUsernames(getUsers.getUsernames(), getUsers.getActiveAsBool());
+      users = context.bdk().users().listUsersByUsernames(getUsers.getUsernames().get(), getUsers.getActive().get());
 
     } else if (getUsers.getUserIds() != null) {
       users = context.bdk()
           .users()
-          .listUsersByIds(toLongs(getUsers.getUserIds()), getUsers.getLocalAsBool(), getUsers.getActiveAsBool());
+          .listUsersByIds(toLongs(getUsers.getUserIds().get()), getUsers.getLocal().get(), getUsers.getActive().get());
 
     } else if (getUsers.getEmails() != null) {
       users = context.bdk()
           .users()
-          .listUsersByEmails(getUsers.getEmails(), getUsers.getLocalAsBool(), getUsers.getActiveAsBool());
+          .listUsersByEmails(getUsers.getEmails().get(), getUsers.getLocal().get(), getUsers.getActive().get());
 
     }
 
     context.setOutputVariable(OUTPUT_USERS_KEY, users);
   }
 
-  private List<Long> toLongs(List<String> ids) {
-    return ids.stream().map(Long::parseLong).collect(Collectors.toList());
+  private List<Long> toLongs(List<Number> ids) {
+    return ids.stream().map(Number::longValue).collect(Collectors.toList());
   }
 
 }

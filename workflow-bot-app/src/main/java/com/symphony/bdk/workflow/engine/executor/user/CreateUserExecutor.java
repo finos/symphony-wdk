@@ -38,9 +38,9 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
     V2UserDetail createdUser = userService.create(toUser(createUser));
 
     Long userId = createdUser.getUserSystemInfo().getId();
-    if (createUser.getEntitlements() != null && !createUser.getEntitlements().isEmpty()) {
+    if (createUser.getEntitlements() != null && !createUser.getEntitlements().get().isEmpty()) {
       log.debug("Updating entitlements for user {}", userId);
-      userService.updateFeatureEntitlements(userId, toFeatures(createUser.getEntitlements()));
+      userService.updateFeatureEntitlements(userId, toFeatures(createUser.getEntitlements().get()));
     }
 
     if (createUser.getStatus() != null) {
@@ -70,7 +70,7 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
       );
     }
 
-    user.setRoles(createUser.getRoles());
+    user.setRoles(createUser.getRoles().get());
     return user;
   }
 
@@ -98,12 +98,12 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
       attributes.setCompanyName(createUser.getBusiness().getCompanyName());
       attributes.setJobFunction(createUser.getBusiness().getJobFunction());
       attributes.setTitle(createUser.getBusiness().getTitle());
-      attributes.setAssetClasses(createUser.getBusiness().getAssetClasses());
-      attributes.setFunction(createUser.getBusiness().getFunctions());
-      attributes.setIndustries(createUser.getBusiness().getIndustries());
-      attributes.setInstrument(createUser.getBusiness().getInstruments());
-      attributes.setResponsibility(createUser.getBusiness().getResponsibilities());
-      attributes.setMarketCoverage(createUser.getBusiness().getMarketCoverages());
+      attributes.setAssetClasses(createUser.getBusiness().getAssetClasses().get());
+      attributes.setFunction(createUser.getBusiness().getFunctions().get());
+      attributes.setIndustries(createUser.getBusiness().getIndustries().get());
+      attributes.setInstrument(createUser.getBusiness().getInstruments().get());
+      attributes.setResponsibility(createUser.getBusiness().getResponsibilities().get());
+      attributes.setMarketCoverage(createUser.getBusiness().getMarketCoverages().get());
     }
 
     if (createUser.getKeys() != null) {

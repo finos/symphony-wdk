@@ -1,16 +1,20 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.workflow.engine.ResourceProvider;
+import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
+import com.symphony.bdk.workflow.engine.camunda.variable.EscapedJsonVariableDeserializer;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -43,7 +47,10 @@ public class CamundaExecutor implements JavaDelegate {
   private static final String MDC_ACTIVITY_ID = "ACTIVITY_ID";
 
   static {
+    SimpleModule module = new SimpleModule();
+    module.addDeserializer(Variable.class, new EscapedJsonVariableDeserializer());
     OBJECT_MAPPER = JsonMapper.builder()
+        .addModule(module)
         .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         // to escape # or $ in message received content and still serialize it to JSON
         .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)

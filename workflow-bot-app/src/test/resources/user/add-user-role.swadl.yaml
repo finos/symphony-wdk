@@ -6,7 +6,7 @@ activities:
         message-received:
           content: /update-user
       user-ids:
-        - "123"
+        - 123
       roles:
         - ADMINISTRATOR
         - AGENT

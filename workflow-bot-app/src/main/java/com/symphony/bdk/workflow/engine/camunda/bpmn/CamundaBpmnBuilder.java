@@ -2,8 +2,8 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
-import com.symphony.bdk.workflow.engine.camunda.listener.ScriptTaskAuditListener;
-import com.symphony.bdk.workflow.engine.camunda.listener.VariablesListener;
+import com.symphony.bdk.workflow.engine.camunda.audit.ScriptTaskAuditListener;
+import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
 import com.symphony.bdk.workflow.swadl.ActivityRegistry;
 import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;

@@ -21,10 +21,10 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
 
     GetRooms getRooms = execution.getActivity();
     V3RoomSearchResults rooms;
-    if (getRooms.getLimitAsInt() != null && getRooms.getSkipAsInt() != null) {
+    if (getRooms.getLimit() != null && getRooms.getSkip() != null) {
       rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms),
-          new PaginationAttribute(getRooms.getSkipAsInt(), getRooms.getLimitAsInt()));
-    } else if (getRooms.getLimitAsInt() == null && getRooms.getSkipAsInt() == null) {
+          new PaginationAttribute(getRooms.getSkip().getInt(), getRooms.getLimit().getInt()));
+    } else if (getRooms.getLimit() == null && getRooms.getSkip() == null) {
       rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms));
     } else {
       throw new IllegalArgumentException(
@@ -37,9 +37,9 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
   private V2RoomSearchCriteria toCriteria(GetRooms getRooms) {
     V2RoomSearchCriteria criteria = new V2RoomSearchCriteria()
         .query(getRooms.getQuery())
-        .labels(getRooms.getLabels())
-        ._private(getRooms.getIsPrivateAsBool())
-        .active(getRooms.getActiveAsBool());
+        .labels(getRooms.getLabels().get())
+        ._private(getRooms.getIsPrivate().get())
+        .active(getRooms.getActive().get());
     if (getRooms.getSortOrder() != null) {
       criteria.setSortOrder(V2RoomSearchCriteria.SortOrderEnum.fromValue(getRooms.getSortOrder()));
     }
