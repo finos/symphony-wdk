@@ -10,13 +10,14 @@ activities:
       public: true
       view-history: true
       keywords:
-        A: AA
-        B: BB
+        "A": "AA"
+        "B": "BB"
       discoverable: false
       read-only: true
       copy-protected: true
       cross-pod: true
       multilateral-room: false
+      members-can-invite: true
       sub-type: EMAIL
 
 

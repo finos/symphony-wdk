@@ -67,13 +67,14 @@ class RoomIntegrationTest extends IntegrationTest {
     final boolean crossPod = true;
     final boolean copyProtected = true;
     final boolean multilateralRoom = false;
+    final boolean memberCanInvite = true;
     final String subType = "EMAIL";
     final List<RoomTag> keywords =
         Arrays.asList(new RoomTag().key("A").value("AA"), new RoomTag().key("B").value("BB"));
 
     final V3RoomDetail v3RoomDetail =
         this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic, viewHistory, discoverable, readOnly,
-            crossPod, copyProtected, multilateralRoom, subType, keywords);
+            crossPod, copyProtected, multilateralRoom, memberCanInvite, subType, keywords);
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.deploy(workflow);
@@ -86,7 +87,7 @@ class RoomIntegrationTest extends IntegrationTest {
 
     final V3RoomAttributes expectedRoomAttributes =
         this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, viewHistory, discoverable, readOnly, crossPod,
-            copyProtected, multilateralRoom, subType, keywords);
+            copyProtected, multilateralRoom, memberCanInvite, subType, keywords);
     assertRoomAttributes(expectedRoomAttributes, captorValue);
   }
 
@@ -103,7 +104,7 @@ class RoomIntegrationTest extends IntegrationTest {
 
     final V3RoomDetail v3RoomDetail =
         this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic, null, null, null, null, null, null, null,
-            null);
+            null, null);
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.deploy(workflow);
@@ -117,8 +118,8 @@ class RoomIntegrationTest extends IntegrationTest {
     final V3RoomAttributes captorValue = argumentCaptor.getValue();
 
     final V3RoomAttributes expectedRoomAttributes =
-        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, null, null, null, null, null, null, null,
-            null);
+        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, false, false, false, false, false, false,
+            false, null, null);
     assertRoomAttributes(expectedRoomAttributes, captorValue);
   }
 
@@ -134,13 +135,19 @@ class RoomIntegrationTest extends IntegrationTest {
     assertThat(expected.getName()).isEqualTo(actual.getName());
     assertThat(expected.getDescription()).isEqualTo(actual.getDescription());
     assertThat(expected.getPublic()).isEqualTo(actual.getPublic());
+    assertThat(expected.getCopyProtected()).isEqualTo(actual.getCopyProtected());
+    assertThat(expected.getDiscoverable()).isEqualTo(actual.getDiscoverable());
+    assertThat(expected.getCrossPod()).isEqualTo(actual.getCrossPod());
+    assertThat(expected.getKeywords()).isEqualTo(actual.getKeywords());
+    assertThat(expected.getMembersCanInvite()).isEqualTo(actual.getMembersCanInvite());
+    assertThat(expected.getReadOnly()).isEqualTo(actual.getReadOnly());
+    assertThat(expected.getViewHistory()).isEqualTo(actual.getViewHistory());
+    assertThat(expected.getSubType()).isEqualTo(actual.getSubType());
   }
 
   private V3RoomDetail buildRoomDetail(String id, String name, String description, boolean isPublic,
-      Boolean viewHistory,
-      Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected, Boolean multilateralRoom,
-      String subType,
-      List<RoomTag> keywords) {
+      Boolean viewHistory, Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected,
+      Boolean multilateralRoom, Boolean memberCanInvite, String subType, List<RoomTag> keywords) {
     V3RoomDetail v3RoomDetail = new V3RoomDetail();
     RoomSystemInfo roomSystemInfo = new RoomSystemInfo();
     roomSystemInfo.setId(id);
@@ -154,6 +161,7 @@ class RoomIntegrationTest extends IntegrationTest {
         .crossPod(crossPod)
         .copyProtected(copyProtected)
         .multiLateralRoom(multilateralRoom)
+        .membersCanInvite(memberCanInvite)
         .subType(subType)
         .keywords(keywords);
     v3RoomDetail.setRoomSystemInfo(roomSystemInfo);
@@ -164,8 +172,7 @@ class RoomIntegrationTest extends IntegrationTest {
 
   private V3RoomAttributes buildRoomAttributes(String name, String description, Boolean isPublic, Boolean viewHistory,
       Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected, Boolean multilateralRoom,
-      String subType,
-      List<RoomTag> keywords) {
+      Boolean memberCanInvite, String subType, List<RoomTag> keywords) {
     V3RoomAttributes expectedRoomAttributes = new V3RoomAttributes();
     return expectedRoomAttributes.name(name)
         .description(description)
@@ -177,6 +184,7 @@ class RoomIntegrationTest extends IntegrationTest {
         .multiLateralRoom(multilateralRoom)
         .copyProtected(copyProtected)
         .subType(subType)
+        .membersCanInvite(memberCanInvite)
         .keywords(keywords);
   }
 

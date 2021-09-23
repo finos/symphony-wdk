@@ -48,5 +48,53 @@ public class CreateRoom extends BaseActivity {
   public Boolean isPublicAsBool() {
     return Boolean.valueOf(isPublic);
   }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isMembersCanInviteAsBool() {
+    return Boolean.valueOf(membersCanInvite);
+  }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isDiscoverableAsBool() {
+    return Boolean.valueOf(discoverable);
+  }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isReadOnlyAsBool() {
+    return Boolean.valueOf(readOnly);
+  }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isCopyProtectedAsBool() {
+    return Boolean.valueOf(copyProtected);
+  }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isCrossPodAsBool() {
+    return Boolean.valueOf(crossPod);
+  }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isViewHistoryAsBool() {
+    return Boolean.valueOf(viewHistory);
+  }
+
+  @JsonIgnore
+  @Nullable
+  public Boolean isMultiLateralRoomAsBool() {
+    return Boolean.valueOf(multiLateralRoom);
+  }
+
+  @Data
+  public static class KeywordItem {
+    private String key;
+    private String value;
+  }
 }
 
