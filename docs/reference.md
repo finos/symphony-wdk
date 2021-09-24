@@ -847,7 +847,8 @@ Example: _2021-08-31T15:50:00Z_
 
 ### get-attachment
 
-Downloads an attachment to file system and returns its path.
+Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id and stored under a folder with the executed process id.
+An attachment named **_lenna.png_** will be stored under _./workflows/**$PROCESS_ID**/lenna**\-$ACTIVITY_ID**.png_.
 
 Key | Type | Required |
 ------------ | -------| --- |
