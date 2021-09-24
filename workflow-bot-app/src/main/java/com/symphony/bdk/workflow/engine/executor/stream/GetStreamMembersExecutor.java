@@ -20,10 +20,10 @@ public class GetStreamMembersExecutor implements ActivityExecutor<GetStreamMembe
 
     log.debug("Getting stream members for stream {}", streamId);
     V2MembershipList members;
-    if (getStreamMembers.getLimitAsInt() != null && getStreamMembers.getSkipAsInt() != null) {
+    if (getStreamMembers.getLimit() != null && getStreamMembers.getSkip() != null) {
       members = execution.bdk().streams().listStreamMembers(streamId,
-          new PaginationAttribute(getStreamMembers.getSkipAsInt(), getStreamMembers.getLimitAsInt()));
-    } else if (getStreamMembers.getLimitAsInt() == null && getStreamMembers.getSkipAsInt() == null) {
+          new PaginationAttribute(getStreamMembers.getSkip().getInt(), getStreamMembers.getLimit().getInt()));
+    } else if (getStreamMembers.getLimit() == null && getStreamMembers.getSkip() == null) {
       members = execution.bdk().streams().listStreamMembers(streamId);
     } else {
       throw new IllegalArgumentException(

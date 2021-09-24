@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.engine.camunda;
+package com.symphony.bdk.workflow.engine.camunda.audit;
 
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 

@@ -27,10 +27,10 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
       execution.bdk().streams().updateRoom(updateRoom.getStreamId(), attributes);
     }
 
-    if (updateRoom.getActiveAsBool() != null) {
+    if (updateRoom.getActive() != null) {
       // this is a different API call but we support it in the same activity
       log.debug("Updating room {} active status", updateRoom.getStreamId());
-      execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActiveAsBool());
+      execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive().get());
     }
 
     // services called above return different results and might end up not being called so we explicitly call the API
@@ -45,14 +45,14 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     return updateRoom.getRoomName() != null
         || updateRoom.getRoomDescription() != null
         || updateRoom.getKeywords() != null
-        || updateRoom.getMembersCanInviteAsBool() != null
-        || updateRoom.getDiscoverableAsBool() != null
-        || updateRoom.getIsPublicAsBool() != null
-        || updateRoom.getReadOnlyAsBool() != null
-        || updateRoom.getCopyProtectedAsBool() != null
-        || updateRoom.getCrossPodAsBool() != null
-        || updateRoom.getViewHistoryAsBool() != null
-        || updateRoom.getMultilateralRoomAsBool() != null;
+        || updateRoom.getMembersCanInvite().get() != null
+        || updateRoom.getDiscoverable().get() != null
+        || updateRoom.getIsPublic().get() != null
+        || updateRoom.getReadOnly().get() != null
+        || updateRoom.getCopyProtected().get() != null
+        || updateRoom.getCrossPod().get() != null
+        || updateRoom.getViewHistory().get() != null
+        || updateRoom.getMultilateralRoom().get() != null;
   }
 
   private V3RoomAttributes toAttributes(UpdateRoom updateRoom) {
@@ -61,7 +61,7 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     attributes.setDescription(updateRoom.getRoomDescription());
 
     if (updateRoom.getKeywords() != null) {
-      List<RoomTag> tags = updateRoom.getKeywords().entrySet().stream()
+      List<RoomTag> tags = updateRoom.getKeywords().get().entrySet().stream()
           .map(e -> {
             RoomTag tag = new RoomTag();
             tag.setKey(e.getKey());
@@ -72,14 +72,14 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
       attributes.setKeywords(tags);
     }
 
-    attributes.membersCanInvite(updateRoom.getMembersCanInviteAsBool());
-    attributes.setDiscoverable(updateRoom.getDiscoverableAsBool());
-    attributes.setPublic(updateRoom.getIsPublicAsBool());
-    attributes.setReadOnly(updateRoom.getReadOnlyAsBool());
-    attributes.copyProtected(updateRoom.getCopyProtectedAsBool());
-    attributes.crossPod(updateRoom.getCrossPodAsBool());
-    attributes.viewHistory(updateRoom.getViewHistoryAsBool());
-    attributes.multiLateralRoom(updateRoom.getMultilateralRoomAsBool());
+    attributes.membersCanInvite(updateRoom.getMembersCanInvite().get());
+    attributes.setDiscoverable(updateRoom.getDiscoverable().get());
+    attributes.setPublic(updateRoom.getIsPublic().get());
+    attributes.setReadOnly(updateRoom.getReadOnly().get());
+    attributes.copyProtected(updateRoom.getCopyProtected().get());
+    attributes.crossPod(updateRoom.getCrossPod().get());
+    attributes.viewHistory(updateRoom.getViewHistory().get());
+    attributes.multiLateralRoom(updateRoom.getMultilateralRoom().get());
 
     return attributes;
   }

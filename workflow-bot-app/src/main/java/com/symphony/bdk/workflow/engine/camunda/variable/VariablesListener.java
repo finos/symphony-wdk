@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.engine.camunda.listener;
+package com.symphony.bdk.workflow.engine.camunda.variable;
 
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
@@ -46,7 +46,6 @@ public class VariablesListener implements ExecutionListener {
 
       log.debug("Setting variables for execution {}", execution.getId());
       Map<String, Object> variablesAsMap = convertJsonStringToMap(variables.getValue(execution).toString());
-
       if (variablesAsMap != null) {
         log.debug("Loading workflow variable to execution context [{}]", variablesAsMap.keySet());
         execution.setVariable(ActivityExecutorContext.VARIABLES, variablesAsMap);

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,8 +21,8 @@ import javax.annotation.Nullable;
 public class CreateRoom extends BaseActivity {
   @Nullable private String roomName;
   @Nullable private String roomDescription;
-  @Nullable private List<String> userIds;
-  @Nullable private Map<String, String> keywords;
+  private Variable<List<Number>> userIds = Variable.nullValue();
+  @Nullable private Variable<Map<String, String>> keywords;
   @Nullable private String membersCanInvite;
   @Nullable private String discoverable;
   @Nullable private String readOnly;
@@ -33,20 +33,17 @@ public class CreateRoom extends BaseActivity {
   @Nullable private String subType;
 
   @JsonProperty("public")
-  private String isPublic;
+  private Variable<Boolean> isPublic = Variable.nullValue();
 
-  // to support the usage of variables
   @JsonIgnore
+  @Nullable
   public List<Long> getUserIdsAsLongs() {
-    if (userIds == null) {
-      return Collections.emptyList();
+    if (userIds.get() == null) {
+      return null;
     }
-    return userIds.stream().map(Long::parseLong).collect(Collectors.toList());
-  }
-
-  @JsonIgnore
-  public Boolean isPublicAsBool() {
-    return Boolean.valueOf(isPublic);
+    return userIds.get().stream()
+        .map(Number::longValue)
+        .collect(Collectors.toList());
   }
 }
 

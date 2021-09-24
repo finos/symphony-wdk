@@ -17,6 +17,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -302,6 +303,10 @@ class SendMessageIntegrationTest extends IntegrationTest {
   void sendBlastMessage() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-blast-message.swadl.yaml"));
+
+    V4MessageBlastResponse response = new V4MessageBlastResponse();
+    response.addMessagesItem(new V4Message());
+    when(messageService.send(eq(List.of("ABC", "DEF")), any())).thenReturn(response);
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/send-blast"));

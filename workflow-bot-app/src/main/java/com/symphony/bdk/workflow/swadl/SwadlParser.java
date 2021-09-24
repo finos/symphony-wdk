@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl;
 
 
 import com.symphony.bdk.workflow.swadl.v1.Activity;
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.validator.SwadlValidator;
 
@@ -30,6 +31,7 @@ public class SwadlParser {
     MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
     SimpleModule module = new SimpleModule();
     module.addDeserializer(Activity.class, new ActivityDeserializer());
+    module.addDeserializer(Variable.class, new VariableListDeserializer());
     MAPPER.registerModule(module);
   }
 

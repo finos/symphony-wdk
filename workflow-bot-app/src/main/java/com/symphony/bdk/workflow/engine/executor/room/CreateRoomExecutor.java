@@ -23,7 +23,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     List<Long> uids = activity.getUserIdsAsLongs();
     String name = activity.getRoomName();
     String description = activity.getRoomDescription();
-    boolean isPublic = activity.isPublicAsBool();
+    Boolean isPublic = activity.getIsPublic().get();
 
     final String createdRoomId;
 
@@ -46,7 +46,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     return stream.getId();
   }
 
-  private String createRoom(ActivityExecutorContext execution, String name, String description, boolean isPublic) {
+  private String createRoom(ActivityExecutorContext execution, String name, String description, Boolean isPublic) {
     V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
     v3RoomAttributes.name(name).description(description)._public(isPublic);
     V3RoomDetail v3RoomDetail = execution.bdk().streams().create(v3RoomAttributes);

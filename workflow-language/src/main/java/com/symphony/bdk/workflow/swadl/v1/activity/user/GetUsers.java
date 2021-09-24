@@ -1,8 +1,8 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,27 +17,13 @@ import javax.annotation.Nullable;
 public class GetUsers extends BaseActivity {
 
   @Nullable
-  private List<String> userIds;
+  private Variable<List<Number>> userIds;
   @Nullable
-  private List<String> emails;
+  private Variable<List<String>> emails;
   @Nullable
-  private List<String> usernames;
+  private Variable<List<String>> usernames;
 
-  @Nullable
-  private String local;
+  private Variable<Boolean> local = Variable.nullValue();
+  private Variable<Boolean> active = Variable.nullValue();
 
-  @Nullable
-  private String active;
-
-  @Nullable
-  @JsonIgnore
-  public Boolean getLocalAsBool() {
-    return toBoolean(local);
-  }
-
-  @Nullable
-  @JsonIgnore
-  public Boolean getActiveAsBool() {
-    return toBoolean(active);
-  }
 }

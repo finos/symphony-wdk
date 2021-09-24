@@ -1,12 +1,13 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.stream;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">Get streams API</a>
@@ -14,23 +15,14 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetStreams extends BaseActivity {
-  private List<String> types;
+  @Nullable private Variable<List<String>> types;
   private String scope;
   private String origin;
   private String privacy;
   private String status;
   private String startDate;
   private String endDate;
-  private String limit;
-  private String skip;
+  private Variable<Number> limit;
+  private Variable<Number> skip;
 
-  @JsonIgnore
-  public Integer getLimitAsInt() {
-    return toInt(limit);
-  }
-
-  @JsonIgnore
-  public Integer getSkipAsInt() {
-    return toInt(skip);
-  }
 }
