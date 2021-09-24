@@ -37,9 +37,16 @@ public class GetAttachmentExecutor implements ActivityExecutor<GetAttachment> {
             String.format("No attachment with id %s found in message with id %s", activity.getAttachmentId(),
                 activity.getMessageId())));
 
+    // We need to add process instance and current activity ids to the attachment name
+    // as a suffix before the file extension to make the downloaded file unique for this instance
+    int extensionDotIndex = attachmentInfo.getName().lastIndexOf('.');
+    String fileName =
+        String.format("%s-%s%s", attachmentInfo.getName().substring(0, extensionDotIndex),
+            execution.getCurrentActivityId(), attachmentInfo.getName().substring(extensionDotIndex));
+
     String attachmentPath =
-        downloadAndStoreAttachment(attachmentInfo.getName(), actualMessage.getStream().getStreamId(),
-            actualMessage.getMessageId(), attachmentInfo.getId(), execution);
+        downloadAndStoreAttachment(fileName, actualMessage.getStream().getStreamId(), actualMessage.getMessageId(),
+            attachmentInfo.getId(), execution);
 
     execution.setOutputVariable(OUTPUT_ATTACHMENT_PATH_KEY, attachmentPath);
   }
@@ -50,7 +57,7 @@ public class GetAttachmentExecutor implements ActivityExecutor<GetAttachment> {
     byte[] attachmentFromMessage = execution.bdk().messages().getAttachment(streamId, messageId, attachmentId);
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
 
-    return execution.saveResource(attachmentName, decodedAttachmentFromMessage);
+    return execution.saveResource(execution.getProcessInstanceId(), attachmentName, decodedAttachmentFromMessage);
   }
 
 }

@@ -27,10 +27,23 @@ public class WorkflowResourcesProvider implements ResourceProvider {
   }
 
   @Override
-  public String saveResource(String name, byte[] content) {
-    String path = StringUtils.appendIfMissing(this.resourcesFolder, "/") + name;
+  public String saveResource(String folder, String name, byte[] content) {
+    String folderPath = createFolderIfNotExists(StringUtils.appendIfMissing(this.resourcesFolder, "/") + folder);
+    String path = StringUtils.appendIfMissing(folderPath, "/") + name;
     File file = this.createFile(path);
     return this.writeContent(file, content);
+  }
+
+  private String createFolderIfNotExists(String folder) {
+    File file = new File(folder);
+    boolean mkdirs = file.mkdirs();
+    if (mkdirs) {
+      log.info("Folder {} has been created", folder);
+    } else {
+      log.info("Folder {} creation failed.", folder);
+    }
+
+    return file.getPath();
   }
 
   private File createFile(String name) {

@@ -155,13 +155,23 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
+    public String getProcessInstanceId() {
+      return this.execution.getProcessInstanceId();
+    }
+
+    @Override
+    public String getCurrentActivityId() {
+      return this.execution.getCurrentActivityId();
+    }
+
+    @Override
     public InputStream getResource(String resourcePath) throws IOException {
       return resourceLoader.getResource(resourcePath);
     }
 
     @Override
-    public String saveResource(String name, byte[] content) {
-      return resourceLoader.saveResource(name, content);
+    public String saveResource(String folder, String name, byte[] content) {
+      return resourceLoader.saveResource(folder, name, content);
     }
   }
 }

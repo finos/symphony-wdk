@@ -11,5 +11,5 @@ public interface ResourceProvider {
 
   InputStream getResource(String relativePath) throws IOException;
 
-  String saveResource(String name, byte[] content);
+  String saveResource(String folder, String name, byte[] content);
 }

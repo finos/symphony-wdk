@@ -47,9 +47,19 @@ public interface ActivityExecutorContext<T> {
   EventHolder<Object> getEvent();
 
   /**
+   * @return Current execution process instance id.
+   */
+  String getProcessInstanceId();
+
+  /**
+   * @return Currently executed activity id.
+   */
+  String getCurrentActivityId();
+
+  /**
    * @return Resource file stored with the workflow.
    */
   InputStream getResource(String resourcePath) throws IOException;
 
-  String saveResource(String name, byte[] content);
+  String saveResource(String folder, String file, byte[] content);
 }

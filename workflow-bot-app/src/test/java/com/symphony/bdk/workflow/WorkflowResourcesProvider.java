@@ -18,7 +18,7 @@ public class WorkflowResourcesProvider implements ResourceProvider {
   }
 
   @Override
-  public String saveResource(String name, byte[] content) {
+  public String saveResource(String resourcesFolder, String name, byte[] content) {
     return this.resourcesFolder + name;
   }
 }

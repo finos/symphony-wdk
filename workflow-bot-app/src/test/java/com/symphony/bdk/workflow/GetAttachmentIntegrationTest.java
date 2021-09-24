@@ -34,7 +34,8 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
     final String msgId = "MSG_ID";
     final String attachmentId = "ATTACHMENT_ID";
     final String attachmentName = "/attachments/myAttachment.txt";
-    final String expectedFilePath = Paths.get("src", "test", "resources").toFile().getAbsolutePath() + attachmentName;
+    final String expectedFilePath = Paths.get("src", "test", "resources").toFile().getAbsolutePath()
+        + "/attachments/myAttachment-getattachment.txt";
     final byte[] encodedBytes = mockBase64ByteArray();
     final V4Message actualMessage = new V4Message();
     final V4Stream v4Stream = new V4Stream();
