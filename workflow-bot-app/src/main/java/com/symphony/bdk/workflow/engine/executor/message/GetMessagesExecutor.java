@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
-import com.symphony.bdk.core.service.stream.util.StreamUtil;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.GetMessages;
@@ -20,11 +19,6 @@ public class GetMessagesExecutor implements ActivityExecutor<GetMessages> {
       ActivityExecutorContext<GetMessages> context) {
     GetMessages activity = context.getActivity();
     String streamId = activity.getStreamId();
-
-    // TODO remove once https://github.com/finos/symphony-bdk-java/pull/567 is released
-    if (streamId != null && streamId.endsWith("=")) {
-      streamId = StreamUtil.toUrlSafeStreamId(streamId);
-    }
 
     log.debug("Get messages by stream id {} since {}", streamId, activity.getSince());
 

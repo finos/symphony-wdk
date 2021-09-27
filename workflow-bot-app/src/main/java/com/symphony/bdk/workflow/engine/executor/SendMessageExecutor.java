@@ -37,17 +37,6 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     List<String> streamIds = resolveStreamId(execution, activity, execution.bdk().streams());
     log.debug("Sending message to rooms {}", streamIds);
 
-    // TODO remove once https://github.com/finos/symphony-bdk-java/pull/567 is released
-    streamIds = streamIds.stream()
-        .map(streamId -> {
-          if (streamId.endsWith("=")) {
-            return StreamUtil.toUrlSafeStreamId(streamId);
-          } else {
-            return streamId;
-          }
-        })
-        .collect(Collectors.toList());
-
     Message messageToSend = this.buildMessage(execution);
 
     V4Message message;

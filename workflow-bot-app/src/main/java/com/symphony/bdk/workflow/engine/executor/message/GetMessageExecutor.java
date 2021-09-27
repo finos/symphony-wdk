@@ -17,11 +17,6 @@ public class GetMessageExecutor implements ActivityExecutor<GetMessage> {
   public void execute(ActivityExecutorContext<GetMessage> context) {
     String messageId = context.getActivity().getMessageId();
 
-    // TODO remove once https://github.com/finos/symphony-bdk-java/pull/567 is released
-    if (messageId.endsWith("=")) {
-      messageId = StreamUtil.toUrlSafeStreamId(messageId);
-    }
-
     log.debug("Get message {}", messageId);
     V4Message message = context.bdk().messages().getMessage(messageId);
 
