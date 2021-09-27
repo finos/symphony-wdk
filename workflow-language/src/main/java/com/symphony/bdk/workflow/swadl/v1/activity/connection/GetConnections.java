@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * @see <a href="https://developers.symphony.com/restapi/reference#list-connections">List Connections API</a>
@@ -14,6 +15,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetConnections extends BaseActivity {
-  private Variable<List<Number>> userIds = Variable.value(List.of());
-  private String status;
+  private Variable<List<Number>> userIds = Variable.nullValue();
+  @Nullable private String status;
 }

@@ -21,13 +21,22 @@ public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> 
     GetConnections activity = context.getActivity();
 
     List<UserConnection> connections = context.bdk().connections()
-        .listConnections(ConnectionStatus.valueOf(activity.getStatus()), toLongs(activity.getUserIds().get()));
+        .listConnections(toConnectionStatus(activity.getStatus()), toLongs(activity.getUserIds().get()));
     context.setOutputVariable(OUTPUT_CONNECTIONS_KEY, connections);
   }
 
+  private ConnectionStatus toConnectionStatus(String statusString) {
+    if (statusString == null) {
+      return null;
+    }
+
+    return ConnectionStatus.valueOf(statusString);
+  }
+
   private static List<Long> toLongs(List<Number> ids) {
-    return ids.stream()
-        .map(Number::longValue)
-        .collect(Collectors.toList());
+    if (ids == null) {
+      return null;
+    }
+    return ids.stream().map(Number::longValue).collect(Collectors.toList());
   }
 }
