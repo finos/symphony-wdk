@@ -12,3 +12,4 @@ activities:
       room-name: "The best room ever"
       room-description: "this is room description"
       public: false
+      cross-pod: true

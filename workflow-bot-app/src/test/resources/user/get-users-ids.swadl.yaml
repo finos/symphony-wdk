@@ -6,8 +6,8 @@ activities:
         message-received:
           content: /get-users
       user-ids:
-        - "123"
-        - "456"
+        - 123
+        - 456
       local: true
       active: false
   - execute-script:

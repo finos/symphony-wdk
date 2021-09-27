@@ -74,11 +74,11 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       return singletonList(activity.getTo().getStreamId());
 
     } else if (activity.getTo() != null && activity.getTo().getStreamIds() != null) {
-      return activity.getTo().getStreamIds();
+      return activity.getTo().getStreamIds().get();
 
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
-      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
+      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds().get(), streamService));
 
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
@@ -97,9 +97,8 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
   }
 
-  private String createOrGetStreamId(List<String> userIds, StreamService streamService) {
-    List<Long> userIdsAsLong = userIds.stream().map(Long::parseLong).collect(Collectors.toList());
-    Stream stream = streamService.create(userIdsAsLong);
+  private String createOrGetStreamId(List<Number> userIds, StreamService streamService) {
+    Stream stream = streamService.create(userIds.stream().map(Number::longValue).collect(Collectors.toList()));
     return stream.getId();
   }
 

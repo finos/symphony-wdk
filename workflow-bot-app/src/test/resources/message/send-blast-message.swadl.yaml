@@ -1,4 +1,8 @@
 id: send-blast-message
+variables:
+  rooms:
+    - ABC
+    - DEF
 activities:
   - send-message:
       id: sendMessageWithUserIds
@@ -6,7 +10,5 @@ activities:
         message-received:
           content: /send-blast
       to:
-        stream-ids:
-          - ABC
-          - DEF
+        stream-ids: ${variables.rooms}
       content: "<messageML>hello</messageML>"

@@ -5,6 +5,7 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.UnauthorizedException;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
 import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;

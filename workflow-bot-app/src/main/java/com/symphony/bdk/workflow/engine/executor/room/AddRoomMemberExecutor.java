@@ -13,9 +13,9 @@ public class AddRoomMemberExecutor implements ActivityExecutor<AddRoomMember> {
   public void execute(ActivityExecutorContext<AddRoomMember> execution) {
     AddRoomMember addRoomMember = execution.getActivity();
 
-    for (String uid : addRoomMember.getUserIds()) {
+    for (Number uid : addRoomMember.getUserIds().get()) {
       log.debug("Add user {} to room {}", uid, addRoomMember.getStreamId());
-      execution.bdk().streams().addMemberToRoom(Long.valueOf(uid), addRoomMember.getStreamId());
+      execution.bdk().streams().addMemberToRoom(uid.longValue(), addRoomMember.getStreamId());
     }
   }
 
