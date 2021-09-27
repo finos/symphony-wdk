@@ -1,8 +1,8 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,11 +17,11 @@ import javax.annotation.Nullable;
 @Data
 public class GetRooms extends BaseActivity {
   private String query;
-  @Nullable private List<String> labels;
-  @Nullable private String active;
+  private Variable<List<String>> labels = Variable.nullValue();
+  private Variable<Boolean> active = Variable.nullValue();
 
   @JsonProperty("private")
-  @Nullable private String isPrivate;
+  private Variable<Boolean> isPrivate = Variable.nullValue();
 
   @Nullable private String creatorId;
   @Nullable private String ownerId;
@@ -29,27 +29,7 @@ public class GetRooms extends BaseActivity {
 
   @Nullable private String sortOrder;
 
-  @Nullable private String limit;
-  @Nullable private String skip;
-
-  @JsonIgnore
-  public Boolean getActiveAsBool() {
-    return toBoolean(active);
-  }
-
-  @JsonIgnore
-  public Boolean getIsPrivateAsBool() {
-    return toBoolean(isPrivate);
-  }
-
-  @JsonIgnore
-  public Integer getLimitAsInt() {
-    return toInt(limit);
-  }
-
-  @JsonIgnore
-  public Integer getSkipAsInt() {
-    return toInt(skip);
-  }
+  @Nullable private Variable<Number> limit;
+  @Nullable private Variable<Number> skip;
 
 }

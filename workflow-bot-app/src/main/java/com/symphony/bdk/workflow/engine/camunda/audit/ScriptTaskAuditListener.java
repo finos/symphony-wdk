@@ -1,6 +1,5 @@
-package com.symphony.bdk.workflow.engine.camunda.listener;
+package com.symphony.bdk.workflow.engine.camunda.audit;
 
-import com.symphony.bdk.workflow.engine.camunda.AuditTrailLogger;
 import com.symphony.bdk.workflow.swadl.v1.activity.ExecuteScript;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;

@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,12 +15,14 @@ public class SendMessage extends BaseActivity {
   @Nullable private To to;
   @Nullable private List<Attachment> attachments;
 
+
   @Data
   public static class To {
     @Nullable private String streamId;
-    @Nullable private List<String> streamIds;
-    @Nullable private List<String> userIds;
+    @Nullable private Variable<List<String>> streamIds;
+    @Nullable private Variable<List<Number>> userIds;
   }
+
 
   @Data
   public static class Attachment {

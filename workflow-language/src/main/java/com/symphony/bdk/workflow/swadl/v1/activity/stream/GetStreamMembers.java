@@ -1,8 +1,8 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.stream;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,16 +15,6 @@ import javax.annotation.Nullable;
 @Data
 public class GetStreamMembers extends BaseActivity {
   private String streamId;
-  @Nullable private String limit;
-  @Nullable private String skip;
-
-  @JsonIgnore
-  public Integer getLimitAsInt() {
-    return toInt(limit);
-  }
-
-  @JsonIgnore
-  public Integer getSkipAsInt() {
-    return toInt(skip);
-  }
+  @Nullable private Variable<Number> limit;
+  @Nullable private Variable<Number> skip;
 }

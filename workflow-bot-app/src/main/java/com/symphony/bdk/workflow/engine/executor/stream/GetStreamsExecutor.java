@@ -24,10 +24,10 @@ public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
 
     GetStreams getStreams = execution.getActivity();
     V2AdminStreamList streams;
-    if (getStreams.getLimitAsInt() != null && getStreams.getSkipAsInt() != null) {
+    if (getStreams.getLimit() != null && getStreams.getSkip() != null) {
       streams = execution.bdk().streams().listStreamsAdmin(toFilter(getStreams),
-          new PaginationAttribute(getStreams.getSkipAsInt(), getStreams.getLimitAsInt()));
-    } else if (getStreams.getLimitAsInt() == null && getStreams.getSkipAsInt() == null) {
+          new PaginationAttribute(getStreams.getSkip().getInt(), getStreams.getLimit().getInt()));
+    } else if (getStreams.getLimit() == null && getStreams.getSkip() == null) {
       streams = execution.bdk().streams().listStreamsAdmin(toFilter(getStreams));
     } else {
       throw new IllegalArgumentException(
@@ -47,7 +47,7 @@ public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
         .endDate(DateTimeUtils.toEpochMilli(getRooms.getEndDate()));
     if (getRooms.getTypes() != null) {
       filter.setStreamTypes(
-          getRooms.getTypes().stream().map(t -> new V2AdminStreamType().type(t)).collect(Collectors.toList()));
+          getRooms.getTypes().get().stream().map(t -> new V2AdminStreamType().type(t)).collect(Collectors.toList()));
     }
     return filter;
   }
