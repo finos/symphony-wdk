@@ -144,7 +144,7 @@ them to the appropriate workflows.
 
 ### Timers
 
-Two timer based events are supported:
+Two [timer based events](./reference.md#timer-fired) are supported:
 
 - at a specific time, to execute an activity at a given point in time
 - recurring time, to execute an activity repeatedly, similar to a cron job
