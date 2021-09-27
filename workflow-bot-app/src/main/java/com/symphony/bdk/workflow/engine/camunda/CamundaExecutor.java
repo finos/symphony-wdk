@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -172,13 +173,13 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public InputStream getResource(String resourcePath) throws IOException {
+    public InputStream getResource(Path resourcePath) throws IOException {
       return resourceLoader.getResource(resourcePath);
     }
 
     @Override
-    public String saveResource(String folder, String name, byte[] content) {
-      return resourceLoader.saveResource(folder, name, content);
+    public Path saveResource(Path resourcePath, byte[] content) throws IOException {
+      return resourceLoader.saveResource(resourcePath, content);
     }
   }
 }

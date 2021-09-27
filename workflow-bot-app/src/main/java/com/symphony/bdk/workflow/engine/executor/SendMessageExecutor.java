@@ -176,7 +176,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       return null;
     }
 
-    return execution.getResource(attachmentPath);
+    return execution.getResource(Path.of(attachmentPath));
   }
 
 }

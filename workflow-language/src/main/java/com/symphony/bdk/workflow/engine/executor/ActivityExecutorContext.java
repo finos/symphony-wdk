@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.executor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 public interface ActivityExecutorContext<T> {
 
@@ -59,7 +60,7 @@ public interface ActivityExecutorContext<T> {
   /**
    * @return Resource file stored with the workflow.
    */
-  InputStream getResource(String resourcePath) throws IOException;
+  InputStream getResource(Path resourcePath) throws IOException;
 
-  String saveResource(String folder, String file, byte[] content);
+  Path saveResource(Path resourcePath, byte[] content) throws IOException;
 }

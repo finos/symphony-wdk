@@ -112,7 +112,7 @@
                         ]
                     },
                     "get-attachment": {
-                        "description": "Get one attachment and stores it locally.",
+                        "description": "Gets one attachment and stores it locally.",
                         "x-intellij-html-description": "<html><p>Gets one attachment and stores it locally.</p><a href=\"https://developers.symphony.com/restapi/reference#attachment\">https://developers.symphony.com/restapi/reference#attachment</a></html>",
                         "allOf": [
                             {

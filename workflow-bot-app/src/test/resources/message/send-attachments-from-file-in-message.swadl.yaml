@@ -10,5 +10,5 @@ activities:
       content: <messageML>here is a msg with attachment</messageML>
       attachments:
         - content-path: "/attachments/attachment-text.txt"
-        - content-path: "/attachments/lenna.png"
+        - content-path: "/attachments/logo.png"
 

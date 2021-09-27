@@ -849,9 +849,9 @@ Example: _2021-08-31T15:50:00Z_
 
 Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id and stored under a folder with the executed process id.
 
-An attachment named **_lenna.png_** will be stored under _./workflows/**$PROCESS_ID**/lenna-**$ACTIVITY_ID**.png_.
+An attachment named **_logo.png_** will be stored under _./workflows/**$PROCESS_ID**/**$ACTIVITY_ID**-logo.png_.
 
-_nb:   The stored files are not cleaned when the workflow stops and it is up to workflow's developer to do it._
+_nb: The stored files are not cleaned when the workflow stops and it is up to workflow's developer to do it._
 
 Key | Type | Required |
 ------------ | -------| --- |

@@ -9,6 +9,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.attachment.GetAttachment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Base64;
 
 @Slf4j
@@ -27,7 +28,7 @@ public class GetAttachmentExecutor implements ActivityExecutor<GetAttachment> {
 
     if (actualMessage.getAttachments() == null) {
       throw new IllegalStateException(
-          String.format("No attachment in requested message with id %s", actualMessage.getMessageId()));
+          String.format("No attachments in requested message with id %s", actualMessage.getMessageId()));
     }
 
     V4AttachmentInfo attachmentInfo = actualMessage.getAttachments().stream()
@@ -37,27 +38,21 @@ public class GetAttachmentExecutor implements ActivityExecutor<GetAttachment> {
             String.format("No attachment with id %s found in message with id %s", activity.getAttachmentId(),
                 activity.getMessageId())));
 
-    // We need to add process instance and current activity ids to the attachment name
-    // as a suffix before the file extension to make the downloaded file unique for this instance
-    int extensionDotIndex = attachmentInfo.getName().lastIndexOf('.');
-    String fileName =
-        String.format("%s-%s%s", attachmentInfo.getName().substring(0, extensionDotIndex),
-            execution.getCurrentActivityId(), attachmentInfo.getName().substring(extensionDotIndex));
+    byte[] attachmentFromMessage = execution.bdk().messages().getAttachment(
+        actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), attachmentInfo.getId());
 
-    String attachmentPath =
-        downloadAndStoreAttachment(fileName, actualMessage.getStream().getStreamId(), actualMessage.getMessageId(),
-            attachmentInfo.getId(), execution);
+    String fileName = String.format("%s-%s", execution.getCurrentActivityId(), attachmentInfo.getName());
+    Path attachmentPath = storeAttachment(attachmentFromMessage, fileName, execution);
 
-    execution.setOutputVariable(OUTPUT_ATTACHMENT_PATH_KEY, attachmentPath);
+    execution.setOutputVariable(OUTPUT_ATTACHMENT_PATH_KEY, attachmentPath.toString());
   }
 
+  private Path storeAttachment(byte[] attachmentFromMessage, String fileName,
+      ActivityExecutorContext<GetAttachment> execution) throws IOException {
 
-  private String downloadAndStoreAttachment(String attachmentName, String streamId, String messageId,
-      String attachmentId, ActivityExecutorContext<GetAttachment> execution) {
-    byte[] attachmentFromMessage = execution.bdk().messages().getAttachment(streamId, messageId, attachmentId);
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
-
-    return execution.saveResource(execution.getProcessInstanceId(), attachmentName, decodedAttachmentFromMessage);
+    Path attachmentPath = Path.of(execution.getProcessInstanceId(), fileName);
+    return execution.saveResource(attachmentPath, decodedAttachmentFromMessage);
   }
 
 }

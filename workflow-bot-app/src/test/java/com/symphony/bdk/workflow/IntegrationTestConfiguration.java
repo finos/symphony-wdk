@@ -13,6 +13,6 @@ import java.nio.file.Paths;
 public class IntegrationTestConfiguration {
   @Bean("workflowResourcesProvider")
   public ResourceProvider workflowResourcesProvider() {
-    return new WorkflowResourcesProvider(Paths.get("src", "test", "resources").toFile().getAbsolutePath());
+    return new TestResourcesProvider(Paths.get("dummy").toString());
   }
 }

@@ -30,48 +30,33 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
   void getAttachment() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/attachments/get-attachment.swadl.yaml"));
-    final String streamId = "STREAM_ID";
-    final String msgId = "MSG_ID";
-    final String attachmentId = "ATTACHMENT_ID";
-    final String attachmentName = "/attachments/myAttachment.txt";
-    final String expectedFilePath = Paths.get("src", "test", "resources").toFile().getAbsolutePath()
-        + "/attachments/myAttachment-getattachment.txt";
-    final byte[] encodedBytes = mockBase64ByteArray();
-    final V4Message actualMessage = new V4Message();
-    final V4Stream v4Stream = new V4Stream();
-    final List<V4AttachmentInfo> attachments =
-        Collections.singletonList(new V4AttachmentInfo().id(attachmentId).name(attachmentName));
-    v4Stream.setStreamId("STREAM_ID");
-    actualMessage.setMessageId(msgId);
-    actualMessage.setStream(v4Stream);
-    actualMessage.setAttachments(attachments);
 
-    when(messageService.getMessage(msgId)).thenReturn(actualMessage);
-    when(messageService.getAttachment(streamId, msgId, attachmentId)).thenReturn(encodedBytes);
+    final V4Message actualMessage = createMessage("MSG_ID", "ATTACHMENT_ID", "myAttachment.txt");
+    when(messageService.getMessage("MSG_ID")).thenReturn(actualMessage);
+    when(messageService.getAttachment("STREAM_ID", "MSG_ID", "ATTACHMENT_ID")).thenReturn(mockBase64ByteArray());
 
     engine.deploy(workflow);
-
     engine.onEvent(messageReceived("/get-attachment"));
 
-    verify(messageService, timeout(5000).times(1)).getMessage(msgId);
-    verify(messageService, timeout(5000).times(1)).getAttachment(streamId, msgId, attachmentId);
+    verify(messageService, timeout(5000).times(1)).getMessage("MSG_ID");
+    verify(messageService, timeout(5000).times(1)).getAttachment("STREAM_ID", "MSG_ID", "ATTACHMENT_ID");
 
     assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_ATTACHMENT_PATH_KEY, "getattachment"), expectedFilePath);
+        .hasOutput(String.format(OUTPUTS_ATTACHMENT_PATH_KEY, "getAttachment"),
+            Paths.get("dummy", lastProcess(workflow).get(), "getAttachment-myAttachment.txt").toString());
   }
 
   @Test
   void getAttachmentNotFoundMessageId() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/attachments/get-attachment.swadl.yaml"));
-    final String msgId = "MSG_ID";
 
-    when(messageService.getMessage(msgId)).thenReturn(null);
+    when(messageService.getMessage("MSG_ID")).thenReturn(null);
     engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/get-attachment"));
 
-    verify(messageService, timeout(5000).times(1)).getMessage(msgId);
+    verify(messageService, timeout(5000).times(1)).getMessage("MSG_ID");
     verify(messageService, never()).getAttachment(anyString(), anyString(), anyString());
   }
 
@@ -79,14 +64,14 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
   void getAttachmentNotFoundAttachmentId() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/attachments/get-attachment.swadl.yaml"));
-    final String msgId = "MSG_ID";
 
-    when(messageService.getMessage(msgId)).thenReturn(new V4Message()); // return a message without attachments
+    // return a message without attachments
+    when(messageService.getMessage("MSG_ID")).thenReturn(new V4Message());
     engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/get-attachment"));
 
-    verify(messageService, timeout(5000).times(1)).getMessage(msgId);
+    verify(messageService, timeout(5000).times(1)).getMessage("MSG_ID");
     verify(messageService, never()).getAttachment(anyString(), anyString(), anyString());
   }
 
@@ -94,26 +79,29 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
   void getAttachmentBadAttachmentId() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/attachments/get-attachment.swadl.yaml"));
-    final String msgId = "MSG_ID";
-    final String foundAttachmentId = "FOUND_ATTACHMENT_ID";
-    final String attachmentName = "myAttachment.txt";
-    final V4Message actualMessage = new V4Message();
-    final V4Stream v4Stream = new V4Stream();
-    final List<V4AttachmentInfo> attachments =
-        Collections.singletonList(new V4AttachmentInfo().id(foundAttachmentId).name(attachmentName));
-    v4Stream.setStreamId("STREAM_ID");
-    actualMessage.setMessageId(msgId);
-    actualMessage.setStream(v4Stream);
-    actualMessage.setAttachments(attachments);
 
-    when(messageService.getMessage(msgId)).thenReturn(actualMessage);
+    final V4Message actualMessage = createMessage("MSG_ID", "FOUND_ATTACHMENT_ID", "myAttachment.txt");
+    when(messageService.getMessage("MSG_ID")).thenReturn(actualMessage);
 
     engine.deploy(workflow);
-
     engine.onEvent(messageReceived("/get-attachment"));
 
-    verify(messageService, timeout(5000).times(1)).getMessage(msgId);
+    verify(messageService, timeout(5000).times(1)).getMessage("MSG_ID");
     verify(messageService, never()).getAttachment(anyString(), anyString(), anyString());
   }
 
+  private V4Message createMessage(String msgId, String attachmentId, String attachmentName) {
+    final V4Message actualMessage = new V4Message();
+    actualMessage.setMessageId(msgId);
+
+    final V4Stream v4Stream = new V4Stream();
+    v4Stream.setStreamId("STREAM_ID");
+    actualMessage.setStream(v4Stream);
+
+    final List<V4AttachmentInfo> attachments =
+        Collections.singletonList(new V4AttachmentInfo().id(attachmentId).name(attachmentName));
+    actualMessage.setAttachments(attachments);
+
+    return actualMessage;
+  }
 }
