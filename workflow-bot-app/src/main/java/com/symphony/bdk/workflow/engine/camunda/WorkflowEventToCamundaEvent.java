@@ -24,6 +24,7 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.engine.executor.SendMessageExecutor;
 import com.symphony.bdk.workflow.swadl.v1.Event;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +74,7 @@ public class WorkflowEventToCamundaEvent {
   @Autowired
   private SessionService sessionService;
 
-  public Optional<String> toSignalName(Event event) {
+  public Optional<String> toSignalName(Event event, Workflow workflow) {
     if (event.getMessageReceived() != null) {
       if (event.getMessageReceived().isRequiresBotMention()) {
         // this is super fragile, extra spaces, bot changing names are not handled
@@ -128,10 +129,10 @@ public class WorkflowEventToCamundaEvent {
       return Optional.of(CONNECTION_ACCEPTED);
 
     } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
-      return toSignalName(event.getOneOf().get(0));
+      return toSignalName(event.getOneOf().get(0), workflow);
 
     } else if (event.getRequestReceived() != null) {
-      return Optional.of(REQUEST_RECEIVED);
+      return Optional.of(requestReceivedWorkflowEvent(workflow.getId()));
     }
 
     return Optional.empty();
@@ -238,9 +239,9 @@ public class WorkflowEventToCamundaEvent {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void requestReceivedToRequest(RequestReceivedEvent eventSource, Map<String, Object> processVariables) {
-    Map<String, Object> args = eventSource.getBodyArguments();
+    Map<String, Object> args = eventSource.getArguments();
     ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
-    runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.REQUEST_RECEIVED)
+    runtimeService.createSignalEvent(requestReceivedWorkflowEvent(eventSource.getWorkflowId()))
         .setVariables(processVariables).send();
   }
 
@@ -286,5 +287,10 @@ public class WorkflowEventToCamundaEvent {
 
   private static String messageReceivedContentFromSignalName(String signalName) {
     return signalName.replace(MESSAGE_PREFIX, "");
+  }
+
+  // request received event triggers a specific workflow/deployment only, not all the workflows listening for that event
+  private static String requestReceivedWorkflowEvent(String workflowId) {
+    return REQUEST_RECEIVED + "_" + workflowId;
   }
 }
