@@ -845,6 +845,26 @@ message returned.
 
 Example: _2021-08-31T15:50:00Z_
 
+### get-attachment
+
+Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id and stored under a folder with the executed process id.
+
+An attachment named **_logo.png_** will be stored under _./workflows/**$PROCESS_ID**/**$ACTIVITY_ID**-logo.png_.
+
+_nb: The stored files are not cleaned when the workflow stops and it is up to workflow's developer to do it._
+
+Key | Type | Required |
+------------ | -------| --- |
+message-id | String | Yes |
+attachment-id | String | Yes |
+
+Output | Type |
+----|----|
+attachmentPath | String
+
+[API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs as the api response)
+
+
 ### create-room
 
 Creates a new chatroom.

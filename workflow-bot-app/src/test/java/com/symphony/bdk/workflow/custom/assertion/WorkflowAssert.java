@@ -201,7 +201,8 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
       if ((actualVariableValue == null || value == null) && actualVariableValue != value) {
         fail("Expected variable value to be %s but was %s", value, actualVariableValue);
       } else if (actualVariableValue != null && !actualVariableValue.equals(value)) {
-        failWithMessage("Actual variable value was different to the expected one");
+        failWithMessage("Actual variable value [%s] was different from the expected one [%s]",
+            actualVariableValue, value);
       }
     }
   }

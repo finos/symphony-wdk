@@ -111,6 +111,18 @@
                             }
                         ]
                     },
+                    "get-attachment": {
+                        "description": "Gets one attachment and stores it locally.",
+                        "x-intellij-html-description": "<html><p>Gets one attachment and stores it locally.</p><a href=\"https://developers.symphony.com/restapi/reference#attachment\">https://developers.symphony.com/restapi/reference#attachment</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-attachment-inner"
+                            }
+                        ]
+                    },
                     "execute-script": {
                         "description": "Executes a Groovy script.",
                         "x-intellij-html-description": "<html><p>Executes a Groovy script.</p></html>",
@@ -1470,6 +1482,21 @@
             },
             "required": [
                 "content"
+            ]
+        },
+        "get-attachment-inner": {
+            "type": "object",
+            "properties": {
+                "message-id": {
+                    "$ref": "#/definitions/message-id-inner"
+                },
+                "attachment-id": {
+                    "$ref": "#/definitions/single-attachment"
+                }
+            },
+            "required": [
+                "message-id",
+                "attachment-id"
             ]
         },
         "execute-script-inner": {
@@ -2957,6 +2984,10 @@
                     "$ref": "#/definitions/attachment-file"
                 }
             ]
+        },
+        "single-attachment": {
+            "type": "string",
+            "minLength": 1
         },
         "attachment-message": {
             "type": "object",

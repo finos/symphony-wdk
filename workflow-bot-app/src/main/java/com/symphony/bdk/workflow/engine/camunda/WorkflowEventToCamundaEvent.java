@@ -262,7 +262,7 @@ public class WorkflowEventToCamundaEvent {
       Set<String> alreadySentSignals = new HashSet<>();
       for (EventSubscription signal : subscribedSignals) {
         if (!alreadySentSignals.contains(signal.getEventName())) {
-          String content = messageReceivedContentfromSignalName(signal.getEventName());
+          String content = messageReceivedContentFromSignalName(signal.getEventName());
           if (MESSAGE_RECEIVED_CONTENT_MATCHER.match(content, receivedContent)) {
             // match the arguments and add them to the event holder
             Map<String, String> args =
@@ -284,7 +284,7 @@ public class WorkflowEventToCamundaEvent {
     }
   }
 
-  private static String messageReceivedContentfromSignalName(String signalName) {
+  private static String messageReceivedContentFromSignalName(String signalName) {
     return signalName.replace(MESSAGE_PREFIX, "");
   }
 }

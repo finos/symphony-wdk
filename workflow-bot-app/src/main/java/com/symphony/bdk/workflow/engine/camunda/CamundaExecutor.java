@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -85,8 +86,8 @@ public class CamundaExecutor implements JavaDelegate {
     try {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
-      executor.execute(new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event,
-          resourceLoader, bdk));
+      executor.execute(
+          new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader, bdk));
     } catch (Exception e) {
       log.error(String.format("Activity %s from workflow %s failed",
           execution.getActivityInstanceId(), execution.getProcessInstanceId()), e);
@@ -162,8 +163,23 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public InputStream getResource(String resourcePath) throws IOException {
+    public String getProcessInstanceId() {
+      return this.execution.getProcessInstanceId();
+    }
+
+    @Override
+    public String getCurrentActivityId() {
+      return this.execution.getCurrentActivityId();
+    }
+
+    @Override
+    public InputStream getResource(Path resourcePath) throws IOException {
       return resourceLoader.getResource(resourcePath);
+    }
+
+    @Override
+    public Path saveResource(Path resourcePath, byte[] content) throws IOException {
+      return resourceLoader.saveResource(resourcePath, content);
     }
   }
 }

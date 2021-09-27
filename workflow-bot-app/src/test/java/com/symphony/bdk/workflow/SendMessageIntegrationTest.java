@@ -27,13 +27,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 class SendMessageIntegrationTest extends IntegrationTest {
 
@@ -314,8 +312,4 @@ class SendMessageIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq(List.of("ABC", "DEF")), any());
   }
 
-  private static byte[] mockBase64ByteArray() {
-    String randomString = UUID.randomUUID().toString();
-    return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
-  }
 }
