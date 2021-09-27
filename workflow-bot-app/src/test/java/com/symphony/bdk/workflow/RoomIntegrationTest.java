@@ -118,8 +118,8 @@ class RoomIntegrationTest extends IntegrationTest {
     final V3RoomAttributes captorValue = argumentCaptor.getValue();
 
     final V3RoomAttributes expectedRoomAttributes =
-        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, false, false, false, false, false, false,
-            false, null, null);
+        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, null, null, null, true, null, null,
+            null, null, null);
     assertRoomAttributes(expectedRoomAttributes, captorValue);
   }
 
@@ -132,17 +132,17 @@ class RoomIntegrationTest extends IntegrationTest {
   }
 
   private void assertRoomAttributes(V3RoomAttributes expected, V3RoomAttributes actual) {
-    assertThat(expected.getName()).isEqualTo(actual.getName());
-    assertThat(expected.getDescription()).isEqualTo(actual.getDescription());
-    assertThat(expected.getPublic()).isEqualTo(actual.getPublic());
-    assertThat(expected.getCopyProtected()).isEqualTo(actual.getCopyProtected());
-    assertThat(expected.getDiscoverable()).isEqualTo(actual.getDiscoverable());
-    assertThat(expected.getCrossPod()).isEqualTo(actual.getCrossPod());
-    assertThat(expected.getKeywords()).isEqualTo(actual.getKeywords());
-    assertThat(expected.getMembersCanInvite()).isEqualTo(actual.getMembersCanInvite());
-    assertThat(expected.getReadOnly()).isEqualTo(actual.getReadOnly());
-    assertThat(expected.getViewHistory()).isEqualTo(actual.getViewHistory());
-    assertThat(expected.getSubType()).isEqualTo(actual.getSubType());
+    assertThat(actual.getName()).isEqualTo(expected.getName());
+    assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
+    assertThat(actual.getPublic()).isEqualTo(expected.getPublic());
+    assertThat(actual.getCopyProtected()).isEqualTo(expected.getCopyProtected());
+    assertThat(actual.getDiscoverable()).isEqualTo(expected.getDiscoverable());
+    assertThat(actual.getCrossPod()).isEqualTo(expected.getCrossPod());
+    assertThat(actual.getKeywords()).isEqualTo(expected.getKeywords());
+    assertThat(actual.getMembersCanInvite()).isEqualTo(expected.getMembersCanInvite());
+    assertThat(actual.getReadOnly()).isEqualTo(expected.getReadOnly());
+    assertThat(actual.getViewHistory()).isEqualTo(expected.getViewHistory());
+    assertThat(actual.getSubType()).isEqualTo(expected.getSubType());
   }
 
   private V3RoomDetail buildRoomDetail(String id, String name, String description, boolean isPublic,

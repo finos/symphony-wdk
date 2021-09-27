@@ -25,7 +25,6 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     List<Long> uids = activity.getUserIdsAsLongs();
     String name = activity.getRoomName();
     String description = activity.getRoomDescription();
-    Boolean isPublic = activity.getIsPublic().get();
 
     final String createdRoomId;
 
@@ -47,18 +46,18 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     V3RoomAttributes v3RoomAttributes = new V3RoomAttributes()
         .name(createRoom.getRoomName())
         .description(createRoom.getRoomDescription())
-        ._public(createRoom.isPublicAsBool())
-        .viewHistory(createRoom.isViewHistoryAsBool())
-        .discoverable(createRoom.isDiscoverableAsBool())
-        .readOnly(createRoom.isReadOnlyAsBool())
-        .copyProtected(createRoom.isCopyProtectedAsBool())
-        .crossPod(createRoom.isCrossPodAsBool())
-        .multiLateralRoom(createRoom.isMultiLateralRoomAsBool())
-        .membersCanInvite(createRoom.isMembersCanInviteAsBool())
+        ._public(createRoom.getIsPublic().get())
+        .viewHistory(createRoom.getViewHistory().get())
+        .discoverable(createRoom.getDiscoverable().get())
+        .readOnly(createRoom.getReadOnly().get())
+        .copyProtected(createRoom.getCopyProtected().get())
+        .crossPod(createRoom.getCrossPod().get())
+        .multiLateralRoom(createRoom.getMultiLateralRoom().get())
+        .membersCanInvite(createRoom.getMembersCanInvite().get())
         .subType(createRoom.getSubType());
 
     if (createRoom.getKeywords() != null) {
-      for (Map.Entry<String, String> entry : createRoom.getKeywords().entrySet()) {
+      for (Map.Entry<String, String> entry : createRoom.getKeywords().get().entrySet()) {
         v3RoomAttributes.addKeywordsItem(
             new RoomTag()
                 .key(entry.getKey())
@@ -74,9 +73,7 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     return stream.getId();
   }
 
-  private String createRoom(ActivityExecutorContext execution, String name, String description, boolean isPublic) {
-    V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
-    v3RoomAttributes.name(name).description(description)._public(isPublic);
+  private String createRoom(ActivityExecutorContext execution, V3RoomAttributes v3RoomAttributes) {
     V3RoomDetail v3RoomDetail = execution.bdk().streams().create(v3RoomAttributes);
     return v3RoomDetail.getRoomSystemInfo().getId();
   }
