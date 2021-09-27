@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
 
 /**
@@ -23,13 +24,13 @@ public class CreateRoom extends BaseActivity {
   @Nullable private String roomDescription;
   private Variable<List<Number>> userIds = Variable.nullValue();
   @Nullable private Variable<Map<String, String>> keywords;
-  @Nullable private String membersCanInvite;
-  @Nullable private String discoverable;
-  @Nullable private String readOnly;
-  @Nullable private String copyProtected;
-  @Nullable private String crossPod;
-  @Nullable private String viewHistory;
-  @Nullable private String multiLateralRoom;
+  private Variable<Boolean> membersCanInvite = Variable.nullValue();
+  private Variable<Boolean> discoverable = Variable.nullValue();
+  private Variable<Boolean> readOnly = Variable.nullValue();
+  private Variable<Boolean> copyProtected = Variable.nullValue();
+  private Variable<Boolean> crossPod = Variable.nullValue();
+  private Variable<Boolean> viewHistory = Variable.nullValue();
+  private Variable<Boolean> multiLateralRoom = Variable.nullValue();
   @Nullable private String subType;
 
   @JsonProperty("public")
@@ -44,6 +45,12 @@ public class CreateRoom extends BaseActivity {
     return userIds.get().stream()
         .map(Number::longValue)
         .collect(Collectors.toList());
+  }
+
+  @Data
+  public static class KeywordItem {
+    private String key;
+    private String value;
   }
 }
 
