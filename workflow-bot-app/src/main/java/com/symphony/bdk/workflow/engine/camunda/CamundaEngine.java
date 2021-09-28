@@ -79,7 +79,7 @@ public class CamundaEngine implements WorkflowEngine {
 
     // dispatch event
     try {
-      events.dispatch(toRealTimeEvent(parameters));
+      events.dispatch(toRealTimeEvent(parameters, processDefinition.getName()));
     } catch (PresentationMLParserException e) {
       log.debug("Failed to parse MessageML, should not happen", e);
       throw new RuntimeException(e);
@@ -131,10 +131,11 @@ public class CamundaEngine implements WorkflowEngine {
     }
   }
 
-  private RealTimeEvent<RequestReceivedEvent> toRealTimeEvent(ExecutionParameters parameters) {
+  private RealTimeEvent<RequestReceivedEvent> toRealTimeEvent(ExecutionParameters parameters, String workflowId) {
     RequestReceivedEvent requestReceivedEvent = new RequestReceivedEvent();
-    requestReceivedEvent.setBodyArguments(parameters.getArguments());
+    requestReceivedEvent.setArguments(parameters.getArguments());
     requestReceivedEvent.setToken(parameters.getToken());
+    requestReceivedEvent.setWorkflowId(workflowId);
     return new RealTimeEvent<>(null, requestReceivedEvent);
   }
 }

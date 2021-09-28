@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Map;
 
-class RequestEventIntegrationTest extends IntegrationTest {
+class RequestReceivedEventIntegrationTest extends IntegrationTest {
 
   @Test
   void onRequestReceived() throws IOException, ProcessingException {
@@ -30,7 +31,7 @@ class RequestEventIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
     engine.deploy(workflow);
 
-    engine.execute("my-workflow", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
+    engine.execute("request-received", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
 
     verify(messageService, timeout(5000).times(1)).send(eq("123"), content("Hello World!"));
   }
@@ -44,7 +45,7 @@ class RequestEventIntegrationTest extends IntegrationTest {
 
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), "badToken");
     assertThatExceptionOfType(UnauthorizedException.class).isThrownBy(
-            () -> engine.execute("my-workflow", executionParameters))
+            () -> engine.execute("request-received", executionParameters))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Request token is not valid"));
     verify(messageService, never()).send(anyString(), any(Message.class));
   }
@@ -58,7 +59,7 @@ class RequestEventIntegrationTest extends IntegrationTest {
 
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), null);
     assertThatExceptionOfType(UnauthorizedException.class).isThrownBy(
-            () -> engine.execute("my-workflow", executionParameters))
+            () -> engine.execute("request-received", executionParameters))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Request token is not valid"));
     verify(messageService, never()).send(anyString(), any(Message.class));
   }
@@ -75,6 +76,23 @@ class RequestEventIntegrationTest extends IntegrationTest {
             () -> engine.execute("unfoundWorkflowId", executionParameters))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo("No workflow found with id unfoundWorkflowId"));
     verify(messageService, never()).send(anyString(), any(Message.class));
+  }
+
+  @Test
+  void onRequestReceived_multipleWorkflows() throws IOException, ProcessingException {
+    final Workflow workflow1 =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
+    engine.deploy(workflow1);
+
+    final Workflow workflow2 =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received2.swadl.yaml"));
+    engine.deploy(workflow2);
+
+    // should only execute workflow1
+    engine.execute("request-received", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
+
+    assertThat(workflow1).isExecuted();
+    verify(messageService, never()).send(anyString(), content("Second"));
   }
 
 }

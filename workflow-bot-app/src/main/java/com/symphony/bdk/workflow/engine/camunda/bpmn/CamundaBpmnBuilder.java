@@ -128,7 +128,7 @@ public class CamundaBpmnBuilder {
     for (Activity activityContainer : workflow.getActivities()) {
       BaseActivity activity = activityContainer.getActivity();
 
-      builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity);
+      builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
 
       // process events starting the activity
       if (onFormRepliedEvent(activity) && activity.getOn() != null) {
@@ -299,7 +299,8 @@ public class CamundaBpmnBuilder {
   }
 
   private AbstractFlowNodeBuilder<?, ?> addIntermediateEvents(List<AbstractFlowNodeBuilder<?, ?>> eventsToConnect,
-      AbstractFlowNodeBuilder<?, ?> builder, String lastActivity, BaseActivity activity) {
+      AbstractFlowNodeBuilder<?, ?> builder, String lastActivity, BaseActivity activity,
+      Workflow workflow) {
     if (!isFirstActivity(lastActivity) && !activity.getEvents().isEmpty()) {
       for (Event event : activity.getEvents()) {
 
@@ -309,7 +310,7 @@ public class CamundaBpmnBuilder {
           eventsToConnect.add(builder); // will be connected after the activity is created
 
         } else {
-          Optional<String> signalName = eventToMessage.toSignalName(event);
+          Optional<String> signalName = eventToMessage.toSignalName(event, workflow);
           if (signalName.isPresent()) {
             builder = createOrMoveEventGateway(builder);
             builder = builder.intermediateCatchEvent()
@@ -350,7 +351,7 @@ public class CamundaBpmnBuilder {
           builder = timerStartEvent(process.startEvent(), event);
           multipleEvents.add(builder);
         } else {
-          Optional<String> signalName = eventToMessage.toSignalName(event);
+          Optional<String> signalName = eventToMessage.toSignalName(event, workflow);
           if (signalName.isPresent()) {
             builder = process.startEvent()
                 .camundaAsyncBefore()
