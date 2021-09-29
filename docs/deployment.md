@@ -5,8 +5,10 @@ the [BDK Spring Boot integration](https://symphony-bdk-java.finos.org/spring-boo
 The [Getting started](./getting-started.md) guide explains how the Symphony Generator can be used to create a sample
 project with configuration files.
 
-_In its current version, the WDK does not persist state except in memory, so restarting the bot means all running
-workflow's state is lost. Running multiple instances of the bot for high availability is also not yet supported._
+By default, the WDK does not persist state except in memory, so restarting the bot means all running
+workflow's state is lost. In order to have a persistent database, you need to change Camunda specific configuration (see [Persistent database part](./deployment.md#camunda-specific-configuration))
+
+_Running multiple instances of the bot for high availability is not yet supported._
 
 ## Configuration
 
@@ -35,13 +37,18 @@ properties are listed
 in [Camunda's documentation](https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/configuration/#camunda-engine-properties)
 .
 
+#### Job execution
 We are mainly interested in the `camunda.bpm.job-execution` properties to configure the background process running
 workflows, for instance the wait time to detect new events to process. It is configured with a low value by default to
 ensure the bot is reactive.
 
+#### Retry on activity/task errors
 Camunda is configured to retry on activity/task errors. Part of the error handling is done via the BDK that already
 support retrying on failed API calls and then error handling can also be done when writing workflows with
 the [activity-failed event](./reference.md#activity-failed).
+
+#### Persistent database
+In order to use a persistent database, you need to change `spring.datasource.url` to `"jdbc:h2:file:./data/process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"`
 
 ### Spring Boot specific configuration
 
