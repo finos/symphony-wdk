@@ -35,7 +35,7 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
     when(messageService.getMessage("MSG_ID")).thenReturn(actualMessage);
     when(messageService.getAttachment("STREAM_ID", "MSG_ID", "ATTACHMENT_ID")).thenReturn(mockBase64ByteArray());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-attachment"));
 
     verify(messageService, timeout(5000).times(1)).getMessage("MSG_ID");
@@ -52,7 +52,7 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/attachments/get-attachment.swadl.yaml"));
 
     when(messageService.getMessage("MSG_ID")).thenReturn(null);
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/get-attachment"));
 
@@ -67,7 +67,7 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
 
     // return a message without attachments
     when(messageService.getMessage("MSG_ID")).thenReturn(new V4Message());
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/get-attachment"));
 
@@ -83,7 +83,7 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
     final V4Message actualMessage = createMessage("MSG_ID", "FOUND_ATTACHMENT_ID", "myAttachment.txt");
     when(messageService.getMessage("MSG_ID")).thenReturn(actualMessage);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-attachment"));
 
     verify(messageService, timeout(5000).times(1)).getMessage("MSG_ID");

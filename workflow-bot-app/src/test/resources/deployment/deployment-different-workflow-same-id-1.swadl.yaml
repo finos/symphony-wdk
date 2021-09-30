@@ -1,3 +1,4 @@
+id: same_workflow-id
 activities:
   - send-message:
       id: act1

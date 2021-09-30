@@ -42,11 +42,8 @@ public class CamundaEngine implements WorkflowEngine {
   private AuditTrailLogger auditTrailLogger;
 
   @Override
-  public void deploy(Workflow workflow, String defaultWorkflowId) throws IOException {
+  public void deploy(Workflow workflow) throws IOException {
     checkIdsAreUnique(workflow);
-    if (workflow.getId() == null) {
-      workflow.setId(defaultWorkflowId);
-    }
     Deployment deployment = bpmnBuilder.addWorkflow(workflow);
     log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);

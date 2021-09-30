@@ -35,7 +35,7 @@ class StreamIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-stream.swadl.yaml"));
     when(streamService.getStream("abc")).thenReturn(new V2StreamAttributes());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-stream"));
 
     verify(streamService, timeout(5000)).getStream("abc");
@@ -48,7 +48,7 @@ class StreamIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/get-stream-members.swadl.yaml"));
     when(streamService.listStreamMembers("abc")).thenReturn(new V2MembershipList());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-stream-members"));
 
     verify(streamService, timeout(5000)).listStreamMembers("abc");
@@ -62,7 +62,7 @@ class StreamIntegrationTest extends IntegrationTest {
     when(streamService.listStreamMembers(eq("abc"), refEq(new PaginationAttribute(10, 10))))
         .thenReturn(new V2MembershipList());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-stream-members-pagination"));
 
     assertThat(workflow).isExecuted();
@@ -80,7 +80,7 @@ class StreamIntegrationTest extends IntegrationTest {
         .startDate(1629210917000L);
     when(streamService.listStreamsAdmin(refEq(filter))).thenReturn(new V2AdminStreamList());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-streams"));
 
     verify(streamService, timeout(5000)).listStreamsAdmin(refEq(filter));
@@ -100,7 +100,7 @@ class StreamIntegrationTest extends IntegrationTest {
     when(streamService.listStreamsAdmin(refEq(filter), refEq(new PaginationAttribute(10, 10))))
         .thenReturn(new V2AdminStreamList());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-streams-pagination"));
 
     verify(streamService, timeout(5000)).listStreamsAdmin(refEq(filter), refEq(new PaginationAttribute(10, 10)));
@@ -117,7 +117,7 @@ class StreamIntegrationTest extends IntegrationTest {
         .includeInactiveStreams(true);
     when(streamService.listStreams(refEq(filter))).thenReturn(Collections.emptyList());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-user-streams"));
 
     verify(streamService, timeout(5000)).listStreams(refEq(filter));
@@ -135,7 +135,7 @@ class StreamIntegrationTest extends IntegrationTest {
     when(streamService.listStreams(refEq(filter), refEq(new PaginationAttribute(10, 10))))
         .thenReturn(Collections.emptyList());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-user-streams-pagination"));
 
     verify(streamService, timeout(5000)).listStreams(refEq(filter), refEq(new PaginationAttribute(10, 10)));

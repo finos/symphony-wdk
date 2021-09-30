@@ -45,7 +45,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/message"));
 
     verify(messageService, timeout(5000)).send(eq("123"), content("Hello!"));
@@ -62,7 +62,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
     when(streamService.create(uids)).thenReturn(stream);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/create-room"));
 
     verify(streamService, timeout(5000).times(1)).create(uids);
@@ -86,7 +86,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(streamService.create(uids)).thenReturn(stream(streamId));
     when(messageService.send(eq(streamId), any(Message.class))).thenReturn(message);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -136,7 +136,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.getAttachment("STREAM_ID", "MSG_ID", "ATTACHMENT_ID")).thenReturn(encodedBytes);
     when(messageService.send(eq(streamId), any(Message.class))).thenReturn(messageToReturn);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/forward-specific"));
 
     ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -160,7 +160,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
     when(messageService.getMessage(messageId)).thenReturn(new V4Message());
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/forward-unfound-message"));
 
@@ -179,7 +179,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
     when(messageService.getMessage(messageId)).thenReturn(null);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/forward-unfound-attachment"));
 
@@ -218,7 +218,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.getAttachment("STREAM_ID", "MSG_ID", "ATTACHMENT_ID_2")).thenReturn(encodedBytes);
     when(messageService.send(eq(streamId), any(Message.class))).thenReturn(messageToReturn);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/forward-multiple"));
 
     ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -262,7 +262,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.getAttachment("STREAM_ID", "MSG_ID", "ATTACHMENT_ID_2")).thenReturn(encodedBytes);
     when(messageService.send(eq(streamId), any(Message.class))).thenReturn(messageToReturn);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/forward-all"));
 
     ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -285,7 +285,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
             getClass().getResourceAsStream("/message/send-attachments-from-file-in-message.swadl.yaml"));
     final String content = "<messageML>here is a msg with attachment</messageML>";
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/send-attachment-from-file"));
 
     ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -306,7 +306,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     response.addMessagesItem(new V4Message());
     when(messageService.send(eq(List.of("ABC", "DEF")), any())).thenReturn(response);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("/send-blast"));
 
     verify(messageService, timeout(5000)).send(eq(List.of("ABC", "DEF")), any());

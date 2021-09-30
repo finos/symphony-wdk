@@ -113,7 +113,7 @@ public class CamundaBpmnBuilder {
 
     // spaces are not supported in BPMN here
     if (workflow.getId() != null) {
-      processId = workflow.getId().replaceAll("\\s+", "_");
+      processId = workflow.getId().replaceAll("\\s+", "");
     }
 
     ProcessBuilder process = Bpmn.createExecutableProcess(processId).name(workflow.getId());

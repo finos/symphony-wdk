@@ -59,7 +59,7 @@ class BranchingIntegrationTest extends IntegrationTest {
   @MethodSource("executedActivities")
   void branching(String workflowFile, List<String> activities) throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/execute"));
 
@@ -73,7 +73,7 @@ class BranchingIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
 
     assertThatExceptionOfType(expectedExceptionType)
-        .isThrownBy(() -> engine.deploy(workflow, "defaultId"))
+        .isThrownBy(() -> engine.deploy(workflow))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(error));
   }
 

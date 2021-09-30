@@ -28,7 +28,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/event-middle-workflow.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("abc", "/one"));
     verify(messageService, timeout(5000)).send(eq("abc"), content("One"));
 
@@ -48,8 +48,8 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow2 = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/msg2-event.swadl.yaml"));
 
-    engine.deploy(workflow1, "defaultId");
-    engine.deploy(workflow2, "defaultId");
+    engine.deploy(workflow1);
+    engine.deploy(workflow2);
     engine.onEvent(messageReceived("abc", "/twoWorkflowsSameEvent"));
 
     verify(messageService, timeout(5000)).send(eq("abc"), content("msg1"));
@@ -61,7 +61,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/multiple-events.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("abc", "/msg1"));
     engine.onEvent(messageReceived("abc", "/msg2"));
@@ -74,7 +74,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/mutiple-events-middle-workflow.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     // first execution
     engine.onEvent(messageReceived("abc", "/one"));
@@ -95,7 +95,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/if-intermediate-event.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.onEvent(messageReceived("abc", "/execute"));
 
@@ -111,7 +111,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("abc", "/go room name"));
 
     verify(messageService, timeout(5000).times(1)).send(eq("abc"), content("Received room name"));
@@ -125,7 +125,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     bot.setDisplayName("myBot");
     when(sessionService.getSession()).thenReturn(bot);
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("abc", "@myBot /go room name"));
 
     verify(messageService, timeout(5000).times(1)).send(eq("abc"), content("Received room name"));
@@ -136,7 +136,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-mention.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     RealTimeEvent<V4MessageSent> event = messageReceived("abc", "/go @John");
     event.getSource().getMessage().data(userMentionData(123L));
     engine.onEvent(event);
@@ -149,7 +149,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-mentions.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("abc", "/go @John @Bob Lee @Eve"));
 
     verify(messageService, timeout(5000).times(1)).send(eq("abc"), content("Received John, Bob Lee, Eve"));
@@ -160,7 +160,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-args-mixed.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     engine.onEvent(messageReceived("abc", "/go Hello @John #awesome $TESLA"));
 
     verify(messageService, timeout(5000).times(1)).send(eq("abc"), content("Received Hello, John, awesome, TESLA"));
@@ -171,7 +171,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-hashtags.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     RealTimeEvent<V4MessageSent> event = messageReceived("abc", "/go #awesome #super");
     event.getSource().getMessage().data("{\n"
         + "  \"0\": {\n"
@@ -205,7 +205,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/message-received-cashtags.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
     RealTimeEvent<V4MessageSent> event = messageReceived("abc", "/go $GOOG $TSLA");
     event.getSource().getMessage().data("{\n"
         + "  \"0\": {\n"

@@ -29,7 +29,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
   void onRequestReceived() throws IOException, ProcessingException {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     engine.execute("request-received", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
 
@@ -41,7 +41,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), "badToken");
     assertThatExceptionOfType(UnauthorizedException.class).isThrownBy(
@@ -55,7 +55,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), null);
     assertThatExceptionOfType(UnauthorizedException.class).isThrownBy(
@@ -69,7 +69,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
 
-    engine.deploy(workflow, "defaultId");
+    engine.deploy(workflow);
 
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), "myToken");
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
@@ -82,11 +82,11 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
   void onRequestReceived_multipleWorkflows() throws IOException, ProcessingException {
     final Workflow workflow1 =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received.swadl.yaml"));
-    engine.deploy(workflow1, "defaultId");
+    engine.deploy(workflow1);
 
     final Workflow workflow2 =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received2.swadl.yaml"));
-    engine.deploy(workflow2, "defaultId");
+    engine.deploy(workflow2);
 
     // should only execute workflow1
     engine.execute("request-received", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
