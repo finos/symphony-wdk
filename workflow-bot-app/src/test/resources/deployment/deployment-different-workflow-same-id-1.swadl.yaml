@@ -1,0 +1,7 @@
+activities:
+  - send-message:
+      id: act1
+      content: message1
+      on:
+        message-received:
+          content: /test

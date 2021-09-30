@@ -37,7 +37,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     when(connectionService.listConnections(ConnectionStatus.ACCEPTED, userIds)).thenReturn(userConnections);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-connections"));
 
     verify(connectionService, timeout(5000)).listConnections(ConnectionStatus.ACCEPTED, userIds);
@@ -56,7 +56,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     when(connectionService.listConnections(null, null)).thenReturn(userConnections);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-connections-no-params"));
 
     verify(connectionService, timeout(5000)).listConnections(null, null);
@@ -76,7 +76,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     when(connectionService.getConnection(userId)).thenReturn(userConnection);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-connection"));
 
     verify(connectionService, timeout(5000)).getConnection(userId);
@@ -97,7 +97,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     when(connectionService.createConnection(userId)).thenReturn(userConnection);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/create-connection"));
 
     verify(connectionService, timeout(5000)).createConnection(userId);
@@ -119,7 +119,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     when(connectionService.acceptConnection(userId)).thenReturn(userConnection);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/accept-connection"));
 
     verify(connectionService, timeout(5000)).acceptConnection(userId);
@@ -141,7 +141,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     when(connectionService.rejectConnection(userId)).thenReturn(userConnection);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/reject-connection"));
 
     verify(connectionService, timeout(5000)).rejectConnection(userId);
@@ -159,7 +159,7 @@ class ConnectionsIntegrationTest extends IntegrationTest {
 
     final Long userId = 1234L;
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/remove-connection"));
 
     verify(connectionService, timeout(5000)).removeConnection(userId);

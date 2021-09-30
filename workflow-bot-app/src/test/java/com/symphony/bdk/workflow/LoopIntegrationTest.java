@@ -29,7 +29,7 @@ class LoopIntegrationTest extends IntegrationTest {
   @MethodSource("executedActivities")
   void looping(String workflowFile, List<String> activities) throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
 
     engine.onEvent(messageReceived("/execute"));
 

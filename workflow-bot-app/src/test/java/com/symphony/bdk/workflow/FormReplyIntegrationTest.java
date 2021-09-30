@@ -23,7 +23,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -41,7 +41,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void sendFormSendMessageOnReply_multipleUsers() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply.swadl.yaml"));
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -63,7 +63,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   void sendFormSendMessageOnReply_followUpActivity() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(getClass()
         .getResourceAsStream("/form/send-form-reply-followup-activity.swadl.yaml"));
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -81,7 +81,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   void sendFormSendMessageOnReply_expiration() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/form/send-form-reply-expiration.swadl.yaml"));
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -97,7 +97,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   void sendFormNested() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/form/send-form-reply-nested.swadl.yaml"));
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
 
     // trigger workflow execution
     engine.onEvent(messageReceived("/message"));
@@ -118,7 +118,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
         getClass().getResourceAsStream("/form/invalid/swadl/send-form-reply-unknown-activity-id.swadl.yaml"));
 
     assertThatExceptionOfType(ActivityNotFoundException.class)
-        .isThrownBy(() -> engine.deploy(workflow))
+        .isThrownBy(() -> engine.deploy(workflow, "defaultId"))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));
   }

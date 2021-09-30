@@ -20,7 +20,7 @@ class ErrorIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed.swadl.yaml"));
     when(messageService.send(eq("STREAM"), content("On success"))).thenThrow(new RuntimeException("Failure"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -33,7 +33,7 @@ class ErrorIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-continue.swadl.yaml"));
     when(messageService.send(eq("STREAM"), content("On success"))).thenThrow(new RuntimeException("Failure"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -46,7 +46,7 @@ class ErrorIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-continue2.swadl.yaml"));
     when(messageService.send(eq("STREAM"), content("On success"))).thenThrow(new RuntimeException("Failure"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -59,7 +59,7 @@ class ErrorIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-continue-failure.swadl.yaml"));
     when(messageService.send(eq("STREAM"), content("On success"))).thenThrow(new RuntimeException("Failure"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -72,7 +72,7 @@ class ErrorIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed.swadl.yaml"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On success"));
@@ -85,7 +85,7 @@ class ErrorIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-one-of.swadl.yaml"));
     when(messageService.send(eq("STREAM"), content("Second"))).thenThrow(new RuntimeException("Failure"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -98,7 +98,7 @@ class ErrorIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-one-of.swadl.yaml"));
     when(messageService.send(eq("STREAM"), content("First"))).thenThrow(new RuntimeException("Failure"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -110,7 +110,7 @@ class ErrorIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-script-activity-failed.swadl.yaml"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
@@ -122,7 +122,7 @@ class ErrorIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-retry.swadl.yaml"));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/failure"));
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));

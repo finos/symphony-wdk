@@ -39,7 +39,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
     when(messageService.getMessage(msgId)).thenReturn(message(msgId));
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-msg-by-id-found"));
 
     verify(messageService, timeout(5000)).getMessage(msgId);
@@ -58,7 +58,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
     when(messageService.getMessage(msgId)).thenReturn(null);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-msg-by-id-unfound"));
 
     verify(messageService, timeout(5000)).getMessage(msgId);
@@ -81,7 +81,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
     when(messageService.listMessages(eq(streamId), any(Instant.class), any(PaginationAttribute.class))).thenReturn(
         messages);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-msg-by-stream-id-with-pagination"));
 
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -113,7 +113,7 @@ class GetMessagesIntegrationTest extends IntegrationTest {
 
     when(messageService.listMessages(eq(streamId), any(Instant.class))).thenReturn(messages);
 
-    engine.deploy(workflow);
+    engine.deploy(workflow, "defaultId");
     engine.onEvent(messageReceived("/get-msg-by-stream-id-without-pagination"));
 
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);

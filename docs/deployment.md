@@ -6,7 +6,7 @@ The [Getting started](./getting-started.md) guide explains how the Symphony Gene
 project with configuration files.
 
 By default, the WDK does not persist state except in memory, so restarting the bot means all running
-workflow's state is lost. In order to have a persistent database, you need to change Camunda specific configuration (see [Persistent database part](./deployment.md#camunda-specific-configuration))
+workflow's state is lost. In order to have a persistent database, you need to change Camunda specific configuration (see [Persistent database part](./deployment.md#camunda-specific-configuration)).
 
 _Running multiple instances of the bot for high availability is not yet supported._
 
@@ -34,8 +34,7 @@ The BDK configuration is under the `bdk` key.
 
 As Camunda is used internally to run workflows, properties for the Camunda Engine can be configured too. The available
 properties are listed
-in [Camunda's documentation](https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/configuration/#camunda-engine-properties)
-.
+in [Camunda's documentation](https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/configuration/#camunda-engine-properties).
 
 #### Job execution
 We are mainly interested in the `camunda.bpm.job-execution` properties to configure the background process running
@@ -48,7 +47,11 @@ support retrying on failed API calls and then error handling can also be done wh
 the [activity-failed event](./reference.md#activity-failed).
 
 #### Persistent database
-In order to use a persistent database, you need to change `spring.datasource.url` to `"jdbc:h2:file:./data/process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"`
+In order to use a persistent database, you need to change `spring.datasource.url` to `jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`.
+
+In this case, a local disk file will be used to store data. It can also be changed to any database supported by Camunda (see [Camunda Database Configuration documentation](https://docs.camunda.org/manual/7.15/user-guide/process-engine/database/database-configuration/)).
+
+In case JDBC driver is missing, you might need to add it to the bot classpath in folder _/lib_ . 
 
 ### Spring Boot specific configuration
 
