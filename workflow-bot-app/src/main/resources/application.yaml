@@ -1,7 +1,6 @@
 # Bot configuration
 workflows:
   folder: ./workflows
-
 # BDK configuration
 bdk:
   host:
@@ -28,9 +27,15 @@ camunda:
 
 # Spring boot configuration
 spring:
+  datasource:
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
   main:
     banner-mode: off
-    # To completely disable listening to a HTTP port
+    # To completely disable listening to an HTTP port
     # web-application-type: none
   groovy:
     template:

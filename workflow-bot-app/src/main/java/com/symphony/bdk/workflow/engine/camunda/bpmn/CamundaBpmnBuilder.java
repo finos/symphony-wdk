@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -110,7 +109,10 @@ public class CamundaBpmnBuilder {
   }
 
   private BpmnModelInstance workflowToBpmn(Workflow workflow) throws JsonProcessingException {
-    ProcessBuilder process = Bpmn.createExecutableProcess(createUniqueProcessId(workflow)).name(workflow.getId());
+    // spaces are not supported in BPMN here
+    String processId = workflow.getId().replaceAll("\\s+", "");
+
+    ProcessBuilder process = Bpmn.createExecutableProcess(processId).name(workflow.getId());
 
     // a workflow starts with at least one named signal event
     List<AbstractFlowNodeBuilder<?, ?>> eventsToConnect = new ArrayList<>();
@@ -407,17 +409,6 @@ public class CamundaBpmnBuilder {
     return activity.getIfCondition() != null
         || (activity.getOn() != null && activity.getOn().getActivityCompleted() != null
         && activity.getOn().getActivityCompleted().getIfCondition() != null);
-  }
-
-  private static String createUniqueProcessId(Workflow workflow) {
-    // spaces are not supported in BPMN here
-    // workflow id should not start with a numerical value
-    String suffix = UUID.randomUUID().toString();
-    if (workflow.getId() != null) {
-      return workflow.getId().replaceAll("\\s+", "_") + "-" + suffix;
-    } else {
-      return "workflow_" + suffix;
-    }
   }
 
   private static boolean onFormRepliedEvent(BaseActivity baseActivity) {

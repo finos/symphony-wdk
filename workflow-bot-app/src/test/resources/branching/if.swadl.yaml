@@ -1,3 +1,4 @@
+id: branching-workflow
 variables:
   foo: foo
 activities:

@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,9 +44,6 @@ public class CamundaEngine implements WorkflowEngine {
   @Override
   public void deploy(Workflow workflow) throws IOException {
     checkIdsAreUnique(workflow);
-    if (workflow.getId() == null) {
-      workflow.setId("workflow_" + UUID.randomUUID());
-    }
     Deployment deployment = bpmnBuilder.addWorkflow(workflow);
     log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);

@@ -88,7 +88,6 @@ nb-configuration.xml
 .DS_Store
 
 workflow-bot-app/rsa/
-workflow-bot-app/datafeed.id
 
 workflow-bot-app/*.bpmn
 workflow-bot-app/*.png
@@ -97,3 +96,10 @@ workflow-bot-app/workflows
 !workflow-bot-app/workflows/README.txt
 
 workflow-bot-app/src/main/resources/application-local.yaml
+
+workflow-bot-app/data/*
+
+workflows/*
+
+datafeed.id
+./data/*
