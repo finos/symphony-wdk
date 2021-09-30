@@ -12,7 +12,7 @@ plugins {
     id 'signing'
 }
 
-group = 'com.symphony.platformsolutions'
+group = 'org.finos.symphony.wdk'
 version = '0.0.1-SNAPSHOT'
 
 repositories {
@@ -61,7 +61,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             pom {
-                url = 'https://github.com/SymphonyPlatformSolutions/symphony-wdk'
+                url = 'https://github.com/finos/symphony-wdk'
                 licenses {
                     license {
                         name = 'Apache License, Version 2.0'
@@ -70,16 +70,16 @@ publishing {
                 }
                 developers {
                     developer {
-                        name = 'Symphony Platform Solutions'
-                        email = 'platformsolutions@symphony.com'
+                        name = 'Symphony'
+                        email = 'symphony@finos.org'
                         organization = 'Symphony Communication Services'
                         organizationUrl = 'https://symphony.com'
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-wdk.git'
-                    developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-wdk.git'
-                    url = 'https://github.com/SymphonyPlatformSolutions/symphony-wdk.git'
+                    connection = 'scm:git:git://github.com/finos/symphony-wdk.git'
+                    developerConnection = 'scm:git:ssh://github.com/finos/symphony-wdk.git'
+                    url = 'https://github.com/finos/symphony-wdk.git'
                 }
             }
         }
