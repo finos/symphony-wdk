@@ -31,6 +31,8 @@ Java (JDK) 11 is required and Gradle is used to build the project.
 ```
 
 ## Contributing
+In order to get in touch with the project team, please open a [GitHub Issue](https://github.com/SymphonyPlatformSolutions/symphony-wdk/issues).
+Alternatively, you can email/subscribe to [symphony@finos.org](https://groups.google.com/a/finos.org/g/symphony).
 
 1. Fork it (<https://github.com/SymphonyPlatformSolutions/symphony-wdk>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
