@@ -109,12 +109,8 @@ public class CamundaBpmnBuilder {
   }
 
   private BpmnModelInstance workflowToBpmn(Workflow workflow) throws JsonProcessingException {
-    String processId = "";
-
     // spaces are not supported in BPMN here
-    if (workflow.getId() != null) {
-      processId = workflow.getId().replaceAll("\\s+", "");
-    }
+    String processId = workflow.getId().replaceAll("\\s+", "");
 
     ProcessBuilder process = Bpmn.createExecutableProcess(processId).name(workflow.getId());
 
