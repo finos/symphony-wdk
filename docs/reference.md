@@ -10,7 +10,7 @@ In SWADL, at the top level, you mainly define the activities part of the workflo
 
 Key     | Type    | Required |
 --------------|---------|----------| 
-[id](#id)            | String  | No    |
+[id](#id)            | String  | Yes    |
 [variables](#variables)     | Map     | No     |
 [activities](#activities)    | List   | Yes     |
 
@@ -27,8 +27,7 @@ activities:
 
 ## id
 
-Workflow's id should start with a letter. It is optional. If no id is provided, the workflow filename is used.
-Otherwise, it will be generated. The id will appear in logs and audit trails.
+Workflow's id should start with a letter and should not contain empty spaces. It is required. The id will appear in logs and audit trails.
 
 ## variables
 
