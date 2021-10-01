@@ -13,8 +13,6 @@ Check out the [Getting starting guide](./docs/getting-started.md) for an introdu
 
 ## Usage example
 
-![](../../../licecap.gif)
-
 _For more examples and usage, please refer to the [docs/examples](./docs/examples)._
 
 ## Development setup

@@ -102,4 +102,4 @@ workflow-bot-app/data/*
 workflows/*
 
 datafeed.id
-./data/*
+data/*
