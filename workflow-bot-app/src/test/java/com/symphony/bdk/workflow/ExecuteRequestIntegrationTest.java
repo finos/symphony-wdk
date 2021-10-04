@@ -61,8 +61,9 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final ApiClient mockedApiClient = mock(ApiClient.class);
 
     when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
-    when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
-        any())).thenThrow(new ApiException(400, "Bad request error for the test"));
+    when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenThrow(new ApiException(400, "Bad request error for the test", Collections.emptyMap(),
+            "ApiException response body"));
 
     engine.deploy(workflow);
 
@@ -70,6 +71,6 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 400)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), null);
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), "ApiException response body");
   }
 }

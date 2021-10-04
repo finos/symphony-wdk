@@ -34,6 +34,7 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
       statusCode = apiResponse.getStatusCode();
     } catch (ApiException apiException) {
       statusCode = apiException.getCode();
+      data = apiException.getResponseBody();
       log.debug("This error happens when the request fails.", apiException);
     }
 
