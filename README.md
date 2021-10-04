@@ -3,16 +3,27 @@
 
 # Symphony Workflow Developer Kit (WDK)
 
-_Also known as Workflow API or Workflow bot_, check out the  [documentation](./docs).
+The Symphony Workflow Developer Kit (WDK) is a way to build bots on the Symphony platform with minimal coding efforts. A
+standard execution engine, provided as a bot is running workflows written in a declarative manner.
+
+Workflow executions are triggered by events (such [Real-Time Events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)) and run activities. Activities are small building
+blocks often calling REST API endpoints of the Symphony platform or can even be custom-made to tailor your needs.
+
+- [Getting started](./docs/getting-started.md): a beginner's guide to run your first workflow
+- [Concepts](./docs/concepts.md): high-level view of the key concepts behind workflows
+- [Architecture](./docs/architecture.md): technical bits on the execution of workflows
+- [Deployment](./docs/deployment.md): how to run and configure the workflow bot
+- [Custom activities](./docs/custom-activities.md): step-by-step guide on how to implement your own activities
+- [Examples](./docs/examples): concrete and advanced workflows
+- [SWADL Reference](./docs/reference.md): syntax reference for the language used to write workflows
+
 
 :warning: _The WDK is very much in its inception and we are actually looking to get feedback on its usage. It also means
 all the APIs and the SWADL format are subject to change._
-
-## Getting started
-Check out the [Getting starting guide](./docs/getting-started.md) for an introduction.
+<hr />
 
 ## Usage example
-
+![](./docs/gifs/wdk-demo.gif)
 _For more examples and usage, please refer to the [docs/examples](./docs/examples)._
 
 ## Development setup
@@ -44,6 +55,13 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
+## Roadmap
+- Support External message template [#26](https://github.com/finos/symphony-wdk/issues/26)
+- Support event filtering [#27](https://github.com/finos/symphony-wdk/issues/27)
+- Support OBO (on behalf of) [#28](https://github.com/finos/symphony-wdk/issues/28)
+- Workflows versioning [#29](https://github.com/finos/symphony-wdk/issues/29)
+- Workflow communication with other bots [#30](https://github.com/finos/symphony-wdk/issues/30)
+- Provide workflow's status command [#31](https://github.com/finos/symphony-wdk/issues/31)
 
 ## License
 
