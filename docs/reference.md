@@ -1823,6 +1823,53 @@ Allowed values:
 - REJECTED
 - ALL
 
+### execute-request
+
+Executes an HTTP request.
+
+Key | Type | Required |
+------------ | -------| --- |
+[url](#url) | String | Yes |
+[method](#method) | String | Yes |
+[body](#body) | String | No |
+[headers](#headers) | String | No |
+
+Example:
+```yaml
+activities:
+  - execute-request:
+      id: myRequest
+      url: https://myUrl/myPath?isMocked=true
+      method: POST
+      body:
+        "args":
+          "message": "Hello world!"
+          "streaemId": "A_STREAM"
+      headers:
+        "X-Workflow-Token": "A_TOKEN"
+```
+
+#### url
+String that contains the host and the path to be targeted.
+
+#### method
+HTTP method to perform. Supported methods are:
+- DELETE
+- GET
+- HEAD
+- OPTIONS
+- PATCH
+- POST
+- PUT
+
+#### body
+HTTP request body. A map of key/value entries is expected. Simple types
+such as numbers, string and booleans as well as lists and maps are supported.
+
+#### headers
+HTTP request headers. A map of key/value entries is expected. Simple types
+such as numbers, string and booleans as well as lists and maps are supported.
+
 ### execute-script
 
 Executes a [Groovy](https://groovy-lang.org/) script.

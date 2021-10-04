@@ -59,7 +59,7 @@ class WorkflowsApiControllerIntegrationTest {
   }
 
   @Test
-  void executeWorkflowById_runTimeExceptionTest() throws Exception {
+  void executeWorkflowById_runTimeExceptionTest() {
     doThrow(new RuntimeException("Error parsing presentationML")).when(workflowEngine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
@@ -74,7 +74,6 @@ class WorkflowsApiControllerIntegrationTest {
       assertThat(exception.getMessage()).isEqualTo(
           "Request processing failed; nested exception is java.lang.RuntimeException: Error parsing presentationML");
     }
-
   }
 
   @Test

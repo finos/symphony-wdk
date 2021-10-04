@@ -1,0 +1,14 @@
+id: execute-get-request
+activities:
+  - execute-request:
+      id: executeGetRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: GET
+      url: https://url.com?isMocked=true
+      body:
+        args:
+          key: value
+      headers:
+        headerKey: headerValue

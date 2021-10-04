@@ -25,6 +25,7 @@ import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
+import com.symphony.bdk.workflow.engine.SpringBdkGateway;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -81,6 +82,9 @@ public abstract class IntegrationTest {
 
   @MockBean(name = "sessionService")
   SessionService sessionService;
+
+  @MockBean(name = "springBdkGateway")
+  SpringBdkGateway bdkGateway;
 
   static {
     // we don't use nashorn, we don't care it is going to disappear
