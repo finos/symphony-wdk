@@ -19,6 +19,8 @@ public class SpringBdkGateway implements BdkGateway {
   private final StreamService streamService;
   private final UserService userService;
   private final ConnectionService connectionService;
+
+  // not a bean
   private final ApiClientFactory apiClientFactory;
 
   @Autowired

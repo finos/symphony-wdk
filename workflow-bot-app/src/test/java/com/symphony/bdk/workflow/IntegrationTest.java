@@ -25,8 +25,8 @@ import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
-import com.symphony.bdk.workflow.engine.SpringBdkGateway;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
@@ -83,8 +83,9 @@ public abstract class IntegrationTest {
   @MockBean(name = "sessionService")
   SessionService sessionService;
 
+  // BdkGateway is changed in setUpMocks method to return the beans above
   @MockBean(name = "springBdkGateway")
-  SpringBdkGateway bdkGateway;
+  BdkGateway bdkGateway;
 
   static {
     // we don't use nashorn, we don't care it is going to disappear
@@ -122,6 +123,10 @@ public abstract class IntegrationTest {
   @BeforeEach
   void setUpMocks() {
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    when(bdkGateway.messages()).thenReturn(this.messageService);
+    when(bdkGateway.streams()).thenReturn(this.streamService);
+    when(bdkGateway.connections()).thenReturn(this.connectionService);
+    when(bdkGateway.users()).thenReturn(this.userService);
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered
