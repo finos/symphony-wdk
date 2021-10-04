@@ -34,7 +34,10 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final ApiClient mockedApiClient = mock(ApiClient.class);
     final Map<String, String> header = Map.of("headerKey", "headerValue");
     final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
-    final ApiResponse<Object> mockedResponse = new ApiResponse<>(200, Collections.emptyMap(), "OK");
+    final String jsonResponse =
+        "{\"name\":\"john\",\"age\":22,\"contact\":{\"phone\":\"0123456\",\"email\":\"john@symphony.com\"}}";
+
+    final ApiResponse<Object> mockedResponse = new ApiResponse<>(200, Collections.emptyMap(), jsonResponse);
 
     when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
     when(mockedApiClient.invokeAPI(eq(""), eq("GET"), anyList(), eq(body), eq(header), anyMap(), anyMap(),
@@ -47,7 +50,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 200)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), "OK");
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), jsonResponse);
   }
 
   @Test

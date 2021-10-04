@@ -9,7 +9,7 @@ dependencies {
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.3.0')
 
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
-    implementation 'org.finos.symphony.bdk:symphony-bdk-http-jersey2'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'

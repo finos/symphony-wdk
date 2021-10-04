@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.engine;
 
-import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
@@ -26,12 +25,12 @@ public class SpringBdkGateway implements BdkGateway {
   @Autowired
   public SpringBdkGateway(MessageService messageService,
       StreamService streamService, UserService userService,
-      ConnectionService connectionService, BdkConfig bdkConfig) {
+      ConnectionService connectionService) {
     this.messageService = messageService;
     this.streamService = streamService;
     this.userService = userService;
     this.connectionService = connectionService;
-    this.apiClientFactory = new ApiClientFactory(bdkConfig);
+    this.apiClientFactory = new ApiClientFactory();
   }
 
   @Override
