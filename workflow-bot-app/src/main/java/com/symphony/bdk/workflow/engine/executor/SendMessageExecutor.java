@@ -5,7 +5,6 @@ import static java.util.Collections.singletonList;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.stream.util.StreamUtil;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;

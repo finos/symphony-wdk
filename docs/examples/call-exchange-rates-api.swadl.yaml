@@ -1,0 +1,13 @@
+id: exchange-rates-workflow
+activities:
+  - execute-request:
+      id: callExchangeRatesApi
+      method: GET
+      url: https://open.er-api.com/v6/latest/EUR
+      on:
+        message-received:
+          content: /show-exchange-rates
+
+  - send-message:
+      id: sendRates
+      content: EURO= ${callExchangeRatesApi.outputs.body.rates['EUR']}, USD= ${callExchangeRatesApi.outputs.body.rates['USD']}
