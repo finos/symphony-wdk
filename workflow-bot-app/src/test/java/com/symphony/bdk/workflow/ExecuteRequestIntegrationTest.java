@@ -19,6 +19,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 class ExecuteRequestIntegrationTest extends IntegrationTest {
@@ -29,13 +30,19 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
   @Test
   void executeRequestSuccessful() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful.swadl.yaml"));
 
     final ApiClient mockedApiClient = mock(ApiClient.class);
     final Map<String, String> header = Map.of("headerKey", "headerValue");
     final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
-    final String jsonResponse =
-        "{\"name\":\"john\",\"age\":22,\"contact\":{\"phone\":\"0123456\",\"email\":\"john@symphony.com\"}}";
+    final Map<String, Object> jsonResponse = new LinkedHashMap<>();
+    final Map<String, String> contactInnerMap = new LinkedHashMap<>();
+
+    jsonResponse.put("name", "john");
+    jsonResponse.put("age", "22");
+    contactInnerMap.put("phone", "0123456");
+    contactInnerMap.put("email", "john@symphony.com");
+    jsonResponse.put("contact", contactInnerMap);
 
     final ApiResponse<Object> mockedResponse = new ApiResponse<>(200, Collections.emptyMap(), jsonResponse);
 
@@ -56,21 +63,22 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
   @Test
   void executeRequestFailed() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-failed.swadl.yaml"));
 
     final ApiClient mockedApiClient = mock(ApiClient.class);
-
+    final String apiResponseBody = "{\"message\": \"ApiException response body\"}";
     when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
-    when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
-        .thenThrow(new ApiException(400, "Bad request error for the test", Collections.emptyMap(),
-            "ApiException response body"));
+    when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+        any())).thenThrow(
+        new ApiException(400, "Bad request error for the test", Collections.emptyMap(), apiResponseBody));
 
     engine.deploy(workflow);
 
-    engine.onEvent(messageReceived("/execute"));
+    engine.onEvent(messageReceived("/execute-failed"));
 
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 400)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), "ApiException response body");
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"),
+            Map.of("message", "ApiException response body"));
   }
 }
