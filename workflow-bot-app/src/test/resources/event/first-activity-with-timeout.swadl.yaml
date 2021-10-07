@@ -1,0 +1,10 @@
+id: invalid-workflow
+activities:
+  - execute-script:
+      id: startingActivity
+      on:
+        timeout: PT10H
+        message-received:
+          content: /start-invalid
+      script: |
+

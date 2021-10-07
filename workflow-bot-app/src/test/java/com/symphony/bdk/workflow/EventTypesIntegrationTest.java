@@ -4,6 +4,7 @@ import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,6 +36,7 @@ import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -113,6 +115,19 @@ class EventTypesIntegrationTest extends IntegrationTest {
     assertThat(workflow).as("sendMessageIfNotTimeout activity should not be executed as it times out")
         .executed("startWorkflow")
         .notExecuted("sendMessageIfNotTimeout");
+  }
+
+  @SuppressWarnings("checkstyle:LineLength")
+  @Test
+  void firstActivity_timeout() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/first-activity-with-timeout.swadl.yaml"));
+
+    assertThatExceptionOfType(InvalidActivityException.class)
+        .isThrownBy(() -> engine.deploy(workflow))
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
+            "Invalid activity in the workflow invalid-workflow: Workflow's starting activity startingActivity should not have timeout"));
+
   }
 
   @Test

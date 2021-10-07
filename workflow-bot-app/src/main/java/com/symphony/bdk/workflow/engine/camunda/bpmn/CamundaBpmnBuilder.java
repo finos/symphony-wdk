@@ -133,6 +133,10 @@ public class CamundaBpmnBuilder {
       if (onFormRepliedEvent(activity) || !hasTimeout(activity)) {
         // no intermediate events for activities with timeout which creates a subprocess
         builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
+      } else if (workflow.getFirstActivity().isPresent() && activity.getId()
+          .equals(workflow.getFirstActivity().get().getActivity().getId())) {
+        throw new InvalidActivityException(workflow.getId(),
+            String.format("Workflow's starting activity %s should not have timeout", activity.getId()));
       } else {
         // set timeouts, formRepliedEvent activities timeout will be handled later
         builder = setTimeoutIfExists(builder, activity, activityExpirations, workflow);
