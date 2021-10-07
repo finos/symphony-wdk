@@ -72,7 +72,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // user 1 replies to form
     engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
-    // bot should send my reply back
+    // bot should send back my reply
     verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
   }

@@ -29,7 +29,7 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
-  private String timeout = "PT24H";
+  private String timeout;
 
   private List<Event> oneOf;
 

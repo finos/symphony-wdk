@@ -1,14 +1,19 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
@@ -88,6 +93,26 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("123", "/anything"));
 
     verify(messageService, timeout(5000)).send(eq("123"), content("ok"));
+  }
+
+  @Test
+  void onMessageReceived_timeout() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/send-message-timeout.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message());
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/start"));
+
+    Thread.sleep(3000); // wait 3s to let workflow times out
+
+    engine.onEvent(messageReceived("/continue"));
+
+    verify(messageService, never()).send(anyString(), any(Message.class));
+    assertThat(workflow).as("sendMessageIfNotTimeout activity should not be executed as it times out")
+        .executed("startWorkflow")
+        .notExecuted("sendMessageIfNotTimeout");
   }
 
   @Test
