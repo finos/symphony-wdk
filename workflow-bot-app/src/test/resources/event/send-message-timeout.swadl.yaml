@@ -1,0 +1,17 @@
+id: send-message-timeout
+activities:
+  - execute-script:
+      id: startWorkflow
+      on:
+        message-received:
+          content: /start
+      script: |
+  - send-message:
+      id: sendMessageIfNotTimeout
+      content: Message to be sent if no timeout
+      to:
+        stream-id: "123"
+      on:
+        timeout: PT2S
+        message-received:
+          content: /continue

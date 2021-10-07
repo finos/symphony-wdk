@@ -122,7 +122,7 @@ public class CamundaBpmnBuilder {
     String lastActivity = "";
     Map<String, String> parentActivities = new HashMap<>();
 
-    Map<String, AbstractFlowNodeBuilder<?, ?>> formExpirations = new HashMap<>();
+    Map<String, AbstractFlowNodeBuilder<?, ?>> activityExpirations = new HashMap<>();
     Map<String, AbstractFlowNodeBuilder<?, ?>> gateways = new HashMap<>();
     Map<String, Pair<BaseActivity, Event>> flowsToCreate = new HashMap<>();
 
@@ -130,13 +130,20 @@ public class CamundaBpmnBuilder {
     for (Activity activityContainer : workflow.getActivities()) {
       BaseActivity activity = activityContainer.getActivity();
 
-      builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
+      if (onFormRepliedEvent(activity) || !hasTimeout(activity)) {
+        // no intermediate events for activities with timeout which creates a subprocess
+        builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
+      } else {
+        // set timeouts, formRepliedEvent activities timeout will be handled later
+        builder = setTimeoutIfExists(builder, activity, activityExpirations, workflow);
+      }
+
 
       // process events starting the activity
       if (onFormRepliedEvent(activity) && activity.getOn() != null) {
         checkParentIsKnown(parentActivities, workflow.getId(), activity.getId(),
             activity.getOn().getFormReplied().getFormId());
-        builder = formReply(builder, activity, formExpirations);
+        builder = formReply(builder, activity, activityExpirations);
       }
 
       // activity-failed events are handled as boundary error events
@@ -157,10 +164,10 @@ public class CamundaBpmnBuilder {
       if (onActivityExpired(activity) && activity.getOn() != null) {
         // add the activity as a form expiration
         AbstractFlowNodeBuilder<?, ?> formExpirationBuilder =
-            formExpirations.get(activity.getOn().getActivityExpired().getActivityId());
+            activityExpirations.get(activity.getOn().getActivityExpired().getActivityId());
         formExpirationBuilder = addTask(formExpirationBuilder, activity);
         // update it for the next activities
-        formExpirations.put(activity.getOn().getActivityExpired().getActivityId(), formExpirationBuilder);
+        activityExpirations.put(activity.getOn().getActivityExpired().getActivityId(), formExpirationBuilder);
 
       } else {
         // add the activity in the normal flow
@@ -281,7 +288,7 @@ public class CamundaBpmnBuilder {
     }
 
     // finish all subprocesses handling form replies
-    for (AbstractFlowNodeBuilder<?, ?> subProcessBuilder : formExpirations.values()) {
+    for (AbstractFlowNodeBuilder<?, ?> subProcessBuilder : activityExpirations.values()) {
       subProcessBuilder.endEvent().subProcessDone();
     }
 
@@ -479,10 +486,16 @@ public class CamundaBpmnBuilder {
       Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies) {
     SubProcessBuilder subProcess = builder.subProcess();
 
+    // Forms have default timeout of 24H if none is set
+    String timeout = "PT24H";
+    if (activity.getOn() != null && !StringUtils.isEmpty(activity.getOn().getTimeout())) {
+      timeout = activity.getOn().getTimeout();
+    }
+
     if (activity.getOn() != null) {
       AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
           .startEvent()
-          .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
+          .intermediateCatchEvent().timerWithDuration(timeout);
       formReplies.put(activity.getId(), formExpirationBuilder);
 
       // we add the form reply event sub process inside the subprocess
@@ -494,6 +507,36 @@ public class CamundaBpmnBuilder {
           .name("formReply");
     }
     return builder;
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> setTimeoutIfExists(AbstractFlowNodeBuilder<?, ?> builder,
+      BaseActivity activity, Map<String, AbstractFlowNodeBuilder<?, ?>> map, Workflow workflow) {
+
+    if (activity.getOn() != null && activity.getOn().getTimeout() != null) {
+      SubProcessBuilder subProcess = builder.subProcess();
+
+      AbstractFlowNodeBuilder<?, ?> expirationBuilder = subProcess.embeddedSubProcess()
+          .startEvent()
+          .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
+      map.put(activity.getId(), expirationBuilder);
+
+      Optional<String> signalPrefix = this.eventToMessage.toSignalName(activity.getOn(), workflow);
+
+      if (signalPrefix.isPresent()) {
+        builder = subProcess.embeddedSubProcess().eventSubProcess()
+            .startEvent()
+            .camundaAsyncBefore()
+            .interrupting(false)
+            .signal(signalPrefix.get())
+            .name(signalPrefix.get());
+      }
+    }
+    return builder;
+  }
+
+  private boolean hasTimeout(BaseActivity activity) {
+    List<Event> events = activity.getEvents();
+    return events.stream().anyMatch(e -> e.getTimeout() != null && !e.getTimeout().isEmpty());
   }
 
   private AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)

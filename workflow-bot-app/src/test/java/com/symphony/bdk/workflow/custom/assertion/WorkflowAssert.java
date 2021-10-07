@@ -14,6 +14,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.Assertions;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricDetail;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -21,8 +22,11 @@ import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInst
 import org.mockito.ArgumentMatcher;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   public WorkflowAssert(Workflow workflow) {
@@ -80,6 +84,12 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   public WorkflowAssert executed(String... activities) {
     isNotNull();
     assertExecuted(activities);
+    return this;
+  }
+
+  public WorkflowAssert notExecuted(String... activities) {
+    isNotNull();
+    assertNotExecuted(activities);
     return this;
   }
 
@@ -156,6 +166,10 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   }
 
   private static void assertExecuted(String... activityIds) {
+    Assertions.assertThat(listExecutedActivities()).containsExactly(activityIds);
+  }
+
+  private static List<String> listExecutedActivities() {
     String process = lastProcess().orElseThrow();
     await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
 
@@ -166,13 +180,19 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
             .orderByActivityName().asc()
             .list();
 
-    org.assertj.core.api.Assertions.assertThat(processes)
-        .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
-        .filteredOn(p -> !p.getActivityType().equals("exclusiveGateway"))
-        .filteredOn(p -> !p.getActivityType().equals("boundaryError"))
-        .filteredOn(p -> !p.isCanceled())
-        .extracting(HistoricActivityInstance::getActivityName)
-        .containsExactly(activityIds);
+    return processes.stream()
+        .filter(p -> !p.getActivityType().equals("signalStartEvent") && !p.getActivityType().equals("exclusiveGateway")
+            && !p.getActivityType().equals("boundaryError") && !p.isCanceled())
+        .map(HistoricActivityInstance::getActivityName)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+  }
+
+  private static void assertNotExecuted(String... activityIds) {
+
+    Assertions.assertThat(Arrays.stream(activityIds)
+            .anyMatch(listExecutedActivities()::contains))
+        .isFalse();
   }
 
 
