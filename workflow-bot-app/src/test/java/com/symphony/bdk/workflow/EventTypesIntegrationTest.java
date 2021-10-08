@@ -107,7 +107,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
-    Thread.sleep(3000); // wait 3s to let workflow times out
+    Thread.sleep(500); // wait 0.5s to let workflow times out
 
     engine.onEvent(messageReceived("/continue"));
 

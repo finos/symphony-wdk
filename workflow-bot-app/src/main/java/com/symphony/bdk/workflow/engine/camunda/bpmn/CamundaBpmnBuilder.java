@@ -53,6 +53,8 @@ import java.util.stream.Collectors;
 @Component
 public class CamundaBpmnBuilder {
   public static final String DEPLOYMENT_RESOURCE_TOKEN_KEY = "WORKFLOW_TOKEN";
+  private static final String DEFAULT_FORM_REPLIED_EVENT_TIMEOUT = "PT24H";
+
 
   private final RepositoryService repositoryService;
   private final WorkflowEventToCamundaEvent eventToMessage;
@@ -491,7 +493,7 @@ public class CamundaBpmnBuilder {
     SubProcessBuilder subProcess = builder.subProcess();
 
     // Forms have default timeout of 24H if none is set
-    String timeout = "PT24H";
+    String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
     if (activity.getOn() != null && !StringUtils.isEmpty(activity.getOn().getTimeout())) {
       timeout = activity.getOn().getTimeout();
     }
@@ -539,8 +541,8 @@ public class CamundaBpmnBuilder {
   }
 
   private boolean hasTimeout(BaseActivity activity) {
-    List<Event> events = activity.getEvents();
-    return events.stream().anyMatch(e -> e.getTimeout() != null && !e.getTimeout().isEmpty());
+    return activity.getEvents().stream()
+        .anyMatch(e -> e.getTimeout() != null && !e.getTimeout().isEmpty());
   }
 
   private AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)

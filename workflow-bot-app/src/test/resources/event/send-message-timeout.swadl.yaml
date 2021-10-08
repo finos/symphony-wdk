@@ -12,6 +12,6 @@ activities:
       to:
         stream-id: "123"
       on:
-        timeout: PT2S
+        timeout: PT0.01S
         message-received:
           content: /continue
