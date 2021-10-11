@@ -1826,6 +1826,8 @@ Allowed values:
 
 Executes an HTTP request.
 
+_nb: Only APIs that return a JSON response are supported.
+
 Key | Type | Required |
 ------------ | -------| --- |
 [url](#url) | String | Yes |
