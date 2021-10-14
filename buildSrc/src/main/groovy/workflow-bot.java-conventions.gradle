@@ -13,7 +13,7 @@ plugins {
 }
 
 group = 'org.finos.symphony.wdk'
-version = '0.0.2-SNAPSHOT'
+version = '1.0.0-RC1'
 
 repositories {
     mavenCentral()
