@@ -30,12 +30,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # TODO: Only staging for now, it will be updated to closeAndReleaseRepository later
       - name: Build with Gradle
         run: |
           mkdir -p ~/.gnupg/
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
-          ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publish
+          ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publish closeAndReleaseRepository
 
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
