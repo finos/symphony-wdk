@@ -13,7 +13,7 @@ ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony art
 ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
 
 ext.pomDefinition = {
-    url = 'https://symphony-wdk.finos.org'
+    url = 'https://github.com/finos/symphony-wdk'
     licenses {
         license {
             name = 'Apache License, Version 2.0'
@@ -31,7 +31,7 @@ ext.pomDefinition = {
     scm {
         connection = 'scm:git:git://github.com/finos/symphony-wdk.git'
         developerConnection = 'scm:git:ssh://github.com/finos/symphony-wdk.git'
-        url = 'https://github.com/finos/symphony-bdk-java'
+        url = 'https://github.com/finos/symphony-wdk'
     }
 }
 
