@@ -43,8 +43,8 @@ allprojects {
 }
 
 nexusStaging {
-    username = project.ext.mavenRepoUsername
-    password = project.ext.mavenRepoPassword
+    username = rootProject.ext.mavenRepoUsername
+    password = rootProject.ext.mavenRepoPassword
     packageGroup = 'org.finos'
 }
 
