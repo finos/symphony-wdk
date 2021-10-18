@@ -1,0 +1,53 @@
+plugins {
+    id 'io.codearte.nexus-staging' version '0.22.0'
+}
+
+group = 'org.finos.symphony.wdk'
+version = '0.0.2-SNAPSHOT'
+
+ext.projectVersion = '0.0.2-SNAPSHOT'
+ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
+
+ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
+ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
+
+ext.pomDefinition = {
+    url = 'https://github.com/finos/symphony-wdk'
+    licenses {
+        license {
+            name = 'Apache License, Version 2.0'
+            url = 'http://www.apache.org/licenses/LICENSE-2.0'
+        }
+    }
+    developers {
+        developer {
+            name = 'Symphony Platform Solutions'
+            email = 'platformsolutions@symphony.com'
+            organization = 'Symphony Communication Services'
+            organizationUrl = 'https://symphony.com'
+        }
+    }
+    scm {
+        connection = 'scm:git:git://github.com/finos/symphony-wdk.git'
+        developerConnection = 'scm:git:ssh://github.com/finos/symphony-wdk.git'
+        url = 'https://github.com/finos/symphony-wdk'
+    }
+}
+
+allprojects {
+    group = 'org.finos.symphony.wdk'
+    version = projectVersion
+
+    defaultTasks 'build'
+}
+
+nexusStaging {
+    username = project.ext.mavenRepoUsername
+    password = project.ext.mavenRepoPassword
+    packageGroup = 'org.finos'
+}
+
+repositories {
+    mavenCentral()
+}
