@@ -3,6 +3,10 @@ plugins {
     id 'org.springframework.boot' version '2.5.4'
 }
 
+javadoc {
+    options.group 'WDK Bot App', 'com.symphony.bdk.workflow*'
+}
+
 dependencies {
     implementation project(':workflow-language')
 
@@ -54,14 +58,5 @@ bootJar {
     manifest {
         // to be able to use loader.path to add custom activities to the workflow bot
         attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
-    }
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            // publish the fat executable jar to be used by the Symphony generator
-            artifact bootJar
-        }
     }
 }

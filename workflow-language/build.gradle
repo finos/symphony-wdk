@@ -3,18 +3,14 @@ plugins {
     id 'java-library'
 }
 
+javadoc {
+    options.group 'WDK Language', 'com.symphony.bdk.workflow*'
+}
+
 dependencies {
     api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.2.1')
 
     api 'org.finos.symphony.bdk:symphony-bdk-core'
 
     api 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from(components.java)
-        }
-    }
 }
