@@ -20,6 +20,9 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
     }
+
+    withJavadocJar()
+    withSourcesJar()
 }
 
 test {
@@ -57,26 +60,14 @@ tasks.matching { task -> task.name.startsWith('spotbugs') }.forEach {
 publishing {
     publications {
         maven(MavenPublication) {
-            pom {
-                url = 'https://github.com/finos/symphony-wdk'
-                licenses {
-                    license {
-                        name = 'Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0'
-                    }
-                }
-                developers {
-                    developer {
-                        name = 'Symphony'
-                        email = 'symphony@finos.org'
-                        organization = 'Symphony Communication Services'
-                        organizationUrl = 'https://symphony.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/finos/symphony-wdk.git'
-                    developerConnection = 'scm:git:ssh://github.com/finos/symphony-wdk.git'
-                    url = 'https://github.com/finos/symphony-wdk.git'
+            from(components.java)
+            pom(rootProject.ext.pomDefinition)
+            pom.withXml {
+                // otherwise project description is evaluated too early
+                asNode().children().first().plus {
+                    setResolveStrategy(Closure.DELEGATE_FIRST)
+                    'name' project.name
+                    'description' project.description
                 }
             }
         }
@@ -85,15 +76,15 @@ publishing {
     repositories {
         maven {
             credentials {
-                username project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
-                password project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
+                username rootProject.ext.mavenRepoUsername ?: 'Symphony artifactory user'
+                password rootProject.ext.mavenRepoPassword ?: 'Symphony artifactory password'
             }
-            url project.properties['mavenRepoUrl'] ?: (project.version.endsWith('SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/')
+            url = rootProject.ext.mavenRepoUrl
         }
     }
 }
 
 signing {
-    required { !project.version.endsWith('SNAPSHOT') }
+    required { !rootProject.ext.projectVersion.endsWith('SNAPSHOT') }
     sign publishing.publications.maven
 }
