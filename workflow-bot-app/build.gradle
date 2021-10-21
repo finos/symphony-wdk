@@ -55,8 +55,23 @@ bootBuildImage {
 }
 
 bootJar {
+    classifier = 'boot'
     manifest {
         // to be able to use loader.path to add custom activities to the workflow bot
         attributes 'Main-Class': 'org.springframework.boot.loader.PropertiesLauncher'
+    }
+}
+
+jar {
+    // disabled this task to avoid publishing useless plain jar
+    enabled = false
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            // publish the fat executable jar to be used by the Symphony generator
+            artifact bootJar
+        }
     }
 }
