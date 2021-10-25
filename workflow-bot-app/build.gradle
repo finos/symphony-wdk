@@ -22,7 +22,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
     runtimeOnly 'ch.qos.logback:logback-classic'
 
-    implementation platform('org.camunda.bpm:camunda-bom:7.15.0')
+    implementation platform('org.camunda.bpm:camunda-bom:7.16.0')
     implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter'
     // used to serializable objects as variables
     implementation 'org.camunda.bpm:camunda-engine-plugin-spin'
