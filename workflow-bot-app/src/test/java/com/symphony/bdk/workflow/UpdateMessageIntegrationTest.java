@@ -4,6 +4,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.workflow.custom.assertion.Assertions;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -16,7 +17,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +44,11 @@ public class UpdateMessageIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).update(eq(message), messageArgumentCaptor.capture());
 
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
+    Assertions.assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUT_MESSAGE_ID_KEY, "updateMessage"), msgId);
+    Assertions.assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUT_MESSAGE_KEY, "updateMessage"), updatedMessage);
+
   }
 
   @Test
