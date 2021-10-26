@@ -3,6 +3,8 @@
 
 # Symphony Workflow Developer Kit (WDK)
 
+📺 [Video introduction of the WDK](https://goto.symphony.com/WorkflowDevKit-Recording.html)
+
 The Symphony Workflow Developer Kit (WDK) is a way to build bots on the Symphony platform with minimal coding efforts. A
 standard execution engine, provided as a bot is running workflows written in a declarative manner.
 
