@@ -1,0 +1,9 @@
+id: update-message
+activities:
+  - update-message:
+      id: updateMessage
+      on:
+        message-received:
+          content: /update-valid-message
+      message-id: MSG_ID
+      content: Message Updated

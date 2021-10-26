@@ -805,6 +805,18 @@ encoded urls are accepted.
 
 Path to the file to be attached to the message. The path is relative to the workflows folder.
 
+### update-message
+Update an existing message into a stream.
+
+Key | Type | Required |
+------------ | -------| --- |
+[message-id](#update-message-id) | String | Yes |
+[content](#content) | String | Yes |
+
+#### <a name="update-message-id"></a> message-id
+
+Message id of the message to be updated. Both url safe and base64 encoded urls are accepted
+
 ### get-message
 
 Returns a message found by id.
