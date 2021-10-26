@@ -55,6 +55,6 @@ public class UpdateMessageIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-invalid-message"));
 
-    verify(messageService, times(0)).update(any(V4Message.class), any(Message.class));
+    verify(messageService, timeout(5000).times(0)).update(any(V4Message.class), any(Message.class));
   }
 }

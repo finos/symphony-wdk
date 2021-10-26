@@ -113,7 +113,7 @@
                         ]
                     },
                     "update-message": {
-                        "description": "Posts a message to a stream.",
+                        "description": "Updates an existing message into a stream.",
                         "x-intellij-html-description": "<html><p>Update an existing message into a stream.</p><a href=\"https://developers.symphony.com/restapi/reference#update-message-v4\">https://developers.symphony.com/restapi/reference#update-message-v4</a></html>",
                         "allOf": [
                             {
