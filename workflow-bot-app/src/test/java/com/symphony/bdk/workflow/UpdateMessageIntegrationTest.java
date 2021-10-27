@@ -16,7 +16,7 @@ import java.io.IOException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,15 +40,13 @@ public class UpdateMessageIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-valid-message"));
 
-    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
-    verify(messageService, timeout(5000)).update(eq(message), messageArgumentCaptor.capture());
-
-    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
     Assertions.assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUT_MESSAGE_ID_KEY, "updateMessage"), msgId);
-    Assertions.assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUT_MESSAGE_ID_KEY, "updateMessage"), msgId)
         .hasOutput(String.format(OUTPUT_MESSAGE_KEY, "updateMessage"), updatedMessage);
 
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+    verify(messageService, times(1)).update(eq(message), messageArgumentCaptor.capture());
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
   }
 
   @Test
@@ -60,6 +58,7 @@ public class UpdateMessageIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/update-invalid-message"));
 
-    verify(messageService, timeout(5000).times(0)).update(any(V4Message.class), any(Message.class));
+    Assertions.assertThat(workflow).isExecuted();
+    verify(messageService, times(0)).update(any(V4Message.class), any(Message.class));
   }
 }
