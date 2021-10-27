@@ -10,7 +10,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.3.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.0')
 
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
