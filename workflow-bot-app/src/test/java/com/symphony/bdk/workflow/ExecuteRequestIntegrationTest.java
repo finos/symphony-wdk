@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -17,10 +18,14 @@ import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 class ExecuteRequestIntegrationTest extends IntegrationTest {
 
@@ -60,17 +65,24 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), jsonResponse);
   }
 
-  @Test
-  void executeRequestFailed() throws Exception {
+  static Stream<Arguments> exceptionMessages() {
+    return Stream.of(
+        arguments("{\"message\": \"ApiException response body\"}"),
+        arguments("ApiException response body")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("exceptionMessages")
+  void executeRequestFailed(String exceptionMessage) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-failed.swadl.yaml"));
 
     final ApiClient mockedApiClient = mock(ApiClient.class);
-    final String apiResponseBody = "{\"message\": \"ApiException response body\"}";
     when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
     when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
         any())).thenThrow(
-        new ApiException(400, "Bad request error for the test", Collections.emptyMap(), apiResponseBody));
+        new ApiException(400, "Bad request error for the test", Collections.emptyMap(), exceptionMessage));
 
     engine.deploy(workflow);
 

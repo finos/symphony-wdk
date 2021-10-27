@@ -39,7 +39,12 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
       statusCode = apiException.getCode();
 
       // we need to set the responseBody as a map instead of a string to allow processing it in subsequent activities
-      data = new ObjectMapper().readValue(apiException.getResponseBody(), Map.class);
+      try {
+        data = new ObjectMapper().readValue(apiException.getResponseBody(), Map.class);
+      } catch (JsonProcessingException e) {
+        data = new ObjectMapper().readValue(String.format("{\"message\": \"%s\"}", apiException.getResponseBody()),
+            Map.class);
+      }
       log.debug("This error happens when the request fails.", apiException);
     }
 

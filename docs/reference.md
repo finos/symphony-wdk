@@ -135,9 +135,11 @@ Checkout the [welcome bot example](./examples/welcome-bot.swadl.yaml) to see how
 
 #### timeout
 
-Timeout while waiting for `form-replied` events, expressed as
+Timeout while waiting for an event, expressed as
 an [ISO 8601 duration](https://en.wikipedia.org/wiki/ISO_8601#Durations). Upon expiration, another activity can be
-triggered with an [activity-expired](#activity-expired) event. Default value is 24 hours.
+triggered with an [activity-expired](#activity-expired) event.
+
+Default value for [form-replied](#form-replied) is 24 hours. No default value for other events.
 
 Example: _PT60S_ for a 60 seconds timeout.
 
