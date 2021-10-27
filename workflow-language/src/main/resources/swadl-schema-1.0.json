@@ -112,6 +112,18 @@
                             }
                         ]
                     },
+                    "update-message": {
+                        "description": "Updates an existing message into a stream.",
+                        "x-intellij-html-description": "<html><p>Update an existing message into a stream.</p><a href=\"https://developers.symphony.com/restapi/reference#update-message-v4\">https://developers.symphony.com/restapi/reference#update-message-v4</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/update-message-inner"
+                            }
+                        ]
+                    },
                     "get-attachment": {
                         "description": "Gets one attachment and stores it locally.",
                         "x-intellij-html-description": "<html><p>Gets one attachment and stores it locally.</p><a href=\"https://developers.symphony.com/restapi/reference#attachment\">https://developers.symphony.com/restapi/reference#attachment</a></html>",
@@ -478,7 +490,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
@@ -1466,23 +1478,8 @@
                     "description": "The recipient (conversation, IM, MIM or chatroom) in which the message should be posted.",
                     "$ref": "#/definitions/to"
                 },
-                "content": {
-                    "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the send-message activity one.",
-                    "anyOf": [
-                        {
-                            "enum": [
-                                "${variables.VARIABLE_NAME}",
-                                "${text(ACTIVITY_ID.outputs.message.message)}",
-                                "${event.args.NAME}",
-                                "<mention uid='${ACTIVITY_ID.outputs.user.userSystemInfo.id}'/>",
-                                "<mention uid='${event.initiator.user.userId}'/>"
-                            ]
-                        },
-                        {
-                            "type": "string",
-                            "minLength": 0
-                        }
-                    ]
+                "content" : {
+                    "$ref": "#/definitions/content-inner"
                 },
                 "attachments": {
                     "description": "One or more attachments to be sent along with the message.",
@@ -1494,6 +1491,21 @@
             },
             "required": [
                 "content"
+            ]
+        },
+        "update-message-inner": {
+            "type": "object",
+            "properties": {
+                "content" : {
+                    "$ref": "#/definitions/content-inner"
+                },
+                "message-id": {
+                    "$ref": "#/definitions/message-id-inner"
+                }
+            },
+            "required": [
+                "content",
+                "message-id"
             ]
         },
         "get-attachment-inner": {
@@ -2847,6 +2859,24 @@
                 },
                 {
                     "$ref": "#/definitions/user-ids"
+                }
+            ]
+        },
+        "content-inner": {
+            "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the activity one.",
+            "anyOf": [
+                {
+                    "enum": [
+                        "${variables.VARIABLE_NAME}",
+                        "${text(ACTIVITY_ID.outputs.message.message)}",
+                        "${event.args.NAME}",
+                        "<mention uid='${ACTIVITY_ID.outputs.user.userSystemInfo.id}'/>",
+                        "<mention uid='${event.initiator.user.userId}'/>"
+                    ]
+                },
+                {
+                    "type": "string",
+                    "minLength": 0
                 }
             ]
         },

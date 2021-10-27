@@ -1,6 +1,8 @@
-package com.symphony.bdk.workflow.swadl.v1.activity;
+package com.symphony.bdk.workflow.swadl.v1.activity.message;
 
 import com.symphony.bdk.workflow.swadl.v1.Variable;
+
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

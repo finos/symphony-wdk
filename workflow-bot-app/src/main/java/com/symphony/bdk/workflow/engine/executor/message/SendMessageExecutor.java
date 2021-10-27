@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.engine.executor;
+package com.symphony.bdk.workflow.engine.executor.message;
 
 import static java.util.Collections.singletonList;
 
@@ -11,7 +11,9 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
-import com.symphony.bdk.workflow.swadl.v1.activity.SendMessage;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +30,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
-  private static final String OUTPUT_MESSAGE_KEY = "message";
+  public static final String OUTPUT_MESSAGE_KEY = "message";
 
   @Override
   public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {
