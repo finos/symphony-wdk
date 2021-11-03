@@ -1,0 +1,8 @@
+id: pin-message
+activities:
+  - pin-message:
+      id: pinMessage
+      on:
+        message-received:
+          content: /pin-message
+      message-id: MSG_ID

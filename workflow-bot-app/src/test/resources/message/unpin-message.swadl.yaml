@@ -1,0 +1,8 @@
+id: unpin-message
+activities:
+  - unpin-message:
+      id: unpinMessage
+      on:
+        message-received:
+          content: /unpin-message
+      stream-id: STREAM_ID
