@@ -20,6 +20,7 @@ public class UnpinMessageExecutor implements ActivityExecutor<UnpinMessage> {
 
   @Override
   public void execute(ActivityExecutorContext<UnpinMessage> execution) throws IOException {
+    // temporary workaround until BDK 2.4.1 is released
     String streamId = IdUtil.toUrlSafeIdIfNeeded(execution.getActivity().getStreamId());
 
     V2StreamAttributes stream = execution.bdk().streams().getStream(streamId);
@@ -40,7 +41,9 @@ public class UnpinMessageExecutor implements ActivityExecutor<UnpinMessage> {
       log.debug("Unpin message in Room {}", streamId);
       execution.bdk().streams().updateRoom(streamId, roomAttributes);
     } else {
-      log.warn("Unable to unpin message in stream {} with type {}", streamId, streamType);
+      throw new IllegalArgumentException(
+          String.format("Unable to unpin message in stream type %s in activity %s", streamType,
+              execution.getActivity().getId()));
     }
   }
 }

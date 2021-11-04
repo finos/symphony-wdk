@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
 import com.symphony.bdk.core.util.IdUtil;
+import com.symphony.bdk.gen.api.model.StreamType;
 import com.symphony.bdk.gen.api.model.V1IMAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V4Message;
@@ -15,11 +16,12 @@ import java.io.IOException;
 @Slf4j
 public class PinMessageExecutor implements ActivityExecutor<PinMessage> {
 
-  public static final String IM = "IM";
-  public static final String ROOM = "ROOM";
+  public static final String IM = StreamType.TypeEnum.IM.getValue();
+  public static final String ROOM = StreamType.TypeEnum.ROOM.getValue();
 
   @Override
   public void execute(ActivityExecutorContext<PinMessage> execution) throws IOException {
+    // temporary workaround until BDK 2.4.1 is released
     String messageId = IdUtil.toUrlSafeIdIfNeeded(execution.getActivity().getMessageId());
 
     V4Message messageToPin = execution.bdk().messages().getMessage(messageId);
@@ -39,7 +41,9 @@ public class PinMessageExecutor implements ActivityExecutor<PinMessage> {
       log.debug("Pin message {} in Room {}", messageId, streamId);
       execution.bdk().streams().updateRoom(streamId, roomAttributes);
     } else {
-      log.warn("Unable to pin message {} with stream type {}", messageId, streamType);
+      throw new IllegalArgumentException(
+          String.format("Unable to pin message in stream type %s in activity %s", streamType,
+              execution.getActivity().getId()));
     }
   }
 }

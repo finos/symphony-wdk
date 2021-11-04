@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,7 +43,7 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
 
     Assertions.assertThat(workflow).isExecuted();
     verify(streamService, times(1)).updateInstantMessage(eq(STREAM_ID), any(V1IMAttributes.class));
-    verify(streamService, times(0)).updateRoom(any(String.class), any(V3RoomAttributes.class));
+    verify(streamService, never()).updateRoom(any(String.class), any(V3RoomAttributes.class));
   }
 
   @Test
@@ -60,7 +61,7 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/pin-message"));
 
     Assertions.assertThat(workflow).isExecuted();
-    verify(streamService, times(0)).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
+    verify(streamService, never()).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
     verify(streamService, times(1)).updateRoom(eq(STREAM_ID), any(V3RoomAttributes.class));
   }
 
@@ -80,7 +81,7 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
 
     Assertions.assertThat(workflow).isExecuted();
     verify(streamService, times(1)).updateInstantMessage(eq(STREAM_ID), any(V1IMAttributes.class));
-    verify(streamService, times(0)).updateRoom(any(String.class), any(V3RoomAttributes.class));
+    verify(streamService, never()).updateRoom(any(String.class), any(V3RoomAttributes.class));
   }
 
   @Test
@@ -98,7 +99,7 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/unpin-message"));
 
     Assertions.assertThat(workflow).isExecuted();
-    verify(streamService, times(0)).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
+    verify(streamService, never()).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
     verify(streamService, times(1)).updateRoom(eq(STREAM_ID), any(V3RoomAttributes.class));
   }
 
@@ -112,8 +113,8 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/pin-message"));
 
     Assertions.assertThat(workflow).isExecuted();
-    verify(streamService, times(0)).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
-    verify(streamService, times(0)).updateRoom(any(String.class), any(V3RoomAttributes.class));
+    verify(streamService, never()).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
+    verify(streamService, never()).updateRoom(any(String.class), any(V3RoomAttributes.class));
   }
 
   @Test
@@ -126,8 +127,8 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/unpin-message"));
 
     Assertions.assertThat(workflow).isExecuted();
-    verify(streamService, times(0)).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
-    verify(streamService, times(0)).updateRoom(any(String.class), any(V3RoomAttributes.class));
+    verify(streamService, never()).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
+    verify(streamService, never()).updateRoom(any(String.class), any(V3RoomAttributes.class));
   }
 
   @Test
@@ -145,8 +146,8 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/pin-message"));
 
     Assertions.assertThat(workflow).isExecuted();
-    verify(streamService, times(0)).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
-    verify(streamService, times(0)).updateRoom(any(String.class), any(V3RoomAttributes.class));
+    verify(streamService, never()).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
+    verify(streamService, never()).updateRoom(any(String.class), any(V3RoomAttributes.class));
   }
 
   @Test
@@ -164,7 +165,7 @@ public class PinUnpinMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/unpin-message"));
 
     Assertions.assertThat(workflow).isExecuted();
-    verify(streamService, times(0)).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
-    verify(streamService, times(0)).updateRoom(any(String.class), any(V3RoomAttributes.class));
+    verify(streamService, never()).updateInstantMessage(any(String.class), any(V1IMAttributes.class));
+    verify(streamService, never()).updateRoom(any(String.class), any(V3RoomAttributes.class));
   }
 }
