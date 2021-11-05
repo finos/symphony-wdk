@@ -1,5 +1,8 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
+import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY;
+import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_KEY;
+
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
@@ -7,9 +10,6 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
 
 import java.io.IOException;
-
-import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY;
-import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_KEY;
 
 public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
 
