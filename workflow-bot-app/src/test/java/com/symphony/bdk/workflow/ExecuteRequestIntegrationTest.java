@@ -38,7 +38,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful.swadl.yaml"));
 
     final ApiClient mockedApiClient = mock(ApiClient.class);
-    final Map<String, String> header = Map.of("headerKey", "headerValue");
+    final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
     final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
     final Map<String, Object> jsonResponse = new LinkedHashMap<>();
     final Map<String, String> contactInnerMap = new LinkedHashMap<>();

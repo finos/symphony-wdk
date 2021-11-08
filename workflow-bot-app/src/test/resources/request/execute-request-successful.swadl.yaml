@@ -11,7 +11,10 @@ activities:
         args:
           key: value
       headers:
-        headerKey: headerValue
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
 
   - execute-script:
       id: assertionScript

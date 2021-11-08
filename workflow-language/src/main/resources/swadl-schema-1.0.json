@@ -1535,6 +1535,7 @@
                 "method": {
                     "type": "string",
                     "description": "HTTP method to perform",
+                    "default": "GET",
                     "enum": [
                         "GET",
                         "POST",
@@ -1555,8 +1556,7 @@
                 }
             },
             "required": [
-                "url",
-                "method"
+                "url"
             ]
         },
         "email": {
