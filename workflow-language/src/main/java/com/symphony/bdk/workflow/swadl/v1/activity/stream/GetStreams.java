@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetStreams extends BaseActivity {
-  @Nullable private Variable<List<String>> types;
+  @Nullable private Variable<List<Variable<String>>> types;
   private String scope;
   private String origin;
   private String privacy;

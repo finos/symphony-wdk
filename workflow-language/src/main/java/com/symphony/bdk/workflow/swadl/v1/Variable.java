@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @NoArgsConstructor
 public class Variable<T> {
   public static final String RESOLVED_VALUE_FIELD = "val";
@@ -37,13 +39,21 @@ public class Variable<T> {
     return resolvedValue;
   }
 
-  @JsonIgnore
-  public Integer getInt() {
-    if (resolvedValue instanceof Number) {
-      return ((Number) resolvedValue).intValue();
-    } else {
-      return null;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Variable<?> variable = (Variable<?>) o;
+    return Objects.equals(resolvedValue, variable.resolvedValue) && Objects.equals(variableReference,
+        variable.variableReference);
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(resolvedValue, variableReference);
+  }
 }

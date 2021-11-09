@@ -17,11 +17,11 @@ import javax.annotation.Nullable;
 public class GetUsers extends BaseActivity {
 
   @Nullable
-  private Variable<List<Number>> userIds;
+  private Variable<List<Variable<Number>>> userIds;
   @Nullable
-  private Variable<List<String>> emails;
+  private Variable<List<Variable<String>>> emails;
   @Nullable
-  private Variable<List<String>> usernames;
+  private Variable<List<Variable<String>>> usernames;
 
   private Variable<Boolean> local = Variable.nullValue();
   private Variable<Boolean> active = Variable.nullValue();

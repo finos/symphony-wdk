@@ -15,5 +15,5 @@ import java.util.List;
 @Data
 public class DemoteRoomOwner extends BaseActivity {
   private String streamId;
-  private Variable<List<Number>> userIds = Variable.value(List.of());
+  private Variable<List<Variable<Number>>> userIds = Variable.value(List.of());
 }

@@ -7,6 +7,7 @@ import com.symphony.bdk.workflow.swadl.v1.Variable;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -46,8 +48,21 @@ public class EscapedJsonVariableDeserializer extends StdDeserializer<Variable> {
           return Variable.value(tree.booleanValue());
 
         } else if (tree.isArray()) {
-          List variable = mapper.readValue(node.get(VARIABLE_REFERENCE_FIELD).textValue(), List.class);
+          List variable;
+          try {
+            variable =
+                mapper.convertValue(node.get(VARIABLE_REFERENCE_FIELD).textValue(),
+                    new TypeReference<List<Variable>>() {});
+          } catch (IllegalArgumentException e) {
+            // this is just a list of strings
+            variable = mapper.readValue(node.get(VARIABLE_REFERENCE_FIELD).textValue(), List.class);
+            // rewrap it in a variable
+            variable = (List) variable.stream()
+                .map(o -> Variable.value(o))
+                .collect(Collectors.toList());
+          }
           return Variable.value(variable);
+
 
         } else {
           Map variable = mapper.readValue(node.get(VARIABLE_REFERENCE_FIELD).textValue(), Map.class);
@@ -69,7 +84,7 @@ public class EscapedJsonVariableDeserializer extends StdDeserializer<Variable> {
       return Variable.value(node.get(RESOLVED_VALUE_FIELD).textValue());
 
     } else if (node.get(RESOLVED_VALUE_FIELD).isArray()) {
-      List variable = mapper.treeToValue(node.get(RESOLVED_VALUE_FIELD), List.class);
+      List variable = mapper.convertValue(node.get(RESOLVED_VALUE_FIELD), new TypeReference<List<Variable>>() {});
       return Variable.value(variable);
 
     } else {
