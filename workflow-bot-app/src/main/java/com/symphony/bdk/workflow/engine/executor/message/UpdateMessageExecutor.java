@@ -17,7 +17,9 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
     String messageId = execution.getActivity().getMessageId();
     V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
-    Message message = Message.builder().content(execution.getActivity().getContent()).build();
+    String content = SendMessageExecutor.extractContent(execution.getActivity().getContent(), execution.getVariables(),
+        execution.bdk().messages());
+    Message message = Message.builder().content(content).build();
     V4Message updatedMessage = execution.bdk().messages().update(messageToUpdate, message);
 
     execution.setOutputVariable(OUTPUT_MESSAGE_KEY, updatedMessage);

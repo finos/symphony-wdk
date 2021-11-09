@@ -148,6 +148,11 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
+    public Map<String, Object> getVariables() {
+      return (Map<String, Object>) execution.getVariable(VARIABLES);
+    }
+
+    @Override
     public BdkGateway bdk() {
       return bdk;
     }

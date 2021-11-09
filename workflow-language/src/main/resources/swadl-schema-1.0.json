@@ -2921,6 +2921,10 @@
                     ]
                 },
                 {
+                    "type": "object",
+                    "minLength": 0
+                },
+                {
                     "type": "string",
                     "minLength": 0
                 }
