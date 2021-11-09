@@ -11,6 +11,7 @@ import com.symphony.bdk.gen.api.model.V2UserKeyRequest;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.DateTimeUtils;
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.CreateUser;
 
 import lombok.extern.slf4j.Slf4j;
@@ -70,8 +71,15 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
       );
     }
 
-    user.setRoles(createUser.getRoles().get());
+    user.setRoles(toStrings(createUser.getRoles().get()));
     return user;
+  }
+
+  private static List<String> toString(List<Variable<String>> variable) {
+    if (variable == null) {
+      return null;
+    }
+    return variable.stream().map(Variable::get).collect(Collectors.toList());
   }
 
   static V2UserAttributes toUserAttributes(CreateUser createUser) {
@@ -98,12 +106,12 @@ public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
       attributes.setCompanyName(createUser.getBusiness().getCompanyName());
       attributes.setJobFunction(createUser.getBusiness().getJobFunction());
       attributes.setTitle(createUser.getBusiness().getTitle());
-      attributes.setAssetClasses(createUser.getBusiness().getAssetClasses().get());
-      attributes.setFunction(createUser.getBusiness().getFunctions().get());
-      attributes.setIndustries(createUser.getBusiness().getIndustries().get());
-      attributes.setInstrument(createUser.getBusiness().getInstruments().get());
-      attributes.setResponsibility(createUser.getBusiness().getResponsibilities().get());
-      attributes.setMarketCoverage(createUser.getBusiness().getMarketCoverages().get());
+      attributes.setAssetClasses(toString(createUser.getBusiness().getAssetClasses().get()));
+      attributes.setFunction(toString(createUser.getBusiness().getFunctions().get()));
+      attributes.setIndustries(toString(createUser.getBusiness().getIndustries().get()));
+      attributes.setInstrument(toString(createUser.getBusiness().getInstruments().get()));
+      attributes.setResponsibility(toString(createUser.getBusiness().getResponsibilities().get()));
+      attributes.setMarketCoverage(toString(createUser.getBusiness().getMarketCoverages().get()));
     }
 
     if (createUser.getKeys() != null) {

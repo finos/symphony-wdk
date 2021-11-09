@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
-import com.symphony.bdk.core.service.stream.util.StreamUtil;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;

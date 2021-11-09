@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 @Data
 public class GetRooms extends BaseActivity {
   private String query;
-  private Variable<List<String>> labels = Variable.nullValue();
+  private Variable<List<Variable<String>>> labels = Variable.nullValue();
   private Variable<Boolean> active = Variable.nullValue();
 
   @JsonProperty("private")

@@ -23,7 +23,7 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
     V3RoomSearchResults rooms;
     if (getRooms.getLimit() != null && getRooms.getSkip() != null) {
       rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms),
-          new PaginationAttribute(getRooms.getSkip().getInt(), getRooms.getLimit().getInt()));
+          new PaginationAttribute(getRooms.getSkip().get().intValue(), getRooms.getLimit().get().intValue()));
     } else if (getRooms.getLimit() == null && getRooms.getSkip() == null) {
       rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms));
     } else {
@@ -37,7 +37,7 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
   private V2RoomSearchCriteria toCriteria(GetRooms getRooms) {
     V2RoomSearchCriteria criteria = new V2RoomSearchCriteria()
         .query(getRooms.getQuery())
-        .labels(getRooms.getLabels().get())
+        .labels(toStrings(getRooms.getLabels().get()))
         ._private(getRooms.getIsPrivate().get())
         .active(getRooms.getActive().get());
     if (getRooms.getSortOrder() != null) {

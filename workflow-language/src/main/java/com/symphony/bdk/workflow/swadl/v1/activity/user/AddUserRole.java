@@ -14,6 +14,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AddUserRole extends BaseActivity {
-  private Variable<List<Number>> userIds = Variable.value(List.of());
-  private Variable<List<String>> roles = Variable.value(List.of());
+  private Variable<List<Variable<Number>>> userIds = Variable.value(List.of());
+  private Variable<List<Variable<String>>> roles = Variable.value(List.of());
 }

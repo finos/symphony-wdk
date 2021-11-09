@@ -22,7 +22,8 @@ public class GetStreamMembersExecutor implements ActivityExecutor<GetStreamMembe
     V2MembershipList members;
     if (getStreamMembers.getLimit() != null && getStreamMembers.getSkip() != null) {
       members = execution.bdk().streams().listStreamMembers(streamId,
-          new PaginationAttribute(getStreamMembers.getSkip().getInt(), getStreamMembers.getLimit().getInt()));
+          new PaginationAttribute(getStreamMembers.getSkip().get().intValue(),
+              getStreamMembers.getLimit().get().intValue()));
     } else if (getStreamMembers.getLimit() == null && getStreamMembers.getSkip() == null) {
       members = execution.bdk().streams().listStreamMembers(streamId);
     } else {

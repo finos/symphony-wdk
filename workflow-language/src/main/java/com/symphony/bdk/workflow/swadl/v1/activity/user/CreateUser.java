@@ -34,7 +34,7 @@ public class CreateUser extends BaseActivity {
   private Business business;
 
   @Nullable
-  private Variable<List<String>> roles = Variable.nullValue();
+  private Variable<List<Variable<String>>> roles = Variable.nullValue();
 
   @Nullable
   private Variable<Map<String, Boolean>> entitlements;
@@ -66,12 +66,12 @@ public class CreateUser extends BaseActivity {
     private String title;
     private String location;
     private String jobFunction;
-    private Variable<List<String>> assetClasses = Variable.nullValue();
-    private Variable<List<String>> industries = Variable.nullValue();
-    private Variable<List<String>> functions = Variable.nullValue();
-    private Variable<List<String>> marketCoverages = Variable.nullValue();
-    private Variable<List<String>> responsibilities = Variable.nullValue();
-    private Variable<List<String>> instruments = Variable.nullValue();
+    private Variable<List<Variable<String>>> assetClasses = Variable.nullValue();
+    private Variable<List<Variable<String>>> industries = Variable.nullValue();
+    private Variable<List<Variable<String>>> functions = Variable.nullValue();
+    private Variable<List<Variable<String>>> marketCoverages = Variable.nullValue();
+    private Variable<List<Variable<String>>> responsibilities = Variable.nullValue();
+    private Variable<List<Variable<String>>> instruments = Variable.nullValue();
   }
 
 

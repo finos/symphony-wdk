@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.swadl;
 import com.symphony.bdk.workflow.swadl.v1.Variable;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,7 +42,7 @@ public class VariableListDeserializer extends StdDeserializer<Variable> {
       return Variable.value(node.numberValue());
 
     } else if (node.isArray()) {
-      return Variable.value(mapper.treeToValue(node, List.class));
+      return Variable.value(mapper.convertValue(node, new TypeReference<List<Variable>>() {}));
 
     } else if (node.isObject()) {
       return Variable.value(mapper.treeToValue(node, Map.class));
