@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -16,5 +15,5 @@ import java.util.List;
 @Data
 public class RemoveRoomMember extends BaseActivity {
   private String streamId;
-  private Variable<List<Variable<Number>>> userIds = Variable.value(List.of());
+  private List<Long> userIds = List.of();
 }

@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow.engine.executor.user;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.AddUserRole;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +17,10 @@ public class AddUserRoleExecutor implements ActivityExecutor<AddUserRole> {
   public void execute(ActivityExecutorContext<AddUserRole> context) {
     AddUserRole userRole = context.getActivity();
 
-    for (Variable<Number> userId : userRole.getUserIds().get()) {
-      for (Variable<String> role : userRole.getRoles().get()) {
+    for (Long userId : userRole.getUserIds()) {
+      for (String role : userRole.getRoles()) {
         log.debug("Adding role {} to user {}", role, userId);
-        context.bdk().users().addRole(userId.get().longValue(), RoleId.valueOf(role.get()));
+        context.bdk().users().addRole(userId, RoleId.valueOf(role));
       }
     }
   }

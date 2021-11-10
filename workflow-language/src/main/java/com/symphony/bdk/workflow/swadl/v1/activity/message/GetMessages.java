@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.message;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -15,6 +14,6 @@ import lombok.EqualsAndHashCode;
 public class GetMessages extends BaseActivity {
   private String streamId;
   private String since;
-  private Variable<Number> skip = Variable.nullValue();
-  private Variable<Number> limit = Variable.nullValue();
+  private Integer skip;
+  private Integer limit;
 }

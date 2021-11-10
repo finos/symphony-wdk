@@ -13,5 +13,14 @@ public class ExecuteScript extends BaseActivity { // no executor it is handled a
   public static final String SCRIPT_ENGINE = "groovy";
 
   private String script;
+
+  public String getScript() {
+    if (script == null) {
+      // this is accessed as part of the BPMN model building so we have to use the getVariableProperties instead
+      return (String) getVariableProperties().get("script");
+    } else {
+      return script;
+    }
+  }
 }
 

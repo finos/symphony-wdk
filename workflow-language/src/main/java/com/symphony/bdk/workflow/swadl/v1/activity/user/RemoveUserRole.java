@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -14,6 +13,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class RemoveUserRole extends BaseActivity {
-  private Variable<List<Variable<Number>>> userIds = Variable.value(List.of());
-  private Variable<List<Variable<String>>> roles = Variable.value(List.of());
+  private List<Long> userIds = List.of();
+  private List<String> roles = List.of();
 }

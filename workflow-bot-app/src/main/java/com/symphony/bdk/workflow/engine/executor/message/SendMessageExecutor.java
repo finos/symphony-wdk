@@ -13,7 +13,6 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
@@ -65,11 +63,11 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       return singletonList(activity.getTo().getStreamId());
 
     } else if (activity.getTo() != null && activity.getTo().getStreamIds() != null) {
-      return activity.getTo().getStreamIds().get().stream().map(Variable::get).collect(Collectors.toList());
+      return activity.getTo().getStreamIds();
 
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
-      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds().get(), streamService));
+      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
 
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
@@ -88,10 +86,8 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
   }
 
-  private String createOrGetStreamId(List<Variable<Number>> userIds, StreamService streamService) {
-    Stream stream = streamService.create(userIds.stream()
-        .map(numberVariable -> numberVariable.get().longValue())
-        .collect(Collectors.toList()));
+  private String createOrGetStreamId(List<Long> userIds, StreamService streamService) {
+    Stream stream = streamService.create(userIds);
     return stream.getId();
   }
 

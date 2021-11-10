@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,7 +9,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
@@ -21,30 +19,24 @@ import javax.annotation.Nullable;
 public class CreateRoom extends BaseActivity {
   @Nullable private String roomName;
   @Nullable private String roomDescription;
-  private Variable<List<Variable<Number>>> userIds = Variable.nullValue();
-  @Nullable private Variable<Map<String, String>> keywords;
-  private Variable<Boolean> membersCanInvite = Variable.nullValue();
-  private Variable<Boolean> discoverable = Variable.nullValue();
-  private Variable<Boolean> readOnly = Variable.nullValue();
-  private Variable<Boolean> copyProtected = Variable.nullValue();
-  private Variable<Boolean> crossPod = Variable.nullValue();
-  private Variable<Boolean> viewHistory = Variable.nullValue();
-  private Variable<Boolean> multiLateralRoom = Variable.nullValue();
+  private List<Long> userIds;
+  @Nullable private Map<String, String> keywords;
+  private Boolean membersCanInvite;
+  private Boolean discoverable;
+  private Boolean readOnly;
+  private Boolean copyProtected;
+  private Boolean crossPod;
+  private Boolean viewHistory;
+  private Boolean multilateralRoom;
   @Nullable private String subType;
 
   @JsonProperty("public")
-  private Variable<Boolean> isPublic = Variable.nullValue();
+  private Boolean isPublic;
 
   @JsonIgnore
   @Nullable
   public List<Long> getUserIdsAsLongs() {
-    if (userIds.get() == null) {
-      return null;
-    }
-    return userIds.get().stream()
-        .map(Variable::get)
-        .map(Number::longValue)
-        .collect(Collectors.toList());
+    return userIds;
   }
 
   @Data

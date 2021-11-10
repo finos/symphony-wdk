@@ -13,7 +13,6 @@ activities:
 
   - send-message: #has as output {"messageId": "LmNOpqrStUVw"}
       id: sendmessageid
-      description: "activity to send simple message"
       to:
         stream-id: ${createRoom.outputs.roomId}
       content: <messageML><p>Hello!</p></messageML>

@@ -2,16 +2,19 @@ package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
+import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
 import com.symphony.bdk.workflow.engine.camunda.variable.EscapedJsonVariableDeserializer;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -32,6 +35,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -49,13 +53,18 @@ public class CamundaExecutor implements JavaDelegate {
 
   static {
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(Variable.class, new EscapedJsonVariableDeserializer());
+    module.addDeserializer(List.class, new EscapedJsonVariableDeserializer<>(List.class));
+    module.addDeserializer(Map.class, new EscapedJsonVariableDeserializer<>(Map.class));
     OBJECT_MAPPER = JsonMapper.builder()
         .addModule(module)
         .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         // to escape # or $ in message received content and still serialize it to JSON
         .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
         .build();
+    OBJECT_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+    // serialized properties must be annotated explicitly with @JsonProperty
+    OBJECT_MAPPER.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+    OBJECT_MAPPER.addMixIn(BaseActivity.class, BpmnToAndFromBaseActivityMixin.class);
   }
 
   private final BdkGateway bdk;

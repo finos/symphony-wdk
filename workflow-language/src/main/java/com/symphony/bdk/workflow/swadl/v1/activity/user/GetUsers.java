@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -17,13 +16,13 @@ import javax.annotation.Nullable;
 public class GetUsers extends BaseActivity {
 
   @Nullable
-  private Variable<List<Variable<Number>>> userIds;
+  private List<Long> userIds;
   @Nullable
-  private Variable<List<Variable<String>>> emails;
+  private List<String> emails;
   @Nullable
-  private Variable<List<Variable<String>>> usernames;
+  private List<String> usernames;
 
-  private Variable<Boolean> local = Variable.nullValue();
-  private Variable<Boolean> active = Variable.nullValue();
+  private Boolean local;
+  private Boolean active;
 
 }

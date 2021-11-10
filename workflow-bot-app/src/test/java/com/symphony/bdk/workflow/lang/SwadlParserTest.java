@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow.lang;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.symphony.bdk.workflow.DoSomething;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -43,7 +42,7 @@ class SwadlParserTest {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("custom-activity.swadl.yaml"));
 
     assertThat(workflow.getFirstActivity()).hasValueSatisfying(c -> {
-      assertThat(((DoSomething) (c.getActivity())).getMyParameter()).isEqualTo("abc");
+      assertThat(c.getActivity().getVariableProperties().get("my-parameter")).isEqualTo("abc");
     });
   }
 

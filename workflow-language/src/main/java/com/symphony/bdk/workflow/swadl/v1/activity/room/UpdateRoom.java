@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,19 +20,19 @@ public class UpdateRoom extends BaseActivity {
 
   @Nullable private String roomName;
   @Nullable private String roomDescription;
-  @Nullable private Variable<Map<String, String>> keywords;
+  @Nullable private Map<String, String> keywords;
 
-  private Variable<Boolean> membersCanInvite = Variable.nullValue();
-  private Variable<Boolean> discoverable = Variable.nullValue();
+  private Boolean membersCanInvite;
+  private Boolean discoverable;
 
   @JsonProperty("public")
-  private Variable<Boolean> isPublic = Variable.nullValue();
+  private Boolean isPublic;
 
-  private Variable<Boolean> readOnly = Variable.nullValue();
-  private Variable<Boolean> copyProtected = Variable.nullValue();
-  private Variable<Boolean> crossPod = Variable.nullValue();
-  private Variable<Boolean> viewHistory = Variable.nullValue();
-  private Variable<Boolean> multilateralRoom = Variable.nullValue();
+  private Boolean readOnly;
+  private Boolean copyProtected;
+  private Boolean crossPod;
+  private Boolean viewHistory;
+  private Boolean multilateralRoom;
 
-  @Nullable private Variable<Boolean> active;
+  @Nullable private Boolean active;
 }

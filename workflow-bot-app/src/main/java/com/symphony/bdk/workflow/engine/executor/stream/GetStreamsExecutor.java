@@ -26,7 +26,7 @@ public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
     V2AdminStreamList streams;
     if (getStreams.getLimit() != null && getStreams.getSkip() != null) {
       streams = execution.bdk().streams().listStreamsAdmin(toFilter(getStreams),
-          new PaginationAttribute(getStreams.getSkip().get().intValue(), getStreams.getLimit().get().intValue()));
+          new PaginationAttribute(getStreams.getSkip(), getStreams.getLimit()));
     } else if (getStreams.getLimit() == null && getStreams.getSkip() == null) {
       streams = execution.bdk().streams().listStreamsAdmin(toFilter(getStreams));
     } else {
@@ -47,8 +47,8 @@ public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
         .endDate(DateTimeUtils.toEpochMilli(getRooms.getEndDate()));
     if (getRooms.getTypes() != null) {
       filter.setStreamTypes(
-          getRooms.getTypes().get().stream()
-              .map(t -> new V2AdminStreamType().type(t.get()))
+          getRooms.getTypes().stream()
+              .map(t -> new V2AdminStreamType().type(t))
               .collect(Collectors.toList()));
     }
     return filter;
