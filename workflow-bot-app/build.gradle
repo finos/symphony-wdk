@@ -12,6 +12,8 @@ dependencies {
 
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.3.0')
 
+    implementation 'org.apache.httpcomponents.client5:httpclient5-fluent:5.1.1'
+
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'

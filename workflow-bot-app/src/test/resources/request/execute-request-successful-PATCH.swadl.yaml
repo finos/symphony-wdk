@@ -1,0 +1,26 @@
+id: execute-patch-request
+activities:
+  - execute-request:
+      id: executePatchRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: PATCH
+      url: https://url.com?isMocked=true
+      body:
+        args:
+          key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  # the script below will be used after implementing JSON utility function
+  #- execute-script:
+  #    id: assertionScript
+  #    script: |
+  #      assert executePatchRequest.outputs.body.name == "john"
+  #      assert executePatchRequest.outputs.body.age == "22"
+  #      assert executePatchRequest.outputs.body.contact.phone == "0123456"
+  #      assert executePatchRequest.outputs.body.contact.email == "john@symphony.com"

@@ -2,18 +2,10 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiResponse;
-import com.symphony.bdk.http.api.util.TypeReference;
+import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
+import com.symphony.bdk.workflow.engine.executor.request.client.Response;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -21,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -32,29 +24,60 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
   private static final String OUTPUTS_STATUS_KEY = "%s.outputs.status";
   private static final String OUTPUTS_BODY_KEY = "%s.outputs.body";
 
-  @Test
-  void executeRequestSuccessful() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful.swadl.yaml"));
+  @MockBean
+  HttpClient httpClient;
 
-    final ApiClient mockedApiClient = mock(ApiClient.class);
+  static Stream<Arguments> httpMethods() {
+    return Stream.of(
+        arguments("POST", "/request/execute-request-successful-POST.swadl.yaml", "executePostRequest"),
+        arguments("PUT", "/request/execute-request-successful-PUT.swadl.yaml", "executePutRequest"),
+        arguments("DELETE", "/request/execute-request-successful-DELETE.swadl.yaml", "executeDeleteRequest"),
+        arguments("PATCH", "/request/execute-request-successful-PATCH.swadl.yaml", "executePatchRequest"),
+        arguments("HEAD", "/request/execute-request-successful-HEAD.swadl.yaml", "executeHeadRequest"),
+        arguments("OPTIONS", "/request/execute-request-successful-OPTIONS.swadl.yaml", "executeOptionsRequest")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("httpMethods")
+  void executeRequestSuccessful(String method, String swadlFile, String workflowId) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
+
     final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
     final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
-    final Map<String, Object> jsonResponse = new LinkedHashMap<>();
-    final Map<String, String> contactInnerMap = new LinkedHashMap<>();
+    final String url = "https://url.com?isMocked=true";
+    final String expectedResponse =
+        "{\"name\": \"john\",\n \"age\": \"22\",\n"
+            + "\"contact\": {\n\"phone\": \"0123456\",\n\"email\": \"john@symphony.com\"}";
 
-    jsonResponse.put("name", "john");
-    jsonResponse.put("age", "22");
-    contactInnerMap.put("phone", "0123456");
-    contactInnerMap.put("email", "john@symphony.com");
-    jsonResponse.put("contact", contactInnerMap);
+    final Response mockedResponse = new Response(200, expectedResponse);
 
-    final ApiResponse<Object> mockedResponse = new ApiResponse<>(200, Collections.emptyMap(), jsonResponse);
+    when(httpClient.execute(method, url, body, header)).thenReturn(mockedResponse);
 
-    when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
-    when(mockedApiClient.invokeAPI(eq(""), eq("GET"), anyList(), eq(body), eq(header), anyMap(), anyMap(),
-        eq("application/json"), eq("application/json"), eq(null), any(TypeReference.class)))
-        .thenReturn(mockedResponse);
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_STATUS_KEY, workflowId), 200)
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, workflowId), expectedResponse);
+  }
+
+  @Test
+  void executeGetRequestSuccessful() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful-GET.swadl.yaml"));
+
+    final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
+    final String url = "https://url.com?isMocked=true";
+    final String expectedResponse =
+        "{\"name\": \"john\",\n \"age\": \"22\","
+            + "\n\"contact\": {\n\"phone\": \"0123456\",\n\"email\": \"john@symphony.com\"}";
+
+    final Response mockedResponse = new Response(200, expectedResponse);
+
+    when(httpClient.execute("GET", url, null, header)).thenReturn(mockedResponse);
 
     engine.deploy(workflow);
 
@@ -62,7 +85,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 200)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), jsonResponse);
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), expectedResponse);
   }
 
   static Stream<Arguments> exceptionMessages() {
@@ -78,11 +101,11 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-failed.swadl.yaml"));
 
-    final ApiClient mockedApiClient = mock(ApiClient.class);
-    when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
-    when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
-        any())).thenThrow(
-        new ApiException(400, "Bad request error for the test", Collections.emptyMap(), exceptionMessage));
+    final Map<String, String> header = Map.of("headerKey", "headerValue");
+    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
+    final String url = "https://url.com?isMocked=true";
+
+    when(httpClient.execute("POST", url, body, header)).thenReturn(new Response(400, exceptionMessage));
 
     engine.deploy(workflow);
 
@@ -92,5 +115,27 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 400)
         .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"),
             Map.of("message", "ApiException response body"));
+  }
+
+  @Test
+  void executeRequestIoException() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-ioexception.swadl.yaml"));
+
+    final Map<String, String> header = Map.of("headerKey", "headerValue");
+    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
+    final String url = "https://url.com?isMocked=true";
+    final String exceptionMessage = "IOException message";
+
+    when(httpClient.execute("POST", url, body, header)).thenThrow(new IOException(exceptionMessage));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute-failed"));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 500)
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"),
+            Map.of("message", exceptionMessage));
   }
 }

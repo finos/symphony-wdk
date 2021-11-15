@@ -1828,14 +1828,17 @@ Allowed values:
 
 Executes an HTTP request.
 
-_nb: Only APIs that return a JSON response are supported.
-
 Key | Type | Required |
 ------------ | -------| --- |
 [url](#url) | String | Yes |
 [method](#method) | String | Yes |
 [body](#body) | String | No |
 [headers](#headers) | String | No |
+
+Output | Type |
+----|----|
+body | String containing the response body
+status | Response status code
 
 Example:
 ```yaml
@@ -1856,7 +1859,9 @@ activities:
 String that contains the host and the path to be targeted.
 
 #### method
-HTTP method to perform. Supported methods are:
+HTTP method to perform. GET is the default one.
+
+Supported methods are:
 - DELETE
 - GET
 - HEAD
