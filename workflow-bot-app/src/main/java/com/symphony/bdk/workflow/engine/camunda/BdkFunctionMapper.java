@@ -7,7 +7,9 @@ import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
 
@@ -27,11 +29,16 @@ public class BdkFunctionMapper extends FunctionMapper {
   static {
     FUNCTION_MAP = new HashMap<>();
     FUNCTION_MAP.put("text", ReflectUtil.getMethod(BdkFunctionMapper.class, "text", String.class));
+    FUNCTION_MAP.put("json", ReflectUtil.getMethod(BdkFunctionMapper.class, "json", String.class));
     FUNCTION_MAP.put("escape", ReflectUtil.getMethod(BdkFunctionMapper.class, "escape", String.class));
     FUNCTION_MAP.put("mentions", ReflectUtil.getMethod(BdkFunctionMapper.class, "mentions", Object.class));
     FUNCTION_MAP.put("hashTags", ReflectUtil.getMethod(BdkFunctionMapper.class, "hashTags", Object.class));
     FUNCTION_MAP.put("cashTags", ReflectUtil.getMethod(BdkFunctionMapper.class, "cashTags", Object.class));
     FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(BdkFunctionMapper.class, "emojis", Object.class));
+  }
+
+  public static Map json(String string) throws JsonProcessingException {
+    return new ObjectMapper().readValue(string, Map.class);
   }
 
   public Method resolveFunction(String prefix, String localName) {

@@ -7,9 +7,7 @@ activities:
           content: "/execute"
       method: PUT
       url: https://url.com?isMocked=true
-      body:
-        args:
-          key: value
+      body: "{\"args\":\n {\"key\": \"value\"}}"
       headers:
         keyOne: valueOne
         keyTwo:

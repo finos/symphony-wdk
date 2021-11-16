@@ -4,7 +4,6 @@ import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
 import com.symphony.bdk.workflow.engine.executor.request.client.Response;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,8 +22,6 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
   private static final String OUTPUTS_STATUS_KEY = "%s.outputs.status";
   private static final String OUTPUTS_BODY_KEY = "%s.outputs.body";
 
-  @MockBean
-  HttpClient httpClient;
 
   static Stream<Arguments> httpMethods() {
     return Stream.of(
@@ -45,7 +41,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
     final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
-    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
+    final String body = "{\"args\":\n {\"key\": \"value\"}}";
     final String url = "https://url.com?isMocked=true";
     final String expectedResponse =
         "{\"name\": \"john\",\n \"age\": \"22\",\n"
@@ -102,7 +98,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-failed.swadl.yaml"));
 
     final Map<String, String> header = Map.of("headerKey", "headerValue");
-    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
+    final String body = "{\"args\":\n {\"key\": \"value\"}}";
     final String url = "https://url.com?isMocked=true";
 
     when(httpClient.execute("POST", url, body, header)).thenReturn(new Response(400, exceptionMessage));
@@ -113,8 +109,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 400)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"),
-            Map.of("message", "ApiException response body"));
+        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), exceptionMessage);
   }
 
   @Test
@@ -123,7 +118,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-ioexception.swadl.yaml"));
 
     final Map<String, String> header = Map.of("headerKey", "headerValue");
-    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
+    final String body = "{\"args\":\n {\"key\": \"value\"}}";
     final String url = "https://url.com?isMocked=true";
     final String exceptionMessage = "IOException message";
 
@@ -133,9 +128,8 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     engine.onEvent(messageReceived("/execute-failed"));
 
-    assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 500)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"),
-            Map.of("message", exceptionMessage));
+    assertThat(workflow).as("The workflow fails on runtime exception")
+        .executed("executeGetRequest")
+        .notExecuted("assertionScript");
   }
 }

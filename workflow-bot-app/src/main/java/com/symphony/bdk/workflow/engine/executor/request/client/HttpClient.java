@@ -1,43 +1,58 @@
 package com.symphony.bdk.workflow.engine.executor.request.client;
 
+import lombok.Generated;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.fluent.Form;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
+@Generated
+@SuppressWarnings("unchecked")
 @Component
 public class HttpClient {
 
-  public Response execute(String method, String url, Map<String, Object> body, Map<String, String> headers)
+  private static final String CONTENT_TYPE = "Content-Type";
+
+  public Response execute(String method, String url, Object body, Map<String, String> headers)
       throws IOException {
     HttpResponse httpResponse;
+    Request request;
     switch (method) {
       case "GET":
-        httpResponse = this.get(url);
+        request = Request.get(url);
+        httpResponse = this.executeWithoutBody(request);
         break;
       case "POST":
-        httpResponse = this.post(url, body, headers);
+        request = Request.post(url);
+        httpResponse = this.executeWithBody(request, body, headers);
         break;
       case "PUT":
-        httpResponse = this.put(url, body, headers);
+        request = Request.put(url);
+        httpResponse = this.executeWithBody(request, body, headers);
         break;
       case "DELETE":
-        httpResponse = this.delete(url, body, headers);
+        request = Request.delete(url);
+        httpResponse = this.executeWithBody(request, body, headers);
         break;
       case "PATCH":
-        httpResponse = this.patch(url, body, headers);
+        request = Request.patch(url);
+        httpResponse = this.executeWithBody(request, body, headers);
         break;
       case "HEAD":
-        httpResponse = this.head(url, body, headers);
+        request = Request.head(url);
+        httpResponse = this.executeWithBody(request, body, headers);
         break;
       case "OPTIONS":
-        httpResponse = this.options(url, body, headers);
+        request = Request.options(url);
+        httpResponse = this.executeWithBody(request, body, headers);
         break;
       default:
         throw new RuntimeException("Method is not supported");
@@ -45,50 +60,31 @@ public class HttpClient {
 
     ClassicHttpResponse classicHttpResponse = (ClassicHttpResponse) httpResponse;
     int responseCode = httpResponse.getCode();
-    String responseContent = IOUtils.toString(classicHttpResponse.getEntity().getContent(), StandardCharsets.UTF_8);
-    return new Response(responseCode, responseContent);
+
+    if (classicHttpResponse.getEntity() != null && classicHttpResponse.getEntity().getContent() != null) {
+      return new Response(responseCode,
+          IOUtils.toString(classicHttpResponse.getEntity().getContent(), StandardCharsets.UTF_8));
+    } else {
+      return new Response(responseCode, "");
+    }
   }
 
-  private HttpResponse get(String url) throws IOException {
-    return Request.get(url).execute().returnResponse();
+  private HttpResponse executeWithoutBody(Request request) throws IOException {
+    return request.execute().returnResponse();
   }
 
-  private HttpResponse post(String url, Map<String, Object> body, Map<String, String> headers) throws IOException {
-    Request request = Request.post(url);
-    return this.executeWithBody(request, body, headers);
-  }
-
-  private HttpResponse put(String url, Map<String, Object> body, Map<String, String> headers) throws IOException {
-    Request request = Request.put(url);
-    return this.executeWithBody(request, body, headers);
-  }
-
-  private HttpResponse delete(String url, Map<String, Object> body, Map<String, String> headers) throws IOException {
-    Request request = Request.delete(url);
-    return this.executeWithBody(request, body, headers);
-  }
-
-  private HttpResponse patch(String url, Map<String, Object> body, Map<String, String> headers) throws IOException {
-    Request request = Request.patch(url);
-    return this.executeWithBody(request, body, headers);
-  }
-
-  private HttpResponse head(String url, Map<String, Object> body, Map<String, String> headers) throws IOException {
-    Request request = Request.head(url);
-    return this.executeWithBody(request, body, headers);
-  }
-
-  private HttpResponse options(String url, Map<String, Object> body, Map<String, String> headers) throws IOException {
-    Request request = Request.options(url);
-    return this.executeWithBody(request, body, headers);
-  }
-
-  private HttpResponse executeWithBody(Request request, Map<String, Object> body, Map<String, String> headers)
+  private HttpResponse executeWithBody(Request request, Object body, Map<String, String> headers)
       throws IOException {
+
     // set body
-    Form form = Form.form();
-    body.forEach((key, value) -> form.add(key, value.toString()));
-    request.bodyForm(form.build());
+    if (ContentType.APPLICATION_JSON.getMimeType().equals(headers.get(CONTENT_TYPE))) {
+      request.bodyString(body.toString(), ContentType.APPLICATION_JSON);
+    } else if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(headers.get(CONTENT_TYPE))) {
+      Form form = Form.form();
+      Map<String, Object> bodyAsMap = (HashMap<String, Object>) body;
+      bodyAsMap.forEach((key, value) -> form.add(key, value.toString()));
+      request.bodyForm(form.build());
+    }
 
     // set headers
     headers.forEach(request::addHeader);

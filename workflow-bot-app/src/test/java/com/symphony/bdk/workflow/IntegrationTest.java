@@ -27,6 +27,7 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
+import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
@@ -57,6 +58,9 @@ public abstract class IntegrationTest {
 
   @Autowired
   WorkflowEngine engine;
+
+  @MockBean
+  HttpClient httpClient;
 
   @Autowired
   ResourceProvider resourceProvider;

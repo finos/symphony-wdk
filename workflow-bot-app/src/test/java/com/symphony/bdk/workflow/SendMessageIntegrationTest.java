@@ -33,6 +33,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 class SendMessageIntegrationTest extends IntegrationTest {
 
   private static final String OUTPUTS_MSG_KEY = "%s.outputs.message";
