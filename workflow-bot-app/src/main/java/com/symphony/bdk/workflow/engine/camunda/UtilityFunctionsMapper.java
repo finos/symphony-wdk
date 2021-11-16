@@ -22,19 +22,19 @@ import java.util.Map;
 /**
  * Utilities for EL evaluation by Camunda.
  */
-public class BdkFunctionMapper extends FunctionMapper {
+public class UtilityFunctionsMapper extends FunctionMapper {
 
   private static final Map<String, Method> FUNCTION_MAP;
 
   static {
     FUNCTION_MAP = new HashMap<>();
-    FUNCTION_MAP.put("text", ReflectUtil.getMethod(BdkFunctionMapper.class, "text", String.class));
-    FUNCTION_MAP.put("json", ReflectUtil.getMethod(BdkFunctionMapper.class, "json", String.class));
-    FUNCTION_MAP.put("escape", ReflectUtil.getMethod(BdkFunctionMapper.class, "escape", String.class));
-    FUNCTION_MAP.put("mentions", ReflectUtil.getMethod(BdkFunctionMapper.class, "mentions", Object.class));
-    FUNCTION_MAP.put("hashTags", ReflectUtil.getMethod(BdkFunctionMapper.class, "hashTags", Object.class));
-    FUNCTION_MAP.put("cashTags", ReflectUtil.getMethod(BdkFunctionMapper.class, "cashTags", Object.class));
-    FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(BdkFunctionMapper.class, "emojis", Object.class));
+    FUNCTION_MAP.put("text", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "text", String.class));
+    FUNCTION_MAP.put("json", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "json", String.class));
+    FUNCTION_MAP.put("escape", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "escape", String.class));
+    FUNCTION_MAP.put("mentions", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "mentions", Object.class));
+    FUNCTION_MAP.put("hashTags", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "hashTags", Object.class));
+    FUNCTION_MAP.put("cashTags", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "cashTags", Object.class));
+    FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "emojis", Object.class));
   }
 
   public static Map json(String string) throws JsonProcessingException {

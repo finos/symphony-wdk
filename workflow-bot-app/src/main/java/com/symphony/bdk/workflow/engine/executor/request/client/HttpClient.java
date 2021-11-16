@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.request.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Generated;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.fluent.Form;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
 @Generated
@@ -77,13 +77,14 @@ public class HttpClient {
       throws IOException {
 
     // set body
-    if (ContentType.APPLICATION_JSON.getMimeType().equals(headers.get(CONTENT_TYPE))) {
-      request.bodyString(body.toString(), ContentType.APPLICATION_JSON);
-    } else if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(headers.get(CONTENT_TYPE))) {
+    String contentType = headers.get(CONTENT_TYPE);
+    if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
       Form form = Form.form();
-      Map<String, Object> bodyAsMap = (HashMap<String, Object>) body;
+      Map<String, Object> bodyAsMap = new ObjectMapper().readValue(body.toString(), Map.class);
       bodyAsMap.forEach((key, value) -> form.add(key, value.toString()));
       request.bodyForm(form.build());
+    } else if (!contentType.isEmpty()) {
+      request.bodyString(body.toString(), ContentType.parse(headers.get(CONTENT_TYPE)));
     }
 
     // set headers
