@@ -1832,8 +1832,10 @@ Key | Type | Required |
 ------------ | -------| --- |
 [url](#url) | String | Yes |
 [method](#method) | String | Yes |
-[body](#body) | String | No |
+[body](#body) | Object/String | No |
 [headers](#headers) | String | No |
+
+_nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, it can be provided as String in JSON format.
 
 Output | Type |
 ----|----|
@@ -1845,14 +1847,31 @@ Example:
 activities:
   - execute-request:
       id: myRequest
-      url: https://myUrl/myPath?isMocked=true
-      method: POST
-      body:
-        "args":
-          "message": "Hello world!"
-          "streaemId": "A_STREAM"
       headers:
-        "X-Workflow-Token": "A_TOKEN"
+        X-Workflow-Token: A_TOKEN
+        Content-Type: application/json
+        Accept: application/json
+      body: "{\"args\": {\"content\": \"Hello world!\", \"stream\": \"A_STREAM\"}}"
+      method: POST
+      url: https://myUrl/myPath?isMocked=true
+      
+```
+
+
+```yaml
+activities:
+  - execute-request:
+      id: myRequest
+      headers:
+        Content-Type: multipart/form-data
+        Accept: multipart/form-data
+      body:
+        outer:
+          inner1: value1
+          inner2: value2
+      method: POST
+      url: https://myUrl/myPath?isMocked=true
+      
 ```
 
 #### url

@@ -25,6 +25,7 @@ import java.util.Map;
 public class UtilityFunctionsMapper extends FunctionMapper {
 
   private static final Map<String, Method> FUNCTION_MAP;
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   static {
     FUNCTION_MAP = new HashMap<>();
@@ -37,8 +38,12 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "emojis", Object.class));
   }
 
-  public static Map json(String string) throws JsonProcessingException {
-    return new ObjectMapper().readValue(string, Map.class);
+  public static Object json(String string) {
+    try {
+      return objectMapper.readValue(string, Object.class);
+    } catch (JsonProcessingException jsonProcessingException) {
+      return string;
+    }
   }
 
   public Method resolveFunction(String prefix, String localName) {

@@ -41,7 +41,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
     final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
-    final String body = "{\"args\":\n {\"key\": \"value\"}}";
+    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
     final String url = "https://url.com?isMocked=true";
     final String expectedResponse =
         "{\"name\": \"john\",\n \"age\": \"22\",\n"
@@ -98,7 +98,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-failed.swadl.yaml"));
 
     final Map<String, String> header = Map.of("headerKey", "headerValue");
-    final String body = "{\"args\":\n {\"key\": \"value\"}}";
+    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
     final String url = "https://url.com?isMocked=true";
 
     when(httpClient.execute("POST", url, body, header)).thenReturn(new Response(400, exceptionMessage));
@@ -118,7 +118,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-ioexception.swadl.yaml"));
 
     final Map<String, String> header = Map.of("headerKey", "headerValue");
-    final String body = "{\"args\":\n {\"key\": \"value\"}}";
+    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
     final String url = "https://url.com?isMocked=true";
     final String exceptionMessage = "IOException message";
 

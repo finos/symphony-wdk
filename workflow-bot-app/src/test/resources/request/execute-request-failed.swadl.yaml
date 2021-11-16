@@ -7,7 +7,9 @@ activities:
           content: "/execute-failed"
       method: POST
       url: https://url.com?isMocked=true
-      body: "{\"args\":\n {\"key\": \"value\"}}"
+      body:
+        args:
+          key: value
       headers:
         headerKey: headerValue
 

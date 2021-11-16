@@ -17,6 +17,6 @@ import java.util.Map;
 public class ExecuteRequest extends BaseActivity {
   private String url;
   private String method = "GET";
-  private String body;
+  private Object body;
   private Map<String, Object> headers = Collections.emptyMap();
 }

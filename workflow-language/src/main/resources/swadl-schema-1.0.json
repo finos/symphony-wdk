@@ -1547,8 +1547,16 @@
                     ]
                 },
                 "body": {
-                    "type": "string",
-                    "description": "HTTP request body"
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "HTTP request body"
+                        },
+                        {
+                            "type": "object",
+                            "description": "HTTP request body"
+                        }
+                    ]
                 },
                 "headers": {
                     "type": "object",
