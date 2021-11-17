@@ -40,7 +40,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
-    final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
+    final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo,valueThree");
     final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
     final String url = "https://url.com?isMocked=true";
     final String expectedResponse =
@@ -65,7 +65,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful-GET.swadl.yaml"));
 
-    final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo, valueThree");
+    final Map<String, String> header = Map.of("keyOne", "valueOne", "keyTwo", "valueTwo,valueThree");
     final String url = "https://url.com?isMocked=true";
     final String expectedResponse =
         "{\"name\": \"john\",\n \"age\": \"22\","

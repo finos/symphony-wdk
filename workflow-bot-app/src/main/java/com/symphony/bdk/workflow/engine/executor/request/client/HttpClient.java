@@ -49,8 +49,8 @@ public class HttpClient {
       request.bodyForm(form.build());
     } else if (body != null && StringUtils.isNotEmpty(contentType)) {
       request.bodyString(body.toString(), ContentType.parse(contentType));
-    } else if (body != null) {
-      throw new RuntimeException("Content-Type is required when the request body is set");
+    } else if (body != null) { // if no content type is provided, we set application/json by default
+      request.bodyString(body.toString(), ContentType.APPLICATION_JSON);
     }
 
     // set headers

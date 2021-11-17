@@ -9,6 +9,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.request.ExecuteRequest;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +42,18 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
   private Map<String, String> headersToString(Map<String, Object> headers) {
     Map<String, String> result = new HashMap<>();
     for (Map.Entry<String, Object> entry : headers.entrySet()) {
-
-      // We consider that opening/closing brackets are not allowed in headers values.
-      // Otherwise, the list items should be added in the string one by one using map function
-      String entryListAsString = List.of(entry.getValue()).toString();
-      String entryWithoutBrackets = entryListAsString.replace("[", "").replace("]", "");
-      String listToString = String.join(",", entryWithoutBrackets);
-
-      result.put(entry.getKey(), String.join(",", listToString));
+      String joinedHeaders = String.join(",", toList(entry.getValue()));
+      result.put(entry.getKey(), joinedHeaders);
     }
     return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<String> toList(Object object) {
+    if (object instanceof String) {
+      return List.of((String) object);
+    } else {
+      return new ArrayList<>(((List<String>) object));
+    }
   }
 }
