@@ -33,7 +33,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 class SendMessageIntegrationTest extends IntegrationTest {
 
   private static final String OUTPUTS_MSG_KEY = "%s.outputs.message";
@@ -91,6 +90,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    @SuppressWarnings("unchecked")
     ArgumentCaptor<List<Long>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
 

@@ -2,10 +2,12 @@ package com.symphony.bdk.workflow.engine.executor.request.client;
 
 import lombok.Generated;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.fluent.Form;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.springframework.stereotype.Component;
 
@@ -15,48 +17,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Generated
-@SuppressWarnings("unchecked")
 @Component
 public class HttpClient {
 
-  private static final String CONTENT_TYPE = "Content-Type";
-
   public Response execute(String method, String url, Object body, Map<String, String> headers)
       throws IOException {
-    HttpResponse httpResponse;
-    Request request;
-    switch (method) {
-      case "GET":
-        request = Request.get(url);
-        httpResponse = this.executeWithoutBody(request);
-        break;
-      case "POST":
-        request = Request.post(url);
-        httpResponse = this.executeWithBody(request, body, headers);
-        break;
-      case "PUT":
-        request = Request.put(url);
-        httpResponse = this.executeWithBody(request, body, headers);
-        break;
-      case "DELETE":
-        request = Request.delete(url);
-        httpResponse = this.executeWithBody(request, body, headers);
-        break;
-      case "PATCH":
-        request = Request.patch(url);
-        httpResponse = this.executeWithBody(request, body, headers);
-        break;
-      case "HEAD":
-        request = Request.head(url);
-        httpResponse = this.executeWithBody(request, body, headers);
-        break;
-      case "OPTIONS":
-        request = Request.options(url);
-        httpResponse = this.executeWithBody(request, body, headers);
-        break;
-      default:
-        throw new RuntimeException("Method is not supported");
-    }
+    Request request = Request.create(method, url);
+    HttpResponse httpResponse = this.executeWithBody(request, body, headers);
 
     ClassicHttpResponse classicHttpResponse = (ClassicHttpResponse) httpResponse;
     int responseCode = httpResponse.getCode();
@@ -69,22 +36,21 @@ public class HttpClient {
     }
   }
 
-  private HttpResponse executeWithoutBody(Request request) throws IOException {
-    return request.execute().returnResponse();
-  }
-
+  @SuppressWarnings("unchecked")
   private HttpResponse executeWithBody(Request request, Object body, Map<String, String> headers)
       throws IOException {
 
     // set body
-    String contentType = headers.get(CONTENT_TYPE);
-    if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
+    String contentType = headers.get(HttpHeaders.CONTENT_TYPE);
+    if (body != null && ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
       Form form = Form.form();
       Map<String, Object> bodyAsMap = (LinkedHashMap<String, Object>) body;
       bodyAsMap.forEach((key, value) -> form.add(key, value.toString()));
       request.bodyForm(form.build());
-    } else if (!contentType.isEmpty()) {
+    } else if (body != null && StringUtils.isNotEmpty(contentType)) {
       request.bodyString(body.toString(), ContentType.parse(contentType));
+    } else if (body != null) {
+      throw new RuntimeException("Content-Type is required when the request body is set");
     }
 
     // set headers

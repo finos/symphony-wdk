@@ -1550,11 +1550,13 @@
                     "oneOf": [
                         {
                             "type": "string",
-                            "description": "HTTP request body"
+                            "description": "HTTP request body",
+                            "$comment": "String format is required for all content types except multipart/form-data"
                         },
                         {
                             "type": "object",
-                            "description": "HTTP request body"
+                            "description": "HTTP request body",
+                            "$comment": "Object format is required for multipart/form-data content type"
                         }
                     ]
                 },

@@ -1835,12 +1835,12 @@ Key | Type | Required |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
 
-_nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, it can be provided as String in JSON format.
+_nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, it can be provided as String in JSON format._
 
 Output | Type |
 ----|----|
-body | String containing the response body
-status | Response status code
+body | String
+status | Integer
 
 Example:
 ```yaml
@@ -1890,8 +1890,8 @@ Supported methods are:
 - PUT
 
 #### body
-HTTP request body. A map of key/value entries is expected. Simple types
-such as numbers, string and booleans as well as lists and maps are supported.
+HTTP request body. Depending on the Content-Type, the body can be an Object when _multipart/form-data_ is used or a String for the other content types.   
+When the body is provided, Content-Type must be set in headers.
 
 #### headers
 HTTP request headers. A map of key/value entries is expected. Simple types
