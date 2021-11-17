@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.GetConnections;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +34,13 @@ public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> 
     return ConnectionStatus.valueOf(statusString);
   }
 
-  private static List<Long> toLongs(List<Number> ids) {
+  private static List<Long> toLongs(List<Variable<Number>> ids) {
     if (ids == null) {
       return null;
     }
-    return ids.stream().map(Number::longValue).collect(Collectors.toList());
+    return ids.stream()
+        .map(Variable::get)
+        .map(Number::longValue)
+        .collect(Collectors.toList());
   }
 }

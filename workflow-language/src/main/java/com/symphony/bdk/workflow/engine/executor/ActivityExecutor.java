@@ -1,6 +1,10 @@
 package com.symphony.bdk.workflow.engine.executor;
 
+import com.symphony.bdk.workflow.swadl.v1.Variable;
+
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implement this interface to define your own activities.
@@ -17,4 +21,12 @@ public interface ActivityExecutor<T> {
    *                as well as the BDK services.
    */
   void execute(ActivityExecutorContext<T> context) throws IOException;
+
+  default List<String> toStrings(List<Variable<String>> variable) {
+    if (variable == null) {
+      return null;
+    }
+    return variable.stream().map(Variable::get).collect(Collectors.toList());
+  }
+
 }

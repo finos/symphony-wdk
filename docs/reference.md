@@ -808,16 +808,43 @@ encoded urls are accepted.
 Path to the file to be attached to the message. The path is relative to the workflows folder.
 
 ### update-message
-Update an existing message into a stream.
+Update an existing message into a stream. Returns the new updated message.
 
 Key | Type | Required |
 ------------ | -------| --- |
 [message-id](#update-message-id) | String | Yes |
 [content](#content) | String | Yes |
 
+Output | Type |
+----|----|
+message | [V4Message](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4Message.html)
+msgId | String
+
 #### <a name="update-message-id"></a> message-id
 
 Message id of the message to be updated. Both url safe and base64 encoded urls are accepted
+
+### pin-message
+Pin an existing message into the stream it belongs to. It works for both Instant Messages and Rooms.
+
+Key | Type | Required |
+------------ | -------| --- |
+message-id | String | Yes |
+
+Depending on the stream type the activity will either call the
+[Update Room](https://developers.symphony.com/restapi/reference#update-room-v3) or the
+[Update IM](https://developers.symphony.com/restapi/v20.13/reference#update-im) endpoint.
+
+### unpin-message
+Unpin any message (if present) from an existing stream. It works for both Instant Messages and Rooms.
+
+Key | Type | Required |
+------------ | -------| --- |
+stream-id | String | Yes |
+
+Depending on the stream type the activity will either call the
+[Update Room](https://developers.symphony.com/restapi/reference#update-room-v3) or the
+[Update IM](https://developers.symphony.com/restapi/v20.13/reference#update-im) endpoint.
 
 ### get-message
 
@@ -876,7 +903,6 @@ Output | Type |
 attachmentPath | String
 
 [API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs as the api response)
-
 
 ### create-room
 

@@ -107,6 +107,40 @@ class SendMessageIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void sendMessageWithUidsVariables() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-uids-variables.swadl.yaml"));
+
+    final List<Long> uids = Arrays.asList(123L);
+    final String streamId = "STREAM_ID";
+    final String msgId = "MSG_ID";
+    final String content = "<messageML>hello</messageML>";
+    final V4Message message = message(msgId);
+
+    when(streamService.create(uids)).thenReturn(stream(streamId));
+    when(messageService.send(eq(streamId), any(Message.class))).thenReturn(message);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/send"));
+
+    ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<List<Long>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+
+    verify(streamService, timeout(5000).times(1)).create(listArgumentCaptor.capture());
+    verify(messageService, timeout(5000).times(1)).send(stringArgumentCaptor.capture(),
+        messageArgumentCaptor.capture());
+
+    assertThat(listArgumentCaptor.getAllValues().size()).as("The create method is called with a list as parameter")
+        .isEqualTo(1);
+    assertThat(listArgumentCaptor.getAllValues().get(0)).isEqualTo(uids);
+    assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
+
+    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message);
+  }
+
+  @Test
   @DisplayName(
       "Given a message with attachments, "
           + "when I send a new message with the attachment id, "

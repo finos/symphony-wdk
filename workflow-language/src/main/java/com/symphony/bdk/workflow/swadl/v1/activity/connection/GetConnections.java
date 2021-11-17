@@ -15,6 +15,6 @@ import javax.annotation.Nullable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetConnections extends BaseActivity {
-  private Variable<List<Number>> userIds = Variable.nullValue();
+  private Variable<List<Variable<Number>>> userIds = Variable.nullValue();
   @Nullable private String status;
 }

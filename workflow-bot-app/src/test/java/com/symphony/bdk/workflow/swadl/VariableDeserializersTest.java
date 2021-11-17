@@ -40,9 +40,10 @@ class VariableDeserializersTest {
     Variable<List<String>> swadlModel = swadlToModelMapper.readValue("\"${variables.aVar}\"", new TypeReference<>() {});
     String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
     String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "[\\\"ABC\\\"]");
-    Variable<List<String>> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+    Variable<List<Variable<String>>> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression,
+        new TypeReference<>() {});
 
-    assertThat(modelInExecutor.get()).isEqualTo(List.of("ABC"));
+    assertThat(modelInExecutor.get()).isEqualTo(List.of(Variable.value("ABC")));
   }
 
   @Test
@@ -50,9 +51,10 @@ class VariableDeserializersTest {
     Variable<List<String>> swadlModel = swadlToModelMapper.readValue("[\"ABC\"]", new TypeReference<>() {});
     String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
     String resolvedExpression = swadlModelInBpmn;
-    Variable<List<String>> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+    Variable<List<Variable<String>>> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression,
+        new TypeReference<>() {});
 
-    assertThat(modelInExecutor.get()).isEqualTo(List.of("ABC"));
+    assertThat(modelInExecutor.get()).isEqualTo(List.of(Variable.value("ABC")));
   }
 
   @Test

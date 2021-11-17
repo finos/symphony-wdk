@@ -114,13 +114,37 @@
                     },
                     "update-message": {
                         "description": "Updates an existing message into a stream.",
-                        "x-intellij-html-description": "<html><p>Update an existing message into a stream.</p><a href=\"https://developers.symphony.com/restapi/reference#update-message-v4\">https://developers.symphony.com/restapi/reference#update-message-v4</a></html>",
+                        "x-intellij-html-description": "<html><p>Updates an existing message into a stream.</p><a href=\"https://developers.symphony.com/restapi/reference#update-message-v4\">https://developers.symphony.com/restapi/reference#update-message-v4</a></html>",
                         "allOf": [
                             {
                                 "$ref": "#/definitions/basic-activity-inner"
                             },
                             {
                                 "$ref": "#/definitions/update-message-inner"
+                            }
+                        ]
+                    },
+                    "pin-message": {
+                        "description": "Pin an existing message into the stream it belongs to.",
+                        "x-intellij-html-description": "<html><p>Pin an existing message into the stream it belongs to.<a href=\"https://developers.symphony.com/restapi/reference#update-room-v3\">https://developers.symphony.com/restapi/reference#update-room-v3</a><a href=\"https://developers.symphony.com/restapi/v20.13/reference#update-im\">(https://developers.symphony.com/restapi/v20.13/reference#update-im</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/pin-message-inner"
+                            }
+                        ]
+                    },
+                    "unpin-message": {
+                        "description": "Unpin any message (if present) from an existing stream.",
+                        "x-intellij-html-description": "<html><p>Unpin any message (if present) from an existing stream.</p><a href=\"https://developers.symphony.com/restapi/reference#update-room-v3\">https://developers.symphony.com/restapi/reference#update-room-v3</a><a href=\"https://developers.symphony.com/restapi/v20.13/reference#update-im\">(https://developers.symphony.com/restapi/v20.13/reference#update-im</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/unpin-message-inner"
                             }
                         ]
                     },
@@ -490,7 +514,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|pin-message|unpin-message|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
@@ -1506,6 +1530,28 @@
             "required": [
                 "content",
                 "message-id"
+            ]
+        },
+        "pin-message-inner": {
+            "type": "object",
+            "properties": {
+                "message-id": {
+                    "$ref": "#/definitions/message-id-inner"
+                }
+            },
+            "required": [
+                "message-id"
+            ]
+        },
+        "unpin-message-inner": {
+            "type": "object",
+            "properties": {
+                "stream-id": {
+                    "$ref": "#/definitions/stream-id-inner"
+                }
+            },
+            "required": [
+                "stream-id"
             ]
         },
         "get-attachment-inner": {
@@ -2925,7 +2971,9 @@
                 {
                     "enum": [
                         "${variables.VARIABLE_NAME}",
-                        "${ACTIVITY_ID.outputs.msgId}"
+                        "${ACTIVITY_ID.outputs.msgId}",
+                        "${ACTIVITY_ID.outputs.message.messageId}",
+                        "${ACTIVITY_ID.outputs.message.initialMessageId}"
                     ]
                 },
                 {

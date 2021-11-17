@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 public class CreateRoom extends BaseActivity {
   @Nullable private String roomName;
   @Nullable private String roomDescription;
-  private Variable<List<Number>> userIds = Variable.nullValue();
+  private Variable<List<Variable<Number>>> userIds = Variable.nullValue();
   @Nullable private Variable<Map<String, String>> keywords;
   private Variable<Boolean> membersCanInvite = Variable.nullValue();
   private Variable<Boolean> discoverable = Variable.nullValue();
@@ -42,6 +42,7 @@ public class CreateRoom extends BaseActivity {
       return null;
     }
     return userIds.get().stream()
+        .map(Variable::get)
         .map(Number::longValue)
         .collect(Collectors.toList());
   }

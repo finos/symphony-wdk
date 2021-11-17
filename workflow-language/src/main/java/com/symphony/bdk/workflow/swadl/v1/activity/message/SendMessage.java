@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.message;
 
 import com.symphony.bdk.workflow.swadl.v1.Variable;
-
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -21,8 +20,8 @@ public class SendMessage extends BaseActivity {
   @Data
   public static class To {
     @Nullable private String streamId;
-    @Nullable private Variable<List<String>> streamIds;
-    @Nullable private Variable<List<Number>> userIds;
+    @Nullable private Variable<List<Variable<String>>> streamIds;
+    @Nullable private Variable<List<Variable<Number>>> userIds;
   }
 
 

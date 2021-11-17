@@ -14,7 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetUserStreams extends BaseActivity {
-  private Variable<List<String>> types;
+  private Variable<List<Variable<String>>> types;
   private Variable<Boolean> includeInactiveStreams = Variable.nullValue();
   private Variable<Number> limit;
   private Variable<Number> skip;

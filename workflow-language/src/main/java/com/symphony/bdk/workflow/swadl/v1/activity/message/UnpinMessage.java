@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UpdateMessage extends BaseActivity {
-  private String messageId;
-  private String content;
+public class UnpinMessage extends BaseActivity {
+  private String streamId;
 }

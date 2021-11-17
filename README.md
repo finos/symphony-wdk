@@ -16,7 +16,8 @@ blocks often calling REST API endpoints of the Symphony platform or can even be 
 - [Architecture](./docs/architecture.md): technical bits on the execution of workflows
 - [Deployment](./docs/deployment.md): how to run and configure the workflow bot
 - [Custom activities](./docs/custom-activities.md): step-by-step guide on how to implement your own activities
-- [Examples](./docs/examples): concrete and advanced workflows
+- [Examples](./docs/examples): learning about workflows through examples
+- Concrete and advanced examples in the [gallery](https://github.com/finos/symphony-wdk-gallery)
 - [SWADL Reference](./docs/reference.md): syntax reference for the language used to write workflows
 
 

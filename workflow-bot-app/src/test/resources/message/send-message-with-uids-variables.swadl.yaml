@@ -1,0 +1,13 @@
+id: send-message-with-userids-variables
+variables:
+  foo: 123
+activities:
+  - send-message:
+      id: sendMessageWithUserIds
+      content: "<messageML>hello</messageML>"
+      on:
+        message-received:
+          content: "/send"
+      to:
+        user-ids:
+          - ${variables.foo}
