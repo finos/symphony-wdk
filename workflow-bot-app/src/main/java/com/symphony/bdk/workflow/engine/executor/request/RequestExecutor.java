@@ -50,10 +50,10 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
 
   @SuppressWarnings("unchecked")
   private List<String> toList(Object object) {
-    if (object instanceof String) {
-      return List.of((String) object);
-    } else {
+    if (object instanceof List) {
       return new ArrayList<>(((List<String>) object));
+    } else {
+      return List.of(object.toString());
     }
   }
 }
