@@ -132,18 +132,19 @@ public class CamundaBpmnBuilder {
     for (Activity activityContainer : workflow.getActivities()) {
       BaseActivity activity = activityContainer.getActivity();
 
-      if (onFormRepliedEvent(activity) || !hasTimeout(activity)) {
+      if (onFormRepliedEvent(activity)) {
         // no intermediate events for activities with timeout which creates a subprocess
         builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
-      } else if (workflow.getFirstActivity().isPresent() && activity.getId()
-          .equals(workflow.getFirstActivity().get().getActivity().getId())) {
-        throw new InvalidActivityException(workflow.getId(),
-            String.format("Workflow's starting activity %s should not have timeout", activity.getId()));
       } else {
-        // set timeouts, formRepliedEvent activities timeout will be handled later
-        builder = setTimeoutIfExists(builder, activity, activityExpirations, workflow);
+        builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
+        if (hasTimeout(activity) && workflow.getFirstActivity().isPresent() && activity.getId()
+            .equals(workflow.getFirstActivity().get().getActivity().getId())) {
+          throw new InvalidActivityException(workflow.getId(),
+              String.format("Workflow's starting activity %s should not have timeout", activity.getId()));
+        } else if (hasTimeout(activity) && activity.getOn() != null) {
+          builder.moveToLastGateway().intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
+        }
       }
-
 
       // process events starting the activity
       if (onFormRepliedEvent(activity) && activity.getOn() != null) {
@@ -515,34 +516,11 @@ public class CamundaBpmnBuilder {
     return builder;
   }
 
-  private AbstractFlowNodeBuilder<?, ?> setTimeoutIfExists(AbstractFlowNodeBuilder<?, ?> builder,
-      BaseActivity activity, Map<String, AbstractFlowNodeBuilder<?, ?>> map, Workflow workflow) {
-
-    if (activity.getOn() != null && activity.getOn().getTimeout() != null) {
-      SubProcessBuilder subProcess = builder.subProcess();
-
-      AbstractFlowNodeBuilder<?, ?> expirationBuilder = subProcess.embeddedSubProcess()
-          .startEvent()
-          .intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
-      map.put(activity.getId(), expirationBuilder);
-
-      Optional<String> signalPrefix = this.eventToMessage.toSignalName(activity.getOn(), workflow);
-
-      if (signalPrefix.isPresent()) {
-        builder = subProcess.embeddedSubProcess().eventSubProcess()
-            .startEvent()
-            .camundaAsyncBefore()
-            .interrupting(false)
-            .signal(signalPrefix.get())
-            .name(signalPrefix.get());
-      }
-    }
-    return builder;
-  }
-
   private boolean hasTimeout(BaseActivity activity) {
-    return activity.getEvents().stream()
-        .anyMatch(e -> e.getTimeout() != null && !e.getTimeout().isEmpty());
+    if (activity.getOn() != null) {
+      return StringUtils.isNotEmpty(activity.getOn().getTimeout());
+    }
+    return false;
   }
 
   private AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)

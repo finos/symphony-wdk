@@ -666,7 +666,8 @@
             },
             "required": [
                 "message-received"
-            ]
+            ],
+            "additionalProperties": true
         },
         "message-suppressed-event": {
             "type": "object",
@@ -967,7 +968,7 @@
                     }
                 }
             },
-            "additionalProperties": false,
+            "additionalProperties": true,
             "required": [
                 "one-of"
             ]

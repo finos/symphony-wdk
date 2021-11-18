@@ -41,8 +41,12 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 class EventTypesIntegrationTest extends IntegrationTest {
 
@@ -97,10 +101,20 @@ class EventTypesIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq("123"), content("ok"));
   }
 
-  @Test
-  void onMessageReceived_timeout() throws IOException, ProcessingException, InterruptedException {
+  static Stream<Arguments> swadls() {
+    return Stream.of(
+        Arguments.arguments("/event/send-message-timeout.swadl.yaml", "/continue"),
+        Arguments.arguments("/event/send-message-timeout-one-of.swadl.yaml", "/continue1"),
+        Arguments.arguments("/event/send-message-timeout-one-of.swadl.yaml", "/continue2")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("swadls")
+  void onMessageReceived_timeout(String swadlFile, String messageToReceive)
+      throws IOException, ProcessingException, InterruptedException {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/send-message-timeout.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message());
 
@@ -109,7 +123,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
     Thread.sleep(500); // wait 0.5s to let workflow times out
 
-    engine.onEvent(messageReceived("/continue"));
+    engine.onEvent(messageReceived(messageToReceive));
 
     verify(messageService, never()).send(anyString(), any(Message.class));
     assertThat(workflow).as("sendMessageIfNotTimeout activity should not be executed as it times out")
