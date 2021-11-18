@@ -16,4 +16,4 @@ activities:
   - execute-script:
       id: assertionScript
       script: |
-        assert executeGetRequest.outputs.body.message == "ApiException response body"
+        assert executeGetRequest.outputs.body.message == "IOException message"

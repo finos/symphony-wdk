@@ -90,6 +90,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/send"));
 
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    @SuppressWarnings("unchecked")
     ArgumentCaptor<List<Long>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
 

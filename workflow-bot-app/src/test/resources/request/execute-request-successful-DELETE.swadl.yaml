@@ -1,0 +1,26 @@
+id: execute-delete-request
+activities:
+  - execute-request:
+      id: executeDeleteRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: DELETE
+      url: https://url.com?isMocked=true
+      body:
+        args:
+          key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  # the script below will be used after implementing JSON utility function
+  #- execute-script:
+  #    id: assertionScript
+  #    script: |
+  #      assert executeDeleteRequest.outputs.body.name == "john"
+  #      assert executeDeleteRequest.outputs.body.age == "22"
+  #      assert executeDeleteRequest.outputs.body.contact.phone == "0123456"
+  #      assert executeDeleteRequest.outputs.body.contact.email == "john@symphony.com"
