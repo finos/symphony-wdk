@@ -9,7 +9,9 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
 
@@ -17,12 +19,21 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
     String messageId = execution.getActivity().getMessageId();
     V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
-    String content = SendMessageExecutor.extractContent(execution.getActivity().getContent(), execution.getVariables(),
-        execution.bdk().messages());
+    String content = extractContent(execution);
     Message message = Message.builder().content(content).build();
     V4Message updatedMessage = execution.bdk().messages().update(messageToUpdate, message);
 
     execution.setOutputVariable(OUTPUT_MESSAGE_KEY, updatedMessage);
     execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, updatedMessage.getMessageId());
+  }
+
+  private static String extractContent(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
+    if(execution.getActivity().getContent() != null) {
+      return execution.getActivity().getContent();
+    } else {
+      String template = execution.getActivity().getTemplate();
+      File file = execution.getResourceFile(Path.of(template));
+       return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
+    }
   }
 }

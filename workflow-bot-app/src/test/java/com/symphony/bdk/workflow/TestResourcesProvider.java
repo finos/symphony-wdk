@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 
@@ -16,6 +17,11 @@ public class TestResourcesProvider implements ResourceProvider {
   @Override
   public InputStream getResource(Path relativePath) {
     return getClass().getResourceAsStream(relativePath.toString());
+  }
+
+  @Override
+  public File getResourceFile(Path relativePath) {
+    return Path.of(resourcesFolder).resolve(relativePath).toFile();
   }
 
   @Override

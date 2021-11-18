@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
-import static com.symphony.bdk.workflow.engine.camunda.CamundaExecutor.OBJECT_MAPPER;
 import static java.util.Collections.singletonList;
 
 import com.symphony.bdk.core.service.message.MessageService;
@@ -17,18 +16,14 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -99,8 +94,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   }
 
   private Message buildMessage(ActivityExecutorContext<SendMessage> execution) throws IOException {
-    Message.MessageBuilder builder = Message.builder().content(extractContent(execution.getActivity().getContent(),
-        execution.getVariables(), execution.bdk().messages()));
+    Message.MessageBuilder builder = Message.builder().content(extractContent(execution));
     if (execution.getActivity().getAttachments() != null) {
       for (SendMessage.Attachment attachment : execution.getActivity().getAttachments()) {
         this.handleFileAttachment(builder, attachment, execution);
@@ -111,25 +105,14 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     return builder.build();
   }
 
-  static String extractContent(Object contentObj, Map<String, Object> parameters, MessageService messageService)
-      throws IOException {
-    String content;
-    try {
-      String template = OBJECT_MAPPER.convertValue(contentObj, SendMessage.Content.class)
-          .getTemplate();
-      Map<String, String> params = parameters.entrySet().stream()
-          .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-      File file = new File(template);
-      if (file.getName().endsWith(".ftl")) {
-        content = messageService.templates().newTemplateFromFile(file.getPath()).process(params);
-      } else {
-        InputStream inputStream = new FileInputStream(file);
-        content = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-      }
-    } catch (IllegalArgumentException e) {
-      content = (String) contentObj;
+  private static String extractContent(ActivityExecutorContext<SendMessage> execution) throws IOException {
+    if(execution.getActivity().getContent() != null) {
+      return execution.getActivity().getContent();
+    } else {
+      String template = execution.getActivity().getTemplate();
+      File file = execution.getResourceFile(Path.of(template));
+      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
     }
-    return content;
   }
 
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,
