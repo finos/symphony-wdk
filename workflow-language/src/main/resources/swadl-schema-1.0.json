@@ -967,7 +967,7 @@
                     }
                 }
             },
-            "additionalProperties": false,
+            "additionalProperties": true,
             "required": [
                 "one-of"
             ]

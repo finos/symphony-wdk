@@ -1,0 +1,48 @@
+id: multiple-activities-expired-with-timeout
+activities:
+  - execute-script:
+      id: startWorkflow
+      on:
+        message-received:
+          content: /start
+      script: |
+        assert true
+
+  - send-message:
+      id: sendMessageIfNotTimeoutFirst
+      content: Message to be sent if no timeout
+      to:
+        stream-id: "123"
+      on:
+        timeout: PT1H #enough to not timeout during the test
+        message-received:
+          content: /continue1
+
+  - send-message:
+      id: sendMessageIfNotTimeoutSecond
+      content: Message to be sent if no timeout
+      to:
+        stream-id: "123"
+      on:
+        timeout: PT0.01S
+        message-received:
+          content: /continue2
+
+  - execute-script:
+      id: script
+      # workflow should fail if this script is executed
+      script: |
+        assert true == false
+
+  - send-message:
+      id: expirationActivity
+      content: Expired
+      to:
+        stream-id: "123"
+      on:
+        one-of:
+          - activity-expired:
+              activity-id: sendMessageIfNotTimeoutFirst
+          - activity-expired:
+              activity-id: sendMessageIfNotTimeoutSecond
+

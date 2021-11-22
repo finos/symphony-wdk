@@ -29,8 +29,6 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
-  private String timeout;
-
   private List<Event> oneOf;
 
   private FormRepliedEvent formReplied;
