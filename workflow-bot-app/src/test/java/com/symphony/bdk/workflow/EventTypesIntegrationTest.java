@@ -123,7 +123,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
-    Thread.sleep(500); // wait 0.5s to let workflow times out
+    sleepToTimeout(500);
 
     engine.onEvent(messageReceived(messageToReceive));
 
@@ -143,7 +143,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
-    Thread.sleep(500); // wait 0.5s to let workflow times out
+    sleepToTimeout(500);
     ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
 
     verify(messageService, times(1)).send(anyString(), argumentCaptor.capture());
@@ -166,10 +166,12 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
-    Thread.sleep(500);
+
+    sleepToTimeout(500);
+
     engine.onEvent(messageReceived("/continue1"));
 
-    Thread.sleep(500); // wait 0.5s to let workflow times out
+    sleepToTimeout(500);
 
     verify(messageService, times(2)).send(anyString(), any(Message.class));
     assertThat(workflow).as(

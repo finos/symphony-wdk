@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
-  private static final List<String> activityTypesToIgnore =
+  private static final List<String> ACTIVITY_TYPES_TO_IGNORE =
       Arrays.asList("signalStartEvent", "exclusiveGateway", "boundaryError", "intermediateSignalCatch");
 
   public WorkflowAssert(Workflow workflow) {
@@ -187,7 +187,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
 
     return processes.stream()
-        .filter(p -> !activityTypesToIgnore.contains(p.getActivityType()) && !p.isCanceled())
+        .filter(p -> !ACTIVITY_TYPES_TO_IGNORE.contains(p.getActivityType()) && !p.isCanceled())
         .map(HistoricActivityInstance::getActivityName)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());

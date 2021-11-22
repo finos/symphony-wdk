@@ -246,22 +246,6 @@ public abstract class IntegrationTest {
         .containsExactly(activityIds);
   }
 
-  public static void assertExecuted(Optional<String> process, List<String> activities) {
-    assertThat(process).hasValueSatisfying(
-        processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
-
-    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
-        .processInstanceId(process.get())
-        .activityType("scriptTask")
-        .orderByHistoricActivityInstanceStartTime().asc()
-        .orderByActivityName().asc()
-        .list();
-
-    assertThat(processes)
-        .extracting(HistoricActivityInstance::getActivityName)
-        .containsExactly(activities.toArray(String[]::new));
-  }
-
   protected Message buildMessage(String content, List<Attachment> attachments) {
     return Message.builder().content(content).attachments(attachments).build();
   }
@@ -269,6 +253,11 @@ public abstract class IntegrationTest {
   protected static byte[] mockBase64ByteArray() {
     String randomString = UUID.randomUUID().toString();
     return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
+  }
+
+  // This method makes a thread sleep to make a workflow times out
+  protected static void sleepToTimeout(long durationInMilliSeconds) throws InterruptedException {
+    Thread.sleep(durationInMilliSeconds);
   }
 
 }
