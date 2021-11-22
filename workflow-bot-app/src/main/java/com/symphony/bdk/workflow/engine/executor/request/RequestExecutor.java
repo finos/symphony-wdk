@@ -6,6 +6,7 @@ import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
 import com.symphony.bdk.workflow.engine.executor.request.client.Response;
 import com.symphony.bdk.workflow.swadl.v1.activity.request.ExecuteRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
 
   private static final String OUTPUT_STATUS_KEY = "status";
@@ -29,11 +31,13 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
   @Override
   public void execute(ActivityExecutorContext<ExecuteRequest> execution) throws IOException {
     ExecuteRequest activity = execution.getActivity();
+    log.info("Executing request {} {}", activity.getMethod(), activity.getUrl());
 
     Response response =
         this.httpClient.execute(activity.getMethod(), activity.getUrl(), activity.getBody(),
             headersToString(activity.getHeaders()));
 
+    log.info("Received response {}", response.getContent());
     execution.setOutputVariable(OUTPUT_STATUS_KEY, response.getCode());
     execution.setOutputVariable(OUTPUT_BODY_KEY, response.getContent());
 
