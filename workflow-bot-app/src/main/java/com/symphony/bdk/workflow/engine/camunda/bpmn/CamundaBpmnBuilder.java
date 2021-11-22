@@ -181,7 +181,9 @@ public class CamundaBpmnBuilder {
           // add the activity as a form expiration
           AbstractFlowNodeBuilder<?, ?> activityExpirationBuilder =
               activityExpirations.get(acId);
+
           if (activitiesToExpireList.indexOf(acId) == 0) {
+            // The first activity of the list is added to the current builder
             try {
               activityExpirationBuilder = addTask(activityExpirationBuilder, activity);
             } catch (JsonProcessingException e) {
@@ -190,6 +192,7 @@ public class CamundaBpmnBuilder {
             // update it for the next activities
             activityExpirations.put(activitiesToExpireList.get(0), activityExpirationBuilder);
           } else {
+            // The remaining activities in the list should be connected to the given source
             AbstractFlowNodeBuilder<?, ?> sourceBuilder = activityToTimeoutBuilderMap.get(acId);
             this.connectSourceToTarget(activityExpirationBuilder, sourceBuilder.getElement().getId(), activity.getId());
           }
