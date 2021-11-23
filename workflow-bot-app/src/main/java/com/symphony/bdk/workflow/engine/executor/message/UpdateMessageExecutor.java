@@ -33,7 +33,7 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
     } else {
       String template = execution.getActivity().getTemplate();
       File file = execution.getResourceFile(Path.of(template));
-       return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
+      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
     }
   }
 }

@@ -21,7 +21,7 @@ public class TestResourcesProvider implements ResourceProvider {
 
   @Override
   public File getResourceFile(Path relativePath) {
-    return Path.of(resourcesFolder).resolve(relativePath).toFile();
+    return new File(getClass().getResource(relativePath.toString()).getFile());
   }
 
   @Override

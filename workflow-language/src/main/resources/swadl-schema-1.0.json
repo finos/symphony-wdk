@@ -2922,7 +2922,13 @@
                 },
                 {
                     "type": "object",
-                    "minLength": 0
+                    "properties": {
+                        "template": {
+                            "type": "string",
+                            "description": "External message template file.",
+                            "minLength": 1
+                        }
+                    }
                 },
                 {
                     "type": "string",
