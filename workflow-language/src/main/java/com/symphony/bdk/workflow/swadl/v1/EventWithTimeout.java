@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,5 +12,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EventWithTimeout extends Event {
+  @JsonProperty
   private String timeout;
 }

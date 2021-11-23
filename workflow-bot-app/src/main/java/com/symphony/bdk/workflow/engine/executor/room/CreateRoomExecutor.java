@@ -46,18 +46,18 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     V3RoomAttributes v3RoomAttributes = new V3RoomAttributes()
         .name(createRoom.getRoomName())
         .description(createRoom.getRoomDescription())
-        ._public(createRoom.getIsPublic().get())
-        .viewHistory(createRoom.getViewHistory().get())
-        .discoverable(createRoom.getDiscoverable().get())
-        .readOnly(createRoom.getReadOnly().get())
-        .copyProtected(createRoom.getCopyProtected().get())
-        .crossPod(createRoom.getCrossPod().get())
-        .multiLateralRoom(createRoom.getMultiLateralRoom().get())
-        .membersCanInvite(createRoom.getMembersCanInvite().get())
+        ._public(createRoom.getIsPublic())
+        .viewHistory(createRoom.getViewHistory())
+        .discoverable(createRoom.getDiscoverable())
+        .readOnly(createRoom.getReadOnly())
+        .copyProtected(createRoom.getCopyProtected())
+        .crossPod(createRoom.getCrossPod())
+        .multiLateralRoom(createRoom.getMultilateralRoom())
+        .membersCanInvite(createRoom.getMembersCanInvite())
         .subType(createRoom.getSubType());
 
     if (createRoom.getKeywords() != null) {
-      for (Map.Entry<String, String> entry : createRoom.getKeywords().get().entrySet()) {
+      for (Map.Entry<String, String> entry : createRoom.getKeywords().entrySet()) {
         v3RoomAttributes.addKeywordsItem(
             new RoomTag()
                 .key(entry.getKey())

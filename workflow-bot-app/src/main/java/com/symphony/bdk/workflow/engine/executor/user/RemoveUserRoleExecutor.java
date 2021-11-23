@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow.engine.executor.user;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.RemoveUserRole;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +17,10 @@ public class RemoveUserRoleExecutor implements ActivityExecutor<RemoveUserRole> 
   public void execute(ActivityExecutorContext<RemoveUserRole> context) {
     RemoveUserRole userRole = context.getActivity();
 
-    for (Variable<Number> userId : userRole.getUserIds().get()) {
-      for (Variable<String> role : userRole.getRoles().get()) {
+    for (Long userId : userRole.getUserIds()) {
+      for (String role : userRole.getRoles()) {
         log.debug("Removing role {} from user {}", role, userId);
-        context.bdk().users().removeRole(userId.get().longValue(), RoleId.valueOf(role.get()));
+        context.bdk().users().removeRole(userId, RoleId.valueOf(role));
       }
     }
   }

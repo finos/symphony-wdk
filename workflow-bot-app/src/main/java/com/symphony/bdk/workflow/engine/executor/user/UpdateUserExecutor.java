@@ -33,9 +33,9 @@ public class UpdateUserExecutor implements ActivityExecutor<UpdateUser> {
       userService.update(userId, CreateUserExecutor.toUserAttributes(updateUser));
     }
 
-    if (updateUser.getEntitlements() != null && !updateUser.getEntitlements().get().isEmpty()) {
+    if (updateUser.getEntitlements() != null && !updateUser.getEntitlements().isEmpty()) {
       log.debug("Updating entitlements for user {}", userId);
-      userService.updateFeatureEntitlements(userId, CreateUserExecutor.toFeatures(updateUser.getEntitlements().get()));
+      userService.updateFeatureEntitlements(userId, CreateUserExecutor.toFeatures(updateUser.getEntitlements()));
     }
 
     if (updateUser.getStatus() != null) {
@@ -71,16 +71,16 @@ public class UpdateUserExecutor implements ActivityExecutor<UpdateUser> {
     return business != null
         && business.getDepartment() != null
         && business.getCompanyName() != null
-        && business.getAssetClasses().get() != null
+        && business.getAssetClasses() != null
         && business.getDivision() != null
-        && business.getFunctions().get() != null
-        && business.getIndustries().get() != null
-        && business.getInstruments().get() != null
+        && business.getFunctions() != null
+        && business.getIndustries() != null
+        && business.getInstruments() != null
         && business.getLocation() != null
         && business.getJobFunction() != null
-        && business.getMarketCoverages().get() != null
+        && business.getMarketCoverages() != null
         && business.getTitle() != null
-        && business.getResponsibilities().get() != null;
+        && business.getResponsibilities() != null;
   }
 
 }

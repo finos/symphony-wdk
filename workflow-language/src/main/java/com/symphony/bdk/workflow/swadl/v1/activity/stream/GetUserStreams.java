@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.stream;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -14,9 +13,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetUserStreams extends BaseActivity {
-  private Variable<List<Variable<String>>> types;
-  private Variable<Boolean> includeInactiveStreams = Variable.nullValue();
-  private Variable<Number> limit;
-  private Variable<Number> skip;
+  private List<String> types;
+  private Boolean includeInactiveStreams;
+  private Integer limit;
+  private Integer skip;
 
 }
