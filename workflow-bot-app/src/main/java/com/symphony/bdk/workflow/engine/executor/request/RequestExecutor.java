@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -48,7 +49,9 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
       log.debug("This error happens when the request fails.", apiException);
     }
 
-    execution.setOutputVariable(OUTPUT_STATUS_KEY, statusCode);
-    execution.setOutputVariable(OUTPUT_BODY_KEY, data);
+    Map<String, Object> outputs = new HashMap<>();
+    outputs.put(OUTPUT_STATUS_KEY, statusCode);
+    outputs.put(OUTPUT_BODY_KEY, data);
+    execution.setOutputVariables(outputs);
   }
 }
