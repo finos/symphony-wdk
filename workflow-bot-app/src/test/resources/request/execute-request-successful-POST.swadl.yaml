@@ -1,0 +1,26 @@
+id: execute-post-request
+activities:
+  - execute-request:
+      id: executePostRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: POST
+      url: https://url.com?isMocked=true
+      body:
+        args:
+          key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  # the script below will be used after implementing JSON utility function
+  #- execute-script:
+  #    id: assertionScript
+  #    script: |
+  #      assert executePostRequest.outputs.body.name == "john"
+  #      assert executePostRequest.outputs.body.age == "22"
+  #      assert executePostRequest.outputs.body.contact.phone == "0123456"
+  #      assert executePostRequest.outputs.body.contact.email == "john@symphony.com"

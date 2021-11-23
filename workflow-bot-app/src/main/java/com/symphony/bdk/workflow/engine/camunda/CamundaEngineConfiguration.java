@@ -31,7 +31,7 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    processEngineConfiguration.getExpressionManager().addFunctionMapper(new BdkFunctionMapper());
+    processEngineConfiguration.getExpressionManager().addFunctionMapper(new UtilityFunctionsMapper());
 
   }
 

@@ -2,13 +2,19 @@ package com.symphony.bdk.workflow.swadl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
 import com.symphony.bdk.workflow.engine.camunda.variable.EscapedJsonVariableDeserializer;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
+import com.symphony.bdk.workflow.swadl.v1.Activity;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,115 +33,228 @@ class VariableDeserializersTest {
   @BeforeEach
   void setUp() {
     swadlToModelMapper = new ObjectMapper();
-    swadlToModelMapper.registerModule(
-        new SimpleModule().addDeserializer(Variable.class, new VariableListDeserializer()));
+    swadlToModelMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    swadlToModelMapper.addMixIn(BaseActivity.class, SwadlToBaseActivityMixin.class);
+    swadlToModelMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+    swadlToModelMapper.registerModule(new SimpleModule().addDeserializer(Activity.class, new ActivityDeserializer()));
 
     bpmnToModelMapper = new ObjectMapper();
+    bpmnToModelMapper.addMixIn(BaseActivity.class, BpmnToAndFromBaseActivityMixin.class);
+    bpmnToModelMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
     bpmnToModelMapper.registerModule(
-        new SimpleModule().addDeserializer(Variable.class, new EscapedJsonVariableDeserializer()));
+        new SimpleModule().addDeserializer(List.class, new EscapedJsonVariableDeserializer<>(List.class)));
+    bpmnToModelMapper.registerModule(
+        new SimpleModule().addDeserializer(Map.class, new EscapedJsonVariableDeserializer<>(Map.class)));
+  }
+
+  @EqualsAndHashCode(callSuper = true)
+  @Data
+  public static class VariableActivity extends BaseActivity {
+    private List<String> listField;
+    private Map<String, String> mapField;
+    private Long longField;
+    private Boolean boolField;
+    private String stringField;
   }
 
   @Test
-  void variableToList() throws JsonProcessingException {
-    Variable<List<String>> swadlModel = swadlToModelMapper.readValue("\"${variables.aVar}\"", new TypeReference<>() {});
+  void listOfVariables() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"listField\": [\n"
+        + "    \"${variables.aVar}\"\n"
+        + "  ]\n"
+        + "}", VariableActivity.class);
+
     String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("listField")
+        .containsOnlyOnce("variables");
+
+    String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "ABC");
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
+
+    assertThat(modelInExecutor.getListField()).isEqualTo(List.of("ABC"));
+  }
+
+  @Test
+  void listAsVariable() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"listField\": "
+        + "\"${variables.aVar}\"\n"
+        + "}", VariableActivity.class);
+
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("listField")
+        .containsOnlyOnce("variables");
+
     String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "[\\\"ABC\\\"]");
-    Variable<List<String>> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo(List.of("ABC"));
+    assertThat(modelInExecutor.getListField()).isEqualTo(List.of("ABC"));
   }
 
   @Test
-  void listToList() throws JsonProcessingException {
-    Variable<List<String>> swadlModel = swadlToModelMapper.readValue("[\"ABC\"]", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn;
-    Variable<List<String>> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void simpleList() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"listField\": [\n"
+        + "    \"ABC\"\n"
+        + "  ]\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo(List.of("ABC"));
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties");
+
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(swadlModelInBpmn, VariableActivity.class);
+
+    assertThat(modelInExecutor.getListField()).isEqualTo(List.of("ABC"));
   }
 
   @Test
-  void variableToMap() throws JsonProcessingException {
-    Variable<Map<String, String>> swadlModel =
-        swadlToModelMapper.readValue("\"${variables.aVar}\"", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "{\\\"key\\\":\\\"value\\\"}");
-    Variable<Map<String, String>> modelInExecutor =
-        bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void mapOfVariables() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"mapField\": {\n"
+        + "    \"entry\": \"${variables.aVar}\"\n"
+        + "  }\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo(Map.of("key", "value"));
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("mapField")
+        .containsOnlyOnce("variables");
+
+    String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "ABC");
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
+
+    assertThat(modelInExecutor.getMapField()).isEqualTo(Map.of("entry", "ABC"));
   }
 
   @Test
-  void mapToMap() throws JsonProcessingException {
-    Variable<Map<String, String>> swadlModel =
-        swadlToModelMapper.readValue("{\"key\":\"value\"}", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn;
-    Variable<Map<String, String>> modelInExecutor =
-        bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void mapAsVariable() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"mapField\": "
+        + "\"${variables.aVar}\"\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo(Map.of("key", "value"));
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("mapField")
+        .containsOnlyOnce("variables");
+
+    String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "{\\\"entry\\\":\\\"ABC\\\"}");
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
+
+    assertThat(modelInExecutor.getMapField()).isEqualTo(Map.of("entry", "ABC"));
   }
 
   @Test
-  void variableToNumber() throws JsonProcessingException {
-    Variable<Number> swadlModel = swadlToModelMapper.readValue("\"${variables.aVar}\"", new TypeReference<>() {});
+  void longAsVariable() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"longField\": "
+        + "\"${variables.aVar}\"\n"
+        + "}", VariableActivity.class);
+
     String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("longField")
+        .containsOnlyOnce("variables");
+
     String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "123");
-    Variable<Number> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo(123);
+    assertThat(modelInExecutor.getLongField()).isEqualTo(123L);
   }
 
   @Test
-  void numberToNumber() throws JsonProcessingException {
-    Variable<Number> swadlModel = swadlToModelMapper.readValue("123", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn;
-    Variable<Number> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void longAsValue() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"longField\": 123\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo(123);
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("longField");
+
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(swadlModelInBpmn, VariableActivity.class);
+
+    assertThat(modelInExecutor.getLongField()).isEqualTo(123L);
   }
 
   @Test
-  void variableToBoolean() throws JsonProcessingException {
-    Variable<Boolean> swadlModel = swadlToModelMapper.readValue("\"${variables.aVar}\"", new TypeReference<>() {});
+  void booleanAsVariable() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"boolField\": "
+        + "\"${variables.aVar}\"\n"
+        + "}", VariableActivity.class);
+
     String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("boolField")
+        .containsOnlyOnce("variables");
+
     String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "true");
-    Variable<Boolean> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isTrue();
+    assertThat(modelInExecutor.getBoolField()).isTrue();
   }
 
   @Test
-  void booleanToBoolean() throws JsonProcessingException {
-    Variable<Boolean> swadlModel = swadlToModelMapper.readValue("true", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn;
-    Variable<Boolean> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void booleanAsValue() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"boolField\": true\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isTrue();
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("boolField");
+
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(swadlModelInBpmn, VariableActivity.class);
+
+    assertThat(modelInExecutor.getBoolField()).isTrue();
   }
 
   @Test
-  void variableToString() throws JsonProcessingException {
-    Variable<String> swadlModel = swadlToModelMapper.readValue("\"${variables.aVar}\"", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "val");
-    Variable<String> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void stringAsVariable() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"stringField\": "
+        + "\"${variables.aVar}\"\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo("val");
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("stringField")
+        .containsOnlyOnce("variables");
+
+    String resolvedExpression = swadlModelInBpmn.replace("${variables.aVar}", "value");
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, VariableActivity.class);
+
+    assertThat(modelInExecutor.getStringField()).isEqualTo("value");
   }
 
   @Test
-  void stringToString() throws JsonProcessingException {
-    Variable<String> swadlModel = swadlToModelMapper.readValue("\"val\"", new TypeReference<>() {});
-    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
-    String resolvedExpression = swadlModelInBpmn;
-    Variable<String> modelInExecutor = bpmnToModelMapper.readValue(resolvedExpression, new TypeReference<>() {});
+  void stringAsValue() throws JsonProcessingException {
+    VariableActivity swadlModel = swadlToModelMapper.readValue("{\n"
+        + "  \"id\": \"123\",\n"
+        + "  \"stringField\": \"value\"\n"
+        + "}", VariableActivity.class);
 
-    assertThat(modelInExecutor.get()).isEqualTo("val");
+    String swadlModelInBpmn = bpmnToModelMapper.writeValueAsString(swadlModel);
+    assertThat(swadlModelInBpmn).doesNotContain("variableProperties")
+        .containsOnlyOnce("stringField");
+
+    VariableActivity modelInExecutor = bpmnToModelMapper.readValue(swadlModelInBpmn, VariableActivity.class);
+
+    assertThat(modelInExecutor.getStringField()).isEqualTo("value");
   }
+
 }

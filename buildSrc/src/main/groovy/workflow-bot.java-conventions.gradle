@@ -25,6 +25,8 @@ java {
     withSourcesJar()
 }
 
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
 test {
     useJUnitPlatform()
 }
@@ -44,6 +46,7 @@ jacocoTestCoverageVerification {
 
 test.finalizedBy jacocoTestReport
 check.dependsOn jacocoTestCoverageVerification
+check.dependsOn javadoc
 
 checkstyle {
     configFile = rootProject.file("checkstyle.xml")

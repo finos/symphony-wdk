@@ -1,0 +1,19 @@
+id: execute-get-request-failed
+activities:
+  - execute-request:
+      id: executeGetRequest
+      on:
+        message-received:
+          content: "/execute-failed"
+      method: POST
+      url: https://url.com?isMocked=true
+      body:
+        args:
+          key: value
+      headers:
+        headerKey: headerValue
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeGetRequest.outputs.body.message == "IOException message"

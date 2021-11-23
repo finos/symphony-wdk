@@ -61,7 +61,7 @@ public final class WorkflowDebugger {
       Runtime.getRuntime().exec(
           String.format("bpmn-to-image --title %s-%s %s:%s",
               workflowName, Instant.now(), bpmnFile, pngFile));
-      log.debug("BPMN, image outputFolder generated to {}", pngFile);
+      log.debug("BPMN image generated to {}", pngFile);
       return pngFile;
     } catch (IOException ioException) {
       log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",

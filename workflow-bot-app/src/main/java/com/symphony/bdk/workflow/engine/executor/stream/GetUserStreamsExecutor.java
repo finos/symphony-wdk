@@ -26,7 +26,7 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
     List<StreamAttributes> userStreams;
     if (getUserStreams.getLimit() != null && getUserStreams.getSkip() != null) {
       userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams),
-          new PaginationAttribute(getUserStreams.getSkip().getInt(), getUserStreams.getLimit().getInt()));
+          new PaginationAttribute(getUserStreams.getSkip(), getUserStreams.getLimit()));
     } else {
       userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams));
     }
@@ -36,10 +36,10 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
 
   private StreamFilter toFilter(GetUserStreams getUserStreams) {
     StreamFilter filter = new StreamFilter()
-        .includeInactiveStreams(getUserStreams.getIncludeInactiveStreams().get());
+        .includeInactiveStreams(getUserStreams.getIncludeInactiveStreams());
 
     if (getUserStreams.getTypes() != null) {
-      filter.setStreamTypes(getUserStreams.getTypes().get().stream()
+      filter.setStreamTypes(getUserStreams.getTypes().stream()
           .map(t -> new StreamType().type(StreamType.TypeEnum.fromValue(t)))
           .collect(Collectors.toList()));
     }

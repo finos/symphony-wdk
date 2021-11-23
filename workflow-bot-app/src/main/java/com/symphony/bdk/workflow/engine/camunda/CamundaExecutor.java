@@ -4,16 +4,19 @@ import com.google.common.collect.ImmutableMap;
 
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
+import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
 import com.symphony.bdk.workflow.engine.camunda.variable.EscapedJsonVariableDeserializer;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -23,7 +26,9 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -35,6 +40,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -52,31 +58,48 @@ public class CamundaExecutor implements JavaDelegate {
 
   static {
     SimpleModule module = new SimpleModule();
-    module.addDeserializer(Variable.class, new EscapedJsonVariableDeserializer());
+    module.addDeserializer(List.class, new EscapedJsonVariableDeserializer<>(List.class));
+    module.addDeserializer(Map.class, new EscapedJsonVariableDeserializer<>(Map.class));
     OBJECT_MAPPER = JsonMapper.builder()
         .addModule(module)
         .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         // to escape # or $ in message received content and still serialize it to JSON
         .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
         .build();
+    OBJECT_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+    // serialized properties must be annotated explicitly with @JsonProperty
+    OBJECT_MAPPER.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+    OBJECT_MAPPER.addMixIn(BaseActivity.class, BpmnToAndFromBaseActivityMixin.class);
   }
 
   private final BdkGateway bdk;
   private final AuditTrailLogger auditTrailLogger;
   private final ResourceProvider resourceLoader;
+  private final ApplicationContext applicationContext;
 
   public CamundaExecutor(BdkGateway bdk, AuditTrailLogger auditTrailLogger,
-      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader) {
+      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader, ApplicationContext applicationContext) {
     this.bdk = bdk;
     this.auditTrailLogger = auditTrailLogger;
     this.resourceLoader = resourceLoader;
+    this.applicationContext = applicationContext;
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
 
-    ActivityExecutor<?> executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
+    ActivityExecutor<?> executor;
+
+    // An activity executor can be a bean or not.
+    // We firstly try to get it as a bean from Spring application context,
+    // if not found, then we catch the exception, and we create a new instance.
+    try {
+      executor = (ActivityExecutor<?>) applicationContext.getBean(implClass);
+    } catch (NoSuchBeanDefinitionException noSuchBeanDefinitionException) {
+      executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
+    }
+
 
     Type type =
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];

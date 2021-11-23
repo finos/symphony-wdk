@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 @Data
 public class ActivityCompletedEvent {
+  @JsonProperty
   private String activityId;
 
   @JsonProperty("if")

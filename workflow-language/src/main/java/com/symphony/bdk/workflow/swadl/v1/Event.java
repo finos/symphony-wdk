@@ -22,6 +22,7 @@ import com.symphony.bdk.workflow.swadl.v1.event.UserLeftRoomEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.UserRequestedToJoinRoomEvent;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
@@ -29,49 +30,69 @@ import java.util.List;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
-  private String timeout;
-
+  @JsonProperty
   private List<Event> oneOf;
 
+  @JsonProperty
   private FormRepliedEvent formReplied;
 
+  @JsonProperty
   private ActivityExpiredEvent activityExpired;
 
+  @JsonProperty
   private ActivityCompletedEvent activityCompleted;
 
+  @JsonProperty
   private ActivityFailedEvent activityFailed;
 
+  @JsonProperty
   private MessageReceivedEvent messageReceived;
 
+  @JsonProperty
   private MessageSuppressedEvent messageSuppressed;
 
+  @JsonProperty
   private PostSharedEvent postShared;
 
+  @JsonProperty
   private ImCreatedEvent imCreated;
 
+  @JsonProperty
   private RoomCreatedEvent roomCreated;
 
+  @JsonProperty
   private RoomUpdatedEvent roomUpdated;
 
+  @JsonProperty
   private RoomDeactivatedEvent roomDeactivated;
 
+  @JsonProperty
   private RoomReactivatedEvent roomReactivated;
 
+  @JsonProperty
   private RoomMemberPromotedToOwnerEvent roomMemberPromotedToOwner;
 
+  @JsonProperty
   private RoomMemberPromotedToOwnerEvent roomMemberDemotedFromOwner;
 
+  @JsonProperty
   private UserJoinedRoomEvent userJoinedRoom;
 
+  @JsonProperty
   private UserLeftRoomEvent userLeftRoom;
 
+  @JsonProperty
   private UserRequestedToJoinRoomEvent userRequestedJoinRoom;
 
+  @JsonProperty
   private ConnectionRequestedEvent connectionRequested;
 
+  @JsonProperty
   private ConnectionAcceptedEvent connectionAccepted;
 
+  @JsonProperty
   private TimerFiredEvent timerFired;
 
+  @JsonProperty
   private RequestReceivedEvent requestReceived;
 }

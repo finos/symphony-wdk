@@ -2,10 +2,12 @@ package com.symphony.bdk.workflow.swadl;
 
 
 import com.symphony.bdk.workflow.swadl.v1.Activity;
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.validator.SwadlValidator;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,9 +31,11 @@ public class SwadlParser {
   static {
     MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
+    MAPPER.addMixIn(BaseActivity.class, SwadlToBaseActivityMixin.class);
+    // disable getter/setter detection, all properties must be explicitly annotated with @JsonProperty
+    MAPPER.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
     SimpleModule module = new SimpleModule();
     module.addDeserializer(Activity.class, new ActivityDeserializer());
-    module.addDeserializer(Variable.class, new VariableListDeserializer());
     MAPPER.registerModule(module);
   }
 

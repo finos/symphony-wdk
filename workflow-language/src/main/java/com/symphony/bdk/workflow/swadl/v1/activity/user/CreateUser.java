@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -34,10 +33,10 @@ public class CreateUser extends BaseActivity {
   private Business business;
 
   @Nullable
-  private Variable<List<String>> roles = Variable.nullValue();
+  private List<String> roles;
 
   @Nullable
-  private Variable<Map<String, Boolean>> entitlements;
+  private Map<String, Boolean> entitlements;
 
   @Nullable
   private String status;
@@ -66,12 +65,12 @@ public class CreateUser extends BaseActivity {
     private String title;
     private String location;
     private String jobFunction;
-    private Variable<List<String>> assetClasses = Variable.nullValue();
-    private Variable<List<String>> industries = Variable.nullValue();
-    private Variable<List<String>> functions = Variable.nullValue();
-    private Variable<List<String>> marketCoverages = Variable.nullValue();
-    private Variable<List<String>> responsibilities = Variable.nullValue();
-    private Variable<List<String>> instruments = Variable.nullValue();
+    private List<String> assetClasses;
+    private List<String> industries;
+    private List<String> functions;
+    private List<String> marketCoverages;
+    private List<String> responsibilities;
+    private List<String> instruments;
   }
 
 

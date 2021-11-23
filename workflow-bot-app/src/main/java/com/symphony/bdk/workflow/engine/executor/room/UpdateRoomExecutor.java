@@ -30,7 +30,7 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     if (updateRoom.getActive() != null) {
       // this is a different API call but we support it in the same activity
       log.debug("Updating room {} active status", updateRoom.getStreamId());
-      execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive().get());
+      execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive());
     }
 
     // services called above return different results and might end up not being called so we explicitly call the API
@@ -45,14 +45,14 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     return updateRoom.getRoomName() != null
         || updateRoom.getRoomDescription() != null
         || updateRoom.getKeywords() != null
-        || updateRoom.getMembersCanInvite().get() != null
-        || updateRoom.getDiscoverable().get() != null
-        || updateRoom.getIsPublic().get() != null
-        || updateRoom.getReadOnly().get() != null
-        || updateRoom.getCopyProtected().get() != null
-        || updateRoom.getCrossPod().get() != null
-        || updateRoom.getViewHistory().get() != null
-        || updateRoom.getMultilateralRoom().get() != null;
+        || updateRoom.getMembersCanInvite() != null
+        || updateRoom.getDiscoverable() != null
+        || updateRoom.getIsPublic() != null
+        || updateRoom.getReadOnly() != null
+        || updateRoom.getCopyProtected() != null
+        || updateRoom.getCrossPod() != null
+        || updateRoom.getViewHistory() != null
+        || updateRoom.getMultilateralRoom() != null;
   }
 
   private V3RoomAttributes toAttributes(UpdateRoom updateRoom) {
@@ -61,7 +61,7 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     attributes.setDescription(updateRoom.getRoomDescription());
 
     if (updateRoom.getKeywords() != null) {
-      List<RoomTag> tags = updateRoom.getKeywords().get().entrySet().stream()
+      List<RoomTag> tags = updateRoom.getKeywords().entrySet().stream()
           .map(e -> {
             RoomTag tag = new RoomTag();
             tag.setKey(e.getKey());
@@ -72,14 +72,14 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
       attributes.setKeywords(tags);
     }
 
-    attributes.membersCanInvite(updateRoom.getMembersCanInvite().get());
-    attributes.setDiscoverable(updateRoom.getDiscoverable().get());
-    attributes.setPublic(updateRoom.getIsPublic().get());
-    attributes.setReadOnly(updateRoom.getReadOnly().get());
-    attributes.copyProtected(updateRoom.getCopyProtected().get());
-    attributes.crossPod(updateRoom.getCrossPod().get());
-    attributes.viewHistory(updateRoom.getViewHistory().get());
-    attributes.multiLateralRoom(updateRoom.getMultilateralRoom().get());
+    attributes.membersCanInvite(updateRoom.getMembersCanInvite());
+    attributes.setDiscoverable(updateRoom.getDiscoverable());
+    attributes.setPublic(updateRoom.getIsPublic());
+    attributes.setReadOnly(updateRoom.getReadOnly());
+    attributes.copyProtected(updateRoom.getCopyProtected());
+    attributes.crossPod(updateRoom.getCrossPod());
+    attributes.viewHistory(updateRoom.getViewHistory());
+    attributes.multiLateralRoom(updateRoom.getMultilateralRoom());
 
     return attributes;
   }

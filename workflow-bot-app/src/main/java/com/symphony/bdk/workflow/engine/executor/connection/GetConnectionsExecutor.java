@@ -9,7 +9,6 @@ import com.symphony.bdk.workflow.swadl.v1.activity.connection.GetConnections;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> {
@@ -21,7 +20,7 @@ public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> 
     GetConnections activity = context.getActivity();
 
     List<UserConnection> connections = context.bdk().connections()
-        .listConnections(toConnectionStatus(activity.getStatus()), toLongs(activity.getUserIds().get()));
+        .listConnections(toConnectionStatus(activity.getStatus()), activity.getUserIds());
     context.setOutputVariable(OUTPUT_CONNECTIONS_KEY, connections);
   }
 
@@ -33,10 +32,4 @@ public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> 
     return ConnectionStatus.valueOf(statusString);
   }
 
-  private static List<Long> toLongs(List<Number> ids) {
-    if (ids == null) {
-      return null;
-    }
-    return ids.stream().map(Number::longValue).collect(Collectors.toList());
-  }
 }

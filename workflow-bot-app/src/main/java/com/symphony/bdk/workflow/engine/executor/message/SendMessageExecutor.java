@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
@@ -65,11 +64,11 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       return singletonList(activity.getTo().getStreamId());
 
     } else if (activity.getTo() != null && activity.getTo().getStreamIds() != null) {
-      return activity.getTo().getStreamIds().get();
+      return activity.getTo().getStreamIds();
 
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
-      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds().get(), streamService));
+      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
 
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
@@ -88,8 +87,8 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
   }
 
-  private String createOrGetStreamId(List<Number> userIds, StreamService streamService) {
-    Stream stream = streamService.create(userIds.stream().map(Number::longValue).collect(Collectors.toList()));
+  private String createOrGetStreamId(List<Long> userIds, StreamService streamService) {
+    Stream stream = streamService.create(userIds);
     return stream.getId();
   }
 
