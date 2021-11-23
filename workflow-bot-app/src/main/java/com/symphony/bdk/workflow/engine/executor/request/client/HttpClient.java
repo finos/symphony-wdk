@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.executor.request.client;
 import lombok.Generated;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.client5.http.fluent.Form;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -43,10 +43,18 @@ public class HttpClient {
     // set body
     String contentType = headers.get(HttpHeaders.CONTENT_TYPE);
     if (body != null && ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
-      Form form = Form.form();
+
+      final MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder
+          .create();
+
       Map<String, Object> bodyAsMap = (LinkedHashMap<String, Object>) body;
-      bodyAsMap.forEach((key, value) -> form.add(key, value.toString()));
-      request.bodyForm(form.build());
+      bodyAsMap.forEach((key, value) -> multipartEntityBuilder.addTextBody(key, value.toString()));
+
+      request.body(multipartEntityBuilder.build());
+
+      // The content type with boundary is provided in the entity, otherwise it is overridden
+      headers.remove(HttpHeaders.CONTENT_TYPE);
+
     } else if (body != null && StringUtils.isNotEmpty(contentType)) {
       request.bodyString(body.toString(), ContentType.parse(contentType));
     } else if (body != null) { // if no content type is provided, we set application/json by default
