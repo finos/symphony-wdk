@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.request.client;
 
 import lombok.Generated;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -19,7 +18,6 @@ import java.util.Map;
 
 @Generated
 @Component
-@Slf4j
 public class HttpClient {
 
   public Response execute(String method, String url, Object body, Map<String, String> headers)

@@ -1874,7 +1874,8 @@ Key | Type | Required |
 [headers](#headers) | String | No |
 
 _nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, it can be provided as String in JSON format._
-_nb: For a JSON api, the response can be processes in subsequent activities in SWADL using the utility function [json()](#utility-functions)
+
+_nb: For a JSON api, the response can be processed in subsequent activities in SWADL using the utility function [json()](#utility-functions)_
 
 Output | Type |
 ----|----|
@@ -1964,7 +1965,7 @@ activities:
 Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
 
 ## Utility functions
-WDK provides some utility functions that can be used in SWADL to process data in SWADL.
+WDK provides some utility functions that can be used to process data in SWADL.
 
 ### Object json(String string)
 This method is used to convert a String in JSON format to an Object in order to be processed as a JSON.
@@ -1977,7 +1978,7 @@ ${json("This is a regular String")} == "This is a regular String"
 ```
 
 ### String text(String presentationMl)
-This method is used to convert a presentation ML String to a text.
+This method is used to convert a PresentationML String to a text.
 
 Example:
 ```java
@@ -1985,7 +1986,7 @@ ${text(<div data-format="PresentationML" data-version="2.0">started</div>)} == "
 ```
 
 ### String escape(String string)
-This method will escape text contents using JSON standard escaping, and return results as a String
+This method will escape text contents using JSON standard escaping, and return results as a String.
 
 Example:
 ```java
