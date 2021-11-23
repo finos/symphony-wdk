@@ -29,6 +29,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
+
+  private static final List<String> ACTIVITY_TYPES_TO_IGNORE =
+      Arrays.asList("signalStartEvent", "exclusiveGateway", "boundaryError", "intermediateSignalCatch");
+
   public WorkflowAssert(Workflow workflow) {
     super(workflow, WorkflowAssert.class);
   }
@@ -165,6 +169,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
         .containsExactly(activities.toArray(String[]::new));
   }
 
+  // activityIds represent all successfully executed activities and not only a subset
   private static void assertExecuted(String... activityIds) {
     Assertions.assertThat(listExecutedActivities()).containsExactly(activityIds);
   }
@@ -180,9 +185,9 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
             .orderByActivityName().asc()
             .list();
 
+
     return processes.stream()
-        .filter(p -> !p.getActivityType().equals("signalStartEvent") && !p.getActivityType().equals("exclusiveGateway")
-            && !p.getActivityType().equals("boundaryError") && !p.isCanceled())
+        .filter(p -> !ACTIVITY_TYPES_TO_IGNORE.contains(p.getActivityType()) && !p.isCanceled())
         .map(HistoricActivityInstance::getActivityName)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());

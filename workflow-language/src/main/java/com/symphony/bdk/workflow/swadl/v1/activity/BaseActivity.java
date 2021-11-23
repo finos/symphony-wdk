@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity;
 
 import com.symphony.bdk.workflow.swadl.v1.Event;
+import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,7 +45,7 @@ public abstract class BaseActivity {
    */
   @Nullable
   @JsonProperty
-  private Event on;
+  private EventWithTimeout on;
 
   @JsonProperty("if")
   @Nullable

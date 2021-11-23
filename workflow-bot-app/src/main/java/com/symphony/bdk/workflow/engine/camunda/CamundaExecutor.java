@@ -24,7 +24,9 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -70,19 +72,31 @@ public class CamundaExecutor implements JavaDelegate {
   private final BdkGateway bdk;
   private final AuditTrailLogger auditTrailLogger;
   private final ResourceProvider resourceLoader;
+  private final ApplicationContext applicationContext;
 
   public CamundaExecutor(BdkGateway bdk, AuditTrailLogger auditTrailLogger,
-      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader) {
+      @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader, ApplicationContext applicationContext) {
     this.bdk = bdk;
     this.auditTrailLogger = auditTrailLogger;
     this.resourceLoader = resourceLoader;
+    this.applicationContext = applicationContext;
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
 
-    ActivityExecutor<?> executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
+    ActivityExecutor<?> executor;
+
+    // An activity executor can be a bean or not.
+    // We firstly try to get it as a bean from Spring application context,
+    // if not found, then we catch the exception, and we create a new instance.
+    try {
+      executor = (ActivityExecutor<?>) applicationContext.getBean(implClass);
+    } catch (NoSuchBeanDefinitionException noSuchBeanDefinitionException) {
+      executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
+    }
+
 
     Type type =
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];

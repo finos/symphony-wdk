@@ -967,7 +967,7 @@
                     }
                 }
             },
-            "additionalProperties": false,
+            "additionalProperties": true,
             "required": [
                 "one-of"
             ]
@@ -1593,6 +1593,7 @@
                 "method": {
                     "type": "string",
                     "description": "HTTP method to perform",
+                    "default": "GET",
                     "enum": [
                         "GET",
                         "POST",
@@ -1604,8 +1605,18 @@
                     ]
                 },
                 "body": {
-                    "type": "object",
-                    "description": "HTTP request body"
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "HTTP request body",
+                            "$comment": "String format is required for all content types except multipart/form-data"
+                        },
+                        {
+                            "type": "object",
+                            "description": "HTTP request body",
+                            "$comment": "Object format is required for multipart/form-data content type"
+                        }
+                    ]
                 },
                 "headers": {
                     "type": "object",
@@ -1613,8 +1624,7 @@
                 }
             },
             "required": [
-                "url",
-                "method"
+                "url"
             ]
         },
         "email": {

@@ -31,9 +31,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Event {
   @JsonProperty
-  private String timeout;
-
-  @JsonProperty
   private List<Event> oneOf;
 
   @JsonProperty
