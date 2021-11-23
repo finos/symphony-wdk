@@ -9,9 +9,9 @@ import java.util.Map;
 /**
  * Specify how we want to serialize/deserialize a {@link com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity}
  * to and from BPMN.
- * <p/>
- * We don't want the variableProperties to appear but instead to flatten out what inside (so it can be mapped back to
- * the real activity properties).
+ *
+ * <p>We don't want the variableProperties to appear but instead to flatten out what inside (so it can be mapped back to
+ * the real activity properties).</p>
  */
 public abstract class BpmnToAndFromBaseActivityMixin {
 
