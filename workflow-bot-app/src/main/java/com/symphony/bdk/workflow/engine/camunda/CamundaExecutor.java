@@ -23,6 +23,7 @@ import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,8 +37,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -147,27 +148,39 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public void setOutputVariable(String name, Object value) {
-      Map<String, Object> innerMap = Collections.singletonMap(name, value);
-      Map<String, Object> outerMap = Collections.singletonMap(ActivityExecutorContext.OUTPUTS, innerMap);
+    public void setOutputVariables(Map<String, Object> variables) {
+      Map<String, Object> innerMap = new HashMap<>(variables);
       String activityId = getActivity().getId();
 
-      // value might not implement serializable or be a collection with non-serializable items, so we use JSON if needed
-      Object outerMapVar;
-      Object valueVar;
-      if (value instanceof Serializable && !(value instanceof Collection)) {
-        outerMapVar = outerMap;
-        valueVar = value;
-      } else {
-        outerMapVar =
-            Variables.objectValue(outerMap).serializationDataFormat(Variables.SerializationDataFormats.JSON).create();
-        valueVar =
-            Variables.objectValue(value).serializationDataFormat(Variables.SerializationDataFormats.JSON).create();
+      Map<String, Object> outer = Map.of(ActivityExecutorContext.OUTPUTS, innerMap);
+      ObjectValue objectValue = Variables.objectValue(outer)
+          .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+          .create();
+
+      // flatten outputs for message correlation
+      Map<String, Object> flattenOutputs = new HashMap<>();
+
+      for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
+        // value might not implement serializable or be a collection with non-serializable items, so we use JSON if needed
+        if (entry.getValue() instanceof Serializable && !(entry.getValue() instanceof Collection)) {
+          flattenOutputs.put(entry.getKey(), entry.getValue());
+        } else {
+          flattenOutputs.put(entry.getKey(), Variables.objectValue(entry.getValue())
+              .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+              .create());
+        }
       }
 
-      execution.setVariable(activityId, outerMapVar);
-      // flatten it too for message correlation
-      execution.setVariable(String.format("%s.%s.%s", activityId, ActivityExecutorContext.OUTPUTS, name), valueVar);
+      execution.setVariable(activityId, objectValue);
+      flattenOutputs.forEach((key, value) -> execution.setVariable(
+          String.format("%s.%s.%s", activityId, ActivityExecutorContext.OUTPUTS, key), value));
+    }
+
+    @Override
+    public void setOutputVariable(String name, Object value) {
+      Map<String, Object> singletonMap = new HashMap<>();
+      singletonMap.put(name, value);
+      this.setOutputVariables(singletonMap);
     }
 
     @Override
