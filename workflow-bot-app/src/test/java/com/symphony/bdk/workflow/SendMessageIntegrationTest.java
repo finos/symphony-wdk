@@ -29,7 +29,6 @@ import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -157,23 +156,15 @@ class SendMessageIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-freemarker.swadl.yaml"));
 
-    TemplateEngine templateEngine = mock(TemplateEngine.class);
-    Template template = mock(Template.class);
+    TemplateEngine templateEngine = TemplateEngine.getDefaultImplementation();
     when(messageService.templates()).thenReturn(templateEngine);
-    when(templateEngine.newTemplateFromFile(any())).thenReturn(template);
-    when(template.process(anyMap())).thenReturn("Hello world!");
-
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/send"));
 
     assertThat(workflow).isExecuted();
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
-    ArgumentCaptor<Map<String, Object>> paramsArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-
-    verify(template, times(1)).process(paramsArgumentCaptor.capture());
-    assertThat(paramsArgumentCaptor.getValue()).contains(Map.entry("variables",  Map.of("val","world")));
     verify(messageService, times(1)).send(eq("123"), messageArgumentCaptor.capture());
-    AssertionsForClassTypes.assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Hello world!</messageML>");
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Hello world!\n</messageML>");
   }
 
   @Test
