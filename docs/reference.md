@@ -759,7 +759,7 @@ Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
-Content can either set directly in the SWADL file as plain text (String) or it can be referenced from an external file (Object).
+Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external file (Object).
 When using an external file the content has to be defined as follows:
 
 Key | Type | Required |
