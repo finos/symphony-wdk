@@ -37,9 +37,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -149,6 +150,8 @@ public class CamundaExecutor implements JavaDelegate {
 
     @Override
     public void setOutputVariables(Map<String, Object> variables) {
+      this.checkNoOutputsExist(activity.getId());
+
       Map<String, Object> innerMap = new HashMap<>(variables);
       String activityId = getActivity().getId();
 
@@ -161,7 +164,7 @@ public class CamundaExecutor implements JavaDelegate {
       Map<String, Object> flattenOutputs = new HashMap<>();
 
       for (Map.Entry<String, Object> entry : innerMap.entrySet()) {
-        // value might not implement serializable or be a collection with non-serializable items, so we use JSON if needed
+        // value might not implement serializable or be a collection with non-serializable items, we use JSON if needed
         if (entry.getValue() instanceof Serializable && !(entry.getValue() instanceof Collection)) {
           flattenOutputs.put(entry.getKey(), entry.getValue());
         } else {
@@ -178,6 +181,7 @@ public class CamundaExecutor implements JavaDelegate {
 
     @Override
     public void setOutputVariable(String name, Object value) {
+      this.checkNoOutputsExist(activity.getId());
       Map<String, Object> singletonMap = new HashMap<>();
       singletonMap.put(name, value);
       this.setOutputVariables(singletonMap);
@@ -216,6 +220,19 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public Path saveResource(Path resourcePath, byte[] content) throws IOException {
       return resourceLoader.saveResource(resourcePath, content);
+    }
+
+    private void checkNoOutputsExist(String activityId) {
+      List<String> foundOutputs = this.execution.getVariables()
+          .keySet()
+          .stream()
+          .filter(o -> o.contains(String.format("%s.outputs", activityId)))
+          .collect(Collectors.toList());
+
+      if (!foundOutputs.isEmpty()) {
+        throw new RuntimeException(
+            String.format("Outputs %s already exist for activity %s", foundOutputs, activityId));
+      }
     }
   }
 }
