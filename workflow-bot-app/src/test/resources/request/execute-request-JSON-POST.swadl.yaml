@@ -1,0 +1,23 @@
+id: execute-JSON-post-request
+activities:
+  - execute-request:
+      id: executePostRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: POST
+      url: https://wiremock.com/api
+      body:
+        key: value
+  - execute-script:
+      id: checkResponse
+      script: |
+        assert executePostRequest.outputs.body.name == "john"
+  # the script below will be used after implementing JSON utility function
+  #- execute-script:
+  #    id: assertionScript
+  #    script: |
+  #      assert executePostRequest.outputs.body.name == "john"
+  #      assert executePostRequest.outputs.body.age == "22"
+  #      assert executePostRequest.outputs.body.contact.phone == "0123456"
+  #      assert executePostRequest.outputs.body.contact.email == "john@symphony.com"

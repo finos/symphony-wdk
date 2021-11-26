@@ -59,8 +59,8 @@ public abstract class IntegrationTest {
   @Autowired
   WorkflowEngine engine;
 
-  @MockBean
-  HttpClient httpClient;
+//  @MockBean
+//  HttpClient httpClient;
 
   @Autowired
   ResourceProvider resourceProvider;

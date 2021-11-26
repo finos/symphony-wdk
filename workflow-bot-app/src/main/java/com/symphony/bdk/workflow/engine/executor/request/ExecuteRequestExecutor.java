@@ -17,14 +17,14 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
+public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> {
 
   private static final String OUTPUT_STATUS_KEY = "status";
   private static final String OUTPUT_BODY_KEY = "body";
 
   private final HttpClient httpClient;
 
-  public RequestExecutor(HttpClient httpClient) {
+  public ExecuteRequestExecutor(HttpClient httpClient) {
     this.httpClient = httpClient;
   }
 
@@ -37,7 +37,11 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
         this.httpClient.execute(activity.getMethod(), activity.getUrl(), activity.getBody(),
             headersToString(activity.getHeaders()));
 
-    String data = response.getContent();
+    Object data = response.getContent();
+    Object contentType = activity.getHeaders().get("Content-Type"); // TODO check response header instead
+    if (contentType == null || contentType.equals("application/json")) {// TODO handle non map content
+      data = HttpClient.OBJECT_MAPPER.readValue(response.getContent(), Map.class);
+    }
     int statusCode = response.getCode();
 
     log.info("Received response {}", response.getCode());

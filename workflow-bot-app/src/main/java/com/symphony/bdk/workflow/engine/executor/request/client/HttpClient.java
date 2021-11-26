@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.request.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Generated;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,8 @@ import java.util.Map;
 @Generated
 @Component
 public class HttpClient {
+
+  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   public Response execute(String method, String url, Object body, Map<String, String> headers)
       throws IOException {
@@ -56,9 +59,18 @@ public class HttpClient {
       headers.remove(HttpHeaders.CONTENT_TYPE);
 
     } else if (body != null && StringUtils.isNotEmpty(contentType)) {
-      request.bodyString(body.toString(), ContentType.parse(contentType));
+      if (ContentType.parse(contentType).equals(ContentType.APPLICATION_JSON) && !(body instanceof String)) {
+        request.bodyString(OBJECT_MAPPER.writeValueAsString(body), ContentType.APPLICATION_JSON);
+      } else {
+        request.bodyString(body.toString(), ContentType.parse(contentType));
+      }
+
     } else if (body != null) { // if no content type is provided, we set application/json by default
-      request.bodyString(body.toString(), ContentType.APPLICATION_JSON);
+      if (body instanceof String) {
+        request.bodyString(body.toString(), ContentType.APPLICATION_JSON);
+      } else {
+        request.bodyString(OBJECT_MAPPER.writeValueAsString(body), ContentType.APPLICATION_JSON);
+      }
     }
 
     // set headers

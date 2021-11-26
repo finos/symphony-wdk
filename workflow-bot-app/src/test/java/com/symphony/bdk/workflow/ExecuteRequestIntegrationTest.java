@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.engine.executor.request.client.Response;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -13,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -49,7 +47,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     final Response mockedResponse = new Response(200, expectedResponse);
 
-    when(httpClient.execute(method, url, body, header)).thenReturn(mockedResponse);
+//    when(httpClient.execute(method, url, body, header)).thenReturn(mockedResponse);
 
     engine.deploy(workflow);
 
@@ -73,7 +71,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
 
     final Response mockedResponse = new Response(200, expectedResponse);
 
-    when(httpClient.execute("GET", url, null, header)).thenReturn(mockedResponse);
+//    when(httpClient.execute("GET", url, null, header)).thenReturn(mockedResponse);
 
     engine.deploy(workflow);
 
@@ -101,7 +99,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
     final String url = "https://url.com?isMocked=true";
 
-    when(httpClient.execute("POST", url, body, header)).thenReturn(new Response(400, exceptionMessage));
+//    when(httpClient.execute("POST", url, body, header)).thenReturn(new Response(400, exceptionMessage));
 
     engine.deploy(workflow);
 
@@ -122,7 +120,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final String url = "https://url.com?isMocked=true";
     final String exceptionMessage = "IOException message";
 
-    when(httpClient.execute("POST", url, body, header)).thenThrow(new IOException(exceptionMessage));
+//    when(httpClient.execute("POST", url, body, header)).thenThrow(new IOException(exceptionMessage));
 
     engine.deploy(workflow);
 
