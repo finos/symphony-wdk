@@ -1,4 +1,4 @@
-id: send-message-on-message
+id: send-message-workflow
 activities:
   - send-message:
       id: sendMessageId

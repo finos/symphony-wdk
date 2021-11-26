@@ -10,17 +10,21 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
 
   @Override
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
     String messageId = execution.getActivity().getMessageId();
-    V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
+    V4Message messageToUpdate = execution.bdk().messages().getMessage(messageId);
     Message message = Message.builder().content(execution.getActivity().getContent()).build();
     V4Message updatedMessage = execution.bdk().messages().update(messageToUpdate, message);
 
-    execution.setOutputVariable(OUTPUT_MESSAGE_KEY, updatedMessage);
-    execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, updatedMessage.getMessageId());
+    Map<String, Object> outputs = new HashMap<>();
+    outputs.put(OUTPUT_MESSAGE_KEY, updatedMessage);
+    outputs.put(OUTPUT_MESSAGE_ID_KEY, updatedMessage.getMessageId());
+    execution.setOutputVariables(outputs);
   }
 }

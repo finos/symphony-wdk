@@ -37,10 +37,15 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
         this.httpClient.execute(activity.getMethod(), activity.getUrl(), activity.getBody(),
             headersToString(activity.getHeaders()));
 
-    log.info("Received response {}", response.getCode());
-    execution.setOutputVariable(OUTPUT_STATUS_KEY, response.getCode());
-    execution.setOutputVariable(OUTPUT_BODY_KEY, response.getContent());
+    String data = response.getContent();
+    int statusCode = response.getCode();
 
+    log.info("Received response {}", response.getCode());
+
+    Map<String, Object> outputs = new HashMap<>();
+    outputs.put(OUTPUT_STATUS_KEY, statusCode);
+    outputs.put(OUTPUT_BODY_KEY, data);
+    execution.setOutputVariables(outputs);
   }
 
   private Map<String, String> headersToString(Map<String, Object> headers) {

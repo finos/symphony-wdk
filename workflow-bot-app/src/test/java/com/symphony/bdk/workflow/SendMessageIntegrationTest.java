@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -36,43 +35,49 @@ import java.util.List;
 class SendMessageIntegrationTest extends IntegrationTest {
 
   private static final String OUTPUTS_MSG_KEY = "%s.outputs.message";
+  private static final String OUTPUTS_MSG_ID_KEY = "%s.outputs.msgId";
 
   @Test
-  @DisplayName(
-      "Given a send-message with a streamId, when the triggering message is received, "
-          + "then the provided message should be sent to the room")
   void sendMessageOnMessage() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
+    final V4Message message = message("Hello!");
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/message"));
 
-    verify(messageService, timeout(5000)).send(eq("123"), content("Hello!"));
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
+    verify(messageService, timeout(5000)).send(anyString(), any(Message.class));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessage1"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessage1"), message.getMessageId());
   }
 
   @Test
-  @DisplayName(
-      "Given two activities: create-room and send-message, when the room is created, then a message is sent to it")
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");
 
+    final V4Message message = message("Hello!");
+
     when(streamService.create(uids)).thenReturn(stream);
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/create-room"));
 
     verify(streamService, timeout(5000).times(1)).create(uids);
-    verify(messageService, timeout(5000).times(1)).send(anyString(), content("<p>Hello!</p>"));
+    verify(messageService, timeout(5000).times(1)).send(anyString(), any(Message.class));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendmessageid"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendmessageid"), message.getMessageId());
   }
 
   @Test
-  @DisplayName(
-      "Given a list of user ids, when the workflow is executed, then a message is sent to their IM/MIM"
-  )
   void sendMessageWithUids() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-uids.swadl.yaml"));
@@ -105,7 +110,9 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
 
-    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message);
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUserIds"), message.getMessageId());
   }
 
   @Test
@@ -139,14 +146,12 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
 
-    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message);
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUserIds"), message.getMessageId());
   }
 
   @Test
-  @DisplayName(
-      "Given a message with attachments, "
-          + "when I send a new message with the attachment id, "
-          + "this specific file is sent in a new message")
   void sendMessageWithSpecificAttachment() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(

@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.executor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Map;
 
 public interface ActivityExecutorContext<T> {
 
@@ -28,9 +29,14 @@ public interface ActivityExecutorContext<T> {
   String INITIATOR = "initiator";
 
   /**
-   * Define an output variable that can be retrieved later with ${activityId.outputs.name}.
+   * Define output variables that can be retrieved later with ${activityId.outputs.name}.
    */
-  void setOutputVariable(String name, Object value);
+  void setOutputVariables(Map<String, Object> variables);
+
+  /**
+   * Define one output variable that can be retrieved later with ${activityId.outputs.name}.
+   */
+  void setOutputVariable(String name, Object variable);
 
   /**
    * @return Gateway to access the BDK services.

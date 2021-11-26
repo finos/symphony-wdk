@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
@@ -52,8 +54,10 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       message = response.getMessages().get(0); // assume at least one message has been sent
     }
 
-    execution.setOutputVariable(OUTPUT_MESSAGE_KEY, message);
-    execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    Map<String, Object> outputs = new HashMap<>();
+    outputs.put(OUTPUT_MESSAGE_KEY, message);
+    outputs.put(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    execution.setOutputVariables(outputs);
   }
 
   private List<String> resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
