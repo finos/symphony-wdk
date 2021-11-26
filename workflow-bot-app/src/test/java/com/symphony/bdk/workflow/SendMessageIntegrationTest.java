@@ -116,11 +116,12 @@ class SendMessageIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void sendMessageWithUidsVariables() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-uids-variables.swadl.yaml"));
 
-    final List<Long> uids = Arrays.asList(123L);
+    final List<Long> uids = List.of(123L);
     final String streamId = "STREAM_ID";
     final String msgId = "MSG_ID";
     final String content = "<messageML>hello</messageML>";
