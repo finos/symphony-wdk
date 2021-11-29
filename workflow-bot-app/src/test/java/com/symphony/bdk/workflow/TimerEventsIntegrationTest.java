@@ -1,10 +1,14 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -47,6 +51,7 @@ class TimerEventsIntegrationTest extends IntegrationTest {
   void repeatAsIntermediateEvent() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/timer/timer-repeat-intermediate.swadl.yaml"));
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/execute"));

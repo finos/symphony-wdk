@@ -186,6 +186,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
         getClass().getResourceAsStream("/event/timeout/activity-expired-leading-to-new-branch.swadl.yaml"));
 
     when(messageService.send("123", "Expired")).thenReturn(new V4Message());
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));

@@ -43,7 +43,6 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
             List.of("executeDeleteRequest", "assertionScript")),
         arguments(patch(UrlPattern.ANY), "/request/execute-request-successful-PATCH.swadl.yaml",
             List.of("executePatchRequest", "assertionScript")),
-        //arguments(head(UrlPattern.ANY), "/request/execute-request-successful-HEAD.swadl.yaml"),
         arguments(options(UrlPattern.ANY), "/request/execute-request-successful-OPTIONS.swadl.yaml",
             List.of("executeOptionsRequest", "assertionScript"))
     );
@@ -56,8 +55,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
-    workflow.getFirstActivity().get().getActivity().getVariableProperties()
-        .put("url", wmRuntimeInfo.getHttpBaseUrl() + "/api");
+    this.putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
 
     stubFor(method.withHeader("keyOne", equalTo("valueOne"))
         .withHeader("keyTwo", equalTo("valueTwo,valueThree"))
@@ -77,8 +75,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful-HEAD.swadl.yaml"));
 
-    workflow.getFirstActivity().get().getActivity().getVariableProperties()
-        .put("url", wmRuntimeInfo.getHttpBaseUrl() + "/api");
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
 
     stubFor(post(UrlPattern.ANY).withHeader("keyOne", equalTo("valueOne"))
         .withHeader("keyTwo", equalTo("valueTwo,valueThree"))
@@ -98,11 +95,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful-GET.swadl.yaml"));
 
-    workflow.getFirstActivity()
-        .get()
-        .getActivity()
-        .getVariableProperties()
-        .put("url", wmRuntimeInfo.getHttpBaseUrl() + "/api");
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
 
     stubFor(get(UrlPattern.ANY).withHeader("keyOne", equalTo("valueOne"))
         .withHeader("keyTwo", equalTo("valueTwo,valueThree"))
@@ -120,12 +113,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-ioexception.swadl.yaml"));
 
-
-    workflow.getFirstActivity()
-        .get()
-        .getActivity()
-        .getVariableProperties()
-        .put("url", wmRuntimeInfo.getHttpBaseUrl() + "/api");
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
 
     stubFor(post(UrlPattern.ANY).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
 
@@ -136,5 +124,13 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     assertThat(workflow).as("The workflow fails on runtime exception")
         .executed("executeGetRequest")
         .notExecuted("assertionScript");
+  }
+
+  private void putFirstActivityUrl(Workflow workflow, String url) {
+    workflow.getFirstActivity()
+        .get()
+        .getActivity()
+        .getVariableProperties()
+        .put("url", url);
   }
 }

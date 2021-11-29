@@ -3,8 +3,6 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
@@ -122,7 +120,7 @@ public abstract class IntegrationTest {
 
   @BeforeEach
   void setUpMocks() {
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    //when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(bdkGateway.messages()).thenReturn(this.messageService);
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);

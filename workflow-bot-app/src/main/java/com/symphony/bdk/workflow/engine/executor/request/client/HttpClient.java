@@ -44,8 +44,7 @@ public class HttpClient {
 
   private Response handleResponse(int statusCode, String content, Header contentType) {
     Object data = content;
-    if (contentType == null || (contentType.getName().equals(HttpHeaders.CONTENT_TYPE) && contentType.getValue()
-        .contains(ContentType.APPLICATION_JSON.getMimeType()))) {
+    if (isJsonContentOrNull(contentType)) {
       try {
         data = OBJECT_MAPPER.readValue(content, Map.class);
       } catch (JsonProcessingException jsonProcessingException) {
@@ -54,6 +53,10 @@ public class HttpClient {
     }
 
     return new Response(statusCode, data);
+  }
+
+  private boolean isJsonContentOrNull(Header contentType) {
+    return contentType == null || contentType.getValue().contains(ContentType.APPLICATION_JSON.getMimeType());
   }
 
   @SuppressWarnings("unchecked")

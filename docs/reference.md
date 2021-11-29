@@ -1873,9 +1873,6 @@ Key | Type | Required |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
 
-_nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, String in JSON format is also supported._
-
-_nb: If the api response is not JSON, then it can be processed in subsequent activities in SWADL using the utility function [json()](#utility-functions)_
 
 Output | Type |
 ----|----|
@@ -1916,12 +1913,14 @@ Supported methods are:
 - PUT
 
 #### body
-HTTP request body. Depending on the Content-Type, the body can be an Object when _multipart/form-data_ is used. String is also support for the other content types.   
-When the body is provided, Content-Type must be set in headers.
+HTTP request body. It can be provided in JSON or key/value object.
+
+When multipart/form content type is used, only key/value object is supported.
 
 #### headers
 HTTP request headers. A map of key/value entries is expected. Simple types
 such as numbers, string and booleans as well as lists and maps are supported.
+If not set, then the default value application/json is used.
 
 ### execute-script
 
