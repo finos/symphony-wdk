@@ -5,22 +5,18 @@ activities:
       on:
         message-received:
           content: "/execute"
-      method: HEAD
-      url: https://url.com?isMocked=true
+      method: POST
+      url: https://wiremock.com/api
       body:
-        args:
-          key: value
+        key: value
       headers:
         keyOne: valueOne
         keyTwo:
           - valueTwo
           - valueThree
 
-  # the script below will be used after implementing JSON utility function
-  #- execute-script:
-  #    id: assertionScript
-  #    script: |
-  #      assert executeHeadRequest.outputs.body.name == "john"
-  #      assert executeHeadRequest.outputs.body.age == "22"
-  #      assert executeHeadRequest.outputs.body.contact.phone == "0123456"
-  #      assert executeHeadRequest.outputs.body.contact.email == "john@symphony.com"
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeHeadRequest.outputs.body.name == "john"
+        assert executeHeadRequest.outputs.status == 200

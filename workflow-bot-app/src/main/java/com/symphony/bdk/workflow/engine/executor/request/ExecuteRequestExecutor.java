@@ -37,18 +37,11 @@ public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> 
         this.httpClient.execute(activity.getMethod(), activity.getUrl(), activity.getBody(),
             headersToString(activity.getHeaders()));
 
-    Object data = response.getContent();
-    Object contentType = activity.getHeaders().get("Content-Type"); // TODO check response header instead
-    if (contentType == null || contentType.equals("application/json")) {// TODO handle non map content
-      data = HttpClient.OBJECT_MAPPER.readValue(response.getContent(), Map.class);
-    }
-    int statusCode = response.getCode();
-
     log.info("Received response {}", response.getCode());
 
     Map<String, Object> outputs = new HashMap<>();
-    outputs.put(OUTPUT_STATUS_KEY, statusCode);
-    outputs.put(OUTPUT_BODY_KEY, data);
+    outputs.put(OUTPUT_STATUS_KEY, response.getCode());
+    outputs.put(OUTPUT_BODY_KEY, response.getContent());
     execution.setOutputVariables(outputs);
   }
 

@@ -1,0 +1,20 @@
+id: create-message-request-workflow
+activities:
+  - execute-request:
+      id: createMessage
+      body:
+        message: "<messageML>This is a message sent by api</messageML>"
+      headers:
+        Content-Type: multipart/form-data
+        Accept: application/json
+        keyManagerToken: KEY_MANAGER_TOKEN
+        sessionToken: SESSION_TOKEN
+      method: POST
+      url: https://POD_URL/agent/v4/stream/STREAM_ID/message/create
+      on:
+        message-received:
+          content: /create-message
+
+  - send-message: #resents the message content using UtilityFunctionsMapper methods to process the api response
+      id: sendRates
+      content: ${text(json(createMessage.outputs.body).message)}
