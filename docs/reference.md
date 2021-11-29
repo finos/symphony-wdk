@@ -1873,9 +1873,9 @@ Key | Type | Required |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
 
-_nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, it can be provided as String in JSON format._
+_nb: For multipart/form-data content type requests, the body should be provided as a key/value object. For other content types, String in JSON format is also supported._
 
-_nb: For a JSON api, the response can be processed in subsequent activities in SWADL using the utility function [json()](#utility-functions)_
+_nb: If the api response is not JSON, then it can be processed in subsequent activities in SWADL using the utility function [json()](#utility-functions)_
 
 Output | Type |
 ----|----|
@@ -1891,24 +1891,10 @@ activities:
         X-Workflow-Token: A_TOKEN
         Content-Type: application/json
         Accept: application/json
-      body: "{\"args\": {\"content\": \"Hello world!\", \"stream\": \"A_STREAM\"}}"
-      method: POST
-      url: https://myUrl/myPath?isMocked=true
-      
-```
-
-
-```yaml
-activities:
-  - execute-request:
-      id: myRequest
-      headers:
-        Content-Type: multipart/form-data
-        Accept: multipart/form-data
       body:
-        outer:
-          inner1: value1
-          inner2: value2
+        args:
+          content: Hello World
+          stream: A_STREAM
       method: POST
       url: https://myUrl/myPath?isMocked=true
       
@@ -1930,7 +1916,7 @@ Supported methods are:
 - PUT
 
 #### body
-HTTP request body. Depending on the Content-Type, the body can be an Object when _multipart/form-data_ is used or a String for the other content types.   
+HTTP request body. Depending on the Content-Type, the body can be an Object when _multipart/form-data_ is used. String is also support for the other content types.   
 When the body is provided, Content-Type must be set in headers.
 
 #### headers
