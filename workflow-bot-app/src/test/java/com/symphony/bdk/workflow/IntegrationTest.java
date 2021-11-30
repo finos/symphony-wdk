@@ -3,8 +3,6 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
@@ -27,7 +25,6 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
-import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
@@ -58,9 +55,6 @@ public abstract class IntegrationTest {
 
   @Autowired
   WorkflowEngine engine;
-
-  @MockBean
-  HttpClient httpClient;
 
   @Autowired
   ResourceProvider resourceProvider;
@@ -126,7 +120,6 @@ public abstract class IntegrationTest {
 
   @BeforeEach
   void setUpMocks() {
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(bdkGateway.messages()).thenReturn(this.messageService);
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);

@@ -2,11 +2,14 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -57,6 +60,7 @@ class ErrorIntegrationTest extends IntegrationTest {
   void onActivityFailedContinueFailure() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-continue-failure.swadl.yaml"));
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(messageService.send(eq("STREAM"), content("On success"))).thenThrow(new RuntimeException("Failure"));
 
     engine.deploy(workflow);
@@ -72,6 +76,8 @@ class ErrorIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed.swadl.yaml"));
 
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/failure"));
 
@@ -83,6 +89,7 @@ class ErrorIntegrationTest extends IntegrationTest {
   void onActivityFailed_OneOf_SecondFails() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-one-of.swadl.yaml"));
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(messageService.send(eq("STREAM"), content("Second"))).thenThrow(new RuntimeException("Failure"));
 
     engine.deploy(workflow);
@@ -121,6 +128,8 @@ class ErrorIntegrationTest extends IntegrationTest {
   void onActivityFailedRetry() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/error/on-activity-failed-retry.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/failure"));

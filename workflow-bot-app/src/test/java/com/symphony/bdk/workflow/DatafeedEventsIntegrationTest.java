@@ -2,6 +2,8 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -9,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
@@ -27,6 +30,8 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
   void eventInTheMiddleOfWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/event-middle-workflow.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("abc", "/one"));
@@ -73,7 +78,7 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
   void multipleEventsMiddleOfWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/event/mutiple-events-middle-workflow.swadl.yaml"));
-
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     engine.deploy(workflow);
 
     // first execution

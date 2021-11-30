@@ -17,14 +17,14 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
+public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> {
 
   private static final String OUTPUT_STATUS_KEY = "status";
   private static final String OUTPUT_BODY_KEY = "body";
 
   private final HttpClient httpClient;
 
-  public RequestExecutor(HttpClient httpClient) {
+  public ExecuteRequestExecutor(HttpClient httpClient) {
     this.httpClient = httpClient;
   }
 
@@ -37,14 +37,11 @@ public class RequestExecutor implements ActivityExecutor<ExecuteRequest> {
         this.httpClient.execute(activity.getMethod(), activity.getUrl(), activity.getBody(),
             headersToString(activity.getHeaders()));
 
-    String data = response.getContent();
-    int statusCode = response.getCode();
-
     log.info("Received response {}", response.getCode());
 
     Map<String, Object> outputs = new HashMap<>();
-    outputs.put(OUTPUT_STATUS_KEY, statusCode);
-    outputs.put(OUTPUT_BODY_KEY, data);
+    outputs.put(OUTPUT_STATUS_KEY, response.getCode());
+    outputs.put(OUTPUT_BODY_KEY, response.getContent());
     execution.setOutputVariables(outputs);
   }
 
