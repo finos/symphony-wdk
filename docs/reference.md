@@ -1869,15 +1869,19 @@ Executes an HTTP request.
 Key | Type | Required |
 ------------ | -------| --- |
 [url](#url) | String | Yes |
-[method](#method) | String | Yes |
+[method](#method) | String | No |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
 
 
 Output | Type |
 ----|----|
-body | String
+body | Object/String
 status | Integer
+
+If the response body has a `application/json` content type then the `body` output is parsed into a
+JSON object (if possible) otherwise it will a string. Please note that this approach comes with limitations
+and that the `execute-request` activity should not be used to download large payloads.
 
 Example:
 ```yaml
@@ -1886,14 +1890,17 @@ activities:
       id: myRequest
       headers:
         X-Workflow-Token: A_TOKEN
-        Content-Type: application/json
+        Content-Type: application/json # optional as it is the default value
         Accept: application/json
       body:
-        args:
-          content: Hello World
-          stream: A_STREAM
+        myName: Bob
       method: POST
-      url: https://myUrl/myPath?isMocked=true
+      url: https://api.com/helloWorld # an API that returns {"message": "Hello Bob"}
+  - send-message:
+      id: sendMsg
+      to:
+        stream-id: A_STREAM
+      content: ${myRequest.outputs.body.message} # Send a message with content "Hello Bob"
       
 ```
 
@@ -1913,14 +1920,16 @@ Supported methods are:
 - PUT
 
 #### body
-HTTP request body. It can be provided in JSON or key/value object.
+HTTP request body.
+It can be provided as an object (for `application/json` or `multiplart/form content` type) or as a string.
 
-When multipart/form content type is used, only key/value object is supported.
+When `multipart/form` content type is used, only key/value object is supported.
 
 #### headers
 HTTP request headers. A map of key/value entries is expected. Simple types
 such as numbers, string and booleans as well as lists and maps are supported.
-If not set, then the default value application/json is used.
+
+Unless set explicitly the `Content-Type` header will be `application/json` by default.
 
 ### execute-script
 

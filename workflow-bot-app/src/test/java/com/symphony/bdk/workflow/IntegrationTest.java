@@ -120,7 +120,6 @@ public abstract class IntegrationTest {
 
   @BeforeEach
   void setUpMocks() {
-    //when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(bdkGateway.messages()).thenReturn(this.messageService);
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);
