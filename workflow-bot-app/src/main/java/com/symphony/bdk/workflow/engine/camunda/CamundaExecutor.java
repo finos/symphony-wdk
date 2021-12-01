@@ -155,7 +155,8 @@ public class CamundaExecutor implements JavaDelegate {
       Map<String, Object> innerMap = new HashMap<>(variables);
       String activityId = getActivity().getId();
 
-      Map<String, Object> outer = Map.of(ActivityExecutorContext.OUTPUTS, innerMap);
+      Map<String, Object> outer = new HashMap<>();
+      outer.put(ActivityExecutorContext.OUTPUTS, innerMap);
       ObjectValue objectValue = Variables.objectValue(outer)
           .serializationDataFormat(Variables.SerializationDataFormats.JSON)
           .create();
