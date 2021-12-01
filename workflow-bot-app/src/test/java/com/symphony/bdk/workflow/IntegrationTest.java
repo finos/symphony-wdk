@@ -15,6 +15,7 @@ import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
+import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -43,6 +44,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -251,6 +253,25 @@ public abstract class IntegrationTest {
   // This method makes a thread sleep to make a workflow times out
   protected static void sleepToTimeout(long durationInMilliSeconds) throws InterruptedException {
     Thread.sleep(durationInMilliSeconds);
+  }
+
+  protected V4Message createMessage(String msgId) {
+    return createMessage(msgId, null, null);
+  }
+
+  protected V4Message createMessage(String msgId, String attachmentId, String attachmentName) {
+    final V4Message actualMessage = new V4Message();
+    actualMessage.setMessageId(msgId);
+
+    final V4Stream v4Stream = new V4Stream();
+    v4Stream.setStreamId("STREAM_ID");
+    actualMessage.setStream(v4Stream);
+
+    final List<V4AttachmentInfo> attachments =
+        Collections.singletonList(new V4AttachmentInfo().id(attachmentId).name(attachmentName));
+    actualMessage.setAttachments(attachments);
+
+    return actualMessage;
   }
 
 }

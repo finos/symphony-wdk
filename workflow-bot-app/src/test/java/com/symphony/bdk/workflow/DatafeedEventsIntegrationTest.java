@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -42,6 +43,26 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
       engine.onEvent(messageReceived("abc", "/two"));
       verify(messageService).send(eq("abc"), content("Two"));
+      return true;
+    });
+  }
+
+  @Test
+  void eventInTheMiddleUsingOutputs() throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/event-middle-using-outputs.swadl.yaml"));
+
+    final V4Message actualMessage = createMessage("MSG_ID");
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(actualMessage);
+    when(messageService.getMessage(anyString())).thenReturn(actualMessage);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("abc", "/one"));
+    verify(messageService, timeout(5000)).send(eq("abc"), content("One"));
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(messageReceived("abc", "/two"));
+      verify(messageService).getMessage("MSG_ID");
       return true;
     });
   }
