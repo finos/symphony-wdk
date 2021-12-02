@@ -4,12 +4,17 @@ import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
@@ -18,6 +23,8 @@ import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.template.api.Template;
+import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -26,11 +33,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 class SendMessageIntegrationTest extends IntegrationTest {
 
@@ -152,7 +161,27 @@ class SendMessageIntegrationTest extends IntegrationTest {
         .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUserIds"), message.getMessageId());
   }
 
+ @Test
+  void sendMessageWithTemplateSuccessfull() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-freemarker.swadl.yaml"));
+
+    TemplateEngine templateEngine = TemplateEngine.getDefaultImplementation();
+    when(messageService.templates()).thenReturn(templateEngine);
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/send"));
+
+    assertThat(workflow).isExecuted();
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+    verify(messageService, times(1)).send(eq("123"), messageArgumentCaptor.capture());
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Hello world!\n</messageML>");
+  }
+
   @Test
+  @DisplayName(
+      "Given a message with attachments, "
+          + "when I send a new message with the attachment id, "
+          + "this specific file is sent in a new message")
   void sendMessageWithSpecificAttachment() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(

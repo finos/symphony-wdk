@@ -687,7 +687,7 @@ Posts a message to a stream. Probably the most commonly used activity to interac
 Key | Type | Required |
 ------------ | -------| --- | 
 [to](#to) | Map | No |
-[content](#send-message-content) | String | Yes |
+[content](#send-message-content) | String/Object | Yes |
 [attachments](#attachments) | List | No |
 
 Output | Type |
@@ -759,6 +759,18 @@ Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
+Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external file (Object).
+When using an external file the content has to be defined as follows:
+
+Key | Type | Required |
+------------ | -------| --- | 
+template | String | Yes |
+
+Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the template field. 
+By default, it will search for the file in the `./workflows` root folder. 
+When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file, 
+same format as it is for the any other activity in the SWADL file.
+
 In case the content to send is PresentationML. The `text` function might come handy, it uses
 the [PresentationMLParser](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/message/util/PresentationMLParser.html)
 from the BDK to extract the text content of a PresentationML message.
@@ -774,6 +786,23 @@ activities:
           content: /echo
       content:
         ${text(event.source.message.message)}
+```
+Example using Freemarker:
+```yaml
+activities:
+  variables:
+    val: world
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /echo
+      content: 
+        template: message-with-params.ftl
+```
+message-with-params.ftl 
+```
+<messageML>Hello ${variables.val}</messageML>
 ```
 
 #### attachments
@@ -813,7 +842,7 @@ Update an existing message into a stream. Returns the new updated message.
 Key | Type | Required |
 ------------ | -------| --- |
 [message-id](#update-message-id) | String | Yes |
-[content](#content) | String | Yes |
+[content](#content) | String/Object| Yes |
 
 Output | Type |
 ----|----|

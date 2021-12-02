@@ -2931,6 +2931,16 @@
                     ]
                 },
                 {
+                    "type": "object",
+                    "properties": {
+                        "template": {
+                            "type": "string",
+                            "description": "External message template file.",
+                            "minLength": 1
+                        }
+                    }
+                },
+                {
                     "type": "string",
                     "minLength": 0
                 }

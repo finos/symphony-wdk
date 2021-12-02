@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import com.google.common.collect.ImmutableMap;
+
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -189,6 +192,11 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
+    public Map<String, Object> getVariables() {
+      return ImmutableMap.copyOf(execution.getVariables());
+    }
+
+    @Override
     public BdkGateway bdk() {
       return bdk;
     }
@@ -216,6 +224,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public InputStream getResource(Path resourcePath) throws IOException {
       return resourceLoader.getResource(resourcePath);
+    }
+
+    @Override
+    public File getResourceFile(Path resourcePath) throws IOException {
+      return resourceLoader.getResourceFile(resourcePath);
     }
 
     @Override

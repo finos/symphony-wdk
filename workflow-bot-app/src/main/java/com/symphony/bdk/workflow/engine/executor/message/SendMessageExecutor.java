@@ -18,6 +18,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -96,8 +97,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   }
 
   private Message buildMessage(ActivityExecutorContext<SendMessage> execution) throws IOException {
-    Message.MessageBuilder builder = Message.builder().content(execution.getActivity().getContent());
-
+    Message.MessageBuilder builder = Message.builder().content(extractContent(execution));
     if (execution.getActivity().getAttachments() != null) {
       for (SendMessage.Attachment attachment : execution.getActivity().getAttachments()) {
         this.handleFileAttachment(builder, attachment, execution);
@@ -106,6 +106,16 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
 
     return builder.build();
+  }
+
+  private static String extractContent(ActivityExecutorContext<SendMessage> execution) throws IOException {
+    if(execution.getActivity().getContent() != null) {
+      return execution.getActivity().getContent();
+    } else {
+      String template = execution.getActivity().getTemplate();
+      File file = execution.getResourceFile(Path.of(template));
+      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
+    }
   }
 
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,
