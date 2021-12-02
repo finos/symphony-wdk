@@ -7,4 +7,7 @@ import lombok.Data;
 public class FormRepliedEvent {
   @JsonProperty
   private String formId;
+
+  @JsonProperty
+  private Boolean unique = false;
 }
