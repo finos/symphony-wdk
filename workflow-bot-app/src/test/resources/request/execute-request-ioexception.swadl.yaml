@@ -6,12 +6,7 @@ activities:
         message-received:
           content: "/execute-failed"
       method: POST
-      url: https://url.com?isMocked=true
-      body:
-        args:
-          key: value
-      headers:
-        headerKey: headerValue
+      url: https://wiremock.com/api
 
   - execute-script:
       id: assertionScript

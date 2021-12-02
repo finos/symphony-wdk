@@ -59,12 +59,8 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
 ## Roadmap
-- Support External message template [#26](https://github.com/finos/symphony-wdk/issues/26)
-- Support event filtering [#27](https://github.com/finos/symphony-wdk/issues/27)
-- Support OBO (on behalf of) [#28](https://github.com/finos/symphony-wdk/issues/28)
-- Workflows versioning [#29](https://github.com/finos/symphony-wdk/issues/29)
-- Workflow communication with other bots [#30](https://github.com/finos/symphony-wdk/issues/30)
-- Provide workflow's status command [#31](https://github.com/finos/symphony-wdk/issues/31)
+
+Checkout the [open issues](https://github.com/finos/symphony-wdk/issues).
 
 ## License
 

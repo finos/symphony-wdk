@@ -1,11 +1,10 @@
 id: exchange-rates-workflow
 activities:
   - execute-request:
-      id: callExchangeRatesApi
+      id: exchangeRates
       headers:
         Content-Type: application/json
         Accept: application/json
-
       method: GET
       url: https://open.er-api.com/v6/latest/EUR
       on:
@@ -14,4 +13,4 @@ activities:
 
   - send-message:
       id: sendRates
-      content: ${json(callExchangeRatesApi.outputs.body).rates['EUR']} EUR = ${json(callExchangeRatesApi.outputs.body).rates['USD']} USD
+      content: ${exchangeRates.outputs.body.rates['EUR']} EUR = ${exchangeRates.outputs.body.rates['USD']} USD

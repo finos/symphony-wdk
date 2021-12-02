@@ -134,11 +134,9 @@ public class CamundaBpmnBuilder {
     for (Activity activityContainer : workflow.getActivities()) {
       BaseActivity activity = activityContainer.getActivity();
 
-      if (onFormRepliedEvent(activity)) {
-        // no intermediate events for activities with timeout which creates a subprocess
-        builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
-      } else {
-        builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
+      // no intermediate events for activities with timeout which creates a subprocess
+      builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
+      if (!onFormRepliedEvent(activity)) {
         if (hasTimeout(activity) && workflow.getFirstActivity().isPresent() && activity.getId()
             .equals(workflow.getFirstActivity().get().getActivity().getId())) {
           throw new InvalidActivityException(workflow.getId(),
@@ -176,7 +174,7 @@ public class CamundaBpmnBuilder {
 
       if (onActivityExpired(activity) && activity.getOn() != null) {
         List<String> activitiesToExpireList = getActivityToExpire(activity);
-
+        List<AbstractFlowNodeBuilder<?, ?>> buildersList = new ArrayList<>();
         activitiesToExpireList.forEach(acId -> {
           // add the activity as a form expiration
           AbstractFlowNodeBuilder<?, ?> activityExpirationBuilder =
@@ -186,6 +184,7 @@ public class CamundaBpmnBuilder {
             // The first activity of the list is added to the current builder
             try {
               activityExpirationBuilder = addTask(activityExpirationBuilder, activity);
+              buildersList.add(activityExpirationBuilder);
             } catch (JsonProcessingException e) {
               e.printStackTrace();
             }
@@ -197,6 +196,9 @@ public class CamundaBpmnBuilder {
             this.connectSourceToTarget(activityExpirationBuilder, sourceBuilder.getElement().getId(), activity.getId());
           }
         });
+        if (!buildersList.isEmpty()) {
+          builder = buildersList.get(0);
+        }
       } else {
         // add the activity in the normal flow
 

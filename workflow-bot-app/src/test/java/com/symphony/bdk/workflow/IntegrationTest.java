@@ -3,8 +3,6 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
@@ -17,6 +15,7 @@ import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
+import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -27,7 +26,6 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
-import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
@@ -46,6 +44,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,9 +57,6 @@ public abstract class IntegrationTest {
 
   @Autowired
   WorkflowEngine engine;
-
-  @MockBean
-  HttpClient httpClient;
 
   @Autowired
   ResourceProvider resourceProvider;
@@ -126,7 +122,6 @@ public abstract class IntegrationTest {
 
   @BeforeEach
   void setUpMocks() {
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(bdkGateway.messages()).thenReturn(this.messageService);
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);
@@ -258,6 +253,25 @@ public abstract class IntegrationTest {
   // This method makes a thread sleep to make a workflow times out
   protected static void sleepToTimeout(long durationInMilliSeconds) throws InterruptedException {
     Thread.sleep(durationInMilliSeconds);
+  }
+
+  protected V4Message createMessage(String msgId) {
+    return createMessage(msgId, null, null);
+  }
+
+  protected V4Message createMessage(String msgId, String attachmentId, String attachmentName) {
+    final V4Message actualMessage = new V4Message();
+    actualMessage.setMessageId(msgId);
+
+    final V4Stream v4Stream = new V4Stream();
+    v4Stream.setStreamId("STREAM_ID");
+    actualMessage.setStream(v4Stream);
+
+    final List<V4AttachmentInfo> attachments =
+        Collections.singletonList(new V4AttachmentInfo().id(attachmentId).name(attachmentName));
+    actualMessage.setAttachments(attachments);
+
+    return actualMessage;
   }
 
 }

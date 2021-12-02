@@ -180,6 +180,27 @@ class EventTypesIntegrationTest extends IntegrationTest {
         .notExecuted("script", "sendMessageIfNotTimeoutSecond");
   }
 
+  @Test
+  void onActivityExpiredToNewBranch_timeout() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/event/timeout/activity-expired-leading-to-new-branch.swadl.yaml"));
+
+    when(messageService.send("123", "Expired")).thenReturn(new V4Message());
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/start"));
+
+    sleepToTimeout(500);
+
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+    verify(messageService, timeout(5000).times(1)).send(anyString(), messageArgumentCaptor.capture());
+
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Expired</messageML>");
+    assertThat(workflow).executed("firstActivity", "expirationActivity", "scriptActivityToBeExecuted")
+        .notExecuted("sendMessageWithTimeout", "scriptActivityNotToBeExecuted1", "scriptActivityNotToBeExecuted2");
+  }
+
   @SuppressWarnings("checkstyle:LineLength")
   @Test
   void firstActivity_timeout() throws IOException, ProcessingException {

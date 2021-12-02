@@ -29,6 +29,9 @@ javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 
 test {
     useJUnitPlatform()
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
 jacocoTestCoverageVerification {

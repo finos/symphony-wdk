@@ -1,0 +1,17 @@
+id: event-middle-using-outputs-workflow
+activities:
+  - send-message:
+      id: one
+      on:
+        message-received:
+          content: /one
+      to:
+        stream-id: abc
+      content: One
+
+  - get-message:
+      id: two
+      message-id: ${one.outputs.msgId}
+      on:
+        message-received:
+          content: /two

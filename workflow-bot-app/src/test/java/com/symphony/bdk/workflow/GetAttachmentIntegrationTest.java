@@ -7,9 +7,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -17,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 
 
 @Slf4j
@@ -90,18 +86,4 @@ class GetAttachmentIntegrationTest extends IntegrationTest {
     verify(messageService, never()).getAttachment(anyString(), anyString(), anyString());
   }
 
-  private V4Message createMessage(String msgId, String attachmentId, String attachmentName) {
-    final V4Message actualMessage = new V4Message();
-    actualMessage.setMessageId(msgId);
-
-    final V4Stream v4Stream = new V4Stream();
-    v4Stream.setStreamId("STREAM_ID");
-    actualMessage.setStream(v4Stream);
-
-    final List<V4AttachmentInfo> attachments =
-        Collections.singletonList(new V4AttachmentInfo().id(attachmentId).name(attachmentName));
-    actualMessage.setAttachments(attachments);
-
-    return actualMessage;
-  }
 }
