@@ -1027,6 +1027,11 @@
                 "form-id": {
                     "description": "Form's id. The id should be the same as activity's one that sent the form.",
                     "type": "string"
+                },
+                "unique": {
+                    "description": "True if only one reply is expected to the form. Default is false",
+                    "default": false,
+                    "type": "boolean"
                 }
             },
             "required": [

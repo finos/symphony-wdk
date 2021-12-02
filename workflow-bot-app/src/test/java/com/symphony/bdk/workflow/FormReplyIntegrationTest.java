@@ -81,12 +81,16 @@ class FormReplyIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
-    // user 1 replies to form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      // user 1 replies to form
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
-    // bot should send back my reply
-    verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
-    verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
+      // bot should send back my reply
+      verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
+      verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
+
+      return true;
+    });
   }
 
   @Test
@@ -120,7 +124,10 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq("abc"), contains("form"));
 
     // reply to first form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("question", "My message")));
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("question", "My message")));
+      return true;
+    });
 
     // bot should not run the on/activity-expired activity after 1s because it is attached to the second form that
     // has not been replied to
@@ -138,4 +145,47 @@ class FormReplyIntegrationTest extends IntegrationTest {
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));
   }
+
+  @Test
+  void sendFormLoop() throws Exception {
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-loop.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("ABC"), contains("form"));
+
+    // reply to form
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("action", "reject")));
+      // bot should send my form back because reject was selected
+      verify(messageService, timeout(5000).times(2)).send(eq("ABC"), contains("form"));
+      return true;
+    });
+  }
+
+  @Test
+  void sendFormContinuation() throws Exception {
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-continuation.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("ABC"), contains("form"));
+
+    // reply to form
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("action", "reject")));
+      // bot should send my form back because reject was selected
+      verify(messageService, timeout(5000)).send(eq("ABC"), contains("afterReply1"));
+      return true;
+    });
+  }
+
 }
