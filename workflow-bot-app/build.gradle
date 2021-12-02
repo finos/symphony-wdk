@@ -10,7 +10,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.1')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.2')
 
     implementation 'org.apache.httpcomponents.client5:httpclient5-fluent:5.1.1'
 
