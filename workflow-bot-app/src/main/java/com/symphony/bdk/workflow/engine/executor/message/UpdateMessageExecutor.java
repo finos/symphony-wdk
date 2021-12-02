@@ -20,6 +20,7 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   @Override
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
     String messageId = execution.getActivity().getMessageId();
+    V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
     String content = extractContent(execution);
     Message message = Message.builder().content(content).build();
     V4Message updatedMessage = execution.bdk().messages().update(messageToUpdate, message);

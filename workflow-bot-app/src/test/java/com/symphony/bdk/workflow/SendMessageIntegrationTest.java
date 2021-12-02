@@ -161,7 +161,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
         .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUserIds"), message.getMessageId());
   }
 
- 
+ @Test
   void sendMessageWithTemplateSuccessfull() throws IOException, ProcessingException {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-freemarker.swadl.yaml"));
