@@ -205,15 +205,15 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
     String process = lastProcess().orElseThrow();
     await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
 
-    await().atMost(5, SECONDS).until(()
-        -> !IntegrationTest.historyService.createHistoricDetailQuery().processInstanceId(process).list().isEmpty());
-
-    final List<HistoricDetail> historicalDetails = IntegrationTest.historyService.createHistoricDetailQuery()
-        .processInstanceId(process).list();
-
-    Optional<HistoricDetail> historicalDetailOptional = historicalDetails.stream()
-        .filter(x -> ((HistoricDetailVariableInstanceUpdateEntity) x).getVariableName().equals(key))
-        .findFirst();
+    Optional<HistoricDetail> historicalDetailOptional = await().atMost(5, SECONDS).until(()
+        -> {
+      final List<HistoricDetail> details = IntegrationTest.historyService.createHistoricDetailQuery()
+          .processInstanceId(process).list();
+      Optional<HistoricDetail> detail = details.stream()
+          .filter(x -> ((HistoricDetailVariableInstanceUpdateEntity) x).getVariableName().equals(key))
+          .findFirst();
+      return detail;
+    }, Optional::isPresent);
 
     if (historicalDetailOptional.isEmpty()) {
       fail("No historical details found for the process.");
