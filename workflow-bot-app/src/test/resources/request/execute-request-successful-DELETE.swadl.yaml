@@ -1,0 +1,22 @@
+id: execute-delete-request
+activities:
+  - execute-request:
+      id: executeDeleteRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: DELETE
+      url: https://wiremock.com/api
+      body:
+        key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeDeleteRequest.outputs.body.name == "john"
+        assert executeDeleteRequest.outputs.status == 200

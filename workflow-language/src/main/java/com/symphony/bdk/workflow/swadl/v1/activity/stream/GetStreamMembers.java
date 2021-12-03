@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.stream;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -15,6 +14,6 @@ import javax.annotation.Nullable;
 @Data
 public class GetStreamMembers extends BaseActivity {
   private String streamId;
-  @Nullable private Variable<Number> limit;
-  @Nullable private Variable<Number> skip;
+  @Nullable private Integer limit;
+  @Nullable private Integer skip;
 }

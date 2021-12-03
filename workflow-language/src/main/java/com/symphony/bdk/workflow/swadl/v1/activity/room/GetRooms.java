@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,11 +16,11 @@ import javax.annotation.Nullable;
 @Data
 public class GetRooms extends BaseActivity {
   private String query;
-  private Variable<List<String>> labels = Variable.nullValue();
-  private Variable<Boolean> active = Variable.nullValue();
+  private List<String> labels;
+  private Boolean active;
 
   @JsonProperty("private")
-  private Variable<Boolean> isPrivate = Variable.nullValue();
+  private Boolean isPrivate;
 
   @Nullable private String creatorId;
   @Nullable private String ownerId;
@@ -29,7 +28,7 @@ public class GetRooms extends BaseActivity {
 
   @Nullable private String sortOrder;
 
-  @Nullable private Variable<Number> limit;
-  @Nullable private Variable<Number> skip;
+  @Nullable private Integer limit;
+  @Nullable private Integer skip;
 
 }

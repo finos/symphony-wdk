@@ -1,0 +1,48 @@
+id: activity-expired-leading-to-new-branch
+activities:
+  - execute-script:
+      id: firstActivity
+      on:
+        message-received:
+          content: /start
+      script: |
+        assert true
+
+  - send-message:
+      id: sendMessageWithTimeout
+      content: Message to be sent if no timeout
+      to:
+         stream-id: "123"
+      on:
+        timeout: PT0.01S
+        message-received:
+          content: /continue
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted1
+      # workflow should fail if this script is executed
+      script: |
+        assert true == false
+
+  - send-message:
+      id: expirationActivity
+      content: Expired
+      to:
+        stream-id: "123"
+      on:
+        activity-expired:
+          activity-id: sendMessageWithTimeout
+
+  - execute-script:
+      id: scriptActivityToBeExecuted
+      script: |
+        assert true == true
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted2
+      # workflow should fail if this script is executed
+      script: |
+        assert true == false
+      on:
+        activity-completed:
+          activity-id: sendMessageWithTimeout

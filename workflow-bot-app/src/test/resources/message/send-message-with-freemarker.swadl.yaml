@@ -1,0 +1,13 @@
+id: sendMessageWithTemplate
+variables:
+  val: world
+activities:
+  - send-message:
+      id: sendMessageTemplateWithParams
+      content:
+        template: /message/templates/message-freemarker.ftl
+      to:
+        stream-id: "123"
+      on:
+        message-received:
+          content: "/send"

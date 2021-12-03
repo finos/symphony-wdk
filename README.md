@@ -3,6 +3,8 @@
 
 # Symphony Workflow Developer Kit (WDK)
 
+📺 [Video introduction of the WDK](https://goto.symphony.com/WorkflowDevKit-Recording.html)
+
 The Symphony Workflow Developer Kit (WDK) is a way to build bots on the Symphony platform with minimal coding efforts. A
 standard execution engine, provided as a bot is running workflows written in a declarative manner.
 
@@ -14,7 +16,8 @@ blocks often calling REST API endpoints of the Symphony platform or can even be 
 - [Architecture](./docs/architecture.md): technical bits on the execution of workflows
 - [Deployment](./docs/deployment.md): how to run and configure the workflow bot
 - [Custom activities](./docs/custom-activities.md): step-by-step guide on how to implement your own activities
-- [Examples](./docs/examples): concrete and advanced workflows
+- [Examples](./docs/examples): learning about workflows through examples
+- Concrete and advanced examples in the [gallery](https://github.com/finos/symphony-wdk-gallery)
 - [SWADL Reference](./docs/reference.md): syntax reference for the language used to write workflows
 
 
@@ -56,12 +59,8 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
 ## Roadmap
-- Support External message template [#26](https://github.com/finos/symphony-wdk/issues/26)
-- Support event filtering [#27](https://github.com/finos/symphony-wdk/issues/27)
-- Support OBO (on behalf of) [#28](https://github.com/finos/symphony-wdk/issues/28)
-- Workflows versioning [#29](https://github.com/finos/symphony-wdk/issues/29)
-- Workflow communication with other bots [#30](https://github.com/finos/symphony-wdk/issues/30)
-- Provide workflow's status command [#31](https://github.com/finos/symphony-wdk/issues/31)
+
+Checkout the [open issues](https://github.com/finos/symphony-wdk/issues).
 
 ## License
 

@@ -1,0 +1,20 @@
+id: execute-get-request
+activities:
+  - execute-request:
+      id: executeGetRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: GET
+      url: https://wiremock.com/api
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeGetRequest.outputs.body.name == "john"
+        assert executeGetRequest.outputs.status == 200

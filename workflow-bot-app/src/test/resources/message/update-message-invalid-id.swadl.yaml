@@ -1,0 +1,9 @@
+id: update-message-invalid-id
+activities:
+  - update-message:
+      id: updateMessageNotFound
+      on:
+        message-received:
+          content: /update-invalid-message
+      message-id: MSG_ID_INVALID
+      content: Message Updated

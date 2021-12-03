@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.engine.executor;
+package com.symphony.bdk.workflow.engine.executor.message;
 
 import static java.util.Collections.singletonList;
 
@@ -11,24 +11,28 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
-import com.symphony.bdk.workflow.swadl.v1.activity.SendMessage;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Slf4j
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
-  private static final String OUTPUT_MESSAGE_KEY = "message";
+  public static final String OUTPUT_MESSAGE_KEY = "message";
 
   @Override
   public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {
@@ -51,8 +55,10 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       message = response.getMessages().get(0); // assume at least one message has been sent
     }
 
-    execution.setOutputVariable(OUTPUT_MESSAGE_KEY, message);
-    execution.setOutputVariable(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    Map<String, Object> outputs = new HashMap<>();
+    outputs.put(OUTPUT_MESSAGE_KEY, message);
+    outputs.put(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    execution.setOutputVariables(outputs);
   }
 
   private List<String> resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
@@ -62,11 +68,11 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       return singletonList(activity.getTo().getStreamId());
 
     } else if (activity.getTo() != null && activity.getTo().getStreamIds() != null) {
-      return activity.getTo().getStreamIds().get();
+      return activity.getTo().getStreamIds();
 
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
-      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds().get(), streamService));
+      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
 
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
@@ -85,14 +91,13 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
   }
 
-  private String createOrGetStreamId(List<Number> userIds, StreamService streamService) {
-    Stream stream = streamService.create(userIds.stream().map(Number::longValue).collect(Collectors.toList()));
+  private String createOrGetStreamId(List<Long> userIds, StreamService streamService) {
+    Stream stream = streamService.create(userIds);
     return stream.getId();
   }
 
   private Message buildMessage(ActivityExecutorContext<SendMessage> execution) throws IOException {
-    Message.MessageBuilder builder = Message.builder().content(execution.getActivity().getContent());
-
+    Message.MessageBuilder builder = Message.builder().content(extractContent(execution));
     if (execution.getActivity().getAttachments() != null) {
       for (SendMessage.Attachment attachment : execution.getActivity().getAttachments()) {
         this.handleFileAttachment(builder, attachment, execution);
@@ -101,6 +106,16 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     }
 
     return builder.build();
+  }
+
+  private static String extractContent(ActivityExecutorContext<SendMessage> execution) throws IOException {
+    if(execution.getActivity().getContent() != null) {
+      return execution.getActivity().getContent();
+    } else {
+      String template = execution.getActivity().getTemplate();
+      File file = execution.getResourceFile(Path.of(template));
+      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
+    }
   }
 
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,

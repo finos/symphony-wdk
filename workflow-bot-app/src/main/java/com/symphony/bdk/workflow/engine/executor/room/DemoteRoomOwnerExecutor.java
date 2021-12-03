@@ -13,9 +13,9 @@ public class DemoteRoomOwnerExecutor implements ActivityExecutor<DemoteRoomOwner
   public void execute(ActivityExecutorContext<DemoteRoomOwner> execution) {
     DemoteRoomOwner demoteRoomOwner = execution.getActivity();
 
-    for (Number uid : demoteRoomOwner.getUserIds().get()) {
+    for (Long uid : demoteRoomOwner.getUserIds()) {
       log.debug("Demote owner {} for room {}", uid, demoteRoomOwner.getStreamId());
-      execution.bdk().streams().demoteUserToRoomParticipant(uid.longValue(), demoteRoomOwner.getStreamId());
+      execution.bdk().streams().demoteUserToRoomParticipant(uid, demoteRoomOwner.getStreamId());
     }
   }
 

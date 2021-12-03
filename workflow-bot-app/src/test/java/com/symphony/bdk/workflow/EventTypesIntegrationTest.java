@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,8 +42,13 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 class EventTypesIntegrationTest extends IntegrationTest {
 
@@ -97,24 +103,102 @@ class EventTypesIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq("123"), content("ok"));
   }
 
-  @Test
-  void onMessageReceived_timeout() throws IOException, ProcessingException, InterruptedException {
+  static Stream<Arguments> swadls() {
+    return Stream.of(
+        Arguments.arguments("/event/timeout/send-message-timeout.swadl.yaml", "/continue"),
+        Arguments.arguments("/event/timeout/send-message-timeout-one-of.swadl.yaml", "/continue1"),
+        Arguments.arguments("/event/timeout/send-message-timeout-one-of.swadl.yaml", "/continue2")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("swadls")
+  void onMessageReceived_timeout(String swadlFile, String messageToReceive)
+      throws IOException, ProcessingException, InterruptedException {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/send-message-timeout.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message());
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
-    Thread.sleep(500); // wait 0.5s to let workflow times out
+    sleepToTimeout(500);
 
-    engine.onEvent(messageReceived("/continue"));
+    engine.onEvent(messageReceived(messageToReceive));
 
     verify(messageService, never()).send(anyString(), any(Message.class));
     assertThat(workflow).as("sendMessageIfNotTimeout activity should not be executed as it times out")
         .executed("startWorkflow")
         .notExecuted("sendMessageIfNotTimeout");
+  }
+
+  @Test
+  void onActivityExpired_timeout() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/timeout/activity-expired-with-timeout.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message());
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/start"));
+
+    sleepToTimeout(500);
+    ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
+
+    verify(messageService, times(1)).send(anyString(), argumentCaptor.capture());
+
+    assertThat(argumentCaptor.getValue().getContent()).as("expirationActivity has been executed")
+        .isEqualTo("<messageML>Expired</messageML>");
+    assertThat(workflow).as(
+            "sendMessageIfNotTimeout activity times out, expirationActivity is executed on its expiration")
+        .executed("startWorkflow", "expirationActivity")
+        .notExecuted("script", "sendMessageIfNotTimeout");
+  }
+
+  @Test
+  void onMultipleActivitiesExpired_timeout() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(
+            getClass().getResourceAsStream("/event/timeout/on-multiple-activities-expiration-with-timeout.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message());
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/start"));
+
+    sleepToTimeout(500);
+
+    engine.onEvent(messageReceived("/continue1"));
+
+    sleepToTimeout(500);
+
+    verify(messageService, times(2)).send(anyString(), any(Message.class));
+    assertThat(workflow).as(
+            "sendMessageIfNotTimeout activity times out, expirationActivity is executed on its expiration")
+        .executed("startWorkflow", "sendMessageIfNotTimeoutFirst", "expirationActivity")
+        .notExecuted("script", "sendMessageIfNotTimeoutSecond");
+  }
+
+  @Test
+  void onActivityExpiredToNewBranch_timeout() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/event/timeout/activity-expired-leading-to-new-branch.swadl.yaml"));
+
+    when(messageService.send("123", "Expired")).thenReturn(new V4Message());
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/start"));
+
+    sleepToTimeout(500);
+
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+    verify(messageService, timeout(5000).times(1)).send(anyString(), messageArgumentCaptor.capture());
+
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Expired</messageML>");
+    assertThat(workflow).executed("firstActivity", "expirationActivity", "scriptActivityToBeExecuted")
+        .notExecuted("sendMessageWithTimeout", "scriptActivityNotToBeExecuted1", "scriptActivityNotToBeExecuted2");
   }
 
   @SuppressWarnings("checkstyle:LineLength")

@@ -22,7 +22,7 @@ import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
-import com.symphony.bdk.workflow.engine.executor.SendMessageExecutor;
+import com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;

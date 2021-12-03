@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.connection;
 
-import com.symphony.bdk.workflow.swadl.v1.Variable;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import lombok.Data;
@@ -15,6 +14,6 @@ import javax.annotation.Nullable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GetConnections extends BaseActivity {
-  private Variable<List<Number>> userIds = Variable.nullValue();
+  private List<Long> userIds;
   @Nullable private String status;
 }

@@ -2,13 +2,13 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,14 +19,17 @@ import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -36,48 +39,94 @@ import java.util.List;
 class SendMessageIntegrationTest extends IntegrationTest {
 
   private static final String OUTPUTS_MSG_KEY = "%s.outputs.message";
+  private static final String OUTPUTS_MSG_ID_KEY = "%s.outputs.msgId";
 
   @Test
-  @DisplayName(
-      "Given a send-message with a streamId, when the triggering message is received, "
-          + "then the provided message should be sent to the room")
   void sendMessageOnMessage() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
+    final V4Message message = message("Hello!");
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/message"));
 
-    verify(messageService, timeout(5000)).send(eq("123"), content("Hello!"));
+    verify(messageService, timeout(5000)).send(anyString(), any(Message.class));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessage1"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessage1"), message.getMessageId());
   }
 
   @Test
-  @DisplayName(
-      "Given two activities: create-room and send-message, when the room is created, then a message is sent to it")
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
     final List<Long> uids = Arrays.asList(1234L, 5678L);
     final Stream stream = new Stream().id("0000");
 
+    final V4Message message = message("Hello!");
+
     when(streamService.create(uids)).thenReturn(stream);
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/create-room"));
 
     verify(streamService, timeout(5000).times(1)).create(uids);
-    verify(messageService, timeout(5000).times(1)).send(anyString(), content("<p>Hello!</p>"));
+    verify(messageService, timeout(5000).times(1)).send(anyString(), any(Message.class));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendmessageid"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendmessageid"), message.getMessageId());
   }
 
   @Test
-  @DisplayName(
-      "Given a list of user ids, when the workflow is executed, then a message is sent to their IM/MIM"
-  )
   void sendMessageWithUids() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-uids.swadl.yaml"));
 
     final List<Long> uids = Arrays.asList(123L, 456L);
+    final String streamId = "STREAM_ID";
+    final String msgId = "MSG_ID";
+    final String content = "<messageML>hello</messageML>";
+    final V4Message message = message(msgId);
+
+    when(streamService.create(uids)).thenReturn(stream(streamId));
+    when(messageService.send(eq(streamId), any(Message.class))).thenReturn(message);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/send"));
+
+    ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<Long>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+
+    verify(streamService, timeout(5000).times(1)).create(listArgumentCaptor.capture());
+    verify(messageService, timeout(5000).times(1)).send(stringArgumentCaptor.capture(),
+        messageArgumentCaptor.capture());
+
+    assertThat(listArgumentCaptor.getAllValues().size()).as("The create method is called with a list as parameter")
+        .isEqualTo(1);
+    assertThat(listArgumentCaptor.getAllValues().get(0)).isEqualTo(uids);
+    assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUserIds"), message.getMessageId());
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void sendMessageWithUidsVariables() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-uids-variables.swadl.yaml"));
+
+    final List<Long> uids = List.of(123L);
     final String streamId = "STREAM_ID";
     final String msgId = "MSG_ID";
     final String content = "<messageML>hello</messageML>";
@@ -103,7 +152,25 @@ class SendMessageIntegrationTest extends IntegrationTest {
     assertThat(stringArgumentCaptor.getValue()).isEqualTo(streamId);
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
 
-    assertThat(workflow).isExecuted().hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message);
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageWithUserIds"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageWithUserIds"), message.getMessageId());
+  }
+
+  @Test
+  void sendMessageWithTemplateSuccessfull() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-freemarker.swadl.yaml"));
+
+    TemplateEngine templateEngine = TemplateEngine.getDefaultImplementation();
+    when(messageService.templates()).thenReturn(templateEngine);
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/send"));
+
+    assertThat(workflow).isExecuted();
+    ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+    verify(messageService, times(1)).send(eq("123"), messageArgumentCaptor.capture());
+    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Hello world!\n</messageML>");
   }
 
   @Test

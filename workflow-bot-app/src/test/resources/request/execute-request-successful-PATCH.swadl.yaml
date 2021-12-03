@@ -1,0 +1,22 @@
+id: execute-patch-request
+activities:
+  - execute-request:
+      id: executePatchRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: PATCH
+      url: https://wiremock.com/api
+      body:
+        key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executePatchRequest.outputs.body.name == "john"
+        assert executePatchRequest.outputs.status == 200

@@ -3,8 +3,6 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
@@ -17,6 +15,7 @@ import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
+import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -45,6 +44,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -122,7 +122,6 @@ public abstract class IntegrationTest {
 
   @BeforeEach
   void setUpMocks() {
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     when(bdkGateway.messages()).thenReturn(this.messageService);
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);
@@ -242,22 +241,6 @@ public abstract class IntegrationTest {
         .containsExactly(activityIds);
   }
 
-  public static void assertExecuted(Optional<String> process, List<String> activities) {
-    assertThat(process).hasValueSatisfying(
-        processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
-
-    List<HistoricActivityInstance> processes = historyService.createHistoricActivityInstanceQuery()
-        .processInstanceId(process.get())
-        .activityType("scriptTask")
-        .orderByHistoricActivityInstanceStartTime().asc()
-        .orderByActivityName().asc()
-        .list();
-
-    assertThat(processes)
-        .extracting(HistoricActivityInstance::getActivityName)
-        .containsExactly(activities.toArray(String[]::new));
-  }
-
   protected Message buildMessage(String content, List<Attachment> attachments) {
     return Message.builder().content(content).attachments(attachments).build();
   }
@@ -265,6 +248,30 @@ public abstract class IntegrationTest {
   protected static byte[] mockBase64ByteArray() {
     String randomString = UUID.randomUUID().toString();
     return Base64.getEncoder().encode(randomString.getBytes(StandardCharsets.UTF_8));
+  }
+
+  // This method makes a thread sleep to make a workflow times out
+  protected static void sleepToTimeout(long durationInMilliSeconds) throws InterruptedException {
+    Thread.sleep(durationInMilliSeconds);
+  }
+
+  protected V4Message createMessage(String msgId) {
+    return createMessage(msgId, null, null);
+  }
+
+  protected V4Message createMessage(String msgId, String attachmentId, String attachmentName) {
+    final V4Message actualMessage = new V4Message();
+    actualMessage.setMessageId(msgId);
+
+    final V4Stream v4Stream = new V4Stream();
+    v4Stream.setStreamId("STREAM_ID");
+    actualMessage.setStream(v4Stream);
+
+    final List<V4AttachmentInfo> attachments =
+        Collections.singletonList(new V4AttachmentInfo().id(attachmentId).name(attachmentName));
+    actualMessage.setAttachments(attachments);
+
+    return actualMessage;
   }
 
 }

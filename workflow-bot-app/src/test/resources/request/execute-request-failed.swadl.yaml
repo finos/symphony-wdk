@@ -5,7 +5,7 @@ activities:
       on:
         message-received:
           content: "/execute-failed"
-      method: GET
+      method: POST
       url: https://url.com?isMocked=true
       body:
         args:

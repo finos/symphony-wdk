@@ -1,0 +1,22 @@
+id: execute-put-request
+activities:
+  - execute-request:
+      id: executePutRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: PUT
+      url: https://wiremock.com/api
+      body:
+        key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executePutRequest.outputs.body.name == "john"
+        assert executePutRequest.outputs.status == 200

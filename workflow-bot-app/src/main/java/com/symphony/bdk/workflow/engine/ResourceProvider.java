@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -11,6 +12,8 @@ import java.nio.file.Path;
 public interface ResourceProvider {
 
   InputStream getResource(Path relativePath) throws IOException;
+
+  File getResourceFile(Path relativePath) throws IOException;
 
   Path saveResource(Path relativePath, byte[] content) throws IOException;
 }

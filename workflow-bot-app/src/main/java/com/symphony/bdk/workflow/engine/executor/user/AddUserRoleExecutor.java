@@ -17,10 +17,10 @@ public class AddUserRoleExecutor implements ActivityExecutor<AddUserRole> {
   public void execute(ActivityExecutorContext<AddUserRole> context) {
     AddUserRole userRole = context.getActivity();
 
-    for (Number userId : userRole.getUserIds().get()) {
-      for (String role : userRole.getRoles().get()) {
+    for (Long userId : userRole.getUserIds()) {
+      for (String role : userRole.getRoles()) {
         log.debug("Adding role {} to user {}", role, userId);
-        context.bdk().users().addRole(userId.longValue(), RoleId.valueOf(role));
+        context.bdk().users().addRole(userId, RoleId.valueOf(role));
       }
     }
   }

@@ -135,9 +135,11 @@ Checkout the [welcome bot example](./examples/welcome-bot.swadl.yaml) to see how
 
 #### timeout
 
-Timeout while waiting for `form-replied` events, expressed as
+Timeout while waiting for an event, expressed as
 an [ISO 8601 duration](https://en.wikipedia.org/wiki/ISO_8601#Durations). Upon expiration, another activity can be
-triggered with an [activity-expired](#activity-expired) event. Default value is 24 hours.
+triggered with an [activity-expired](#activity-expired) event.
+
+Default value for [form-replied](#form-replied) is 24 hours. No default value for other events.
 
 Example: _PT60S_ for a 60 seconds timeout.
 
@@ -685,7 +687,7 @@ Posts a message to a stream. Probably the most commonly used activity to interac
 Key | Type | Required |
 ------------ | -------| --- | 
 [to](#to) | Map | No |
-[content](#send-message-content) | String | Yes |
+[content](#send-message-content) | String/Object | Yes |
 [attachments](#attachments) | List | No |
 
 Output | Type |
@@ -757,6 +759,18 @@ Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
+Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external file (Object).
+When using an external file the content has to be defined as follows:
+
+Key | Type | Required |
+------------ | -------| --- | 
+template | String | Yes |
+
+Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the template field. 
+By default, it will search for the file in the `./workflows` root folder. 
+When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file, 
+same format as it is for the any other activity in the SWADL file.
+
 In case the content to send is PresentationML. The `text` function might come handy, it uses
 the [PresentationMLParser](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/message/util/PresentationMLParser.html)
 from the BDK to extract the text content of a PresentationML message.
@@ -772,6 +786,23 @@ activities:
           content: /echo
       content:
         ${text(event.source.message.message)}
+```
+Example using Freemarker:
+```yaml
+activities:
+  variables:
+    val: world
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /echo
+      content: 
+        template: message-with-params.ftl
+```
+message-with-params.ftl 
+```
+<messageML>Hello ${variables.val}</messageML>
 ```
 
 #### attachments
@@ -804,6 +835,45 @@ encoded urls are accepted.
 ##### content-path
 
 Path to the file to be attached to the message. The path is relative to the workflows folder.
+
+### update-message
+Update an existing message into a stream. Returns the new updated message.
+
+Key | Type | Required |
+------------ | -------| --- |
+[message-id](#update-message-id) | String | Yes |
+[content](#content) | String/Object| Yes |
+
+Output | Type |
+----|----|
+message | [V4Message](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4Message.html)
+msgId | String
+
+#### <a name="update-message-id"></a> message-id
+
+Message id of the message to be updated. Both url safe and base64 encoded urls are accepted
+
+### pin-message
+Pin an existing message into the stream it belongs to. It works for both Instant Messages and Rooms.
+
+Key | Type | Required |
+------------ | -------| --- |
+message-id | String | Yes |
+
+Depending on the stream type the activity will either call the
+[Update Room](https://developers.symphony.com/restapi/reference#update-room-v3) or the
+[Update IM](https://developers.symphony.com/restapi/v20.13/reference#update-im) endpoint.
+
+### unpin-message
+Unpin any message (if present) from an existing stream. It works for both Instant Messages and Rooms.
+
+Key | Type | Required |
+------------ | -------| --- |
+stream-id | String | Yes |
+
+Depending on the stream type the activity will either call the
+[Update Room](https://developers.symphony.com/restapi/reference#update-room-v3) or the
+[Update IM](https://developers.symphony.com/restapi/v20.13/reference#update-im) endpoint.
 
 ### get-message
 
@@ -862,7 +932,6 @@ Output | Type |
 attachmentPath | String
 
 [API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs as the api response)
-
 
 ### create-room
 
@@ -1826,35 +1895,51 @@ Allowed values:
 
 Executes an HTTP request.
 
-_nb: Only APIs that return a JSON response are supported.
-
 Key | Type | Required |
 ------------ | -------| --- |
 [url](#url) | String | Yes |
-[method](#method) | String | Yes |
-[body](#body) | String | No |
+[method](#method) | String | No |
+[body](#body) | Object/String | No |
 [headers](#headers) | String | No |
+
+
+Output | Type |
+----|----|
+body | Object/String
+status | Integer
+
+If the response body has a `application/json` content type then the `body` output is parsed into a
+JSON object (if possible) otherwise it will a string. Please note that this approach comes with limitations
+and that the `execute-request` activity should not be used to download large payloads.
 
 Example:
 ```yaml
 activities:
   - execute-request:
       id: myRequest
-      url: https://myUrl/myPath?isMocked=true
-      method: POST
-      body:
-        "args":
-          "message": "Hello world!"
-          "streaemId": "A_STREAM"
       headers:
-        "X-Workflow-Token": "A_TOKEN"
+        X-Workflow-Token: A_TOKEN
+        Content-Type: application/json # optional as it is the default value
+        Accept: application/json
+      body:
+        myName: Bob
+      method: POST
+      url: https://api.com/helloWorld # an API that returns {"message": "Hello Bob"}
+  - send-message:
+      id: sendMsg
+      to:
+        stream-id: A_STREAM
+      content: ${myRequest.outputs.body.message} # Send a message with content "Hello Bob"
+      
 ```
 
 #### url
 String that contains the host and the path to be targeted.
 
 #### method
-HTTP method to perform. Supported methods are:
+HTTP method to perform. GET is the default one.
+
+Supported methods are:
 - DELETE
 - GET
 - HEAD
@@ -1864,12 +1949,16 @@ HTTP method to perform. Supported methods are:
 - PUT
 
 #### body
-HTTP request body. A map of key/value entries is expected. Simple types
-such as numbers, string and booleans as well as lists and maps are supported.
+HTTP request body.
+It can be provided as an object (for `application/json` or `multiplart/form content` type) or as a string.
+
+When `multipart/form` content type is used, only key/value object is supported.
 
 #### headers
 HTTP request headers. A map of key/value entries is expected. Simple types
 such as numbers, string and booleans as well as lists and maps are supported.
+
+Unless set explicitly the `Content-Type` header will be `application/json` by default.
 
 ### execute-script
 
@@ -1897,3 +1986,32 @@ activities:
 #### script
 
 Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
+
+## Utility functions
+WDK provides some utility functions that can be used to process data in SWADL.
+
+### Object json(String string)
+This method is used to convert a String in JSON format to an Object in order to be processed as a JSON.
+It returns a String if the parameter is a simple String.
+
+Example:
+```java
+${json("{\"result\": {\"code\": 200, \"message\": \"success\"}}").result.code} == 200
+${json("This is a regular String")} == "This is a regular String"
+```
+
+### String text(String presentationMl)
+This method is used to convert a PresentationML String to a text.
+
+Example:
+```java
+${text(<div data-format="PresentationML" data-version="2.0">started</div>)} == "started"
+```
+
+### String escape(String string)
+This method will escape text contents using JSON standard escaping, and return results as a String.
+
+Example:
+```java
+${escape("{"result": {"code": 200, "message": "success"}}")} == "{\"result\": {\"code\": 200, \"message\": \"success\"}}"
+```

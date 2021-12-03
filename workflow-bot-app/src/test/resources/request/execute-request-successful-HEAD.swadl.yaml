@@ -1,0 +1,22 @@
+id: execute-head-request
+activities:
+  - execute-request:
+      id: executeHeadRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: POST
+      url: https://wiremock.com/api
+      body:
+        key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeHeadRequest.outputs.body.name == "john"
+        assert executeHeadRequest.outputs.status == 200

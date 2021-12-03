@@ -23,7 +23,7 @@ public class GetMessagesExecutor implements ActivityExecutor<GetMessages> {
     log.debug("Get messages by stream id {} since {}", streamId, activity.getSince());
 
     if (streamId != null && activity.getSince() != null) {
-      PaginationAttribute pagination = this.buildPagination(activity.getSkip().get(), activity.getLimit().get());
+      PaginationAttribute pagination = this.buildPagination(activity.getSkip(), activity.getLimit());
 
       if (pagination != null) {
         context.setOutputVariable(OUTPUT_MESSAGES_KEY,
@@ -35,9 +35,9 @@ public class GetMessagesExecutor implements ActivityExecutor<GetMessages> {
     }
   }
 
-  private PaginationAttribute buildPagination(Number skip, Number limit) {
+  private PaginationAttribute buildPagination(Integer skip, Integer limit) {
     if (skip != null && limit != null) {
-      return new PaginationAttribute(skip.intValue(), limit.intValue());
+      return new PaginationAttribute(skip, limit);
     }
     return null;
   }

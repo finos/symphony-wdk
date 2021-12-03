@@ -1,84 +1,136 @@
 package com.symphony.bdk.workflow;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.options;
+import static com.github.tomakehurst.wiremock.client.WireMock.patch;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiResponse;
-import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Stream;
 
+@WireMockTest
 class ExecuteRequestIntegrationTest extends IntegrationTest {
 
-  private static final String OUTPUTS_STATUS_KEY = "%s.outputs.status";
-  private static final String OUTPUTS_BODY_KEY = "%s.outputs.body";
+  static Stream<Arguments> httpMethods() {
+    return Stream.of(
+        arguments(post(UrlPattern.ANY), "/request/execute-request-successful-POST.swadl.yaml",
+            List.of("executePostRequest", "assertionScript")),
+        arguments(put(UrlPattern.ANY), "/request/execute-request-successful-PUT.swadl.yaml",
+            List.of("executePutRequest", "assertionScript")),
+        arguments(delete(UrlPattern.ANY), "/request/execute-request-successful-DELETE.swadl.yaml",
+            List.of("executeDeleteRequest", "assertionScript")),
+        arguments(patch(UrlPattern.ANY), "/request/execute-request-successful-PATCH.swadl.yaml",
+            List.of("executePatchRequest", "assertionScript")),
+        arguments(options(UrlPattern.ANY), "/request/execute-request-successful-OPTIONS.swadl.yaml",
+            List.of("executeOptionsRequest", "assertionScript"))
+    );
+  }
 
-  @Test
-  void executeRequestSuccessful() throws Exception {
+  @ParameterizedTest
+  @MethodSource("httpMethods")
+  void executeRequestSuccessful(MappingBuilder method, String swadlFile, List<String> activitiesToBeExecuted,
+      WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream(swadlFile));
 
-    final ApiClient mockedApiClient = mock(ApiClient.class);
-    final Map<String, String> header = Map.of("headerKey", "headerValue");
-    final Map<String, Object> body = Map.of("args", Map.of("key", "value"));
-    final Map<String, Object> jsonResponse = new LinkedHashMap<>();
-    final Map<String, String> contactInnerMap = new LinkedHashMap<>();
+    this.putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
 
-    jsonResponse.put("name", "john");
-    jsonResponse.put("age", "22");
-    contactInnerMap.put("phone", "0123456");
-    contactInnerMap.put("email", "john@symphony.com");
-    jsonResponse.put("contact", contactInnerMap);
-
-    final ApiResponse<Object> mockedResponse = new ApiResponse<>(200, Collections.emptyMap(), jsonResponse);
-
-    when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
-    when(mockedApiClient.invokeAPI(eq(""), eq("GET"), anyList(), eq(body), eq(header), anyMap(), anyMap(),
-        eq("application/json"), eq("application/json"), eq(null), any(TypeReference.class)))
-        .thenReturn(mockedResponse);
+    stubFor(method.withHeader("keyOne", equalTo("valueOne"))
+        .withHeader("keyTwo", equalTo("valueTwo,valueThree"))
+        .withRequestBody(equalToJson("{\"key\":\"value\"}"))
+        .willReturn(ok().withHeader("Content-Type", "application/json")
+            .withBody("{\"name\": \"john\"}")));
 
     engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/execute"));
 
-    assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 200)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"), jsonResponse);
+    assertThat(workflow).isExecuted().executed(activitiesToBeExecuted.toArray(new String[0]));
   }
 
   @Test
-  void executeRequestFailed() throws Exception {
+  void executeRequestSuccessfulToDelete(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-failed.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful-HEAD.swadl.yaml"));
 
-    final ApiClient mockedApiClient = mock(ApiClient.class);
-    final String apiResponseBody = "{\"message\": \"ApiException response body\"}";
-    when(bdkGateway.apiClient(anyString())).thenReturn(mockedApiClient);
-    when(mockedApiClient.invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
-        any())).thenThrow(
-        new ApiException(400, "Bad request error for the test", Collections.emptyMap(), apiResponseBody));
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
+
+    stubFor(post(UrlPattern.ANY).withHeader("keyOne", equalTo("valueOne"))
+        .withHeader("keyTwo", equalTo("valueTwo,valueThree"))
+        .withRequestBody(equalToJson("{\"key\":\"value\"}"))
+        .willReturn(ok().withHeader("Content-Type", "application/json")
+            .withBody("{\"name\": \"john\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted().executed("executeHeadRequest", "assertionScript");
+  }
+
+  @Test
+  void executeGetRequestSuccessful(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-successful-GET.swadl.yaml"));
+
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
+
+    stubFor(get(UrlPattern.ANY).withHeader("keyOne", equalTo("valueOne"))
+        .withHeader("keyTwo", equalTo("valueTwo,valueThree"))
+        .willReturn(ok().withHeader("Content-Type", "application/json").withBody("{\"name\": \"john\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted().executed("executeGetRequest", "assertionScript");
+  }
+
+  @Test
+  void executeRequestException(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-ioexception.swadl.yaml"));
+
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
+
+    stubFor(post(UrlPattern.ANY).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
 
     engine.deploy(workflow);
 
     engine.onEvent(messageReceived("/execute-failed"));
 
-    assertThat(workflow).isExecuted()
-        .hasOutput(String.format(OUTPUTS_STATUS_KEY, "executeGetRequest"), 400)
-        .hasOutput(String.format(OUTPUTS_BODY_KEY, "executeGetRequest"),
-            Map.of("message", "ApiException response body"));
+    assertThat(workflow).as("The workflow fails on runtime exception")
+        .executed("executeGetRequest")
+        .notExecuted("assertionScript");
+  }
+
+  private void putFirstActivityUrl(Workflow workflow, String url) {
+    workflow.getFirstActivity()
+        .get()
+        .getActivity()
+        .getVariableProperties()
+        .put("url", url);
   }
 }

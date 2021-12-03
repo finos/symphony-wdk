@@ -1,0 +1,22 @@
+id: execute-options-request
+activities:
+  - execute-request:
+      id: executeOptionsRequest
+      on:
+        message-received:
+          content: "/execute"
+      method: OPTIONS
+      url: https://wiremock.com/api
+      body:
+        key: value
+      headers:
+        keyOne: valueOne
+        keyTwo:
+          - valueTwo
+          - valueThree
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeOptionsRequest.outputs.body.name == "john"
+        assert executeOptionsRequest.outputs.status == 200

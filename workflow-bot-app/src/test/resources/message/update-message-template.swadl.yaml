@@ -1,0 +1,10 @@
+id: update-message
+activities:
+  - update-message:
+      id: updateMessage
+      on:
+        message-received:
+          content: /update
+      message-id: MSG_ID
+      content:
+        template: /message/templates/message.mml.xml
