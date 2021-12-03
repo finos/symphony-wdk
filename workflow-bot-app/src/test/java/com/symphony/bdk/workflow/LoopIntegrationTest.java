@@ -4,13 +4,16 @@ import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertTh
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -41,6 +44,30 @@ class LoopIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/execute"));
 
     assertThat(workflow).isExecutedWithProcessAndActivities(lastProcess(), activities);
+  }
+
+  @Test
+  void loopOverridesOutputsTest() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/loop/loop-overrides-outputs.swadl.yaml"));
+
+    Message message0 = Message.builder().content("<messageML>0</messageML>").build();
+    Message message1 = Message.builder().content("<messageML>1</messageML>").build();
+
+    when(messageService.send(anyString(), refEq(message0, "data", "attachments", "previews", "version"))).thenReturn(
+        message("msgIdO"));
+    when(messageService.send(anyString(), refEq(message1, "data", "attachments", "previews", "version"))).thenReturn(
+        message("msgId1"));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+    V4Message expectedOutputs = new V4Message();
+    expectedOutputs.messageId("msgId1");
+
+    assertThat(workflow).executed("act0", "act1", "act2", "act0", "act1", "act2")
+        .hasOutput("act1.outputs.msgId", "msgId1")
+        .hasOutput("act1.outputs.message", expectedOutputs);
   }
 
 }

@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
-import com.google.common.collect.ImmutableMap;
-
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
@@ -20,6 +18,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -43,7 +42,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -153,8 +151,6 @@ public class CamundaExecutor implements JavaDelegate {
 
     @Override
     public void setOutputVariables(Map<String, Object> variables) {
-      this.checkNoOutputsExist(activity.getId());
-
       Map<String, Object> innerMap = new HashMap<>(variables);
       String activityId = getActivity().getId();
 
@@ -185,7 +181,6 @@ public class CamundaExecutor implements JavaDelegate {
 
     @Override
     public void setOutputVariable(String name, Object value) {
-      this.checkNoOutputsExist(activity.getId());
       Map<String, Object> singletonMap = new HashMap<>();
       singletonMap.put(name, value);
       this.setOutputVariables(singletonMap);
@@ -236,17 +231,5 @@ public class CamundaExecutor implements JavaDelegate {
       return resourceLoader.saveResource(resourcePath, content);
     }
 
-    private void checkNoOutputsExist(String activityId) {
-      List<String> foundOutputs = this.execution.getVariables()
-          .keySet()
-          .stream()
-          .filter(o -> o.contains(String.format("%s.outputs", activityId)))
-          .collect(Collectors.toList());
-
-      if (!foundOutputs.isEmpty()) {
-        throw new RuntimeException(
-            String.format("Outputs %s already exist for activity %s", foundOutputs, activityId));
-      }
-    }
   }
 }
