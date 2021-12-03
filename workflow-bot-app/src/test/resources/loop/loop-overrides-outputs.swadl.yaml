@@ -1,0 +1,27 @@
+id: loop-overrides-outputs
+variables:
+  execution: 0
+activities:
+  - execute-script:
+      id: act0
+      on:
+        one-of:
+          - message-received:
+              content: /execute
+          - activity-completed:
+              activity-id: act2
+              if: ${variables.execution <= 1}
+      script: |
+
+  - send-message:
+      id: act1
+      on:
+        activity-completed:
+          activity-id: ac0
+      content: ${variables.execution}
+
+  - execute-script:
+      id: act2
+      script: |
+        variables.execution++
+

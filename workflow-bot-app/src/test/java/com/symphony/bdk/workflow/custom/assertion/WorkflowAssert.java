@@ -211,7 +211,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
           .processInstanceId(process).list();
       Optional<HistoricDetail> detail = details.stream()
           .filter(x -> ((HistoricDetailVariableInstanceUpdateEntity) x).getVariableName().equals(key))
-          .findFirst();
+          .reduce((first, second) -> second);
       return detail;
     }, Optional::isPresent);
 
