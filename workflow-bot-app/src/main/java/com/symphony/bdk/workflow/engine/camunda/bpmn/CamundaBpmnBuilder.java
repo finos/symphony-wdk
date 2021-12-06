@@ -103,10 +103,11 @@ public class CamundaBpmnBuilder {
         .orElseThrow(() -> new NoStartingEventException(workflow.getId()));
   }
 
-  private void checkParentIsKnown(Map<String, String> parentActivities, String workflowId, String activityId,
-      String parentId) {
-    if (!parentActivities.containsKey(parentId)) {
-      throw new ActivityNotFoundException(workflowId, parentId, activityId);
+  private void checkActivityIsKnown(Workflow workflow, String activityId, String activityIdToCheck) {
+    boolean activityUnknown = workflow.getActivities().stream()
+        .noneMatch(a -> a.getActivity().getId().equals(activityIdToCheck));
+    if (activityUnknown) {
+      throw new ActivityNotFoundException(workflow.getId(), activityIdToCheck, activityId);
     }
   }
 
@@ -151,10 +152,11 @@ public class CamundaBpmnBuilder {
 
       // process events starting the activity
       if (onFormRepliedEvent(activity) && activity.getOn() != null) {
-        checkParentIsKnown(parentActivities, workflow.getId(), activity.getId(),
-            activity.getOn().getFormReplied().getFormId());
+        checkActivityIsKnown(workflow, activity.getId(), activity.getOn().getFormReplied().getFormId());
         builder = formReply(builder, activity, activityExpirations);
-        subProcessedFinish.add(builder);
+        if (!activity.getOn().getFormReplied().getUnique()) {
+          subProcessedFinish.add(builder);
+        }
       }
 
       // activity-failed events are handled as boundary error events
@@ -180,20 +182,23 @@ public class CamundaBpmnBuilder {
           AbstractFlowNodeBuilder<?, ?> activityExpirationBuilder =
               activityExpirations.get(acId);
 
-          if (activitiesToExpireList.indexOf(acId) == 0) {
-            // The first activity of the list is added to the current builder
-            try {
-              activityExpirationBuilder = addTask(activityExpirationBuilder, activity);
-              buildersList.add(activityExpirationBuilder);
-            } catch (JsonProcessingException e) {
-              e.printStackTrace();
+          if (activityExpirationBuilder != null) { // TODO we have to support timeouts when unique=true
+            if (activitiesToExpireList.indexOf(acId) == 0) {
+              // The first activity of the list is added to the current builder
+              try {
+                activityExpirationBuilder = addTask(activityExpirationBuilder, activity);
+                buildersList.add(activityExpirationBuilder);
+              } catch (JsonProcessingException e) {
+                throw new IllegalStateException(e);
+              }
+              // update it for the next activities
+              activityExpirations.put(activitiesToExpireList.get(0), activityExpirationBuilder);
+            } else {
+              // The remaining activities in the list should be connected to the given source
+              AbstractFlowNodeBuilder<?, ?> sourceBuilder = activityToTimeoutBuilderMap.get(acId);
+              this.connectSourceToTarget(activityExpirationBuilder, sourceBuilder.getElement().getId(),
+                  activity.getId());
             }
-            // update it for the next activities
-            activityExpirations.put(activitiesToExpireList.get(0), activityExpirationBuilder);
-          } else {
-            // The remaining activities in the list should be connected to the given source
-            AbstractFlowNodeBuilder<?, ?> sourceBuilder = activityToTimeoutBuilderMap.get(acId);
-            this.connectSourceToTarget(activityExpirationBuilder, sourceBuilder.getElement().getId(), activity.getId());
           }
         });
         if (!buildersList.isEmpty()) {
@@ -528,36 +533,46 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  /*
-    A form reply is a dedicated sub process doing 2 things:
-      - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
-        and replies are no longer used
-      - waiting for reply with an event sub process that is running for each reply
-   */
   private AbstractFlowNodeBuilder<?, ?> formReply(AbstractFlowNodeBuilder<?, ?> builder, BaseActivity activity,
       Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies) {
-    SubProcessBuilder subProcess = builder.subProcess();
-
-    // Forms have default timeout of 24H if none is set
-    String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
-    if (activity.getOn() != null && !StringUtils.isEmpty(activity.getOn().getTimeout())) {
-      timeout = activity.getOn().getTimeout();
-    }
-
-    if (activity.getOn() != null) {
-      AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
-          .startEvent()
-          .intermediateCatchEvent().timerWithDuration(timeout);
-      formReplies.put(activity.getId(), formExpirationBuilder);
-
-      // we add the form reply event sub process inside the subprocess
-      builder = subProcess.embeddedSubProcess().eventSubProcess()
-          .startEvent()
+    if (Boolean.TRUE.equals(activity.getOn().getFormReplied().getUnique())) {
+      // this form is expecting a single reply so we can treat it as a simple flow
+      // TODO handle timeout
+      builder = builder.intermediateCatchEvent()
           .camundaAsyncBefore()
-          .interrupting(false) // run multiple instances of the sub process (i.e. multiple replies)
           .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
           .name("formReply");
+    } else {
+      /*
+          A form reply is a dedicated sub process doing 2 things:
+            - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
+              and replies are no longer used
+            - waiting for reply with an event sub process that is running for each reply
+       */
+      SubProcessBuilder subProcess = builder.subProcess();
+
+      // Forms have default timeout of 24H if none is set
+      String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+      if (activity.getOn() != null && !StringUtils.isEmpty(activity.getOn().getTimeout())) {
+        timeout = activity.getOn().getTimeout();
+      }
+
+      if (activity.getOn() != null) {
+        AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
+            .startEvent()
+            .intermediateCatchEvent().timerWithDuration(timeout);
+        formReplies.put(activity.getId(), formExpirationBuilder);
+
+        // we add the form reply event sub process inside the subprocess
+        builder = subProcess.embeddedSubProcess().eventSubProcess()
+            .startEvent()
+            .camundaAsyncBefore()
+            .interrupting(false) // run multiple instances of the sub process (i.e. multiple replies)
+            .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
+            .name("formReply");
+      }
     }
+
     return builder;
   }
 
