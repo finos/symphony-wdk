@@ -1,0 +1,16 @@
+id: utility-functions-escape
+
+activities:
+  - execute-script:
+      id: setVariable
+      on:
+        message-received:
+          content: /escape
+      script: |
+        variables.unescapedText = '"' + "this is an unescaped text" + '"'
+
+  - execute-script:
+      id: escapeText
+      script: |
+        def escapedText = utilityFunctionsMapper.escape(variables.unescapedText)
+        assert escapedText == '\\"this is an unescaped text\\"'

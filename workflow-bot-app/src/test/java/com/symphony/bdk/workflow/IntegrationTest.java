@@ -274,4 +274,18 @@ public abstract class IntegrationTest {
     return actualMessage;
   }
 
+  protected String userMentionData(long userId) {
+    return "{\n"
+        + "  \"0\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"com.symphony.user.userId\",\n"
+        + "        \"value\": \"" + userId + "\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"com.symphony.user.mention\"\n"
+        + "  }\n"
+        + "}\n";
+  }
+
 }
