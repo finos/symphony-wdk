@@ -160,17 +160,21 @@ execution of activities.
 #### Branching
 
 Conditional execution of activities is controlled via conditions applied at event level. Multiple conditions can be
-defined to express an if/else if structure. The default execution in case conditions evaluate to false can be expressed
+defined to express an if/else structure. The default execution in case conditions evaluate to false can be expressed
 too (i.e. an else).
 
-<!-- TODO link to examples --> 
+#### Examples
+- [connection admin approval](./examples/connection-admin-approval.swadl.yaml)
+- 
 
 #### Loops
 
 Loops are defined via events too. A loop is simply an `activity-completed` event referencing an activity defined
 afterwards in the workflow. A condition can be applied to this event to decide if the loop continues or exists.
 
-<!-- TODO link to examples -->
+#### Examples:
+- [paginate rooms](./examples/paginate-rooms.swadl.yaml)
+- [forward attachments](./examples/forward-attachments.swadl.yaml)
 
 ## Forms
 
@@ -178,11 +182,18 @@ Sending a form in a workflow is done using the `send-message` activity where the
 [form elements](https://docs.developers.symphony.com/building-bots-on-symphony/symphony-elements).
 
 Receiving form replies is done with the `form-replied` event. The catch is that multiple users can reply to a form if it
-is sent to a room or a MIM. Therefore, an activity waiting for a reply can be executed multiple times as long as the
-form is still active (it comes with a timeout and will expire at some point). For each reply, one or more activities can
-be executed. Using the `activity-completed` event, other activities can then be executed once the form expired.
+is sent to a room or an MIM. Therefore, an activity waiting for a reply can be executed multiple times as long as the
+form is still active (it comes with a timeout and will expire at some point). 
+For each reply, one or more activities can be executed. Using the `activity-expired` event, other activities can then be executed once the form expired.
 
-<!-- TODO link to examples -->
+In case the form is dedicated to be replied only once, `unique` can be set to express that.
+
+_nb: Loops are only supported with forms that require only one reply._ 
+
+
+#### Examples:
+- A form to be replied by multiple users: [poll bot](./examples/poll-bot.swadl.yaml)
+- A form to be replied by one user, with loop: [approval form](./examples/approval-form.swadl.yaml)
 
 ## Variables
 
@@ -228,8 +239,7 @@ activities:
 Activities are often returning results, let alone the activities prefixed with `get-`. Those results are stored as
 variables, prefixed with the activity's id.
 
-Activity's outputs are documented in details in the SWADL reference.
-<!-- TODO link to references -->
+Activity's outputs are documented in details in the [SWADL reference](./reference.md).
 
 ### Event
 

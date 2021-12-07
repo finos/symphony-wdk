@@ -263,9 +263,15 @@ As multiple users can reply to a form sent to a room, the activity waiting for a
 times (it can be seen as a sub execution of the current workflow). This also means that every activity defined after
 this activity or with a `activity-completed` event on this activity will run within its own sub execution.
 
+A form can be dedicated to be replied only once. In this case, `unique` is set to `true`.
+
+_nb: Loops are only supported with forms that require only one reply._
+
+
 Key | Type | Required |
 ------------ | -------| --- | 
 [form-id](#form-id) | String | Yes |
+[unique](#unique) | String | No |
 
 [Payload reference](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4SymphonyElementsAction.html)
 
@@ -303,6 +309,10 @@ An advanced usage of forms can be found in the examples: [simple poll bot](./exa
 #### form-id
 
 The id should be the same as the activity's one that sent the form.
+
+#### unique
+
+Boolean specifying whether the form can be replied once or multiple replies are expected. It is `false` by default.
 
 ### message-suppressed
 
