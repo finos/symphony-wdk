@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -109,6 +110,49 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
     // bot should run the on/activity-expired activity after 1s
     verify(messageService, timeout(5000)).send(eq("123"), contains("Form expired"));
+  }
+
+  @Test
+  void sendFormUniqueReply_timeout() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-unique-reply-timeout.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/send"));
+
+    // make the form expires
+    sleepToTimeout(500);
+
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+    assertThat(workflow).as("The form was sent but the reply activity timed out")
+        .executed("sendForm")
+        .notExecuted("replyWithTimeout");
+  }
+
+  @Test
+  void sendFormUniqueReply_timeout_followingActivities() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(
+            getClass().getResourceAsStream("/form/send-form-unique-reply-timeout-following-activities.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/send"));
+
+    // make the form expires
+    sleepToTimeout(500);
+
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+    assertThat(workflow)
+        .as("The form was sent but the reply activity timed out. "
+            + "Consequently, the activities in the main flow was not executed but the ones in timeout branch were")
+        .executed("sendForm", "scriptInTimeoutFlow", "followingScriptInTimeoutFlow")
+        .notExecuted("replyWithTimeout", "scriptInMainFlow");
   }
 
   @Test

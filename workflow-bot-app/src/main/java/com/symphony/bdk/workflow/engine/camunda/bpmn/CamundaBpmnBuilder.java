@@ -135,7 +135,6 @@ public class CamundaBpmnBuilder {
     for (Activity activityContainer : workflow.getActivities()) {
       BaseActivity activity = activityContainer.getActivity();
 
-      // no intermediate events for activities with timeout which creates a subprocess
       builder = addIntermediateEvents(eventsToConnect, builder, lastActivity, activity, workflow);
       if (!onFormRepliedEvent(activity)) {
         if (hasTimeout(activity) && workflow.getFirstActivity().isPresent() && activity.getId()
@@ -143,18 +142,17 @@ public class CamundaBpmnBuilder {
           throw new InvalidActivityException(workflow.getId(),
               String.format("Workflow's starting activity %s should not have timeout", activity.getId()));
         } else if (hasTimeout(activity) && activity.getOn() != null) {
-          IntermediateCatchEventBuilder builderTimeout =
-              builder.moveToLastGateway().intermediateCatchEvent().timerWithDuration(activity.getOn().getTimeout());
-          activityToTimeoutBuilderMap.put(activity.getId(), builderTimeout);
-          activityExpirations.put(activity.getId(), builderTimeout);
+          setTimeout(activity, activity.getOn().getTimeout(), builder, activityExpirations,
+              activityToTimeoutBuilderMap);
         }
       }
 
       // process events starting the activity
       if (onFormRepliedEvent(activity) && activity.getOn() != null) {
         checkActivityIsKnown(workflow, activity.getId(), activity.getOn().getFormReplied().getFormId());
-        builder = formReply(builder, activity, activityExpirations);
-        if (!activity.getOn().getFormReplied().getUnique()) {
+        builder = formReply(builder, activity, activityExpirations, activityToTimeoutBuilderMap);
+
+        if (!isUniqueReplyForm(activity)) {
           subProcessedFinish.add(builder);
         }
       }
@@ -354,11 +352,18 @@ public class CamundaBpmnBuilder {
         } else {
           Optional<String> signalName = eventToMessage.toSignalName(event, workflow);
           if (signalName.isPresent()) {
+
             builder = createOrMoveEventGateway(builder);
-            builder = builder.intermediateCatchEvent()
-                .camundaAsyncBefore()
-                .signal(signalName.get())
-                .name(signalName.get());
+            IntermediateCatchEventBuilder intermediateCatchEventBuilder =
+                builder.intermediateCatchEvent().camundaAsyncBefore().name(signalName.get());
+
+            if (isUniqueReplyForm(activity)) {
+              intermediateCatchEventBuilder.message(signalName.get());
+            } else {
+              intermediateCatchEventBuilder.signal(signalName.get());
+            }
+
+            builder = intermediateCatchEventBuilder.name(signalName.get());
             eventsToConnect.add(builder); // will be connected after the activity is created
           }
         }
@@ -534,14 +539,20 @@ public class CamundaBpmnBuilder {
   }
 
   private AbstractFlowNodeBuilder<?, ?> formReply(AbstractFlowNodeBuilder<?, ?> builder, BaseActivity activity,
-      Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies) {
-    if (Boolean.TRUE.equals(activity.getOn().getFormReplied().getUnique())) {
-      // this form is expecting a single reply so we can treat it as a simple flow
-      // TODO handle timeout
-      builder = builder.intermediateCatchEvent()
-          .camundaAsyncBefore()
-          .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
-          .name("formReply");
+      Map<String, AbstractFlowNodeBuilder<?, ?>> formReplies,
+      Map<String, AbstractFlowNodeBuilder<?, ?>> activityToTimeoutBuilderMap) {
+
+    // Forms have default timeout of 24H if none is set
+    String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+    if (activity.getOn() != null && StringUtils.isNotEmpty(activity.getOn().getTimeout())) {
+      timeout = activity.getOn().getTimeout();
+    }
+
+    if (isUniqueReplyForm(activity)) {
+      // this form is expecting a single reply, so we can treat it as a simple flow
+      AbstractFlowNodeBuilder<?, ?> builderTimeout = builder.camundaAsyncBefore();
+      setTimeout(activity, timeout, builderTimeout, formReplies, activityToTimeoutBuilderMap);
+
     } else {
       /*
           A form reply is a dedicated sub process doing 2 things:
@@ -550,12 +561,6 @@ public class CamundaBpmnBuilder {
             - waiting for reply with an event sub process that is running for each reply
        */
       SubProcessBuilder subProcess = builder.subProcess();
-
-      // Forms have default timeout of 24H if none is set
-      String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
-      if (activity.getOn() != null && !StringUtils.isEmpty(activity.getOn().getTimeout())) {
-        timeout = activity.getOn().getTimeout();
-      }
 
       if (activity.getOn() != null) {
         AbstractFlowNodeBuilder<?, ?> formExpirationBuilder = subProcess.embeddedSubProcess()
@@ -615,6 +620,22 @@ public class CamundaBpmnBuilder {
         .camundaInputParameter(CamundaExecutor.ACTIVITY,
             CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
     return builder;
+  }
+
+  private void setTimeout(BaseActivity activity, String timeout,
+      AbstractFlowNodeBuilder<?, ?> builder,
+      Map<String, AbstractFlowNodeBuilder<?, ?>> activityExpirations,
+      Map<String, AbstractFlowNodeBuilder<?, ?>> activityToTimeoutBuilderMap) {
+
+    IntermediateCatchEventBuilder builderTimeout =
+        builder.moveToLastGateway().intermediateCatchEvent().timerWithDuration(timeout);
+    activityToTimeoutBuilderMap.put(activity.getId(), builderTimeout);
+    activityExpirations.put(activity.getId(), builderTimeout);
+  }
+
+  private boolean isUniqueReplyForm(BaseActivity activity) {
+    return activity.getOn() != null && activity.getOn().getFormReplied() != null && Boolean.TRUE.equals(
+        activity.getOn().getFormReplied().getUnique());
   }
 
 }
