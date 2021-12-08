@@ -25,7 +25,7 @@ activities:
       on:
         form-replied:
           form-id: sendForm
-          unique: true
+          exclusive: true
       # We go back to the first activity, resending the form
       script: |
         variables.loop = (sendForm.action == "reject" )

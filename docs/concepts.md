@@ -186,7 +186,9 @@ is sent to a room or an MIM. Therefore, an activity waiting for a reply can be e
 form is still active (it comes with a timeout and will expire at some point). 
 For each reply, one or more activities can be executed. Using the `activity-expired` event, other activities can then be executed once the form expired.
 
-In case the form is dedicated to be replied only once, `unique` can be set to express that.
+In 1-1 conversations or if the form has to be replied only once, [exclusive](#exclusive) attribute on the form-replied
+event can be set to `true`. In that case, the activity is executed in the main process of the current workflow and flow
+controls can be used as normal.
 
 _nb: Loops are only supported with forms that require only one reply._ 
 

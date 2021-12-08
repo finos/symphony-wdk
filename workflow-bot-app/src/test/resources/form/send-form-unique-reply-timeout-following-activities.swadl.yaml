@@ -21,7 +21,7 @@ activities:
         timeout: PT0.01S
         form-replied:
           form-id: sendForm
-          unique: true
+          exclusive: true
 
       # workflow should fail if this script is executed
       script: assert false

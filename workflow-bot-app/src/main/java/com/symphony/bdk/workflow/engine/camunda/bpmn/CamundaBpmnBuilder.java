@@ -152,7 +152,7 @@ public class CamundaBpmnBuilder {
         checkActivityIsKnown(workflow, activity.getId(), activity.getOn().getFormReplied().getFormId());
         builder = formReply(builder, activity, activityExpirations, activityToTimeoutBuilderMap);
 
-        if (!isUniqueReplyForm(activity)) {
+        if (!isExclusiveFormReply(activity)) {
           subProcessedFinish.add(builder);
         }
       }
@@ -357,7 +357,7 @@ public class CamundaBpmnBuilder {
             IntermediateCatchEventBuilder intermediateCatchEventBuilder =
                 builder.intermediateCatchEvent().camundaAsyncBefore().name(signalName.get());
 
-            if (isUniqueReplyForm(activity)) {
+            if (isExclusiveFormReply(activity)) {
               intermediateCatchEventBuilder.message(signalName.get());
             } else {
               intermediateCatchEventBuilder.signal(signalName.get());
@@ -548,7 +548,7 @@ public class CamundaBpmnBuilder {
       timeout = activity.getOn().getTimeout();
     }
 
-    if (isUniqueReplyForm(activity)) {
+    if (isExclusiveFormReply(activity)) {
       // this form is expecting a single reply, so we can treat it as a simple flow
       AbstractFlowNodeBuilder<?, ?> builderTimeout = builder.camundaAsyncBefore();
       setTimeout(activity, timeout, builderTimeout, formReplies, activityToTimeoutBuilderMap);
@@ -633,9 +633,9 @@ public class CamundaBpmnBuilder {
     activityExpirations.put(activity.getId(), builderTimeout);
   }
 
-  private boolean isUniqueReplyForm(BaseActivity activity) {
+  private boolean isExclusiveFormReply(BaseActivity activity) {
     return activity.getOn() != null && activity.getOn().getFormReplied() != null && Boolean.TRUE.equals(
-        activity.getOn().getFormReplied().getUnique());
+        activity.getOn().getFormReplied().getExclusive());
   }
 
 }

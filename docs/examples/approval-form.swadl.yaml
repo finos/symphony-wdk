@@ -27,7 +27,7 @@ activities:
         timeout: PT10S
         form-replied:
           form-id: sendForm
-          unique: true
+          exclusive: true
       script: |
         variables.loop = (sendForm.action == "reject" )
 
@@ -37,10 +37,10 @@ activities:
 
   - send-message:
       id: sendFeedBackOnExpiration
-      content: The form timed out, the workflow will finish immediately
       on:
         activity-expired:
           activity-id: setVariables
+      content: The form timed out, the workflow will finish immediately
 
   - send-message:
       id: finishWorkflowOnExpiration
@@ -48,9 +48,7 @@ activities:
 
   - send-message:
       id: finishWorkflowOnReply
-      content: The workflow finished after having replied to the form
       on:
         activity-completed:
           activity-id: sendFeedBackOnReply
-
-
+      content: The workflow finished after having replied to the form

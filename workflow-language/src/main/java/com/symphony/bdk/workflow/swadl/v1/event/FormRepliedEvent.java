@@ -9,5 +9,5 @@ public class FormRepliedEvent {
   private String formId;
 
   @JsonProperty
-  private Boolean unique = false;
+  private Boolean exclusive = false;
 }

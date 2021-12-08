@@ -128,7 +128,7 @@ public class WorkflowEventToCamundaEvent {
     } else if (event.getConnectionAccepted() != null) {
       return Optional.of(CONNECTION_ACCEPTED);
 
-    } else if (event.getFormReplied() != null && event.getFormReplied().getUnique()) {
+    } else if (event.getFormReplied() != null && event.getFormReplied().getExclusive()) {
       return Optional.of(String.format("%s%s", FORM_REPLY_PREFIX, event.getFormReplied().getFormId()));
 
     } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
