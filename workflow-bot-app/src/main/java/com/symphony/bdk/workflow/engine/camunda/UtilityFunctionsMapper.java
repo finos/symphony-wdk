@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -23,7 +22,6 @@ import java.util.Map;
 /**
  * Utilities for EL evaluation by Camunda.
  */
-@Component
 public class UtilityFunctionsMapper extends FunctionMapper {
 
   private static final Map<String, Method> FUNCTION_MAP;

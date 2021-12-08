@@ -2007,7 +2007,7 @@ activities:
 
   - send-message: # will send the string content
       id: processJsonString
-      content: ${json(variables.aString).result.code} 
+      content: ${json(variables.aString)} 
 ```
 
 in [execute-script](#execute-script)
