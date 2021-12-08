@@ -37,6 +37,7 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    processEngineConfiguration.getBeans().put("wdk", new UtilityFunctionsMapper());
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 

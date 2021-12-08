@@ -2016,8 +2016,8 @@ activities:
   - execute-script:
       id: scriptJson
       script: |
-        assert utilityFunctionsMapper.json(variables.aJson).result.code == 200
-        assert utilityFunctionsMapper.json(variables.aString) == "This is a regular String"
+        assert wdk.json(variables.aJson).result.code == 200
+        assert wdk.json(variables.aString) == "This is a regular String"
 ````
 
 ### String text(String presentationMl)
@@ -2041,7 +2041,7 @@ activities:
   - execute-script:
       id: extractText
       script: |
-        assert utilityFunctionsMapper.text(variables.presentationML) == "started"
+        assert wdk.text(variables.presentationML) == "started"
 ````
 
 ### String escape(String string)
@@ -2063,5 +2063,5 @@ activities:
   - execute-script:
       id: escapeText
       script: |
-        println utilityFunctionsMapper.escape(variables.textToEscape)
+        println wdk.escape(variables.textToEscape)
 ````

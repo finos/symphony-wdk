@@ -12,5 +12,5 @@ activities:
   - execute-script:
       id: escapeText
       script: |
-        def escapedText = utilityFunctionsMapper.escape(variables.unescapedText)
+        def escapedText = wdk.escape(variables.unescapedText)
         assert escapedText == '\\"this is an unescaped text\\"'

@@ -10,5 +10,5 @@ activities:
         message-received:
           content: /text
       script: |
-        def extractedText = utilityFunctionsMapper.text(variables.presentationML)
+        def extractedText = wdk.text(variables.presentationML)
         assert extractedText == "this is a regular text"

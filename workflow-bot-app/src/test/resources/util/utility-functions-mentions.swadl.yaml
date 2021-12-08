@@ -7,5 +7,5 @@ activities:
         message-received:
           content: /mentions @{user}
       script: |
-        def extractedText = utilityFunctionsMapper.mentions(event)[0]
+        def extractedText = wdk.mentions(event)[0]
         assert extractedText == 123
