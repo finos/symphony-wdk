@@ -260,18 +260,4 @@ class DatafeedEventsIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000).times(1)).send(eq("abc"), content("Received GOOG TSLA"));
   }
 
-  private String userMentionData(long userId) {
-    return "{\n"
-        + "  \"0\": {\n"
-        + "    \"id\": [\n"
-        + "      {\n"
-        + "        \"type\": \"com.symphony.user.userId\",\n"
-        + "        \"value\": \"" + userId + "\"\n"
-        + "      }\n"
-        + "    ],\n"
-        + "    \"type\": \"com.symphony.user.mention\"\n"
-        + "  }\n"
-        + "}\n";
-  }
-
 }

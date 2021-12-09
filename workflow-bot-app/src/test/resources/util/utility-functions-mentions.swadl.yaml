@@ -1,0 +1,11 @@
+id: utility-functions-mentions
+
+activities:
+  - execute-script:
+      id: getMentionsFromEvent
+      on:
+        message-received:
+          content: /mentions @{user}
+      script: |
+        def extractedText = wdk.mentions(event)[0]
+        assert extractedText == 123
