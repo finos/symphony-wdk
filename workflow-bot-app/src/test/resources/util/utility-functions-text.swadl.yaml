@@ -1,0 +1,14 @@
+id: utility-functions-text
+
+variables:
+  presentationML: "<div data-format=\"PresentationML\" data-version=\"2.0\">\n<p>this is a regular text</p>\n</div>"
+
+activities:
+  - execute-script:
+      id: getTextFromPresentationML
+      on:
+        message-received:
+          content: /text
+      script: |
+        def extractedText = wdk.text(variables.presentationML)
+        assert extractedText == "this is a regular text"

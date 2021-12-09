@@ -2007,23 +2007,73 @@ This method is used to convert a String in JSON format to an Object in order to 
 It returns a String if the parameter is a simple String.
 
 Example:
-```java
-${json("{\"result\": {\"code\": 200, \"message\": \"success\"}}").result.code} == 200
-${json("This is a regular String")} == "This is a regular String"
+in [send-message](#send-message)
+```yaml
+variables:
+  aJson: "{\"result\": { \"code\": 200, \"message\": \"success\" } }"
+  aString: "This is a regular String"
+activities:
+  - send-message: # will send 200
+      id: processJson
+      content: ${json(variables.aJson).result.code}
+
+  - send-message: # will send the string content
+      id: processJsonString
+      content: ${json(variables.aString)} 
 ```
+
+in [execute-script](#execute-script)
+````yaml
+activities:
+  - execute-script:
+      id: scriptJson
+      script: |
+        assert wdk.json(variables.aJson).result.code == 200
+        assert wdk.json(variables.aString) == "This is a regular String"
+````
 
 ### String text(String presentationMl)
 This method is used to convert a PresentationML String to a text.
 
 Example:
-```java
-${text(<div data-format="PresentationML" data-version="2.0">started</div>)} == "started"
+
+in [send-message](#send-message)
+```yaml
+variables:
+  presentationML: "<div data-format=\"PresentationML\" data-version=\"2.0\">started</div>"
+activities:
+  - send-message:
+      id: extractText
+      content: ${text(variables.presentationML)}
 ```
+
+in [execute-script](#execute-script)
+````yaml
+activities:
+  - execute-script:
+      id: extractText
+      script: |
+        assert wdk.text(variables.presentationML) == "started"
+````
 
 ### String escape(String string)
 This method will escape text contents using JSON standard escaping, and return results as a String.
 
 Example:
-```java
-${escape("{"result": {"code": 200, "message": "success"}}")} == "{\"result\": {\"code\": 200, \"message\": \"success\"}}"
+
+in [send-message](#send-message)
+```yaml
+activities:
+  - send-message:
+      id: escapeText
+      content: ${escape(variables.textToEscape)}
 ```
+
+in [execute-script](#execute-script)
+````yaml
+activities:
+  - execute-script:
+      id: escapeText
+      script: |
+        println wdk.escape(variables.textToEscape)
+````
