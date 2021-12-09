@@ -179,6 +179,7 @@ public abstract class IntegrationTest {
     elementsAction.setFormMessageId(messageId);
     elementsAction.setFormId(formId);
     elementsAction.setFormValues(formReplies);
+    elementsAction.setStream(new V4Stream());
     return new RealTimeEvent<>(initiator, elementsAction);
   }
 

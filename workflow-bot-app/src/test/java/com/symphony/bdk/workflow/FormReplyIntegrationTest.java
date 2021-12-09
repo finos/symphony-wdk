@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -81,12 +82,16 @@ class FormReplyIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/message"));
     verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
 
-    // user 1 replies to form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      // user 1 replies to form
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
-    // bot should send back my reply
-    verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
-    verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
+      // bot should send back my reply
+      verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
+      verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
+
+      return true;
+    });
   }
 
   @Test
@@ -108,6 +113,49 @@ class FormReplyIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void sendFormUniqueReply_timeout() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-unique-reply-timeout.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/send"));
+
+    // make the form expires
+    sleepToTimeout(500);
+
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+    assertThat(workflow).as("The form was sent but the reply activity timed out")
+        .executed("sendForm")
+        .notExecuted("replyWithTimeout");
+  }
+
+  @Test
+  void sendFormUniqueReply_timeout_followingActivities() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(
+            getClass().getResourceAsStream("/form/send-form-unique-reply-timeout-following-activities.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/send"));
+
+    // make the form expires
+    sleepToTimeout(500);
+
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+    assertThat(workflow)
+        .as("The form was sent but the reply activity timed out. "
+            + "Consequently, the activities in the main flow was not executed but the ones in timeout branch were")
+        .executed("sendForm", "scriptInTimeoutFlow", "followingScriptInTimeoutFlow")
+        .notExecuted("replyWithTimeout", "scriptInMainFlow");
+  }
+
+  @Test
   void sendFormNested() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/form/send-form-reply-nested.swadl.yaml"));
@@ -120,7 +168,10 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(eq("abc"), contains("form"));
 
     // reply to first form
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("question", "My message")));
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("question", "My message")));
+      return true;
+    });
 
     // bot should not run the on/activity-expired activity after 1s because it is attached to the second form that
     // has not been replied to
@@ -138,4 +189,47 @@ class FormReplyIntegrationTest extends IntegrationTest {
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));
   }
+
+  @Test
+  void sendFormLoop() throws Exception {
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-loop.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("ABC"), contains("form"));
+
+    // reply to form
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("action", "reject")));
+      // bot should send my form back because reject was selected
+      verify(messageService, timeout(5000).times(2)).send(eq("ABC"), contains("form"));
+      return true;
+    });
+  }
+
+  @Test
+  void sendFormContinuation() throws Exception {
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-continuation.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("ABC"), contains("form"));
+
+    // reply to form
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("action", "reject")));
+      // bot should send my form back because reject was selected
+      verify(messageService, timeout(5000)).send(eq("ABC"), contains("afterReply1"));
+      return true;
+    });
+  }
+
 }
