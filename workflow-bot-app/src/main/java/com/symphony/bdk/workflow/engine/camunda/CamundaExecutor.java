@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -188,7 +187,7 @@ public class CamundaExecutor implements JavaDelegate {
 
     @Override
     public Map<String, Object> getVariables() {
-      return ImmutableMap.copyOf(execution.getVariables());
+      return Map.copyOf(execution.getVariables());
     }
 
     @Override

@@ -1,0 +1,54 @@
+id: approval-form
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        one-of:
+          - message-received:
+              content: /send
+          - activity-completed:
+              activity-id: setVariables
+              if: ${variables.loop == true}
+      content: |
+        <messageML>
+          <p>Do you approve the action?</p>
+          <form id="sendForm">
+            <button name="approve" type="action">Approve</button>
+            <button name="reject" type="action">Reject</button>
+          </form>
+        </messageML>
+
+
+  # Form requiring only one reply from the admin
+  # 10s to reply before it expires
+  - execute-script:
+      id: setVariables
+      on:
+        timeout: PT10S
+        form-replied:
+          form-id: sendForm
+          exclusive: true
+      script: |
+        variables.loop = (sendForm.action == "reject" )
+
+  - send-message:
+      id: sendFeedBackOnReply
+      content: The form has been approved!
+
+  - send-message:
+      id: sendFeedBackOnExpiration
+      on:
+        activity-expired:
+          activity-id: setVariables
+      content: The form timed out, the workflow will finish immediately
+
+  - send-message:
+      id: finishWorkflowOnExpiration
+      content:  The workflow finished due to form timeout
+
+  - send-message:
+      id: finishWorkflowOnReply
+      on:
+        activity-completed:
+          activity-id: sendFeedBackOnReply
+      content: The workflow finished after having replied to the form
