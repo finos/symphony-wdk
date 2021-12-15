@@ -1,0 +1,50 @@
+id: send-form-timeout-following-activities
+activities:
+  - send-message:
+      id: sendForm
+      content: |
+        <messageML>
+          <form id="sendForm">
+            <button name="approve" type="action">Approve</button>
+            <button name="reject" type="action">Reject</button>
+          </form>
+        </messageML>
+      on:
+        message-received:
+          content: /send
+      to:
+        stream-id: "123"
+
+  - execute-script:
+      id: replyWithTimeout
+      on:
+        timeout: PT0.01S
+        form-replied:
+          form-id: sendForm
+          exclusive: true
+
+      # workflow should fail if this script is executed
+      script: assert false
+
+  - execute-script:
+      id: scriptInTimeoutFlow
+      on:
+        activity-expired:
+          activity-id: replyWithTimeout
+      script: assert true
+
+  - execute-script:
+      id: followingScriptInTimeoutFlow
+      script: assert true
+
+  - execute-script:
+      id: scriptInMainFlow
+      on:
+        activity-completed:
+          activity-id: replyWithTimeout
+
+      # workflow should fail if this script is executed
+      script: assert false
+
+
+

@@ -1,0 +1,31 @@
+id: send-form-loop
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        one-of:
+          - message-received:
+              content: /message
+          - activity-completed:
+              activity-id: setVariables
+              if: ${variables.loop == true}
+      to:
+        stream-id: ABC
+      content: |
+        <messageML>
+          <form id="sendForm">
+            <button name="approve" type="action">Approve</button>
+            <button name="reject" type="action">Reject</button>
+          </form>
+        </messageML>
+
+
+  - execute-script:
+      id: setVariables
+      on:
+        form-replied:
+          form-id: sendForm
+          exclusive: true
+      # We go back to the first activity, resending the form
+      script: |
+        variables.loop = (sendForm.action == "reject" )

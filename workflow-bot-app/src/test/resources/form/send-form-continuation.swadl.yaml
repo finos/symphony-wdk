@@ -1,0 +1,47 @@
+id: send-form-continuation
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        one-of:
+          - message-received:
+              content: /message
+          - activity-completed:
+              activity-id: setVariables
+              if: ${variables.loop == true}
+      to:
+        stream-id: ABC
+      content: |
+        <messageML>
+          <form id="sendForm">
+            <button name="approve" type="action">Approve</button>
+            <button name="reject" type="action">Reject</button>
+          </form>
+        </messageML>
+
+
+  - send-message:
+      id: reply1
+      on:
+        timeout: PT1S
+        form-replied:
+          form-id: sendForm
+          exclusive: true
+      to:
+        stream-id: ABC
+      content: reply1
+
+  - send-message:
+      id: afterReply1
+      to:
+        stream-id: ABC
+      content: afterReply1
+
+  - send-message:
+      id: reply1Timeout
+      on:
+        activity-expired:
+          activity-id: sendForm
+      to:
+        stream-id: ABC
+      content: afterReply1

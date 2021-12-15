@@ -109,12 +109,16 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   }
 
   private static String extractContent(ActivityExecutorContext<SendMessage> execution) throws IOException {
-    if(execution.getActivity().getContent() != null) {
+    if (execution.getActivity().getContent() != null) {
       return execution.getActivity().getContent();
     } else {
       String template = execution.getActivity().getTemplate();
       File file = execution.getResourceFile(Path.of(template));
-      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(execution.getVariables());
+      return execution.bdk()
+          .messages()
+          .templates()
+          .newTemplateFromFile(file.getPath())
+          .process(execution.getVariables());
     }
   }
 

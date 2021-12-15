@@ -179,6 +179,7 @@ public abstract class IntegrationTest {
     elementsAction.setFormMessageId(messageId);
     elementsAction.setFormId(formId);
     elementsAction.setFormValues(formReplies);
+    elementsAction.setStream(new V4Stream());
     return new RealTimeEvent<>(initiator, elementsAction);
   }
 
@@ -272,6 +273,20 @@ public abstract class IntegrationTest {
     actualMessage.setAttachments(attachments);
 
     return actualMessage;
+  }
+
+  protected String userMentionData(long userId) {
+    return "{\n"
+        + "  \"0\": {\n"
+        + "    \"id\": [\n"
+        + "      {\n"
+        + "        \"type\": \"com.symphony.user.userId\",\n"
+        + "        \"value\": \"" + userId + "\"\n"
+        + "      }\n"
+        + "    ],\n"
+        + "    \"type\": \"com.symphony.user.mention\"\n"
+        + "  }\n"
+        + "}\n";
   }
 
 }
