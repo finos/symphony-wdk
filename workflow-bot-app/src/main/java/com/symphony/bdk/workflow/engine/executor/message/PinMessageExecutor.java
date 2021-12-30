@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
-import com.symphony.bdk.core.util.IdUtil;
 import com.symphony.bdk.gen.api.model.StreamType;
 import com.symphony.bdk.gen.api.model.V1IMAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
@@ -21,11 +20,10 @@ public class PinMessageExecutor implements ActivityExecutor<PinMessage> {
 
   @Override
   public void execute(ActivityExecutorContext<PinMessage> execution) throws IOException {
-    // temporary workaround until BDK 2.4.1 is released
-    String messageId = IdUtil.toUrlSafeIdIfNeeded(execution.getActivity().getMessageId());
+    String messageId = execution.getActivity().getMessageId();
 
     V4Message messageToPin = execution.bdk().messages().getMessage(messageId);
-    String streamId = IdUtil.toUrlSafeIdIfNeeded(messageToPin.getStream().getStreamId());
+    String streamId = messageToPin.getStream().getStreamId();
     String streamType = messageToPin.getStream().getStreamType();
 
     if (IM.equals(streamType)) {

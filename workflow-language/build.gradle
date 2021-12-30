@@ -8,9 +8,9 @@ javadoc {
 }
 
 dependencies {
-    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.2')
+    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.3')
 
     api 'org.finos.symphony.bdk:symphony-bdk-core'
 
-    api 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
+    api 'com.fasterxml.jackson.core:jackson-annotations'
 }
