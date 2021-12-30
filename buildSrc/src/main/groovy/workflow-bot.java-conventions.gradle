@@ -57,6 +57,7 @@ checkstyle {
 
 // Enable HTML report for spotbugs
 tasks.matching { task -> task.name.startsWith('spotbugs') }.forEach {
+    it.excludeFilter = rootProject.file("spotbugs.xml")
     it.reports {
         html.enabled = true
         xml.enabled = false
