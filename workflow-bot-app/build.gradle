@@ -1,6 +1,6 @@
 plugins {
     id 'workflow-bot.java-conventions'
-    id 'org.springframework.boot' version '2.6.1'
+    id 'org.springframework.boot' version '2.6.3'
 }
 
 javadoc {
@@ -10,7 +10,9 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.3')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.5.0')
+    implementation platform('com.fasterxml.jackson:jackson-bom:2.13.1')
+    implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.3')
 
     implementation 'org.apache.httpcomponents.client5:httpclient5-fluent:5.1.2'
 
@@ -35,6 +37,7 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
+    implementation 'org.mozilla:rhino:1.7.12' // SNYK-JAVA-ORGMOZILLA-1314295
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'commons-io:commons-io:2.11.0'
