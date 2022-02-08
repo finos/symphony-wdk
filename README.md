@@ -58,6 +58,9 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
+### Thanks to all the people who have contributed
+[![contributors](https://contributors-img.web.app/image?repo=finos/symphony-wdk)](https://github.com/finos/symphony-wdk/graphs/contributors)
+
 ## Roadmap
 
 Checkout the [open issues](https://github.com/finos/symphony-wdk/issues).
