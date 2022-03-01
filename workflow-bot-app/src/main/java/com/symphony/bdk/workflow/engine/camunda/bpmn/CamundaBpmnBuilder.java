@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.camunda.audit.ScriptTaskAuditListener;
+import com.symphony.bdk.workflow.engine.camunda.variable.FormVariableListener;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
 import com.symphony.bdk.workflow.swadl.ActivityRegistry;
 import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
@@ -358,7 +359,8 @@ public class CamundaBpmnBuilder {
                 builder.intermediateCatchEvent().camundaAsyncBefore().name(signalName.get());
 
             if (isExclusiveFormReply(activity)) {
-              intermediateCatchEventBuilder.message(signalName.get());
+              intermediateCatchEventBuilder.message(signalName.get())
+                  .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class);
             } else {
               intermediateCatchEventBuilder.signal(signalName.get());
             }
@@ -569,8 +571,10 @@ public class CamundaBpmnBuilder {
         formReplies.put(activity.getId(), formExpirationBuilder);
 
         // we add the form reply event sub process inside the subprocess
-        builder = subProcess.embeddedSubProcess().eventSubProcess()
+        builder = subProcess.embeddedSubProcess()
+            .eventSubProcess()
             .startEvent()
+            .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
             .camundaAsyncBefore()
             .interrupting(false) // run multiple instances of the sub process (i.e. multiple replies)
             .message(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + activity.getOn().getFormReplied().getFormId())
