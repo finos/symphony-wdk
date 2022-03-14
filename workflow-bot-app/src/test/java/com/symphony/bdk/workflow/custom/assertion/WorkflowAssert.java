@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.IntegrationTest;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
@@ -188,6 +189,8 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
     return processes.stream()
         .filter(p -> !ACTIVITY_TYPES_TO_IGNORE.contains(p.getActivityType()) && !p.isCanceled())
+        .filter(p -> p.getActivityName() != null
+            && !p.getActivityName().startsWith(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX))
         .map(HistoricActivityInstance::getActivityName)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());

@@ -95,6 +95,31 @@ class FormReplyIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void sendFormSendMessageOnReply_followUpActivity_exclusive() throws Exception {
+    Workflow workflow = SwadlParser.fromYaml(getClass()
+        .getResourceAsStream("/form/send-form-reply-followup-activity-exclusive.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      // user 1 replies to form
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
+
+      // bot should send back my reply
+      verify(messageService, timeout(5000)).send(eq("123"), contains("First reply: My message"));
+      verify(messageService, timeout(5000)).send(eq("123"), contains("Second reply: My message"));
+
+      return true;
+    });
+  }
+
+  @Test
   void sendFormSendMessageOnReply_expiration() throws Exception {
     Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/form/send-form-reply-expiration.swadl.yaml"));
@@ -230,6 +255,24 @@ class FormReplyIntegrationTest extends IntegrationTest {
       verify(messageService, timeout(5000)).send(eq("ABC"), contains("afterReply1"));
       return true;
     });
+  }
+
+  @Test
+  void sendFormOutputsArePreserved() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-outputs-are-preserved.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/run_form_outputs_preserved"));
+    verify(messageService, timeout(5000)).send(eq("ABC"), contains("form"));
+    engine.onEvent(form("msgId", "init", Collections.singletonMap("action", "one")));
+
+    assertThat(workflow)
+        .executed("init", "check");
   }
 
 }
