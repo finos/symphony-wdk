@@ -509,6 +509,81 @@
                                 "$ref": "#/definitions/get-connections-inner"
                             }
                         ]
+                    },
+                    "create-group": {
+                        "type": "object",
+                        "description": "Create a group (distribution list)",
+                        "x-intellij-html-description": "<html><p>Create a group (distribution list)</p><a href=\"https://developers.symphony.com/restapi/reference/insertgroup\">https://developers.symphony.com/restapi/reference/insertgroup</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-group-inner"
+                            }
+                        ],
+                        "required": [
+                            "name",
+                            "owner",
+                            "members",
+                            "profile"
+                        ]
+                    },
+                    "update-group": {
+                        "type": "object",
+                        "description": "Update a group (distribution list)",
+                        "x-intellij-html-description": "<html><p>Update a group (distribution list)</p><a href=\"https://developers.symphony.com/restapi/reference/updategroup\">https://developers.symphony.com/restapi/reference/updategroup</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/create-group-inner"
+                            },
+                            {
+                                "type": "object",
+                                "$ref": "#/definitions/update-group-inner"
+                            }
+                        ]
+                    },
+                    "get-group": {
+                        "type": "object",
+                        "description": "Retrieve a group (distribution list)",
+                        "x-intellij-html-description": "<html><p>Retrieve a group (distribution list)</p><a href=\"https://developers.symphony.com/restapi/reference/getgroup\">https://developers.symphony.com/restapi/reference/getgroup</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-group-inner"
+                            }
+                        ]
+                    },
+                    "get-groups": {
+                        "type": "object",
+                        "description": "Retrieve groups of specified type (distribution list)",
+                        "x-intellij-html-description": "<html><p>Retrieve groups of specified type (distribution list)</p><a href=\"https://developers.symphony.com/restapi/reference/listgroups\">https://developers.symphony.com/restapi/reference/listgroups</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/get-groups-inner"
+                            }
+                        ]
+                    },
+                    "add-group-member": {
+                        "type": "object",
+                        "description": "Add members to a group (distribution list)",
+                        "x-intellij-html-description": "<html><p>Add members to a group (distribution list)</p><a href=\"https://developers.symphony.com/restapi/reference/addmembertogroup\">https://developers.symphony.com/restapi/reference/addmembertogroup</a></html>",
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/basic-activity-inner"
+                            },
+                            {
+                                "$ref": "#/definitions/add-group-member-inner"
+                            }
+                        ]
                     }
                 },
                 "maxProperties": 1,
@@ -1507,7 +1582,7 @@
                     "description": "The recipient (conversation, IM, MIM or chatroom) in which the message should be posted.",
                     "$ref": "#/definitions/to"
                 },
-                "content" : {
+                "content": {
                     "$ref": "#/definitions/content-inner"
                 },
                 "attachments": {
@@ -1525,7 +1600,7 @@
         "update-message-inner": {
             "type": "object",
             "properties": {
-                "content" : {
+                "content": {
                     "$ref": "#/definitions/content-inner"
                 },
                 "message-id": {
@@ -2908,6 +2983,575 @@
                     ]
                 }
             }
+        },
+        "create-group-inner": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Group type identifier (for instance SDL).",
+                    "minLength": 1
+                },
+                "owner": {
+                    "type": "object",
+                    "$ref": "#/definitions/group-owner"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Group's name.",
+                    "minLength": 1
+                },
+                "sub-type": {
+                    "type": "string",
+                    "description": "The type of the company new groupType.",
+                    "enum": [
+                        "COMMUNITY",
+                        "CHANNEL"
+                    ]
+                },
+                "referrer": {
+                    "type": "string",
+                    "description": "Symphony, referring company name, referring channel partner name.",
+                    "minLength": 1
+                },
+                "members": {
+                    "type": "array",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "$ref": "#/definitions/group-member"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "profile": {
+                    "$ref": "#/definitions/group-profile"
+                }
+            }
+        },
+        "group-owner": {
+            "type": "object",
+            "required": [
+                "id",
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "anyOf": [
+                        {
+                            "type": [
+                                "string",
+                                "integer"
+                            ],
+                            "minLength": 1
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ],
+                    "description": "Owner id if the owner type is tenant (podId) or user (userId), otherwise null."
+                },
+                "type": {
+                    "type": "string",
+                    "default": "TENANT",
+                    "description": "Owner type. Ony TENANT supported now.",
+                    "enum": [
+                        "TENANT",
+                        "PLATFORM",
+                        "USER"
+                    ]
+                }
+            }
+        },
+        "group-member": {
+            "type": "object",
+            "required": [
+                "user-id",
+                "tenant-id"
+            ],
+            "properties": {
+                "user-id": {
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1,
+                    "minimum": 0,
+                    "description": "Member's user id."
+                },
+                "tenant-id": {
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1,
+                    "minimum": 0,
+                    "description": "Member's tenant id."
+                }
+            }
+        },
+        "group-profile": {
+            "type": "object",
+            "required": [
+                "display-name"
+            ],
+            "properties": {
+                "display-name": {
+                    "type": "string",
+                    "description": "The display name in Directory, it is expected to be the same as group name."
+                },
+                "company-name": {
+                    "type": "string",
+                    "description": "The company name is expected to be the same as group company owner."
+                },
+                "email": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "job": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string"
+                        },
+                        "role": {
+                            "type": "string"
+                        },
+                        "department": {
+                            "type": "string"
+                        },
+                        "division": {
+                            "type": "string"
+                        },
+                        "phone": {
+                            "type": "string"
+                        },
+                        "city": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "asset-classes": {
+                    "description": "The group's asset classes (one or more).",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Equities",
+                                    "Cash Equities",
+                                    "Securities Lending",
+                                    "Fixed Income",
+                                    "Government Bonds",
+                                    "Prime Brokerage",
+                                    "Commodities",
+                                    "Municipal Bonds",
+                                    "Currencies",
+                                    "Corporate Bonds"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "industries": {
+                    "description": "The group's job industries (one or more).",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Healthcare",
+                                    "Consumer Non-Cyclicals",
+                                    "Transportation",
+                                    "Technology",
+                                    "Real Estate",
+                                    "Basic Materials",
+                                    "Financials",
+                                    "Energy & Utilities",
+                                    "Conglomerates",
+                                    "Consumer Cyclicals",
+                                    "Services"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "functions": {
+                    "description": "The group's job functions (one or more).",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Collateral",
+                                    "Confirmation",
+                                    "Trade Processing",
+                                    "Pre-Matching",
+                                    "Margin",
+                                    "Matching",
+                                    "Claims Processing",
+                                    "Middle Office",
+                                    "Liquidity Management",
+                                    "Allocation",
+                                    "Trade Management",
+                                    "Regulatory Outreach",
+                                    "Settlements",
+                                    "Post Trade Management"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "market-coverages": {
+                    "description": "The group's market coverage (one or more).",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "EMEA",
+                                    "NA",
+                                    "APAC",
+                                    "LATAM"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "responsibilities": {
+                    "description": "The group's responsibilities (one or more).",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "BAU",
+                                    "Escalation"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "instruments": {
+                    "description": "The group's instruments (one or more).",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Securities",
+                                    "Fixed Income",
+                                    "Equities"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "visibility-restriction": {
+                    "type": "object",
+                    "$ref": "#/definitions/tenants-users-list"
+                },
+                "implicit-connection": {
+                    "type": "object",
+                    "$ref": "#/definitions/tenants-users-list"
+                },
+                "interaction-transfer": {
+                    "type": "object",
+                    "$ref": "#/definitions/tenants-users-list"
+                }
+            }
+        },
+        "tenants-users-list": {
+            "type": "object",
+            "properties": {
+                "user-ids": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "integer"
+                                ],
+                                "minLength": 1,
+                                "minimum": 0
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                },
+                "tenant-ids": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": [
+                                    "string",
+                                    "integer"
+                                ],
+                                "minLength": 1,
+                                "minimum": 0
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "update-group-inner": {
+            "type": "object",
+            "required": [
+                "group-id"
+            ],
+            "properties": {
+                "group-id": {
+                    "$ref": "#/definitions/group-id"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Status flag to distinguish between active and deleted objects. Required to update group fields except the image-path.",
+                    "enum": [
+                        "ACTIVE",
+                        "DELETED"
+                    ]
+                },
+                "e-tag": {
+                    "type": "string",
+                    "description": "Required to update group fields except the image-path."
+                },
+                "image-path": {
+                    "description": "Path to the file to be uploaded as the group's avatar. The path is relative to the workflows folder.",
+                    "anyOf": [
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
+                }
+            }
+        },
+        "get-group-inner": {
+            "type": "object",
+            "required": [
+                "group-id"
+            ],
+            "properties": {
+                "group-id": {
+                    "$ref": "#/definitions/group-id"
+                }
+            }
+        },
+        "get-groups-inner": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "SDL",
+                    "description": "Group type id."
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Filter by status, active or deleted. If not specified both are returned.",
+                    "enum": [
+                        "ACTIVE",
+                        "DELETED"
+                    ]
+                },
+                "before": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "NOT SUPPORTED YET, currently ignored. Cursor that points to the start of the current page of data. If not present, the current page is the first page."
+                },
+                "after": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Cursor that points to the end of the current page of data. If not present, the current page is the last page."
+                },
+                "limit": {
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1,
+                    "minimum": 0,
+                    "description": "Numbers of items to return.",
+                    "default": 100
+                },
+                "sort-order": {
+                    "type": "string",
+                    "enum": [
+                        "ASC",
+                        "DESC"
+                    ]
+                }
+            }
+        },
+        "add-group-member-inner": {
+            "type": "object",
+            "required": [
+                "group-id"
+            ],
+            "properties": {
+                "group-id": {
+                    "$ref": "#/definitions/group-id"
+                },
+                "members": {
+                    "type": "array",
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "$ref": "#/definitions/group-member"
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^\\$\\{.*\\}$"
+                        },
+                        {
+                            "enum": [
+                                "${variables.VARIABLE_NAME}"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "group-id": {
+            "anyOf": [
+                {
+                    "type": [
+                        "string",
+                        "integer"
+                    ],
+                    "minLength": 1
+                },
+                {
+                    "enum": [
+                        "${variables.VARIABLE_NAME}"
+                    ]
+                }
+            ],
+            "description": "Group's unique identifier."
         },
         "to": {
             "type": "object",

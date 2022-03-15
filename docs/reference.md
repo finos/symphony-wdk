@@ -27,7 +27,8 @@ activities:
 
 ## id
 
-Workflow's id should start with a letter and should not contain empty spaces. It is required. The id will appear in logs and audit trails.
+Workflow's id should start with a letter and should not contain empty spaces. It is required. The id will appear in logs
+and audit trails.
 
 ## variables
 
@@ -268,7 +269,6 @@ event can be set to `true`. In that case, the activity is executed in the main p
 controls can be used as normal.
 
 _nb: Loops are only supported with forms that require only one reply._
-
 
 Key | Type | Required |
 ------------ | -------| --- | 
@@ -771,16 +771,16 @@ Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
-Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external file (Object).
-When using an external file the content has to be defined as follows:
+Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external
+file (Object). When using an external file the content has to be defined as follows:
 
 Key | Type | Required |
 ------------ | -------| --- | 
 template | String | Yes |
 
-Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the template field. 
-By default, it will search for the file in the `./workflows` root folder. 
-When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file, 
+Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the
+template field. By default, it will search for the file in the `./workflows` root folder.
+When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file,
 same format as it is for the any other activity in the SWADL file.
 
 In case the content to send is PresentationML. The `text` function might come handy, it uses
@@ -799,20 +799,24 @@ activities:
       content:
         ${text(event.source.message.message)}
 ```
+
 Example using Freemarker:
+
 ```yaml
 activities:
   variables:
     val: world
-  - send-message:
-      id: echo
-      on:
-        message-received:
-          content: /echo
-      content: 
-        template: message-with-params.ftl
+           - send-message:
+           id: echo
+           on:
+             message-received:
+               content: /echo
+           content:
+             template: message-with-params.ftl
 ```
-message-with-params.ftl 
+
+message-with-params.ftl
+
 ```
 <messageML>Hello ${variables.val}</messageML>
 ```
@@ -849,6 +853,7 @@ encoded urls are accepted.
 Path to the file to be attached to the message. The path is relative to the workflows folder.
 
 ### update-message
+
 Update an existing message into a stream. Returns the new updated message.
 
 Key | Type | Required |
@@ -866,6 +871,7 @@ msgId | String
 Message id of the message to be updated. Both url safe and base64 encoded urls are accepted
 
 ### pin-message
+
 Pin an existing message into the stream it belongs to. It works for both Instant Messages and Rooms.
 
 Key | Type | Required |
@@ -877,6 +883,7 @@ Depending on the stream type the activity will either call the
 [Update IM](https://developers.symphony.com/restapi/v20.13/reference#update-im) endpoint.
 
 ### unpin-message
+
 Unpin any message (if present) from an existing stream. It works for both Instant Messages and Rooms.
 
 Key | Type | Required |
@@ -928,7 +935,8 @@ Example: _2021-08-31T15:50:00Z_
 
 ### get-attachment
 
-Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id and stored under a folder with the executed process id.
+Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id
+and stored under a folder with the executed process id.
 
 An attachment named **_logo.png_** will be stored under _./workflows/**$PROCESS_ID**/**$ACTIVITY_ID**-logo.png_.
 
@@ -943,7 +951,8 @@ Output | Type |
 ----|----|
 attachmentPath | String
 
-[API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs as the api response)
+[API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs
+as the api response)
 
 ### create-room
 
@@ -1876,7 +1885,7 @@ user-id | String | Yes |
 
 ### get-connections
 
-Get one or multiple connections statuses
+Get one or multiple connections statuses.
 
 Key | Type | Required |
 ------------ | -------| --- |
@@ -1903,6 +1912,201 @@ Allowed values:
 - REJECTED
 - ALL
 
+### create-group
+
+Create a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+[type](#group-type) | String | Yes      |
+[owner](#group-owner) | Map    | Yes      |
+name | String | Yes      |
+[sub-type](#group-sub-type) | String | No       |
+[referrer](#group-referrer) | String | No       |
+[members](#group-member) | List   | Yes      |
+[profile](#group-profile) | Map    | Yes      |
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/insertgroup)
+
+#### <a name="group-type"></a>type
+
+Group type identifier (for instance SDL).
+
+#### <a name="group-owner"></a>owner
+
+Key | Type   | Required |
+------------ |--------| --- |
+[id](#owner-id) | String | Yes |
+[type](#owner-type) | String | Yes |
+
+##### <a name="owner-id"></a>id
+
+Owner id if the owner type is tenant (podId) or user (userId), otherwise null.
+
+##### <a name="owner-type"></a>type
+
+Owner type. Ony TENANT supported now.
+
+Allowed values:
+
+- TENANT
+- PLATFORM
+- USER
+
+#### <a name="group-sub-type"></a>sub-type
+
+The type of the company new groupType.
+
+Allowed values:
+
+- COMMUNITY
+- CHANNEL
+
+#### <a name="group-referrer"></a>referrer
+
+Symphony, referring company name, referring channel partner name.
+
+#### <a name="group-member"></a>members
+
+Key | Type    | Required |
+------------ |---------| --- |
+user-id | Integer  | Yes |
+tenant-id | Integer | Yes |
+
+#### <a name="group-profile"></a>profile
+
+See [API](https://developers.symphony.com/restapi/reference/insertgroup) for details.
+At least `display-name` should be set. Job properties are grouped under a `job` entry.
+
+### update-group
+
+Update a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+group-id | String | Yes      |
+[status](#group-status) | String | Yes      |
+e-tag | String | Yes      |
+[image-path](#group-image-path) | String | No       |
+[type](#group-type) | String | No       |
+[owner](#group-owner) | Map    | Yes      |
+name | String | No       |
+[sub-type](#group-sub-type) | String | No       |
+[referrer](#group-referrer) | String | No       |
+[members](#group-member) | List   | Yes      |
+[profile](#group-profile) | Map    | Yes      |
+
+_Keys are similar to [group creation](#create-group)._
+
+E-tag must be passed and can be retrieved from a group with the [get-group](#get-group) activity. It is used to avoid
+concurrent updates.
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/updategroup)
+
+#### <a name="group-status"></a>status
+
+Status flag to distinguish between active and deleted objects.
+
+Allowed values:
+
+- ACTIVE
+- DELETED
+
+#### <a name="group-image-path"></a>image-path
+
+Path to the image file to be used as the group's avatar. The path is relative to the workflows folder.
+
+### get-group
+
+Retrieve a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+group-id | String | Yes      |
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/getgroup)
+
+### get-groups
+
+Retrieve groups of specified type (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+[type](#group-type) | String | Yes      |
+[status](#group-status) | String | No       |
+[before](#group-before) | String | No       |
+[after](#group-after) | String | No       |
+[limit](#group-limit) | String | No       |
+[sort-order](#group-sort-order) | String | No       |
+
+Output | Type |
+----|----|
+groups | [GroupList](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/GroupList.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/listgroups)
+
+#### <a name="group-type"></a>type
+
+Group type id.
+
+#### <a name="group-status"></a>status
+
+Filter by status, active or deleted. If not specified both are returned.
+
+Allowed values:
+
+- ACTIVE
+- DELETED
+
+#### <a name="group-before"></a>before
+
+Not supported yet, currently ignored. Cursor that points to the start of the current page of data. If not present, the
+current page is the first page.
+
+#### <a name="group-after"></a>after
+
+Cursor that points to the end of the current page of data. If not present, the current page is the last page.
+
+#### <a name="group-limit"></a>limit
+
+Numbers of items to return.
+
+#### <a name="group-sort-order"></a>sort-order
+
+Items sorting direction (ordered by creation date).
+
+Allowed values:
+
+- ASC
+- DESC
+
+### add-group-member
+
+Add members to a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+group-id | String | Yes      |
+[members](#group-member) | List   | Yes      |
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/addmembertogroup)
+
 ### execute-request
 
 Executes an HTTP request.
@@ -1914,17 +2118,17 @@ Key | Type | Required |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
 
-
 Output | Type |
 ----|----|
 body | Object/String
 status | Integer
 
-If the response body has a `application/json` content type then the `body` output is parsed into a
-JSON object (if possible) otherwise it will a string. Please note that this approach comes with limitations
-and that the `execute-request` activity should not be used to download large payloads.
+If the response body has a `application/json` content type then the `body` output is parsed into a JSON object (if
+possible) otherwise it will a string. Please note that this approach comes with limitations and that
+the `execute-request` activity should not be used to download large payloads.
 
 Example:
+
 ```yaml
 activities:
   - execute-request:
@@ -1942,16 +2146,19 @@ activities:
       to:
         stream-id: A_STREAM
       content: ${myRequest.outputs.body.message} # Send a message with content "Hello Bob"
-      
+
 ```
 
 #### url
+
 String that contains the host and the path to be targeted.
 
 #### method
+
 HTTP method to perform. GET is the default one.
 
 Supported methods are:
+
 - DELETE
 - GET
 - HEAD
@@ -1961,14 +2168,16 @@ Supported methods are:
 - PUT
 
 #### body
-HTTP request body.
-It can be provided as an object (for `application/json` or `multiplart/form content` type) or as a string.
+
+HTTP request body. It can be provided as an object (for `application/json` or `multiplart/form content` type) or as a
+string.
 
 When `multipart/form` content type is used, only key/value object is supported.
 
 #### headers
-HTTP request headers. A map of key/value entries is expected. Simple types
-such as numbers, string and booleans as well as lists and maps are supported.
+
+HTTP request headers. A map of key/value entries is expected. Simple types such as numbers, string and booleans as well
+as lists and maps are supported.
 
 Unless set explicitly the `Content-Type` header will be `application/json` by default.
 
@@ -2000,14 +2209,17 @@ activities:
 Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
 
 ## Utility functions
+
 WDK provides some utility functions that can be used to process data in SWADL.
 
 ### Object json(String string)
-This method is used to convert a String in JSON format to an Object in order to be processed as a JSON.
-It returns a String if the parameter is a simple String.
+
+This method is used to convert a String in JSON format to an Object in order to be processed as a JSON. It returns a
+String if the parameter is a simple String.
 
 Example:
 in [send-message](#send-message)
+
 ```yaml
 variables:
   aJson: "{\"result\": { \"code\": 200, \"message\": \"success\" } }"
@@ -2023,6 +2235,7 @@ activities:
 ```
 
 in [execute-script](#execute-script)
+
 ````yaml
 activities:
   - execute-script:
@@ -2033,11 +2246,13 @@ activities:
 ````
 
 ### String text(String presentationMl)
+
 This method is used to convert a PresentationML String to a text.
 
 Example:
 
 in [send-message](#send-message)
+
 ```yaml
 variables:
   presentationML: "<div data-format=\"PresentationML\" data-version=\"2.0\">started</div>"
@@ -2048,6 +2263,7 @@ activities:
 ```
 
 in [execute-script](#execute-script)
+
 ````yaml
 activities:
   - execute-script:
@@ -2057,11 +2273,13 @@ activities:
 ````
 
 ### String escape(String string)
+
 This method will escape text contents using JSON standard escaping, and return results as a String.
 
 Example:
 
 in [send-message](#send-message)
+
 ```yaml
 activities:
   - send-message:
@@ -2070,6 +2288,7 @@ activities:
 ```
 
 in [execute-script](#execute-script)
+
 ````yaml
 activities:
   - execute-script:

@@ -67,7 +67,7 @@ Checkout the [open issues](https://github.com/finos/symphony-wdk/issues).
 
 ## License
 
-Copyright 2021 Symphony LLC
+Copyright 2022 Symphony LLC
 
 Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 

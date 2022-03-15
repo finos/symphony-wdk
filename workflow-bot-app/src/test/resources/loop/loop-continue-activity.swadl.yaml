@@ -13,12 +13,15 @@ activities:
               if: ${variables.execution <= 1}
       script: |
         println "act1"
+        sleep 100 // make sure execution date differ
   - execute-script:
       id: act2
       script: |
         variables.execution++
+        sleep 100 // make sure execution date differ
   - execute-script:
       id: act3
       # = on/activity-completed: act2 without an if, i.e. the default flow after act2
       script: |
         println "act3"
+        sleep 100 // make sure execution date differ

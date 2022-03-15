@@ -1,21 +1,21 @@
 # Getting started
 
 The tool of choice to get started writing and running workflows is
-the [Symphony generator](https://github.com/SymphonyPlatformSolutions/generator-symphony). Essentially we are going to
+the [Symphony generator](https://github.com/finos/generator-symphony). Essentially we are going to
 create a Symphony bot that is capable of running workflows.
 
 It can be installed with:
 
 ```
-npm install -g yo generator-symphony
+npm install -g yo @finos/generator-symphony
 ```
 
-Then in an empty folder, run the `yo symphony` command.
+Then in an empty folder, run the `yo @finos/symphony` command.
 
 You will be guided as shown below to configure your bot. Make sure to select _Workflow Application_.
 
 ```
-~/dist $ yo symphony
+~/dist $ yo @finos/symphony
  __   __     ___                 _
  \ \ / /__  / __|_  _ _ __  _ __| |_  ___ _ _ _  _
   \ V / _ \ \__ \ || | '  \| '_ \ ' \/ _ \ ' \ || |

@@ -13,6 +13,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.ext.group.SymphonyGroupService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
@@ -83,6 +84,9 @@ public abstract class IntegrationTest {
   @MockBean(name = "sessionService")
   SessionService sessionService;
 
+  @MockBean(name = "groupService")
+  SymphonyGroupService groupService;
+
   // BdkGateway is changed in setUpMocks method to return the beans above
   @MockBean(name = "springBdkGateway")
   BdkGateway bdkGateway;
@@ -126,6 +130,7 @@ public abstract class IntegrationTest {
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);
     when(bdkGateway.users()).thenReturn(this.userService);
+    when(bdkGateway.groups()).thenReturn(this.groupService);
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered
