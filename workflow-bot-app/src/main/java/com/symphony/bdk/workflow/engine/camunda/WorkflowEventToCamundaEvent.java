@@ -144,6 +144,7 @@ public class WorkflowEventToCamundaEvent {
     return Optional.empty();
   }
 
+  @SuppressWarnings("unchecked")
   public <T> void dispatch(RealTimeEvent<T> event)
       throws PresentationMLParserException {
 
@@ -226,6 +227,7 @@ public class WorkflowEventToCamundaEvent {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private <T> void formReplyToMessage(RealTimeEvent<T> event,
       Map<String, Object> processVariables) {
     // we expect the activity id to be the same as the form id to work
