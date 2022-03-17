@@ -84,6 +84,7 @@ public class CamundaExecutor implements JavaDelegate {
     this.applicationContext = applicationContext;
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
