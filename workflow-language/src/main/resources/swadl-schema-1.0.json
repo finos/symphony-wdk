@@ -3068,7 +3068,7 @@
                 "type": {
                     "type": "string",
                     "default": "TENANT",
-                    "description": "Owner type. Ony TENANT supported now.",
+                    "description": "Owner type. Only TENANT supported now.",
                     "enum": [
                         "TENANT",
                         "PLATFORM",

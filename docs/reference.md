@@ -1918,13 +1918,13 @@ Create a group (distribution list). _Distribution List Manager role_ is required
 
 Key | Type   | Required |
 ------------ |--------|----------|
+name | String | Yes      |
 [type](#group-type) | String | Yes      |
 [owner](#group-owner) | Map    | Yes      |
-name | String | Yes      |
+[profile](#group-profile) | Map    | Yes      |
+[members](#group-member) | List   | Yes      |
 [sub-type](#group-sub-type) | String | No       |
 [referrer](#group-referrer) | String | No       |
-[members](#group-member) | List   | Yes      |
-[profile](#group-profile) | Map    | Yes      |
 
 Output | Type |
 ----|----|
@@ -1949,7 +1949,7 @@ Owner id if the owner type is tenant (podId) or user (userId), otherwise null.
 
 ##### <a name="owner-type"></a>type
 
-Owner type. Ony TENANT supported now.
+Owner type. Only TENANT supported now.
 
 Allowed values:
 
@@ -1989,16 +1989,16 @@ Update a group (distribution list). _Distribution List Manager role_ is required
 Key | Type   | Required |
 ------------ |--------|----------|
 group-id | String | Yes      |
-[status](#group-status) | String | Yes      |
 e-tag | String | Yes      |
+[status](#group-status) | String | Yes      |
+[owner](#group-owner) | Map    | Yes      |
+[profile](#group-profile) | Map    | Yes      |
+[members](#group-member) | List   | Yes      |
+name | String | No       |
 [image-path](#group-image-path) | String | No       |
 [type](#group-type) | String | No       |
-[owner](#group-owner) | Map    | Yes      |
-name | String | No       |
 [sub-type](#group-sub-type) | String | No       |
 [referrer](#group-referrer) | String | No       |
-[members](#group-member) | List   | Yes      |
-[profile](#group-profile) | Map    | Yes      |
 
 _Keys are similar to [group creation](#create-group)._
 
