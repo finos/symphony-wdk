@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.group;
 
 import com.symphony.bdk.ext.group.gen.api.model.BaseProfile;
+import com.symphony.bdk.ext.group.gen.api.model.CreateGroup.SubTypeEnum;
 import com.symphony.bdk.ext.group.gen.api.model.GroupImplicitConnection;
 import com.symphony.bdk.ext.group.gen.api.model.GroupInteractionTransfer;
 import com.symphony.bdk.ext.group.gen.api.model.GroupVisibilityRestriction;
@@ -45,11 +46,11 @@ public class CreateGroupExecutor implements ActivityExecutor<CreateGroup> {
         .interactionTransfer(toInteractionTransfer(createGroup.getInteractionTransfer()));
   }
 
-  private com.symphony.bdk.ext.group.gen.api.model.CreateGroup.SubTypeEnum toSubType(CreateGroup createGroup) {
+  private SubTypeEnum toSubType(CreateGroup createGroup) {
     if (createGroup.getSubType() == null) {
       return null;
     } else {
-      return com.symphony.bdk.ext.group.gen.api.model.CreateGroup.SubTypeEnum.valueOf(createGroup.getSubType());
+      return SubTypeEnum.valueOf(createGroup.getSubType());
     }
   }
 
