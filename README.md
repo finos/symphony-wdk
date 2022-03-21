@@ -20,9 +20,6 @@ blocks often calling REST API endpoints of the Symphony platform or can even be 
 - Concrete and advanced examples in the [gallery](https://github.com/finos/symphony-wdk-gallery)
 - [SWADL Reference](./docs/reference.md): syntax reference for the language used to write workflows
 
-
-:warning: _The WDK is very much in its inception and we are actually looking to get feedback on its usage. It also means
-all the APIs and the SWADL format are subject to change._
 <hr />
 
 ## Usage example

@@ -69,3 +69,6 @@ management:
         include: "*"
   server:
     port: 8081
+
+wdk:
+  version: @wdk.version@
