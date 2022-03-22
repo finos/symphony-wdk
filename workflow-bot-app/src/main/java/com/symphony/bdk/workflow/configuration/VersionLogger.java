@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow;
+package com.symphony.bdk.workflow.configuration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -9,15 +9,15 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
-public class WdkVersionLogger {
+public class VersionLogger {
 
-  @Value("${wdk.version}")
+  @Value("${version}")
   private String version;
 
   @PostConstruct
   private void logWdkVersion() {
     if (!StringUtils.isBlank(version)) {
-      log.info("Workflow Developer Kit's version: " + version);
+      log.info("Running with WDK version: {}", version);
     }
   }
 }

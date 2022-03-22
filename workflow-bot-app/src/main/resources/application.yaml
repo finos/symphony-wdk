@@ -1,6 +1,7 @@
 # Bot configuration
 workflows:
   folder: ./workflows
+
 # BDK configuration
 bdk:
   host:
@@ -8,6 +9,10 @@ bdk:
     username:
     privateKey:
       path:
+  default-headers:
+    User-Agent: "Symphony-WDK/@wdk.version@ Java/${java.version}"
+
+version: @wdk.version@
 
 # Camunda configuration
 camunda:
@@ -70,5 +75,3 @@ management:
   server:
     port: 8081
 
-wdk:
-  version: @wdk.version@
