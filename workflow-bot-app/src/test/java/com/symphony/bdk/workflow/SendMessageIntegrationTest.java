@@ -158,19 +158,22 @@ class SendMessageIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void sendMessageWithTemplateSuccessfull() throws IOException, ProcessingException {
+  void sendMessageWithTemplateSuccessful() throws IOException, ProcessingException {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-freemarker.swadl.yaml"));
 
     TemplateEngine templateEngine = TemplateEngine.getDefaultImplementation();
     when(messageService.templates()).thenReturn(templateEngine);
+    when(messageService.send(eq("123"), any(Message.class))).thenReturn(message("MSG_ID"));
+
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/send"));
 
     assertThat(workflow).isExecuted();
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
     verify(messageService, times(1)).send(eq("123"), messageArgumentCaptor.capture());
-    assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Hello world!\n</messageML>");
+    assertThat(messageArgumentCaptor.getValue().getContent())
+        .isEqualTo("<messageML>Hello <presentationML>world</presentationML> world!\n</messageML>");
   }
 
   @Test

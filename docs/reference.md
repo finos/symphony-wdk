@@ -782,6 +782,29 @@ Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are 
 template field. By default, it will search for the file in the `./workflows` root folder.
 When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file,
 same format as it is for the any other activity in the SWADL file.
+[Utility functions](#utility-functions) can also be used inside templates.
+
+Example using Freemarker:
+
+```yaml
+id: pingPong
+variables:
+  reply: pong
+activities:
+  - send-message:
+      id: pingPong
+      on:
+        message-received:
+          content: /ping {message}
+      content:
+        template: message-with-params.ftl
+```
+
+message-with-params.ftl
+
+```
+<messageML>${variables.reply}: ${wdk.text(event.source.message.message)}</messageML>
+```
 
 In case the content to send is PresentationML. The `text` function might come handy, it uses
 the [PresentationMLParser](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/message/util/PresentationMLParser.html)
@@ -798,27 +821,6 @@ activities:
           content: /echo
       content:
         ${text(event.source.message.message)}
-```
-
-Example using Freemarker:
-
-```yaml
-activities:
-  variables:
-    val: world
-           - send-message:
-           id: echo
-           on:
-             message-received:
-               content: /echo
-           content:
-             template: message-with-params.ftl
-```
-
-message-with-params.ftl
-
-```
-<messageML>Hello ${variables.val}</messageML>
 ```
 
 #### attachments
@@ -2210,7 +2212,7 @@ Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
 
 ## Utility functions
 
-WDK provides some utility functions that can be used to process data in SWADL.
+WDK provides some utility functions that can be used to process data in SWADL or in [templates](#send-message-content).
 
 ### Object json(String string)
 
