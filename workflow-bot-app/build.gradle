@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id 'workflow-bot.java-conventions'
     id 'org.springframework.boot' version '2.6.3'
@@ -81,4 +83,10 @@ publishing {
             artifact bootJar
         }
     }
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            "wdk.version": project.version
+    ]
 }
