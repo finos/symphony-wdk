@@ -1,6 +1,6 @@
 id: sendMessageWithTemplate
 variables:
-  val: world
+  val: <presentationML>world</presentationML>
 activities:
   - send-message:
       id: sendMessageTemplateWithParams

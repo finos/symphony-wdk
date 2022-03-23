@@ -24,6 +24,12 @@ import java.util.Map;
  */
 public class UtilityFunctionsMapper extends FunctionMapper {
 
+  /**
+   * How to call those functions from script tasks or from Freemarker templates.
+   * Usage: wdk.text(...) from a script or ${wdk.text(...)} from a template.
+   */
+  public static final String NAME = "wdk";
+
   private static final Map<String, Method> FUNCTION_MAP;
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -38,16 +44,16 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "emojis", Object.class));
   }
 
+  public Method resolveFunction(String prefix, String localName) {
+    return FUNCTION_MAP.get(localName);
+  }
+
   public static Object json(String string) {
     try {
       return objectMapper.readValue(string, Object.class);
     } catch (JsonProcessingException jsonProcessingException) {
       return string;
     }
-  }
-
-  public Method resolveFunction(String prefix, String localName) {
-    return FUNCTION_MAP.get(localName);
   }
 
   public static String text(String presentationMl) throws PresentationMLParserException {
