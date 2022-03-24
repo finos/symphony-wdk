@@ -20,9 +20,6 @@ blocks often calling REST API endpoints of the Symphony platform or can even be 
 - Concrete and advanced examples in the [gallery](https://github.com/finos/symphony-wdk-gallery)
 - [SWADL Reference](./docs/reference.md): syntax reference for the language used to write workflows
 
-
-:warning: _The WDK is very much in its inception and we are actually looking to get feedback on its usage. It also means
-all the APIs and the SWADL format are subject to change._
 <hr />
 
 ## Usage example
@@ -43,10 +40,10 @@ Java (JDK) 11 is required and Gradle is used to build the project.
 ```
 
 ## Contributing
-In order to get in touch with the project team, please open a [GitHub Issue](https://github.com/SymphonyPlatformSolutions/symphony-wdk/issues).
+In order to get in touch with the project team, please open a [GitHub Issue](https://github.com/finos/symphony-wdk/issues).
 Alternatively, you can email/subscribe to [symphony@finos.org](https://groups.google.com/a/finos.org/g/symphony).
 
-1. Fork it (<https://github.com/SymphonyPlatformSolutions/symphony-wdk>)
+1. Fork it (<https://github.com/finos/symphony-wdk>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 4. Check your code quality (`./gradlew check`)
@@ -58,13 +55,16 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
+### Thanks to all the people who have contributed
+[![contributors](https://contributors-img.web.app/image?repo=finos/symphony-wdk)](https://github.com/finos/symphony-wdk/graphs/contributors)
+
 ## Roadmap
 
 Checkout the [open issues](https://github.com/finos/symphony-wdk/issues).
 
 ## License
 
-Copyright 2021 Symphony LLC
+Copyright 2022 Symphony LLC
 
 Distributed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 

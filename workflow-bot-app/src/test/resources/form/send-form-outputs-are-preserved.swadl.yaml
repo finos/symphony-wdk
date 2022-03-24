@@ -1,0 +1,21 @@
+id: send-form-outputs-are-preserved
+activities:
+  - send-message:
+      id: init
+      on:
+        message-received:
+          content: /run_form_outputs_preserved
+      to:
+        stream-id: ABC
+      content: <form id="init"><button type="action" name="one">One</button></form>
+
+  - execute-script:
+      id: check
+      on:
+        form-replied:
+          form-id: init
+          exclusive: true
+      # we have both the form reply data and the outputs accessible
+      script: |
+        assert init.action == "one"
+        assert init.outputs.msgId.length() > 0

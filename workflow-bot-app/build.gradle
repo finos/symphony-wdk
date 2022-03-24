@@ -1,6 +1,8 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id 'workflow-bot.java-conventions'
-    id 'org.springframework.boot' version '2.5.4'
+    id 'org.springframework.boot' version '2.6.3'
 }
 
 javadoc {
@@ -10,11 +12,14 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.4.2')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.6.0')
+    implementation platform('com.fasterxml.jackson:jackson-bom:2.13.2')
+    implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.4')
 
-    implementation 'org.apache.httpcomponents.client5:httpclient5-fluent:5.1.1'
+    implementation 'org.apache.httpcomponents.client5:httpclient5-fluent:5.1.3'
 
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
+    implementation 'org.finos.symphony.bdk.ext:symphony-group-extension'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -31,12 +36,13 @@ dependencies {
     implementation 'org.camunda.spin:camunda-spin-core'
     implementation 'org.camunda.spin:camunda-spin-dataformat-json-jackson'
 
-    implementation 'org.codehaus.groovy:groovy-all:3.0.8'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.10'
 
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
+    implementation 'org.mozilla:rhino:1.7.14' // SNYK-JAVA-ORGMOZILLA-1314295
 
-    implementation 'org.apache.commons:commons-lang3:3.12'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'commons-io:commons-io:2.11.0'
     implementation('org.reflections:reflections:0.9.11') {
         version {
@@ -45,11 +51,11 @@ dependencies {
     }
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.2'
-    testImplementation 'org.assertj:assertj-core:3.20.2'
-    testImplementation 'org.awaitility:awaitility:4.1.0'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.31.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.awaitility:awaitility'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.32.0'
 }
 
 bootBuildImage {
@@ -77,4 +83,10 @@ publishing {
             artifact bootJar
         }
     }
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            "wdk.version": project.version
+    ]
 }

@@ -11,6 +11,7 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
+import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
@@ -114,11 +115,14 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     } else {
       String template = execution.getActivity().getTemplate();
       File file = execution.getResourceFile(Path.of(template));
+      Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
+      // also bind our utility functions so they can be used inside templates
+      templateVariables.put(UtilityFunctionsMapper.NAME, new UtilityFunctionsMapper());
       return execution.bdk()
           .messages()
           .templates()
           .newTemplateFromFile(file.getPath())
-          .process(execution.getVariables());
+          .process(templateVariables);
     }
   }
 

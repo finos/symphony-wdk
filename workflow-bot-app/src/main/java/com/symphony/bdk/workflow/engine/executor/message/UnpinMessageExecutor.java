@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow.engine.executor.message;
 import static com.symphony.bdk.workflow.engine.executor.message.PinMessageExecutor.IM;
 import static com.symphony.bdk.workflow.engine.executor.message.PinMessageExecutor.ROOM;
 
-import com.symphony.bdk.core.util.IdUtil;
 import com.symphony.bdk.gen.api.model.V1IMAttributes;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
@@ -20,8 +19,7 @@ public class UnpinMessageExecutor implements ActivityExecutor<UnpinMessage> {
 
   @Override
   public void execute(ActivityExecutorContext<UnpinMessage> execution) throws IOException {
-    // temporary workaround until BDK 2.4.1 is released
-    String streamId = IdUtil.toUrlSafeIdIfNeeded(execution.getActivity().getStreamId());
+    String streamId = execution.getActivity().getStreamId();
 
     V2StreamAttributes stream = execution.bdk().streams().getStream(streamId);
     String streamType = stream.getStreamType().getType();

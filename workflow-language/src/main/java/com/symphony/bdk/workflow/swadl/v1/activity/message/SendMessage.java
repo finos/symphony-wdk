@@ -18,6 +18,7 @@ public class SendMessage extends BaseActivity {
   @Nullable private To to;
   @Nullable private List<Attachment> attachments;
 
+  @SuppressWarnings("unchecked")
   public void setContent(Object content) {
     if (content instanceof Map) {
       setTemplate(((Map<String, String>) content).get("template"));

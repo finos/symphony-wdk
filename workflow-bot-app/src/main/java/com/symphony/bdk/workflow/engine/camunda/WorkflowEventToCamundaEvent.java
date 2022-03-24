@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import static java.util.Collections.singletonMap;
+
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.core.service.session.SessionService;
@@ -20,6 +22,7 @@ import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
+import com.symphony.bdk.workflow.engine.camunda.variable.FormVariableListener;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor;
@@ -141,6 +144,7 @@ public class WorkflowEventToCamundaEvent {
     return Optional.empty();
   }
 
+  @SuppressWarnings("unchecked")
   public <T> void dispatch(RealTimeEvent<T> event)
       throws PresentationMLParserException {
 
@@ -223,14 +227,15 @@ public class WorkflowEventToCamundaEvent {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private <T> void formReplyToMessage(RealTimeEvent<T> event,
       Map<String, Object> processVariables) {
     // we expect the activity id to be the same as the form id to work
-    // correlation across processes is based on the message id tha was created to send the form
+    // correlation across processes is based on the message id that was created to send the form
     V4SymphonyElementsAction implEvent = (V4SymphonyElementsAction) event.getSource();
     Map<String, Object> formReplies = (Map<String, Object>) implEvent.getFormValues();
     String formId = implEvent.getFormId();
-    processVariables.put(formId, formReplies);
+    processVariables.put(FormVariableListener.FORM_VARIABLES, singletonMap(formId, formReplies));
     runtimeService.createMessageCorrelation(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + formId)
         .processInstanceVariableEquals(
             String.format("%s.%s.%s",

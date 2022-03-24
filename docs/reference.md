@@ -9,7 +9,7 @@ read about its syntax on [Wikipedia](https://en.wikipedia.org/wiki/YAML#Syntax).
 In SWADL, at the top level, you mainly define the activities part of the workflow.
 
 Key     | Type    | Required |
---------------|---------|----------| 
+--------------|---------|----------|
 [id](#id)            | String  | Yes    |
 [variables](#variables)     | Map     | No     |
 [activities](#activities)    | List   | Yes     |
@@ -27,7 +27,8 @@ activities:
 
 ## id
 
-Workflow's id should start with a letter and should not contain empty spaces. It is required. The id will appear in logs and audit trails.
+Workflow's id should start with a letter and should not contain empty spaces. It is required. The id will appear in logs
+and audit trails.
 
 ## variables
 
@@ -66,7 +67,7 @@ events.
 Activities have common keys listed below:
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [id](#activity-id) | String | Yes |
 [on](#on) | Map | No |
 [if](#if) | String | No |
@@ -99,7 +100,7 @@ Events that can trigger the activity execution. **The first activity of a workfl
 [List of real-time events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
 
 Key     | Type    | Required |
---------------|---------|----------| 
+--------------|---------|----------|
 [Typed Event](#events)    | Map   | No     |
 [one-of](#one-of)     | List     | No     |
 [timeout](#timeout)  | String  | No    |
@@ -191,7 +192,7 @@ Generated when a message is sent in an IM, MIM, or chatroom of which the workflo
 sent by the user him/herself.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [content](#content) | String | No |
 [requires-bot-mention](#requires-bot-mention) | Boolean | No |
 
@@ -269,9 +270,8 @@ controls can be used as normal.
 
 _nb: Loops are only supported with forms that require only one reply._
 
-
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [form-id](#form-id) | String | Yes |
 [exclusive](#exclusive) | String | No |
 
@@ -448,7 +448,7 @@ This is usually used for forms when a specific activity is triggered upon expira
 longer valid or to collect results).
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [activity-id](#expired-activity-id) | String | Yes |
 
 Example:
@@ -502,7 +502,7 @@ If no event are set for a given activity this is the default event that will be 
 previously declared activity (hence the sequential ordering by default).
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [activity-id](#completed-activity-id) | String | Yes |
 [if](#completed-if) | String | No |
 
@@ -552,7 +552,7 @@ activities:
       id: start
       on:
         one-of:
-          # a slash command is used to trigger the workflow 
+          # a slash command is used to trigger the workflow
           - message-received:
               content: /execute
           # but this activity (once the workflow is running) can also start after the loop activity is executed
@@ -583,7 +583,7 @@ Generated when the given activity has failed. **Note this is not a Datafeed real
 Exceptions raised by activities will trigger this event. This gives a way to let the user know about a failure.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [activity-id](#failed-activity-id) | String | Yes |
 
 Example:
@@ -616,7 +616,7 @@ Timer based event. It is either triggered at a given point in time using the key
 keyword `repeat`. **Note this is not a Datafeed real-time event.**
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [at](#at) | String | Yes |
 [repeat](#repeat) | String | Yes |
 
@@ -648,7 +648,7 @@ called by external users to manually trigger a workflow execution. This event ca
 a workflow.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [token](#token) | String | Yes |
 
 Example:
@@ -697,7 +697,7 @@ key. [Custom activities](./custom-activities.md) can be defined too.
 Posts a message to a stream. Probably the most commonly used activity to interact with end-users.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [to](#to) | Map | No |
 [content](#send-message-content) | String/Object | Yes |
 [attachments](#attachments) | List | No |
@@ -728,7 +728,7 @@ If not set, the stream associated with the latest received event is used. This m
 user easy.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [stream-id](#stream-id) | String | Yes |
 [stream-ids](#stream-ids) | String | Yes |
 [user-ids](#user-ids) | Map | Yes |
@@ -771,17 +771,40 @@ Content can
 be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
-Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external file (Object).
-When using an external file the content has to be defined as follows:
+Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external
+file (Object). When using an external file the content has to be defined as follows:
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 template | String | Yes |
 
-Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the template field. 
-By default, it will search for the file in the `./workflows` root folder. 
-When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file, 
+Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the
+template field. By default, it will search for the file in the `./workflows` root folder.
+When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file,
 same format as it is for the any other activity in the SWADL file.
+[Utility functions](#utility-functions) can also be used inside templates.
+
+Example using Freemarker:
+
+```yaml
+id: pingPong
+variables:
+  reply: pong
+activities:
+  - send-message:
+      id: pingPong
+      on:
+        message-received:
+          content: /ping {message}
+      content:
+        template: message-with-params.ftl
+```
+
+message-with-params.ftl
+
+```
+<messageML>${variables.reply}: ${wdk.text(event.source.message.message)}</messageML>
+```
 
 In case the content to send is PresentationML. The `text` function might come handy, it uses
 the [PresentationMLParser](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/message/util/PresentationMLParser.html)
@@ -799,23 +822,6 @@ activities:
       content:
         ${text(event.source.message.message)}
 ```
-Example using Freemarker:
-```yaml
-activities:
-  variables:
-    val: world
-  - send-message:
-      id: echo
-      on:
-        message-received:
-          content: /echo
-      content: 
-        template: message-with-params.ftl
-```
-message-with-params.ftl 
-```
-<messageML>Hello ${variables.val}</messageML>
-```
 
 #### attachments
 
@@ -823,7 +829,7 @@ One or more attachments to be sent along with the message. It can be either an e
 or a file local to the bot. Previews are not supported.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [message-id](#message-id) | String | Yes |
 [attachment-id](#attachment-id) | Map | No |
 
@@ -849,6 +855,7 @@ encoded urls are accepted.
 Path to the file to be attached to the message. The path is relative to the workflows folder.
 
 ### update-message
+
 Update an existing message into a stream. Returns the new updated message.
 
 Key | Type | Required |
@@ -866,6 +873,7 @@ msgId | String
 Message id of the message to be updated. Both url safe and base64 encoded urls are accepted
 
 ### pin-message
+
 Pin an existing message into the stream it belongs to. It works for both Instant Messages and Rooms.
 
 Key | Type | Required |
@@ -877,6 +885,7 @@ Depending on the stream type the activity will either call the
 [Update IM](https://developers.symphony.com/restapi/v20.13/reference#update-im) endpoint.
 
 ### unpin-message
+
 Unpin any message (if present) from an existing stream. It works for both Instant Messages and Rooms.
 
 Key | Type | Required |
@@ -928,7 +937,8 @@ Example: _2021-08-31T15:50:00Z_
 
 ### get-attachment
 
-Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id and stored under a folder with the executed process id.
+Downloads an attachment to file system and returns its path. The stored file is suffixed with the executed activity id
+and stored under a folder with the executed process id.
 
 An attachment named **_logo.png_** will be stored under _./workflows/**$PROCESS_ID**/**$ACTIVITY_ID**-logo.png_.
 
@@ -943,14 +953,15 @@ Output | Type |
 ----|----|
 attachmentPath | String
 
-[API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs as the api response)
+[API reference](https://developers.symphony.com/restapi/reference#attachment) (Activity does not return the same outputs
+as the api response)
 
 ### create-room
 
 Creates a new chatroom.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [room-name](#room-name) | String | Yes |
 [room-description](#room-description) | String | Yes |
 [user-ids](#create-room-user-ids) | List | Yes |
@@ -1008,7 +1019,7 @@ read-only and can’t be updated.
 Updates the attributes of an existing chat room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [stream-id](#update-room-stream-id) | String | Yes |
 [room-name](#room-name) | String | Yes |
 [room-description](#room-description) | String | Yes |
@@ -1087,7 +1098,7 @@ If false, the room is not active anymore.
 Adds new members to an existing room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1110,7 +1121,7 @@ activities:
 Removes members from an existing room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1121,7 +1132,7 @@ user-ids | List | Yes |
 Promotes user to owner of the chat room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1132,7 +1143,7 @@ user-ids | List | Yes |
 Demotes room owner to a participant in the chat room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1370,7 +1381,7 @@ members | List of [MemberInfo](https://javadoc.io/doc/org.finos.symphony.bdk/sym
 Creates a new end user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [email](#email) | String | Yes |
 [firstname](#firstname) | String | Yes |
 [lastname](#lastname) | String | Yes |
@@ -1422,7 +1433,7 @@ User's password. The password object is optional. For example, if your organizat
 specify the password.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 hashed-password | String | Yes |
 hashed-salt | String | Yes |
 hashed-km-password | String | No |
@@ -1441,7 +1452,7 @@ Example: _en-US_
 Contact information.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 work-phone-number | String | No |
 mobile-phone-number| String | No |
 two-factor-auth-number | String | No |
@@ -1452,7 +1463,7 @@ sms-number | String | No |
 Business information.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 company-name | String | No |
 department | String | No |
 division | String | No |
@@ -1615,7 +1626,7 @@ User status: ENABLED or DISABLED.
 Updates an existing end user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 user-id | String | Yes |
 [email](#email) | String | No |
 [firstname](#firstname) | String | No |
@@ -1643,7 +1654,7 @@ user | [V2UserDetail](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk
 Creates a new service user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [email](#email) | String | Yes |
 [display-name](#display-name) | String | Yes |
 [username](#username) | String | Yes |
@@ -1666,14 +1677,14 @@ Example: [create system user workflow](./examples/create-service-account.swadl.y
 For service users, to set up the RSA keys for authentication.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [current](#key) | String | Yes |
 [previous](#key) | String | Yes |
 
 ##### current / previous (key)
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [action](#action) | String | Yes |
 [key](#key) | String | Yes |
 [expiration](#expiration) | String | No |
@@ -1706,7 +1717,7 @@ is only set for rotated keys.
 Updates an existing service user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 user-id | String | Yes |
 [email](#email) | String | No |
 [display-name](#display-name) | String | No |
@@ -1876,7 +1887,7 @@ user-id | String | Yes |
 
 ### get-connections
 
-Get one or multiple connections statuses
+Get one or multiple connections statuses.
 
 Key | Type | Required |
 ------------ | -------| --- |
@@ -1903,6 +1914,201 @@ Allowed values:
 - REJECTED
 - ALL
 
+### create-group
+
+Create a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+name | String | Yes      |
+[type](#group-type) | String | Yes      |
+[owner](#group-owner) | Map    | Yes      |
+[profile](#group-profile) | Map    | Yes      |
+[members](#group-member) | List   | Yes      |
+[sub-type](#group-sub-type) | String | No       |
+[referrer](#group-referrer) | String | No       |
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/insertgroup)
+
+#### <a name="group-type"></a>type
+
+Group type identifier (for instance SDL).
+
+#### <a name="group-owner"></a>owner
+
+Key | Type   | Required |
+------------ |--------| --- |
+[id](#owner-id) | String | Yes |
+[type](#owner-type) | String | Yes |
+
+##### <a name="owner-id"></a>id
+
+Owner id if the owner type is tenant (podId) or user (userId), otherwise null.
+
+##### <a name="owner-type"></a>type
+
+Owner type. Only TENANT supported now.
+
+Allowed values:
+
+- TENANT
+- PLATFORM
+- USER
+
+#### <a name="group-sub-type"></a>sub-type
+
+The type of the company new groupType.
+
+Allowed values:
+
+- COMMUNITY
+- CHANNEL
+
+#### <a name="group-referrer"></a>referrer
+
+Symphony, referring company name, referring channel partner name.
+
+#### <a name="group-member"></a>members
+
+Key | Type    | Required |
+------------ |---------| --- |
+user-id | Integer  | Yes |
+tenant-id | Integer | Yes |
+
+#### <a name="group-profile"></a>profile
+
+See [API](https://developers.symphony.com/restapi/reference/insertgroup) for details.
+At least `display-name` should be set. Job properties are grouped under a `job` entry.
+
+### update-group
+
+Update a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+group-id | String | Yes      |
+e-tag | String | Yes      |
+[status](#group-status) | String | Yes      |
+[owner](#group-owner) | Map    | Yes      |
+[profile](#group-profile) | Map    | Yes      |
+[members](#group-member) | List   | Yes      |
+name | String | No       |
+[image-path](#group-image-path) | String | No       |
+[type](#group-type) | String | No       |
+[sub-type](#group-sub-type) | String | No       |
+[referrer](#group-referrer) | String | No       |
+
+_Keys are similar to [group creation](#create-group)._
+
+E-tag must be passed and can be retrieved from a group with the [get-group](#get-group) activity. It is used to avoid
+concurrent updates.
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/updategroup)
+
+#### <a name="group-status"></a>status
+
+Status flag to distinguish between active and deleted objects.
+
+Allowed values:
+
+- ACTIVE
+- DELETED
+
+#### <a name="group-image-path"></a>image-path
+
+Path to the image file to be used as the group's avatar. The path is relative to the workflows folder.
+
+### get-group
+
+Retrieve a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+group-id | String | Yes      |
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/getgroup)
+
+### get-groups
+
+Retrieve groups of specified type (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+[type](#group-type) | String | Yes      |
+[status](#group-status) | String | No       |
+[before](#group-before) | String | No       |
+[after](#group-after) | String | No       |
+[limit](#group-limit) | String | No       |
+[sort-order](#group-sort-order) | String | No       |
+
+Output | Type |
+----|----|
+groups | [GroupList](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/GroupList.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/listgroups)
+
+#### <a name="group-type"></a>type
+
+Group type id.
+
+#### <a name="group-status"></a>status
+
+Filter by status, active or deleted. If not specified both are returned.
+
+Allowed values:
+
+- ACTIVE
+- DELETED
+
+#### <a name="group-before"></a>before
+
+Not supported yet, currently ignored. Cursor that points to the start of the current page of data. If not present, the
+current page is the first page.
+
+#### <a name="group-after"></a>after
+
+Cursor that points to the end of the current page of data. If not present, the current page is the last page.
+
+#### <a name="group-limit"></a>limit
+
+Numbers of items to return.
+
+#### <a name="group-sort-order"></a>sort-order
+
+Items sorting direction (ordered by creation date).
+
+Allowed values:
+
+- ASC
+- DESC
+
+### add-group-member
+
+Add members to a group (distribution list). _Distribution List Manager role_ is required to use this activity.
+
+Key | Type   | Required |
+------------ |--------|----------|
+group-id | String | Yes      |
+[members](#group-member) | List   | Yes      |
+
+Output | Type |
+----|----|
+group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-group-extension/latest/com/symphony/bdk/ext/group/gen/api/model/ReadGroup.html)
+
+[API reference](https://developers.symphony.com/restapi/reference/addmembertogroup)
+
 ### execute-request
 
 Executes an HTTP request.
@@ -1914,17 +2120,17 @@ Key | Type | Required |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
 
-
 Output | Type |
 ----|----|
 body | Object/String
 status | Integer
 
-If the response body has a `application/json` content type then the `body` output is parsed into a
-JSON object (if possible) otherwise it will a string. Please note that this approach comes with limitations
-and that the `execute-request` activity should not be used to download large payloads.
+If the response body has a `application/json` content type then the `body` output is parsed into a JSON object (if
+possible) otherwise it will a string. Please note that this approach comes with limitations and that
+the `execute-request` activity should not be used to download large payloads.
 
 Example:
+
 ```yaml
 activities:
   - execute-request:
@@ -1942,16 +2148,19 @@ activities:
       to:
         stream-id: A_STREAM
       content: ${myRequest.outputs.body.message} # Send a message with content "Hello Bob"
-      
+
 ```
 
 #### url
+
 String that contains the host and the path to be targeted.
 
 #### method
+
 HTTP method to perform. GET is the default one.
 
 Supported methods are:
+
 - DELETE
 - GET
 - HEAD
@@ -1961,14 +2170,16 @@ Supported methods are:
 - PUT
 
 #### body
-HTTP request body.
-It can be provided as an object (for `application/json` or `multiplart/form content` type) or as a string.
+
+HTTP request body. It can be provided as an object (for `application/json` or `multiplart/form content` type) or as a
+string.
 
 When `multipart/form` content type is used, only key/value object is supported.
 
 #### headers
-HTTP request headers. A map of key/value entries is expected. Simple types
-such as numbers, string and booleans as well as lists and maps are supported.
+
+HTTP request headers. A map of key/value entries is expected. Simple types such as numbers, string and booleans as well
+as lists and maps are supported.
 
 Unless set explicitly the `Content-Type` header will be `application/json` by default.
 
@@ -2000,14 +2211,17 @@ activities:
 Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
 
 ## Utility functions
-WDK provides some utility functions that can be used to process data in SWADL.
+
+WDK provides some utility functions that can be used to process data in SWADL or in [templates](#send-message-content).
 
 ### Object json(String string)
-This method is used to convert a String in JSON format to an Object in order to be processed as a JSON.
-It returns a String if the parameter is a simple String.
+
+This method is used to convert a String in JSON format to an Object in order to be processed as a JSON. It returns a
+String if the parameter is a simple String.
 
 Example:
 in [send-message](#send-message)
+
 ```yaml
 variables:
   aJson: "{\"result\": { \"code\": 200, \"message\": \"success\" } }"
@@ -2019,10 +2233,11 @@ activities:
 
   - send-message: # will send the string content
       id: processJsonString
-      content: ${json(variables.aString)} 
+      content: ${json(variables.aString)}
 ```
 
 in [execute-script](#execute-script)
+
 ````yaml
 activities:
   - execute-script:
@@ -2033,11 +2248,13 @@ activities:
 ````
 
 ### String text(String presentationMl)
+
 This method is used to convert a PresentationML String to a text.
 
 Example:
 
 in [send-message](#send-message)
+
 ```yaml
 variables:
   presentationML: "<div data-format=\"PresentationML\" data-version=\"2.0\">started</div>"
@@ -2048,6 +2265,7 @@ activities:
 ```
 
 in [execute-script](#execute-script)
+
 ````yaml
 activities:
   - execute-script:
@@ -2057,11 +2275,13 @@ activities:
 ````
 
 ### String escape(String string)
+
 This method will escape text contents using JSON standard escaping, and return results as a String.
 
 Example:
 
 in [send-message](#send-message)
+
 ```yaml
 activities:
   - send-message:
@@ -2070,6 +2290,7 @@ activities:
 ```
 
 in [execute-script](#execute-script)
+
 ````yaml
 activities:
   - execute-script:

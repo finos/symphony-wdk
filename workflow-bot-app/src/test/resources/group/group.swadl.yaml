@@ -1,0 +1,61 @@
+id: group
+activities:
+  - create-group:
+      id: create
+      on:
+        message-received:
+          content: /start-group
+      type: SDL
+      name: test-group
+      profile:
+        display-name: Test
+      members:
+        - tenant-id: 190
+          user-id: 123
+      owner:
+        id: 123
+        type: TENANT
+  - update-group:
+      id: update
+      group-id: ${create.outputs.group.id}
+      e-tag: ${create.outputs.group.eTag}
+      name: test-group
+      status: ACTIVE
+      profile:
+        display-name: Test updated
+      owner:
+        id: 190
+        type: TENANT
+      members:
+        - tenant-id: 190
+          user-id: 123
+  - execute-script:
+      id: checkUpdate
+      script: |
+        assert create.outputs.group.id == update.outputs.group.id
+  - add-group-member:
+      id: add
+      group-id: ${create.outputs.group.id}
+      members:
+        - user-id: 123
+          tenant-id: 1
+        - user-id: 456
+          tenant-id: 2
+  - update-group:
+      id: updateAvatar
+      group-id: ${create.outputs.group.id}
+      image-path: "/attachments/logo.png"
+  - get-group:
+      id: get
+      group-id: ${create.outputs.group.id}
+  - execute-script:
+      id: checkGet
+      script: |
+        assert create.outputs.group.id == get.outputs.group.id
+  - get-groups:
+      id: gets
+      type: SDL
+  - execute-script:
+      id: checkGets
+      script: |
+        assert create.outputs.group.id == gets.outputs.groups.data[0].id

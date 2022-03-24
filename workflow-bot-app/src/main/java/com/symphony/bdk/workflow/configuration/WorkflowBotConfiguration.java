@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.configuration;
 
+import com.symphony.bdk.ext.group.SymphonyGroupBdkExtension;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -15,5 +16,10 @@ public class WorkflowBotConfiguration {
   public ResourceProvider workflowResourcesProvider(@Value("${workflows.folder}") String resourcesFolder) {
     // ./workflows folder is used both to load workflows and local resources
     return new WorkflowResourcesProvider(resourcesFolder);
+  }
+
+  @Bean
+  public SymphonyGroupBdkExtension groupExtension() {
+    return new SymphonyGroupBdkExtension();
   }
 }
