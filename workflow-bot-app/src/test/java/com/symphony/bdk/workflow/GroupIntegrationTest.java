@@ -28,7 +28,7 @@ class GroupIntegrationTest extends IntegrationTest {
         .thenReturn(new ReadGroup().id("group-id-123"));
     when(groupService.updateAvatar(any(), any())).thenReturn(new ReadGroup().id("group-id-123"));
     when(groupService.getGroup("group-id-123")).thenReturn(new ReadGroup().id("group-id-123"));
-    when(groupService.listGroups(any(), any(), any(), any(), any(), any())).thenReturn(
+    when(groupService.listGroups(any(), any(), any(), any(), any())).thenReturn(
         new GroupList().addDataItem(new ReadGroup().id("group-id-123")));
 
     engine.deploy(workflow);

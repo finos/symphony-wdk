@@ -9,7 +9,6 @@ import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecuto
 import com.symphony.bdk.ext.group.gen.api.model.Owner;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
-import com.symphony.bdk.ext.group.gen.api.model.UploadAvatar;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.group.CreateGroup;
@@ -34,8 +33,7 @@ public class UpdateGroupExecutor implements ActivityExecutor<UpdateGroup> {
     if (execution.getActivity().getImagePath() != null) {
       try (InputStream image = execution.getResource(Path.of(execution.getActivity().getImagePath()))) {
         updatedGroup = execution.bdk().groups().updateAvatar(execution.getActivity().getGroupId(),
-            new UploadAvatar().image(
-                IOUtils.toByteArray(image)));
+                IOUtils.toByteArray(image));
         // update etag in case we want to update other fields too
         execution.getActivity().setEtag(updatedGroup.geteTag());
       }
