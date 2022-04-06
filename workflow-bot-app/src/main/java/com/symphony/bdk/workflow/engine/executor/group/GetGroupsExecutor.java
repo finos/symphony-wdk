@@ -18,14 +18,13 @@ public class GetGroupsExecutor implements ActivityExecutor<GetGroups> {
   public void execute(ActivityExecutorContext<GetGroups> execution) {
     log.debug("Getting groups");
 
-    String typeId = execution.getActivity().getType();
     Status status = toStatus(execution.getActivity().getStatus());
     Integer limit = execution.getActivity().getLimit();
     SortOrder sort = toSortOrder(execution.getActivity().getSortOrder());
     String before = execution.getActivity().getBefore();
     String after = execution.getActivity().getAfter();
 
-    GroupList groups = execution.bdk().groups().listGroups(typeId, status, before, after, limit, sort);
+    GroupList groups = execution.bdk().groups().listGroups(status, before, after, limit, sort);
 
     execution.setOutputVariable(OUTPUTS_GROUP_KEY, groups);
   }
