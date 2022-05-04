@@ -10,6 +10,7 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
 import org.springframework.util.MultiValueMap;
@@ -99,8 +100,10 @@ public class UtilityFunctionsMapper extends FunctionMapper {
       encodedBuilder.append(":").append(uriComponents.getPort());
     }
 
-    if (uriComponents.getPath() != null) {
-      encodedBuilder.append(uriComponents.getPath()).append("?");
+    encodedBuilder.append(uriComponents.getPath());
+
+    if (StringUtils.isNotBlank(rawQuery)) {
+      encodedBuilder.append("?");
     }
 
     encodedBuilder.append(rawQuery);
