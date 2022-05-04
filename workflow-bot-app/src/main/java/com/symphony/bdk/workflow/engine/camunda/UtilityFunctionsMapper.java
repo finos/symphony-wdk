@@ -12,12 +12,20 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utilities for EL evaluation by Camunda.
@@ -65,6 +73,47 @@ public class UtilityFunctionsMapper extends FunctionMapper {
       return null;
     }
     return new String(JsonStringEncoder.getInstance().quoteAsString(s));
+  }
+
+  public static String encodeRawQuery(String url) throws UnsupportedEncodingException {
+    return encodeRawQuery(url, StandardCharsets.UTF_8.name());
+  }
+
+  public static String encodeRawQuery(String url, String encoding)
+      throws UnsupportedEncodingException {
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString(url).build();
+    MultiValueMap<String, String> queryParamsMap = uriComponents.getQueryParams();
+
+    String rawQuery = uriComponents.getQueryParams()
+        .keySet()
+        .stream()
+        .map(key ->
+            key + "=" + queryParamsMap.get(key).get(0))
+        .collect(Collectors.joining("&"));
+
+    rawQuery = URLEncoder.encode(rawQuery, encoding);
+
+    StringBuilder encodedBuilder = new StringBuilder(uriComponents.getScheme() + "://" + uriComponents.getHost());
+
+    if (uriComponents.getPort() != -1) {
+      encodedBuilder.append(":").append(uriComponents.getPort());
+    }
+
+    if (uriComponents.getPath() != null) {
+      encodedBuilder.append(uriComponents.getPath()).append("?");
+    }
+
+    encodedBuilder.append(rawQuery);
+
+    return encodedBuilder.toString();
+  }
+
+  public static String decodeRawQuery(String url) throws UnsupportedEncodingException {
+    return URLDecoder.decode(url, StandardCharsets.UTF_8.name());
+  }
+
+  public static String decodeRawQuery(String url, String encoding) throws UnsupportedEncodingException {
+    return URLDecoder.decode(url, encoding);
   }
 
   @SuppressWarnings("rawtypes")
