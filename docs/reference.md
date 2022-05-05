@@ -9,7 +9,7 @@ read about its syntax on [Wikipedia](https://en.wikipedia.org/wiki/YAML#Syntax).
 In SWADL, at the top level, you mainly define the activities part of the workflow.
 
 Key     | Type    | Required |
---------------|---------|----------| 
+--------------|---------|----------|
 [id](#id)            | String  | Yes    |
 [variables](#variables)     | Map     | No     |
 [activities](#activities)    | List   | Yes     |
@@ -67,7 +67,7 @@ events.
 Activities have common keys listed below:
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [id](#activity-id) | String | Yes |
 [on](#on) | Map | No |
 [if](#if) | String | No |
@@ -100,7 +100,7 @@ Events that can trigger the activity execution. **The first activity of a workfl
 [List of real-time events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
 
 Key     | Type    | Required |
---------------|---------|----------| 
+--------------|---------|----------|
 [Typed Event](#events)    | Map   | No     |
 [one-of](#one-of)     | List     | No     |
 [timeout](#timeout)  | String  | No    |
@@ -192,7 +192,7 @@ Generated when a message is sent in an IM, MIM, or chatroom of which the workflo
 sent by the user him/herself.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [content](#content) | String | No |
 [requires-bot-mention](#requires-bot-mention) | Boolean | No |
 
@@ -271,7 +271,7 @@ controls can be used as normal.
 _nb: Loops are only supported with forms that require only one reply._
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [form-id](#form-id) | String | Yes |
 [exclusive](#exclusive) | String | No |
 
@@ -448,7 +448,7 @@ This is usually used for forms when a specific activity is triggered upon expira
 longer valid or to collect results).
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [activity-id](#expired-activity-id) | String | Yes |
 
 Example:
@@ -502,7 +502,7 @@ If no event are set for a given activity this is the default event that will be 
 previously declared activity (hence the sequential ordering by default).
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [activity-id](#completed-activity-id) | String | Yes |
 [if](#completed-if) | String | No |
 
@@ -552,7 +552,7 @@ activities:
       id: start
       on:
         one-of:
-          # a slash command is used to trigger the workflow 
+          # a slash command is used to trigger the workflow
           - message-received:
               content: /execute
           # but this activity (once the workflow is running) can also start after the loop activity is executed
@@ -583,7 +583,7 @@ Generated when the given activity has failed. **Note this is not a Datafeed real
 Exceptions raised by activities will trigger this event. This gives a way to let the user know about a failure.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [activity-id](#failed-activity-id) | String | Yes |
 
 Example:
@@ -616,7 +616,7 @@ Timer based event. It is either triggered at a given point in time using the key
 keyword `repeat`. **Note this is not a Datafeed real-time event.**
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [at](#at) | String | Yes |
 [repeat](#repeat) | String | Yes |
 
@@ -648,7 +648,7 @@ called by external users to manually trigger a workflow execution. This event ca
 a workflow.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [token](#token) | String | Yes |
 
 Example:
@@ -697,7 +697,7 @@ key. [Custom activities](./custom-activities.md) can be defined too.
 Posts a message to a stream. Probably the most commonly used activity to interact with end-users.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [to](#to) | Map | No |
 [content](#send-message-content) | String/Object | Yes |
 [attachments](#attachments) | List | No |
@@ -728,7 +728,7 @@ If not set, the stream associated with the latest received event is used. This m
 user easy.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [stream-id](#stream-id) | String | Yes |
 [stream-ids](#stream-ids) | String | Yes |
 [user-ids](#user-ids) | Map | Yes |
@@ -775,7 +775,7 @@ Content can either be set directly in the SWADL file as plain text (String) or i
 file (Object). When using an external file the content has to be defined as follows:
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 template | String | Yes |
 
 Both [Freemarker](https://freemarker.apache.org/) (.ftl) and mml.xml format are accepted as external files in the
@@ -829,7 +829,7 @@ One or more attachments to be sent along with the message. It can be either an e
 or a file local to the bot. Previews are not supported.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [message-id](#message-id) | String | Yes |
 [attachment-id](#attachment-id) | Map | No |
 
@@ -961,7 +961,7 @@ as the api response)
 Creates a new chatroom.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [room-name](#room-name) | String | Yes |
 [room-description](#room-description) | String | Yes |
 [user-ids](#create-room-user-ids) | List | Yes |
@@ -1019,7 +1019,7 @@ read-only and can’t be updated.
 Updates the attributes of an existing chat room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [stream-id](#update-room-stream-id) | String | Yes |
 [room-name](#room-name) | String | Yes |
 [room-description](#room-description) | String | Yes |
@@ -1098,7 +1098,7 @@ If false, the room is not active anymore.
 Adds new members to an existing room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1121,7 +1121,7 @@ activities:
 Removes members from an existing room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1132,7 +1132,7 @@ user-ids | List | Yes |
 Promotes user to owner of the chat room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1143,7 +1143,7 @@ user-ids | List | Yes |
 Demotes room owner to a participant in the chat room.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 stream-id | String | Yes |
 user-ids | List | Yes |
 
@@ -1381,7 +1381,7 @@ members | List of [MemberInfo](https://javadoc.io/doc/org.finos.symphony.bdk/sym
 Creates a new end user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [email](#email) | String | Yes |
 [firstname](#firstname) | String | Yes |
 [lastname](#lastname) | String | Yes |
@@ -1433,7 +1433,7 @@ User's password. The password object is optional. For example, if your organizat
 specify the password.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 hashed-password | String | Yes |
 hashed-salt | String | Yes |
 hashed-km-password | String | No |
@@ -1452,7 +1452,7 @@ Example: _en-US_
 Contact information.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 work-phone-number | String | No |
 mobile-phone-number| String | No |
 two-factor-auth-number | String | No |
@@ -1463,7 +1463,7 @@ sms-number | String | No |
 Business information.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 company-name | String | No |
 department | String | No |
 division | String | No |
@@ -1626,7 +1626,7 @@ User status: ENABLED or DISABLED.
 Updates an existing end user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 user-id | String | Yes |
 [email](#email) | String | No |
 [firstname](#firstname) | String | No |
@@ -1654,7 +1654,7 @@ user | [V2UserDetail](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk
 Creates a new service user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [email](#email) | String | Yes |
 [display-name](#display-name) | String | Yes |
 [username](#username) | String | Yes |
@@ -1677,14 +1677,14 @@ Example: [create system user workflow](./examples/create-service-account.swadl.y
 For service users, to set up the RSA keys for authentication.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [current](#key) | String | Yes |
 [previous](#key) | String | Yes |
 
 ##### current / previous (key)
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 [action](#action) | String | Yes |
 [key](#key) | String | Yes |
 [expiration](#expiration) | String | No |
@@ -1717,7 +1717,7 @@ is only set for rotated keys.
 Updates an existing service user.
 
 Key | Type | Required |
------------- | -------| --- | 
+------------ | -------| --- |
 user-id | String | Yes |
 [email](#email) | String | No |
 [display-name](#display-name) | String | No |
@@ -2155,6 +2155,8 @@ activities:
 
 String that contains the host and the path to be targeted.
 
+The query parameters values are encoded with UTF-8 format by the activity.
+
 #### method
 
 HTTP method to perform. GET is the default one.
@@ -2233,7 +2235,7 @@ activities:
 
   - send-message: # will send the string content
       id: processJsonString
-      content: ${json(variables.aString)} 
+      content: ${json(variables.aString)}
 ```
 
 in [execute-script](#execute-script)
