@@ -134,23 +134,6 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/request/execute-request-encode-query-parameters.swadl.yaml"));
 
-    /*putFirstActivityUrl(workflow, wmRunTimeInfo.getHttpBaseUrl() + "/api");//?key1=value 1&key2=value@!$2&key3=value%3");
-
-
-    Map<String, StringValuePattern> stringStringValuePatternMap = new HashMap<>();
-    stringStringValuePatternMap.put("key1", equalTo("value+1"));
-    stringStringValuePatternMap.put("key2", equalTo("value%40%21%242"));
-    stringStringValuePatternMap.put("key3", equalTo("value%253"));
-    //.withQueryParams(stringStringValuePatternMap)
-    stubFor(post(UrlPattern.ANY)
-        .willReturn(ok().withHeader("Content-Type", "application/json").withBody("{\"response\": \"ok\"}")));
-
-    engine.deploy(workflow);
-
-    engine.onEvent(messageReceived("/execute"));
-
-    System.out.println("debug");*/
-
     putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api?key1=v 1&key2=value@!$2&key3=value%3");
 
     Map<String, StringValuePattern> stringStringValuePatternMap = new HashMap<>();
