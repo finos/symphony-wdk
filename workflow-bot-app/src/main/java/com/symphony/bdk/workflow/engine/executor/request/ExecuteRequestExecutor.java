@@ -60,8 +60,9 @@ public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> 
     MultiValueMap<String, String> queryParamsMap =
         UriComponentsBuilder.fromUriString(fullUrl).build().getQueryParams();
 
-    if (splitUrl.length > 1) {
+    if (!queryParamsMap.isEmpty()) {
       log.info("Encoding query parameters with Standard UTF-8 format");
+
       String rawQuery = queryParamsMap
           .keySet()
           .stream()
