@@ -21,13 +21,16 @@ import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @WireMockTest
@@ -124,6 +127,47 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     assertThat(workflow).as("The workflow fails on runtime exception")
         .executed("executeGetRequest")
         .notExecuted("assertionScript");
+  }
+
+  @Test
+  void executeRequestEncodeQueryParameters(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/request/execute-request-encode-query-parameters.swadl.yaml"));
+
+    /*putFirstActivityUrl(workflow, wmRunTimeInfo.getHttpBaseUrl() + "/api");//?key1=value 1&key2=value@!$2&key3=value%3");
+
+
+    Map<String, StringValuePattern> stringStringValuePatternMap = new HashMap<>();
+    stringStringValuePatternMap.put("key1", equalTo("value+1"));
+    stringStringValuePatternMap.put("key2", equalTo("value%40%21%242"));
+    stringStringValuePatternMap.put("key3", equalTo("value%253"));
+    //.withQueryParams(stringStringValuePatternMap)
+    stubFor(post(UrlPattern.ANY)
+        .willReturn(ok().withHeader("Content-Type", "application/json").withBody("{\"response\": \"ok\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    System.out.println("debug");*/
+
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api?key1=v 1&key2=value@!$2&key3=value%3");
+
+    Map<String, StringValuePattern> stringStringValuePatternMap = new HashMap<>();
+    stringStringValuePatternMap.put("key1", equalTo("v 1"));
+    stringStringValuePatternMap.put("key2", equalTo("value@!$2"));
+    stringStringValuePatternMap.put("key3", equalTo("value%3"));
+
+    stubFor(post(UrlPattern.ANY)
+        .withQueryParams(stringStringValuePatternMap)
+        .willReturn(ok().withHeader("Content-Type", "application/json")
+            .withBody("{\"message\": \"ok\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted().executed("executeRequestWithQueryParams", "assertionScript");
   }
 
   private void putFirstActivityUrl(Workflow workflow, String url) {
