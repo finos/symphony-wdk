@@ -1,4 +1,4 @@
-id: execute-head-request
+id: execute-request-to-encode-query-params
 activities:
   - execute-request:
       id: executeRequestWithQueryParams
