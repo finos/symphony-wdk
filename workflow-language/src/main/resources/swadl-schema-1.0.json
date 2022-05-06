@@ -1670,6 +1670,14 @@
                     "description": "Contains the host and the path to be targeted",
                     "minLength": 1
                 },
+                "encode-query-params": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If enabled, the query parameters will be encoded in application/x-www-form-urlencoded",
+                    "default": true
+                },
                 "method": {
                     "type": "string",
                     "description": "HTTP method to perform",

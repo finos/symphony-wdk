@@ -19,4 +19,5 @@ public class ExecuteRequest extends BaseActivity {
   private String method = "GET";
   private Object body;
   private Map<String, Object> headers = Collections.emptyMap();
+  private boolean encodeQueryParams = true;
 }

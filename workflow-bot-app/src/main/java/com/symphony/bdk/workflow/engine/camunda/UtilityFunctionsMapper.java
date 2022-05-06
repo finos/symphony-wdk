@@ -45,6 +45,8 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put("text", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "text", String.class));
     FUNCTION_MAP.put("json", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "json", String.class));
     FUNCTION_MAP.put("escape", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "escape", String.class));
+    FUNCTION_MAP.put("encodeQueryParameters",
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, "encodeQueryParameters", Object.class));
     FUNCTION_MAP.put("mentions", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "mentions", Object.class));
     FUNCTION_MAP.put("hashTags", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "hashTags", Object.class));
     FUNCTION_MAP.put("cashTags", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "cashTags", Object.class));

@@ -32,7 +32,10 @@ public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> 
   @Override
   public void execute(ActivityExecutorContext<ExecuteRequest> execution) throws IOException {
     ExecuteRequest activity = execution.getActivity();
-    activity.setUrl(UtilityFunctionsMapper.encodeQueryParameters(activity.getUrl()));
+
+    if (activity.isEncodeQueryParams()) {
+      activity.setUrl(UtilityFunctionsMapper.encodeQueryParameters(activity.getUrl()));
+    }
 
     log.info("Executing request {} {}", activity.getMethod(), activity.getUrl());
 
