@@ -12,12 +12,19 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utilities for EL evaluation by Camunda.
@@ -65,6 +72,41 @@ public class UtilityFunctionsMapper extends FunctionMapper {
       return null;
     }
     return new String(JsonStringEncoder.getInstance().quoteAsString(s));
+  }
+
+  public static String encodeQueryParameters(String fullUrl) {
+    MultiValueMap<String, String> queryParamsMap =
+        UriComponentsBuilder.fromUriString(fullUrl).build().getQueryParams();
+
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUriString(fullUrl);
+
+    queryParamsMap
+        .keySet()
+        .stream()
+        .filter(k -> !isAlreadyEncoded(queryParamsMap.get(k).get(0))).collect(Collectors.toList())
+        .forEach(
+            key -> {
+              try {
+                uriComponentsBuilder.replaceQueryParam(key,
+                    URLEncoder.encode(queryParamsMap.get(key).get(0), StandardCharsets.UTF_8.name()));
+              } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+              }
+            });
+
+    return uriComponentsBuilder.build().toUriString();
+  }
+
+  private static boolean isAlreadyEncoded(String value) {
+    boolean isAlreadyEncoded = false;
+    try {
+      isAlreadyEncoded = !URLDecoder.decode(value, StandardCharsets.UTF_8.name()).equals(value);
+    } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+      e.printStackTrace();
+    }
+
+    return isAlreadyEncoded;
   }
 
   @SuppressWarnings("rawtypes")
