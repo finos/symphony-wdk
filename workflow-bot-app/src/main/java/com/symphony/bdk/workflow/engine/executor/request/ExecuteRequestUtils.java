@@ -14,25 +14,22 @@ public class ExecuteRequestUtils {
   ExecuteRequestUtils() {}
 
   public static String encodeQueryParameters(String fullUrl) {
-    MultiValueMap<String, String> queryParamsMap =
-        UriComponentsBuilder.fromUriString(fullUrl).build().getQueryParams();
+    UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(fullUrl);
+    MultiValueMap<String, String> queryParamsMap = uriComponentsBuilder.build().getQueryParams();
 
-    UriComponentsBuilder uriComponentsBuilder =
-        UriComponentsBuilder.fromUriString(fullUrl);
-
+    UriComponentsBuilder clone = uriComponentsBuilder.cloneBuilder();
     queryParamsMap
         .keySet()
-        .forEach(
-            key -> {
-              List<String> encodedValues =
-                  queryParamsMap.get(key)
-                      .stream()
-                      .map(ExecuteRequestUtils::encode)
-                      .collect(Collectors.toList());
-              uriComponentsBuilder.replaceQueryParam(key, encodedValues);
-            });
+        .forEach(key -> {
+          List<String> encodedValues =
+              queryParamsMap.get(key)
+                  .stream()
+                  .map(ExecuteRequestUtils::encode)
+                  .collect(Collectors.toList());
+          clone.replaceQueryParam(key, encodedValues);
+        });
 
-    return uriComponentsBuilder.build().toUriString();
+    return clone.build().toUriString();
   }
 
   private static String encode(String value) {
