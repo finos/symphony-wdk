@@ -12,19 +12,12 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Utilities for EL evaluation by Camunda.
@@ -45,8 +38,6 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put("text", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "text", String.class));
     FUNCTION_MAP.put("json", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "json", String.class));
     FUNCTION_MAP.put("escape", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "escape", String.class));
-    FUNCTION_MAP.put("encodeQueryParameters",
-        ReflectUtil.getMethod(UtilityFunctionsMapper.class, "encodeQueryParameters", Object.class));
     FUNCTION_MAP.put("mentions", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "mentions", Object.class));
     FUNCTION_MAP.put("hashTags", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "hashTags", Object.class));
     FUNCTION_MAP.put("cashTags", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "cashTags", Object.class));
@@ -74,41 +65,6 @@ public class UtilityFunctionsMapper extends FunctionMapper {
       return null;
     }
     return new String(JsonStringEncoder.getInstance().quoteAsString(s));
-  }
-
-  public static String encodeQueryParameters(String fullUrl) {
-    MultiValueMap<String, String> queryParamsMap =
-        UriComponentsBuilder.fromUriString(fullUrl).build().getQueryParams();
-
-    UriComponentsBuilder uriComponentsBuilder =
-        UriComponentsBuilder.fromUriString(fullUrl);
-
-    queryParamsMap
-        .keySet()
-        .stream()
-        .filter(k -> !isAlreadyEncoded(queryParamsMap.get(k).get(0))).collect(Collectors.toList())
-        .forEach(
-            key -> {
-              try {
-                uriComponentsBuilder.replaceQueryParam(key,
-                    URLEncoder.encode(queryParamsMap.get(key).get(0), StandardCharsets.UTF_8.name()));
-              } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-              }
-            });
-
-    return uriComponentsBuilder.build().toUriString();
-  }
-
-  private static boolean isAlreadyEncoded(String value) {
-    boolean isAlreadyEncoded = false;
-    try {
-      isAlreadyEncoded = !URLDecoder.decode(value, StandardCharsets.UTF_8.name()).equals(value);
-    } catch (UnsupportedEncodingException | IllegalArgumentException e) {
-      e.printStackTrace();
-    }
-
-    return isAlreadyEncoded;
   }
 
   @SuppressWarnings("rawtypes")

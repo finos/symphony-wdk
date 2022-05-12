@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.request;
 
-import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
@@ -34,7 +33,7 @@ public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> 
     ExecuteRequest activity = execution.getActivity();
 
     if (activity.isEncodeQueryParams()) {
-      activity.setUrl(UtilityFunctionsMapper.encodeQueryParameters(activity.getUrl()));
+      activity.setUrl(ExecuteRequestUtils.encodeQueryParameters(activity.getUrl()));
     }
 
     log.info("Executing request {} {}", activity.getMethod(), activity.getUrl());
