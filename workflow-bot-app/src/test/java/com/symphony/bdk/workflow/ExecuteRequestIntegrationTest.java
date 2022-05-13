@@ -11,6 +11,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.patch;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -124,6 +125,60 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     assertThat(workflow).as("The workflow fails on runtime exception")
         .executed("executeGetRequest")
         .notExecuted("assertionScript");
+  }
+
+  @Test
+  void executeRequestEncodeQueryParameters(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/request/execute-request-encode-query-parameters.swadl.yaml"));
+
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api?key1=v 1&key2=value@!$2&key3=value%3");
+
+    stubFor(post("/api?key1=v+1&key2=value%40%21%242&key3=value%253")
+        .willReturn(ok().withHeader("Content-Type", "application/json")
+            .withBody("{\"message\": \"ok\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted().executed("executeRequestWithQueryParams", "assertionScript");
+  }
+
+  @Test
+  void executeRequestNotEncodeQueryParameters(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/request/execute-request-not-encode-query-parameters.swadl.yaml"));
+
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api?key1=value%201&key2=value%402");
+
+    stubFor(post(urlEqualTo("/api?key1=value%201&key2=value%402"))
+        .willReturn(ok().withHeader("Content-Type", "application/json")
+            .withBody("{\"message\": \"ok\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted().executed("executeRequestWithEncodedQueryParams", "assertionScript");
+  }
+
+  @Test
+  void executeRequestEncodeQueryParametersNotExecuted(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/request/execute-request-not-encode-query-parameters-no-response.swadl.yaml"));
+
+    putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api?key1=value%201&key2=value%402");
+
+    stubFor(post("/api?key1=v+1&key2=value%40%21%242")
+        .willReturn(ok().withHeader("Content-Type", "application/json")
+            .withBody("{\"message\": \"ok\"}")));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/execute"));
+
+    assertThat(workflow).isExecuted().executed("executeRequestWithEncodedQueryParams", "assertionScript");
   }
 
   private void putFirstActivityUrl(Workflow workflow, String url) {

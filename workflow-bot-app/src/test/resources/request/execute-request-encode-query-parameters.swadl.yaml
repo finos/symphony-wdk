@@ -1,0 +1,15 @@
+id: execute-request-to-encode-query-params
+activities:
+  - execute-request:
+      id: executeRequestWithQueryParams
+      on:
+        message-received:
+          content: "/execute"
+      method: POST
+      url: https://wiremock.com/api?key1=value 1&key2=value@!$2&key3=value%3
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeRequestWithQueryParams.outputs.body.message == "ok"
+        assert executeRequestWithQueryParams.outputs.status == 200

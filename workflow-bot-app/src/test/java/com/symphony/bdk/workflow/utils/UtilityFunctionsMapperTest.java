@@ -48,5 +48,4 @@ class UtilityFunctionsMapperTest {
     final Object json = UtilityFunctionsMapper.json("");
     assertThat(json.toString()).isEmpty();
   }
-
 }

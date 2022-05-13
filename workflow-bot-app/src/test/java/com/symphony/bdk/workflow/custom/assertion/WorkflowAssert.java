@@ -177,7 +177,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
   private static List<String> listExecutedActivities() {
     String process = lastProcess().orElseThrow();
-    await().atMost(5, SECONDS).until(() -> processIsCompleted(process));
+    await().atMost(20, SECONDS).until(() -> processIsCompleted(process));
 
     List<HistoricActivityInstance> processes =
         IntegrationTest.historyService.createHistoricActivityInstanceQuery()

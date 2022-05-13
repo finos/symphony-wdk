@@ -1,0 +1,16 @@
+id: execute-request-not-encode-query-params-no-response
+activities:
+  - execute-request:
+      id: executeRequestWithEncodedQueryParams
+      on:
+        message-received:
+          content: "/execute"
+      method: POST
+      url: https://wiremock.com/api?key1=value%201&key2=value%402
+      encode-query-params: false
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeRequestWithEncodedQueryParams.outputs.body != "ok"
+        assert executeRequestWithEncodedQueryParams.outputs.status == 404

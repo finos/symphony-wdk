@@ -31,6 +31,11 @@ public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> 
   @Override
   public void execute(ActivityExecutorContext<ExecuteRequest> execution) throws IOException {
     ExecuteRequest activity = execution.getActivity();
+
+    if (activity.isEncodeQueryParams()) {
+      activity.setUrl(ExecuteRequestUtils.encodeQueryParameters(activity.getUrl()));
+    }
+
     log.info("Executing request {} {}", activity.getMethod(), activity.getUrl());
 
     Response response =
