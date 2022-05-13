@@ -34,4 +34,13 @@ class ExecuteRequestUtilsTest {
 
     assertThat(encodedUrl).isEqualTo(fullUrl);
   }
+
+  @Test
+  void encodeQueryParameters_encodedParameters() {
+    String encodedUrl = ExecuteRequestUtils.encodeQueryParameters(
+        "https://www.wdk.symphony.com:8080/path1/path2?key1=value%201&key1=value%402");
+
+    assertThat(encodedUrl).as("Already encoded parameters are re-encoded").isEqualTo(
+        "https://www.wdk.symphony.com:8080/path1/path2?key1=value%25201&key1=value%25402");
+  }
 }

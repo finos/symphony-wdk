@@ -2119,7 +2119,7 @@ Key | Type | Required |
 [method](#method) | String | No |
 [body](#body) | Object/String | No |
 [headers](#headers) | String | No |
-
+[encode-query-params](#encode-query-params) | Boolean | No |
 Output | Type |
 ----|----|
 body | Object/String
@@ -2155,7 +2155,8 @@ activities:
 
 String that contains the host and the path to be targeted.
 
-The query parameters values are encoded with UTF-8 format by the activity.
+The query parameters values are, by default, encoded with UTF-8 format by the activity.
+The encoding can be disabled using [encode-query-params](#encode-query-params).
 
 #### method
 
@@ -2184,6 +2185,10 @@ HTTP request headers. A map of key/value entries is expected. Simple types such 
 as lists and maps are supported.
 
 Unless set explicitly the `Content-Type` header will be `application/json` by default.
+
+### encode-query-params
+If false, the url query parameters will not be encoded.
+It is set to true by default.
 
 ### execute-script
 

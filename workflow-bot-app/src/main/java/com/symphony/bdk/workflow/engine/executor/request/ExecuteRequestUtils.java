@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.request;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -9,9 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class ExecuteRequestUtils {
-
-  ExecuteRequestUtils() {}
 
   public static String encodeQueryParameters(String fullUrl) {
     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(fullUrl);
