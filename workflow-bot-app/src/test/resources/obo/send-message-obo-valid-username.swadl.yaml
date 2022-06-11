@@ -1,0 +1,12 @@
+id: send-message-on-behalf-of-user-valid-username
+activities:
+  - send-message:
+      id: sendMessageObo
+      on:
+        message-received:
+          content: "/message"
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>
+      on-behalf-of:
+        username: "john"

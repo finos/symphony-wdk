@@ -1517,6 +1517,10 @@
                 "user-ids": {
                     "description": "User ids to add to the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -1534,6 +1538,10 @@
                 "user-ids": {
                     "description": "User ids to remove from the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -1551,6 +1559,10 @@
                 "user-ids": {
                     "description": "User ids to promote in the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -1568,6 +1580,10 @@
                 "user-ids": {
                     "description": "User ids to demote in the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -1591,6 +1607,10 @@
                     "items": {
                         "$ref": "#/definitions/attachment"
                     }
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -2636,6 +2656,10 @@
                         "string"
                     ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "oneOf": [
@@ -2660,6 +2684,10 @@
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -2670,6 +2698,10 @@
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -2681,6 +2713,10 @@
             "properties": {
                 "user-id": {
                     "$ref": "#/definitions/user-id"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -2851,6 +2887,10 @@
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             }
         },
@@ -2933,6 +2973,10 @@
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             },
             "required": [
@@ -2989,6 +3033,10 @@
                         "REJECTED",
                         "ALL"
                     ]
+                },
+                "on-behalf-of": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/on-behalf-of-inner"
                 }
             }
         },
@@ -3560,6 +3608,22 @@
                 }
             ],
             "description": "Group's unique identifier."
+        },
+        "on-behalf-of-inner": {
+            "type": "object",
+            "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made.",
+            "properties": {
+                "user-id": {
+                    "$ref": "#/definitions/user-id"
+                },
+                "username": {
+                    "$ref": "#/definitions/name"
+                }
+            },
+            "anyOf": [
+                {"required":  ["user-id"]},
+                {"required":  ["username"]}
+            ]
         },
         "to": {
             "type": "object",

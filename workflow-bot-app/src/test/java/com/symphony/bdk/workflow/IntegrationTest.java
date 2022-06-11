@@ -3,14 +3,18 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
+import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
@@ -68,6 +72,15 @@ public abstract class IntegrationTest {
   // Mock the BDK
   @MockBean
   AuthSession botSession;
+
+  @MockBean
+  OboServices oboServices;
+
+  @MockBean(name = "oboMessageService")
+  OboMessageService oboMessageService;
+
+  @MockBean(name = "oboStreamService")
+  OboStreamService oboStreamService;
 
   @MockBean(name = "streamService")
   StreamService streamService;
@@ -131,6 +144,9 @@ public abstract class IntegrationTest {
     when(bdkGateway.connections()).thenReturn(this.connectionService);
     when(bdkGateway.users()).thenReturn(this.userService);
     when(bdkGateway.groups()).thenReturn(this.groupService);
+    when(bdkGateway.obo(any(AuthSession.class))).thenReturn(this.oboServices);
+    when(oboServices.messages()).thenReturn(this.oboMessageService);
+    when(oboServices.streams()).thenReturn(this.oboStreamService);
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered

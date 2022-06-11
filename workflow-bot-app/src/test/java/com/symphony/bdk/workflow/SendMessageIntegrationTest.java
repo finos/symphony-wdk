@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow;
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -26,6 +27,9 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
@@ -380,6 +384,63 @@ class SendMessageIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/send-blast"));
 
     verify(messageService, timeout(5000)).send(eq(List.of("ABC", "DEF")), any());
+  }
+
+  static java.util.stream.Stream<Arguments> validOboActivities() {
+    return java.util.stream.Stream.of(
+      arguments("/obo/send-message-obo-valid-username.swadl.yaml"),
+      arguments("/obo/send-message-obo-valid-userid.swadl.yaml")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("validOboActivities")
+  void sendMessageObo(String workflowFile) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+    final V4Message message = message("Hello!");
+
+    when(oboMessageService.send(anyString(), any(Message.class))).thenReturn(message);
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/message"));
+
+    verify(oboMessageService, timeout(5000)).send(anyString(), any(Message.class));
+
+    assertThat(workflow).isExecuted()
+        .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageObo"), message)
+        .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageObo"), message.getMessageId());
+  }
+
+  @Test
+  void sendMessageOboUnauthorized() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/obo/send-message-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/message"));
+
+    assertThat(workflow).executed("sendMessageObo")
+        .notExecuted("scriptActivityNotToBeExecuted");
+  }
+
+  @Test
+  void sendBlastMessageOboNotSupported() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/obo/send-blast-message-obo-not-supported.swadl.yaml"));
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/message"));
+
+    assertThat(workflow).executed("sendBlastMessageObo")
+        .notExecuted("scriptActivityNotToBeExecuted");
   }
 
 }

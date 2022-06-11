@@ -2,7 +2,9 @@ package com.symphony.bdk.workflow.engine.executor.message;
 
 import static java.util.Collections.singletonList;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.gen.api.model.Stream;
@@ -17,6 +19,7 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Component
 public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
@@ -48,6 +52,22 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       throw new IllegalArgumentException(
           String.format("No stream ids set to send a message in activity %s", activity.getId()));
 
+    } else if (isObo(activity) && activity.getOnBehalfOf() != null && streamIds.size() == 1) {
+
+      AuthSession authSession;
+      if (activity.getOnBehalfOf().getUsername() != null) {
+        authSession = execution.bdk().obo(activity.getOnBehalfOf().getUsername());
+      } else {
+        authSession = execution.bdk().obo(activity.getOnBehalfOf().getUserId());
+      }
+
+      message = this.doOboWithCache(execution, authSession, streamIds.get(0), messageToSend);
+
+    } else if (isObo(activity) && streamIds.size() > 1) {
+      // TODO: Add blast message obo case when it is enabled: https://perzoinc.atlassian.net/browse/PLAT-11231
+      throw new IllegalArgumentException(
+          String.format("Blast message, in activity %s, is not OBO enabled", activity.getId()));
+
     } else if (streamIds.size() == 1) {
       message = execution.bdk().messages().send(streamIds.get(0), messageToSend);
 
@@ -60,6 +80,19 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     outputs.put(OUTPUT_MESSAGE_KEY, message);
     outputs.put(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
     execution.setOutputVariables(outputs);
+  }
+
+  private boolean isObo(SendMessage activity) {
+    return activity.getOnBehalfOf() != null && (activity.getOnBehalfOf().getUsername() != null
+        || activity.getOnBehalfOf().getUserId() != null);
+  }
+
+  private V4Message doOboWithCache(ActivityExecutorContext<SendMessage> execution, AuthSession authSession,
+      String streamId, Message messageToSend) {
+    OboMessageService messages = execution.bdk()
+        .obo(authSession)
+        .messages();
+    return messages.send(streamId, messageToSend);
   }
 
   private List<String> resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,

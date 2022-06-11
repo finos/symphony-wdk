@@ -1,0 +1,13 @@
+id: add-room-member-on-behalf-of-user-valid-userid
+activities:
+  - add-room-member:
+      id: addRoomMember
+      on:
+        message-received:
+          content: "/add-room-member"
+      stream-id: abc
+      user-ids:
+        - 123
+        - 456
+      on-behalf-of:
+        user-id: 12345
