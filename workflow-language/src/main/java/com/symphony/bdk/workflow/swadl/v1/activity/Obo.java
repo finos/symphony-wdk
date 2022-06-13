@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 @EqualsAndHashCode
 @Data
-public class OnBehalfOf {
+public class Obo {
   @Nullable private String username;
   @Nullable private Long userId;
 }

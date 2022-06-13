@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow;
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,8 +27,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
@@ -245,15 +243,9 @@ class RoomIntegrationTest extends IntegrationTest {
     verify(streamService, timeout(5000)).addMemberToRoom(456L, "abc");
   }
 
-  static java.util.stream.Stream<Arguments> validOboActivities() {
-    return java.util.stream.Stream.of(
-        arguments("/room/add-room-member-obo-valid-username.swadl.yaml"),
-        arguments("/room/add-room-member-obo-valid-userid.swadl.yaml")
-    );
-  }
-
   @ParameterizedTest
-  @MethodSource("validOboActivities")
+  @ValueSource(strings = {"/room/obo/add-room-member-obo-valid-username.swadl.yaml",
+      "/room/obo/add-room-member-obo-valid-userid.swadl.yaml"})
   void addRoomMemberObo(String workflowFile) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -271,7 +263,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @Test
   void addRoomMemberOboUnauthorized() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/add-room-member-obo-unauthorized.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/obo/add-room-member-obo-unauthorized.swadl.yaml"));
 
     when(bdkGateway.obo(any(String.class))).thenThrow(new RuntimeException("Unauthorized user"));
 

@@ -1,4 +1,4 @@
-id: send-message-on-behalf-of-user-valid-userid
+id: send-message-on-behalf-of-user-valid-username
 activities:
   - send-message:
       id: sendMessageObo
@@ -8,5 +8,5 @@ activities:
       to:
         stream-id: "123"
       content: <messageML>Hello!</messageML>
-      on-behalf-of:
-        user-id: 12345
+      obo:
+        username: "john"

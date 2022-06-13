@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.message;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
-import com.symphony.bdk.workflow.swadl.v1.activity.OnBehalfOf;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,7 @@ public class SendMessage extends BaseActivity {
   @Nullable private String content;
   @Nullable private To to;
   @Nullable private List<Attachment> attachments;
-  @Nullable private OnBehalfOf onBehalfOf;
+  @Nullable private Obo obo;
 
   @SuppressWarnings("unchecked")
   public void setContent(Object content) {

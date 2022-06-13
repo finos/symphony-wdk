@@ -1518,9 +1518,9 @@
                     "description": "User ids to add to the room.",
                     "$ref": "#/definitions/user-ids-inner"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1539,9 +1539,9 @@
                     "description": "User ids to remove from the room.",
                     "$ref": "#/definitions/user-ids-inner"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1560,9 +1560,9 @@
                     "description": "User ids to promote in the room.",
                     "$ref": "#/definitions/user-ids-inner"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1581,9 +1581,9 @@
                     "description": "User ids to demote in the room.",
                     "$ref": "#/definitions/user-ids-inner"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1608,9 +1608,9 @@
                         "$ref": "#/definitions/attachment"
                     }
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2657,9 +2657,9 @@
                     ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "oneOf": [
@@ -2685,9 +2685,9 @@
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2699,9 +2699,9 @@
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2714,9 +2714,9 @@
                 "user-id": {
                     "$ref": "#/definitions/user-id"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2888,9 +2888,9 @@
                 "skip": {
                     "$ref": "#/definitions/skip"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             }
         },
@@ -2974,9 +2974,9 @@
                 "skip": {
                     "$ref": "#/definitions/skip"
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -3034,9 +3034,9 @@
                         "ALL"
                     ]
                 },
-                "on-behalf-of": {
+                "obo": {
                     "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
-                    "$ref": "#/definitions/on-behalf-of-inner"
+                    "$ref": "#/definitions/obo-inner"
                 }
             }
         },
@@ -3609,7 +3609,7 @@
             ],
             "description": "Group's unique identifier."
         },
-        "on-behalf-of-inner": {
+        "obo-inner": {
             "type": "object",
             "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made.",
             "properties": {

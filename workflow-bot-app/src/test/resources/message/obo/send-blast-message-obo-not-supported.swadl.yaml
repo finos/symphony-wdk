@@ -10,7 +10,7 @@ activities:
           - "123"
           - "456"
       content: <messageML>Hello!</messageML>
-      on-behalf-of:
+      obo:
         user-id: 12345
 
   - execute-script:

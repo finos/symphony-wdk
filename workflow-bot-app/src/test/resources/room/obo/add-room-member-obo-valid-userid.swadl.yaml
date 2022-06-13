@@ -1,4 +1,4 @@
-id: add-room-member-on-behalf-of-user-valid-username
+id: add-room-member-on-behalf-of-user-valid-userid
 activities:
   - add-room-member:
       id: addRoomMember
@@ -9,5 +9,5 @@ activities:
       user-ids:
         - 123
         - 456
-      on-behalf-of:
-        username: "john"
+      obo:
+        user-id: 12345

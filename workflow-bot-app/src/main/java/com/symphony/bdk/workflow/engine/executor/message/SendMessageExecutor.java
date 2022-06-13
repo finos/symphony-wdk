@@ -52,13 +52,13 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       throw new IllegalArgumentException(
           String.format("No stream ids set to send a message in activity %s", activity.getId()));
 
-    } else if (isObo(activity) && activity.getOnBehalfOf() != null && streamIds.size() == 1) {
+    } else if (isObo(activity) && activity.getObo() != null && streamIds.size() == 1) {
 
       AuthSession authSession;
-      if (activity.getOnBehalfOf().getUsername() != null) {
-        authSession = execution.bdk().obo(activity.getOnBehalfOf().getUsername());
+      if (activity.getObo().getUsername() != null) {
+        authSession = execution.bdk().obo(activity.getObo().getUsername());
       } else {
-        authSession = execution.bdk().obo(activity.getOnBehalfOf().getUserId());
+        authSession = execution.bdk().obo(activity.getObo().getUserId());
       }
 
       message = this.doOboWithCache(execution, authSession, streamIds.get(0), messageToSend);
@@ -83,8 +83,8 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
   }
 
   private boolean isObo(SendMessage activity) {
-    return activity.getOnBehalfOf() != null && (activity.getOnBehalfOf().getUsername() != null
-        || activity.getOnBehalfOf().getUserId() != null);
+    return activity.getObo() != null && (activity.getObo().getUsername() != null
+        || activity.getObo().getUserId() != null);
   }
 
   private V4Message doOboWithCache(ActivityExecutorContext<SendMessage> execution, AuthSession authSession,

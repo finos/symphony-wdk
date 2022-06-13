@@ -9,7 +9,7 @@ activities:
       user-ids:
         - 123
         - 456
-      on-behalf-of:
+      obo:
         username: "john"
 
   - execute-script:

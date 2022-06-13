@@ -27,16 +27,16 @@ public class AddRoomMemberExecutor implements ActivityExecutor<AddRoomMember> {
   }
 
   private boolean isObo(AddRoomMember activity) {
-    return activity.getOnBehalfOf() != null && (activity.getOnBehalfOf().getUsername() != null
-        || activity.getOnBehalfOf().getUserId() != null);
+    return activity.getObo() != null && (activity.getObo().getUsername() != null
+        || activity.getObo().getUserId() != null);
   }
 
   private void doOboWithCache(ActivityExecutorContext<AddRoomMember> execution, AddRoomMember addRoomMember) {
     AuthSession authSession;
-    if (addRoomMember.getOnBehalfOf().getUsername() != null) {
-      authSession = execution.bdk().obo(addRoomMember.getOnBehalfOf().getUsername());
+    if (addRoomMember.getObo().getUsername() != null) {
+      authSession = execution.bdk().obo(addRoomMember.getObo().getUsername());
     } else {
-      authSession = execution.bdk().obo(addRoomMember.getOnBehalfOf().getUserId());
+      authSession = execution.bdk().obo(addRoomMember.getObo().getUserId());
     }
 
     for (Long uid : addRoomMember.getUserIds()) {
