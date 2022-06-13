@@ -90,6 +90,7 @@ public class SpringBdkGateway implements BdkGateway {
   }
 
   @Override
+  @Cacheable
   public AuthSession obo(Long userId) {
     if (config.isOboConfigured()) {
       try {
