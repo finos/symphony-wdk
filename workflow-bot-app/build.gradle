@@ -11,6 +11,9 @@ javadoc {
 
 dependencies {
     implementation project(':workflow-language')
+    
+    // THIS IS A HIGH VULNERABLE DEPENDENCY
+    implementation platform('com.alibaba:fastjson:1.1.25')
 
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.7.0')
     implementation platform('com.fasterxml.jackson:jackson-bom:2.13.2.20220328')
