@@ -80,3 +80,21 @@ Let's go through the workflow line by line:
          same room as the incoming message.
 
 So to run this workflow, simply send an IM to your bot, with `/ping` as the content!
+
+# Updating WDK
+The Symphony Generator downloads the latest version of the WDK JAR binary when a new project is created. That WDK version reference is stored in the `build.gradle` file, which you can revise when new versions of the WDK are released. You should revise the version numbers for both `workflow-language` and `workflow-bot-app` dependencies.
+
+For example, to update to version `1.1.0`, your `build.gradle` file should look like this:
+```
+dependencies {
+  compileOnly 'org.finos.symphony.wdk:workflow-language:1.1.0'
+  implementation 'org.apache.commons:commons-text:1.9'
+  botJar 'org.finos.symphony.wdk:workflow-bot-app:1.1.0:boot''
+}
+```
+
+Once saved, trigger a refresh of the JAR by running `./gradlew botJar`. You can confirm the update was successful by launching the WDK bot again using `java -jar workflow-bot-app.jar` and reviewing the version that is logged.
+```
+INFO 11068 --- [           main] c.s.b.w.configuration.VersionLogger      : Running with WDK version: 1.1.0
+```
+In the event that the existing JAR was not replaced after running `./gradlew botJar`, delete the existing JAR file manually and re-run `./gradlew botJar`.
