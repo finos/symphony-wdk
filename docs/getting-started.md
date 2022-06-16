@@ -97,4 +97,4 @@ Once saved, trigger a refresh of the JAR by running `./gradlew botJar`. You can 
 ```
 INFO 11068 --- [           main] c.s.b.w.configuration.VersionLogger      : Running with WDK version: 1.1.0
 ```
-In the event that the existing JAR was not replaced after running `./gradlew botJar`, delete the existing JAR file manually and re-run `./gradlew botJar`.
+In the event that the existing JAR was not replaced after running `./gradlew botJar`, delete it manually and re-run `./gradlew botJar`.
