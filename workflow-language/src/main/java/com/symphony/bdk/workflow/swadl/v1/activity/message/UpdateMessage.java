@@ -14,6 +14,7 @@ public class UpdateMessage extends BaseActivity {
   private String messageId;
   @Nullable private String template;
   @Nullable private String content;
+  private Boolean silent = Boolean.TRUE;
 
   @SuppressWarnings("unchecked")
   public void setContent(Object content) {

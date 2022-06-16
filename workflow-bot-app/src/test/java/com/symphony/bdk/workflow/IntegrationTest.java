@@ -243,6 +243,7 @@ public abstract class IntegrationTest {
 
     assertThat(processes)
         .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
+        .filteredOn(p -> !p.getActivityType().equals("noneEndEvent"))
         .extracting(HistoricActivityInstance::getActivityName)
         .containsExactly(activityIds);
   }

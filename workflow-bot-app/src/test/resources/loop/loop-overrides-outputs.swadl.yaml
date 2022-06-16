@@ -17,7 +17,7 @@ activities:
       id: act1
       on:
         activity-completed:
-          activity-id: ac0
+          activity-id: act0
       content: ${variables.execution}
 
   - execute-script:

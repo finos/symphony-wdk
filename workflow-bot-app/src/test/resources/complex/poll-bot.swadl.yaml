@@ -1,0 +1,62 @@
+id: poll-bot
+variables:
+  answer1: 0
+  answer2: 0
+activities:
+  - send-message:
+      id: createPoll
+      on:
+        message-received:
+          content: /poll
+          # should be 1-1 only
+      content: |
+        <messageML>
+            <form id="createPoll">
+              <text-field name="room" placeholder="Room" required="true"/>
+              <text-field name="question" placeholder="What is your question?" required="true"/>
+              <text-field name="answer1" placeholder="Answer 1" required="true"/>
+              <text-field name="answer2" placeholder="Answer 2" required="true"/>
+              <button name="send-answers" type="action">Create poll</button>
+            </form>
+        </messageML>
+  - send-message:
+      id: poll
+      on:
+        form-replied:
+          form-id: createPoll
+      to:
+        stream-id: ${createPoll.room}
+      content:
+        <messageML>
+        <form id="poll">
+        ${createPoll.question}
+        <radio name="answers" value="1">${createPoll.answer1}</radio>
+        <radio name="answers" value="2">${createPoll.answer2}</radio>
+        <button name="send-answers" type="action">This is my choice!</button>
+        </form>
+        </messageML>
+
+  - execute-script:
+      id: collectReplies
+      on:
+        form-replied:
+          form-id: poll
+      script:
+        if (poll.answers == "1") {
+        variables.answer1++
+        } else if (poll.answers == "2") {
+        variables.answer2++
+        }
+
+  - send-message:
+      id: showReply
+      on:
+        activity-expired:
+          activity-id: collectReplies
+      to:
+        stream-id: ${createPoll.room}
+      content: |
+        <h1>Poll ended!</h1>
+        ${createPoll.answer1}: ${variables.answer1}
+        <br/>
+        ${createPoll.answer2}: ${variables.answer2}

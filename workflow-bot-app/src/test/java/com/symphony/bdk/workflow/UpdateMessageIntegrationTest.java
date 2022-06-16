@@ -18,6 +18,9 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
@@ -27,10 +30,11 @@ public class UpdateMessageIntegrationTest extends IntegrationTest {
   private static final String OUTPUT_MESSAGE_ID_KEY = "%s.outputs.msgId";
   private static final String OUTPUT_MESSAGE_KEY = "%s.outputs.message";
 
-  @Test
-  void updateMessageSuccessfull() throws IOException, ProcessingException {
+  @ParameterizedTest
+  @CsvSource({"update-message.swadl.yaml, true", "update-notsilent-message.swadl.yaml, false"})
+  void updateMessageSuccessfully(String workflowFile, Boolean silent) throws IOException, ProcessingException {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/update-message.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/" + workflowFile));
     final String msgId = "MSG_ID";
     final String content = "<messageML>Message Updated</messageML>";
     final V4Message message = message(msgId);
@@ -49,10 +53,11 @@ public class UpdateMessageIntegrationTest extends IntegrationTest {
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
     verify(messageService, times(1)).update(eq(message), messageArgumentCaptor.capture());
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo(content);
+    assertThat(messageArgumentCaptor.getValue().getSilent()).isEqualTo(silent);
   }
 
   @Test
-  void updateMessageWithTemplateSuccessfull() throws IOException, ProcessingException {
+  void updateMessageWithTemplateSuccessfully() throws IOException, ProcessingException {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/update-message-template.swadl.yaml"));
     final String msgId = "MSG_ID";
