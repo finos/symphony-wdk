@@ -212,7 +212,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     assertThatExceptionOfType(ActivityNotFoundException.class)
         .isThrownBy(() -> engine.deploy(workflow))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
-            "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));
+            "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id formReply_unknownActivityId referenced in pongReply"));
   }
 
   @Test

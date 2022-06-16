@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.xml.ModelValidationException;
 
 import java.io.File;
 import java.io.IOException;

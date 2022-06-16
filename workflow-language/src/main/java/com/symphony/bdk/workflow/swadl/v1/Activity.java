@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow.swadl.v1;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.RelationalEvents;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,7 +35,7 @@ public class Activity {
     return Optional.ofNullable(getActivity().getOn());
   }
 
-  public List<Event> getEvents() {
+  public RelationalEvents getEvents() {
     return getActivity().getEvents();
   }
 }

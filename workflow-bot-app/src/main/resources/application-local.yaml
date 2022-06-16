@@ -1,8 +1,8 @@
 # BDK configuration for local development
 bdk:
-  host: XXX
+  host: devx3.symphony.com
   bot:
-    username: XXX
+    username: bdkbot
     privateKey:
-      path: XXX
+      path: /Users/yinan.liu/Projects/certs/privatekey.pem
 
