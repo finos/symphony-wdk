@@ -275,7 +275,6 @@ class FormReplyIntegrationTest extends IntegrationTest {
       return true;
     });
 
-
     assertThat(workflow)
         .executed("init", "check");
   }

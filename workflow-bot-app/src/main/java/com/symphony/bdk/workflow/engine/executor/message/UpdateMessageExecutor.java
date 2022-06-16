@@ -22,7 +22,8 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
     String messageId = execution.getActivity().getMessageId();
     V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
     String content = extractContent(execution);
-    Message message = Message.builder().content(content).build();
+    Boolean silent = execution.getActivity().getSilent();
+    Message message = Message.builder().silent(silent).content(content).build();
     V4Message updatedMessage = execution.bdk().messages().update(messageToUpdate, message);
 
     Map<String, Object> outputs = new HashMap<>();
