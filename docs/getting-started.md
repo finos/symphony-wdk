@@ -89,7 +89,7 @@ For example, to update to version `1.1.0`, your `build.gradle` file should look 
 dependencies {
   compileOnly 'org.finos.symphony.wdk:workflow-language:1.1.0'
   implementation 'org.apache.commons:commons-text:1.9'
-  botJar 'org.finos.symphony.wdk:workflow-bot-app:1.1.0:boot''
+  botJar 'org.finos.symphony.wdk:workflow-bot-app:1.1.0:boot'
 }
 ```
 
