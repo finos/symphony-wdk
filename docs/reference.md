@@ -861,7 +861,8 @@ Update an existing message into a stream. Returns the new updated message.
 Key | Type | Required |
 ------------ | -------| --- |
 [message-id](#update-message-id) | String | Yes |
-[content](#content) | String/Object| Yes |
+[content](#content) | String/Object | Yes |
+[silent](#silent) | Boolean | No |
 
 Output | Type |
 ----|----|
@@ -870,7 +871,12 @@ msgId | String
 
 #### <a name="update-message-id"></a> message-id
 
-Message id of the message to be updated. Both url safe and base64 encoded urls are accepted
+Message id of the message to be updated. Both url safe and base64 encoded urls are accepted.
+
+#### <a name="silent"></a> silent
+
+Silent flag in the update message activity. The new updated message will be marked as read when the flag is set to true, unread otherwise.
+The default value is true.
 
 ### pin-message
 

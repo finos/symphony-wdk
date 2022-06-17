@@ -1605,6 +1605,14 @@
                 },
                 "message-id": {
                     "$ref": "#/definitions/message-id-inner"
+                },
+                "silent": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "If enabled, the new updated message is marked as read, otherwise is unread",
+                    "default": true
                 }
             },
             "required": [
