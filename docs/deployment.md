@@ -51,7 +51,7 @@ In order to use a persistent database, you need to change `spring.datasource.url
 
 In this case, a local disk file will be used to store data. It can also be changed to any database supported by Camunda (see [Camunda Database Configuration documentation](https://docs.camunda.org/manual/7.15/user-guide/process-engine/database/database-configuration/)).
 
-In case JDBC driver is missing, you might need to add it to the bot classpath in folder _/lib_ . 
+In case JDBC driver is missing, you might need to add it to the bot classpath in folder _/lib_ .
 
 ### Spring Boot specific configuration
 
@@ -126,6 +126,20 @@ Setting `logging.level.audit-trail` to WARN would disable such audit trails.
 
 To troubleshoot the workflow bot we recommend running it locally in a test environment if possible.
 
+### Generate BPMN and PNG files
+To help you troubleshoot your workflows, you can generate BPMN in  ".bpmn" files and as a diagram in a png image by setting the CamundaBpmnBuilder logging level to DEBUG in [application.yaml](../workflow-bot-app/src/main/resources/application.yaml).
+```yaml
+logging:
+    level:
+        com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: debug
+```
+
+You firstly need to install [https://github.com/bpmn-io/bpmn-to-image](https://github.com/bpmn-io/bpmn-to-image) with `npm install -g bpmn-to-image`.
+In case this package is not installed and logger debug level is set, running the workflow would fail.
+
+The BPMN can also be visualized on [https://demo.bpmn.io/](https://demo.bpmn.io/) by uploading your .bpmn file.
+
+### Steps to help
 Here are a few steps to help:
 
 - Is the workflow bot process starting?

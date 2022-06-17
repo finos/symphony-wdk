@@ -58,13 +58,6 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 ### Thanks to all the people who have contributed
 [![contributors](https://contributors-img.web.app/image?repo=finos/symphony-wdk)](https://github.com/finos/symphony-wdk/graphs/contributors)
 
-## Troubleshooting
-To help you troubleshoot your workflows, you can generate BPMN in  ".bpmn" files and as a diagram in a png image by setting the _logging:level:com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder_ level to DEBUG in [application.yaml](./workflow-bot-app/src/main/resources/application.yaml). 
-
-You firstly need to install [https://github.com/bpmn-io/bpmn-to-image](https://github.com/bpmn-io/bpmn-to-image) with `npm install -g bpmn-to-image`.
-
-The BPMN can also be visualized on [https://demo.bpmn.io/](https://demo.bpmn.io/) by uploading your .bpmn file.
-
 ## Roadmap
 
 Checkout the [open issues](https://github.com/finos/symphony-wdk/issues).
