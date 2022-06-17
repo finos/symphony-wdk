@@ -269,7 +269,12 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // trigger workflow execution
     engine.onEvent(messageReceived("/run_form_outputs_preserved"));
     verify(messageService, timeout(5000)).send(eq("ABC"), contains("form"));
-    engine.onEvent(form("msgId", "init", Collections.singletonMap("action", "one")));
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "init", Collections.singletonMap("action", "one")));
+      return true;
+    });
+
 
     assertThat(workflow)
         .executed("init", "check");
