@@ -12,7 +12,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.7.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0')
     implementation platform('com.fasterxml.jackson:jackson-bom:2.13.2.20220328')
     implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.6')
 

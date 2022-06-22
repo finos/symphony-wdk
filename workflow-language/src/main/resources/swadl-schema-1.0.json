@@ -1443,6 +1443,10 @@
                 },
                 "sub-type": {
                     "$ref": "#/definitions/sub-type"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "anyOf": [

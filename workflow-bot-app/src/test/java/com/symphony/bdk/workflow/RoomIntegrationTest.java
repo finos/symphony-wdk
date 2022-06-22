@@ -36,6 +36,8 @@ import java.util.List;
 
 class RoomIntegrationTest extends IntegrationTest {
 
+  private static final String OUTPUT_ROOM_ID_KEY = "%s.outputs.roomId";
+
   @Test
   @DisplayName(
       "Given create-room activity with only user ids fields, when the message is received, "
@@ -131,6 +133,119 @@ class RoomIntegrationTest extends IntegrationTest {
     assertThatThrownBy(() -> SwadlParser.fromYaml(
         getClass().getResourceAsStream("/room/create-room-invalid-workflow.swadl.yaml"))).isInstanceOf(
         SwadlNotValidException.class);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"/room/obo/create-mim-with-uids-obo-valid-username.swadl.yaml",
+      "/room/obo/create-mim-with-uids-obo-valid-userid.swadl.yaml"})
+  void createRoomWithUidsObo(String workflowFile) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+    final List<Long> uids = Arrays.asList(666L, 777L, 999L);
+    final Stream stream = new Stream();
+    stream.setId("0000");
+    when(oboStreamService.create(uids)).thenReturn(stream);
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/create-mim"));
+    verify(oboStreamService, timeout(5000)).create(uids);
+
+    assertThat(workflow)
+        .isExecuted()
+        .hasOutput(String.format(OUTPUT_ROOM_ID_KEY, "createRoomObo"), "0000");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"/room/obo/create-room-with-details-obo-username.swadl.yaml",
+      "/room/obo/create-room-with-details-obo-userid.swadl.yaml"})
+  void createRoomWithDetailsObo(String workflowFile) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+    final String roomName = "The best room ever";
+    final String roomDescription = "this is room description";
+    final boolean isRoomPublic = true;
+    final boolean viewHistory = true;
+    final boolean discoverable = false;
+    final boolean readOnly = true;
+    final boolean crossPod = true;
+    final boolean copyProtected = true;
+    final boolean multilateralRoom = false;
+    final boolean memberCanInvite = true;
+    final String subType = "EMAIL";
+    final List<RoomTag> keywords =
+        Arrays.asList(new RoomTag().key("A").value("AA"), new RoomTag().key("B").value("BB"));
+
+    final V3RoomDetail v3RoomDetail =
+        this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic, viewHistory, discoverable, readOnly,
+            crossPod, copyProtected, multilateralRoom, memberCanInvite, subType, keywords);
+
+    when(oboStreamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(IntegrationTest.messageReceived("/create-room"));
+
+    ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
+    verify(oboStreamService, timeout(5000)).create(argumentCaptor.capture());
+
+    final V3RoomAttributes captorValue = argumentCaptor.getValue();
+
+    final V3RoomAttributes expectedRoomAttributes =
+        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, viewHistory, discoverable, readOnly, crossPod,
+            copyProtected, multilateralRoom, memberCanInvite, subType, keywords);
+    assertRoomAttributes(expectedRoomAttributes, captorValue);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"/room/obo/create-room-with-details-members-obo-username.swadl.yaml",
+      "/room/obo/create-room-with-details-members-obo-userid.swadl.yaml"})
+  void createRoomWithDetailsAndMembersObo(String workflowFile) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+    final String roomName = "The best room ever";
+    final String roomDescription = "this is room description";
+    final boolean isRoomPublic = false;
+    final List<Long> uids = Arrays.asList(666L, 777L, 999L);
+
+    final V3RoomDetail v3RoomDetail =
+        this.buildRoomDetail("1234", roomName, roomDescription, isRoomPublic, null, null, null, null, null, null, null,
+            null, null);
+
+    when(oboStreamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(IntegrationTest.messageReceived("/create-room-members"));
+
+    ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
+    verify(oboStreamService, timeout(5000)).create(argumentCaptor.capture());
+
+    uids.forEach(uid -> verify(oboStreamService, times(1)).addMemberToRoom(eq(uid), anyString()));
+
+    final V3RoomAttributes captorValue = argumentCaptor.getValue();
+
+    final V3RoomAttributes expectedRoomAttributes =
+        this.buildRoomAttributes(roomName, roomDescription, isRoomPublic, null, null, null, true, null, null,
+            null, null, null);
+    assertRoomAttributes(expectedRoomAttributes, captorValue);
+  }
+
+  @Test
+  void createRoomOboUnauthorized() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/obo/create-room-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/create-room"));
+
+    assertThat(workflow).executed("createRoomOboUnauthorized")
+        .notExecuted("scriptActivityNotToBeExecuted");
   }
 
   private void assertRoomAttributes(V3RoomAttributes expected, V3RoomAttributes actual) {

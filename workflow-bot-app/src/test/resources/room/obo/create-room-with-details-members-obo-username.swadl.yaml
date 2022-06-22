@@ -1,0 +1,17 @@
+id: create-mim-with-details-members-workflow-obo
+activities:
+  - create-room:
+      id: "create_room_with_details_members"
+      on:
+        message-received:
+          content: "/create-room-members"
+      user-ids:
+        - 666
+        - 777
+        - 999
+      room-name: "The best room ever"
+      room-description: "this is room description"
+      public: false
+      cross-pod: true
+      obo:
+        username: "john"

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.room;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.gen.api.model.RoomTag;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
@@ -68,19 +69,58 @@ public class CreateRoomExecutor implements ActivityExecutor<CreateRoom> {
     return v3RoomAttributes;
   }
 
-  private String createRoom(ActivityExecutorContext execution, List<Long> uids) {
-    Stream stream = execution.bdk().streams().create(uids);
+  private String createRoom(ActivityExecutorContext<CreateRoom> execution, List<Long> uids,
+      V3RoomAttributes v3RoomAttributes) {
+    String roomId = createRoom(execution, v3RoomAttributes);
+
+    if (this.isObo(execution.getActivity())) {
+      AuthSession authSession = this.getOboAuthSession(execution, execution.getActivity());
+      uids.forEach(uid -> execution.bdk().obo(authSession).streams().addMemberToRoom(uid, roomId));
+    } else {
+      uids.forEach(uid -> execution.bdk().streams().addMemberToRoom(uid, roomId));
+    }
+
+    return roomId;
+  }
+
+  private String createRoom(ActivityExecutorContext<CreateRoom> execution, List<Long> uids) {
+    Stream stream;
+    CreateRoom createRoomActivity = execution.getActivity();
+
+    if (this.isObo(createRoomActivity)) {
+      AuthSession authSession = this.getOboAuthSession(execution, createRoomActivity);
+      stream = execution.bdk().obo(authSession).streams().create(uids);
+    } else {
+      stream = execution.bdk().streams().create(uids);
+    }
     return stream.getId();
   }
 
-  private String createRoom(ActivityExecutorContext execution, V3RoomAttributes v3RoomAttributes) {
-    V3RoomDetail v3RoomDetail = execution.bdk().streams().create(v3RoomAttributes);
+  private String createRoom(ActivityExecutorContext<CreateRoom> execution, V3RoomAttributes v3RoomAttributes) {
+    CreateRoom createRoomActivity = execution.getActivity();
+    V3RoomDetail v3RoomDetail;
+
+    if (this.isObo(createRoomActivity)) {
+      AuthSession authSession = this.getOboAuthSession(execution, createRoomActivity);
+      v3RoomDetail = execution.bdk().obo(authSession).streams().create(v3RoomAttributes);
+    } else {
+      v3RoomDetail = execution.bdk().streams().create(v3RoomAttributes);
+    }
+
     return v3RoomDetail.getRoomSystemInfo().getId();
   }
 
-  private String createRoom(ActivityExecutorContext execution, List<Long> uids, V3RoomAttributes v3RoomAttributes) {
-    String roomId = createRoom(execution, v3RoomAttributes);
-    uids.forEach(uid -> execution.bdk().streams().addMemberToRoom(uid, roomId));
-    return roomId;
+  private boolean isObo(CreateRoom createRoom) {
+    return createRoom.getObo() != null && (createRoom.getObo().getUsername() != null
+        || createRoom.getObo().getUserId() != null);
   }
+
+  private AuthSession getOboAuthSession(ActivityExecutorContext<CreateRoom> execution, CreateRoom createRoomActivity) {
+    if (createRoomActivity.getObo().getUsername() != null) {
+      return execution.bdk().obo(createRoomActivity.getObo().getUsername());
+    } else {
+      return execution.bdk().obo(createRoomActivity.getObo().getUserId());
+    }
+  }
+
 }
