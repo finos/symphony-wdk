@@ -97,8 +97,7 @@ public class HttpClient {
     // set headers
     headers.forEach(request::addHeader);
 
-    HttpResponse httpResponse = request.execute().returnResponse();
-    return httpResponse;
+    return request.execute().returnResponse();
   }
 
 }
