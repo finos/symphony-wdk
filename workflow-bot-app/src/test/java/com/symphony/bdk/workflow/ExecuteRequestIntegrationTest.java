@@ -83,9 +83,7 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
         .withHeader("Content-Type", containing("multipart/form-data; charset=ISO-8859-1;"))
         .withRequestBody(containing("Content-Type: text/plain; charset=UTF-8"))
         .withRequestBody(containing("Content-Disposition: form-data; name=\"text\""))
-        .willReturn(
-            ok().withHeader("Content-Type", "application/json")
-                .withBody("{\"text\": \"ok\"}")));
+        .willReturn(ok()));
 
     engine.deploy(workflow);
 
