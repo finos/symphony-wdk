@@ -1,0 +1,18 @@
+id: execute-request-encode-body
+activities:
+  - execute-request:
+      id: executeRequestEncodeBody
+      on:
+        message-received:
+          content: "/executeEncodeBody"
+      method: POST
+      url: https://wiremock.com/api
+      body:
+        text: こんにちは世界
+      headers:
+        Content-Type: multipart/form-data
+
+  - execute-script:
+      id: assertionScript
+      script: |
+        assert executeRequestEncodeBody.outputs.status == 200
