@@ -27,6 +27,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
@@ -200,9 +201,10 @@ class RoomIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/room/obo/create-room-with-details-members-obo-username.swadl.yaml",
-      "/room/obo/create-room-with-details-members-obo-userid.swadl.yaml"})
-  void createRoomWithDetailsAndMembersObo(String workflowFile) throws Exception {
+  @CsvSource(
+      {"/room/obo/create-room-with-details-members-obo-userid.swadl.yaml, /create-mim-details-members-obo-userid",
+      "/room/obo/create-room-with-details-members-obo-username.swadl.yaml, /create-mim-details-members-obo-username"})
+  void createRoomWithDetailsAndMembersObo(String workflowFile, String messageContent) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
     final String roomName = "The best room ever";
@@ -219,7 +221,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
 
     engine.deploy(workflow);
-    engine.onEvent(IntegrationTest.messageReceived("/create-room-members"));
+    engine.onEvent(IntegrationTest.messageReceived(messageContent));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(oboStreamService, timeout(5000)).create(argumentCaptor.capture());
@@ -344,6 +346,64 @@ class RoomIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/update-room"));
 
     verify(streamService, timeout(5000)).setRoomActive("abc", true);
+  }
+
+  @ParameterizedTest
+  @CsvSource({"/room/obo/update-room-obo-valid-username.swadl.yaml, /update-room-obo-username",
+      "/room/obo/update-room-obo-valid-userid.swadl.yaml, /update-room-obo-userid"})
+  void updateRoomObo(String workflowFile, String messageContent) throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    V3RoomDetail roomDetail = new V3RoomDetail();
+    RoomSystemInfo info = new RoomSystemInfo();
+    info.setId("abc");
+    roomDetail.setRoomSystemInfo(info);
+
+    when(oboStreamService.getRoomInfo("abc")).thenReturn(roomDetail);
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived(messageContent));
+
+    ArgumentCaptor<V3RoomAttributes> attributes = ArgumentCaptor.forClass(V3RoomAttributes.class);
+    verify(oboStreamService, timeout(5000)).updateRoom(eq("abc"), attributes.capture());
+
+    assertThat(attributes.getValue()).satisfies(a -> {
+      assertThat(a.getName()).isNull();
+      assertThat(a.getDescription()).isNotEmpty();
+      assertThat(a.getDiscoverable()).isTrue();
+      assertThat(a.getCopyProtected()).isNull();
+    });
+  }
+
+  @Test
+  void updateRoomOboUnauthorized() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/obo/update-room-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/update-room-obo-unauthorized"));
+
+    assertThat(workflow).executed("updateRoomOboUnauthorized")
+        .notExecuted("scriptActivityNotToBeExecuted");
+  }
+
+  @Test
+  void updateRoomActivateOboNotSupported() throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/room/obo/update-room-activate-obo-not-supported.swadl.yaml"));
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/update-room-obo-not-supported"));
+
+    assertThat(workflow).executed("updateRoomOboNotSupported")
+        .notExecuted("scriptActivityNotToBeExecuted");
   }
 
   @Test

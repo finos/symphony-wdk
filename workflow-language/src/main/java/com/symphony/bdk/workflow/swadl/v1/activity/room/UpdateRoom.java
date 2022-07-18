@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class UpdateRoom extends BaseActivity {
   @Nullable private String roomName;
   @Nullable private String roomDescription;
   @Nullable private Map<String, String> keywords;
+  @Nullable private Obo obo;
 
   private Boolean membersCanInvite;
   private Boolean discoverable;

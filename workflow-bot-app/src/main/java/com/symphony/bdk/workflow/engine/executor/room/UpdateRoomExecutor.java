@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.room;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.gen.api.model.RoomTag;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
@@ -20,24 +21,54 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
   @Override
   public void execute(ActivityExecutorContext<UpdateRoom> execution) {
     UpdateRoom updateRoom = execution.getActivity();
+    final boolean isObo = this.isObo(updateRoom);
+    AuthSession authSession = null;
 
     if (shouldUpdateRoom(updateRoom)) {
       log.debug("Updating room {} attributes", updateRoom.getStreamId());
       V3RoomAttributes attributes = toAttributes(updateRoom);
-      execution.bdk().streams().updateRoom(updateRoom.getStreamId(), attributes);
+      if (isObo) {
+        authSession = this.getOboAuthSession(execution, updateRoom);
+        execution.bdk().obo(authSession).streams().updateRoom(updateRoom.getStreamId(), attributes);
+      } else {
+        execution.bdk().streams().updateRoom(updateRoom.getStreamId(), attributes);
+      }
     }
 
     if (updateRoom.getActive() != null) {
-      // this is a different API call but we support it in the same activity
-      log.debug("Updating room {} active status", updateRoom.getStreamId());
-      execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive());
+      if (isObo) {
+        throw new IllegalArgumentException(
+            String.format("Room active status update, in activity %s, is not OBO enabled", updateRoom.getId()));
+      } else {
+        // this is a different API call but we support it in the same activity
+        log.debug("Updating room {} active status", updateRoom.getStreamId());
+        execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive());
+      }
     }
 
     // services called above return different results and might end up not being called so we explicitly call the API
     // to return the same info in all cases
-    V3RoomDetail updatedRoom = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
+    final V3RoomDetail updatedRoom;
+    if (isObo) {
+       updatedRoom = execution.bdk().obo(authSession).streams().getRoomInfo(updateRoom.getStreamId());
+    } else {
+       updatedRoom = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
+    }
 
     execution.setOutputVariable(OUTPUT_ROOM_KEY, updatedRoom);
+  }
+
+  private boolean isObo(UpdateRoom updateRoom) {
+    return updateRoom.getObo() != null && (updateRoom.getObo().getUsername() != null
+        || updateRoom.getObo().getUserId() != null);
+  }
+
+  private AuthSession getOboAuthSession(ActivityExecutorContext<UpdateRoom> execution, UpdateRoom updateRoomActivity) {
+    if (updateRoomActivity.getObo().getUsername() != null) {
+      return execution.bdk().obo(updateRoomActivity.getObo().getUsername());
+    } else {
+      return execution.bdk().obo(updateRoomActivity.getObo().getUserId());
+    }
   }
 
   private boolean shouldUpdateRoom(UpdateRoom updateRoom) {
