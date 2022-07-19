@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
@@ -69,6 +70,26 @@ class ExecuteRequestIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/execute"));
 
     assertThat(workflow).isExecuted().executed(activitiesToBeExecuted.toArray(new String[0]));
+  }
+
+  @Test
+  void executeRequestEncodeBody(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/request/execute-request-encode-body.swadl.yaml"));
+
+    this.putFirstActivityUrl(workflow, wmRuntimeInfo.getHttpBaseUrl() + "/api");
+
+    stubFor(post(UrlPattern.ANY)
+        .withHeader("Content-Type", containing("multipart/form-data; charset=ISO-8859-1;"))
+        .withRequestBody(containing("Content-Type: text/plain; charset=UTF-8"))
+        .withRequestBody(containing("Content-Disposition: form-data; name=\"text\""))
+        .willReturn(ok()));
+
+    engine.deploy(workflow);
+
+    engine.onEvent(messageReceived("/executeEncodeBody"));
+
+    assertThat(workflow).isExecuted().executed("executeRequestEncodeBody", "assertionScript");
   }
 
   @Test

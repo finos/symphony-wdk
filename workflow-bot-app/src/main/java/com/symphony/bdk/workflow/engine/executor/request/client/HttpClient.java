@@ -64,25 +64,26 @@ public class HttpClient {
       throws IOException {
 
     // set body
-    String contentType = headers.get(HttpHeaders.CONTENT_TYPE);
-    if (body != null && ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
+    String headerContentType = headers.get(HttpHeaders.CONTENT_TYPE);
+    if (body != null && ContentType.MULTIPART_FORM_DATA.getMimeType().equals(headerContentType)) {
 
       final MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder
           .create();
 
       Map<String, Object> bodyAsMap = (LinkedHashMap<String, Object>) body;
-      bodyAsMap.forEach((key, value) -> multipartEntityBuilder.addTextBody(key, value.toString()));
+      ContentType textBodyContentType = ContentType.create("text/plain", StandardCharsets.UTF_8);
+      bodyAsMap.forEach((key, value) -> multipartEntityBuilder.addTextBody(key, value.toString(), textBodyContentType));
 
       request.body(multipartEntityBuilder.build());
 
       // The content type with boundary is provided in the entity, otherwise it is overridden
       headers.remove(HttpHeaders.CONTENT_TYPE);
 
-    } else if (body != null && StringUtils.isNotEmpty(contentType)) {
-      if (contentType.equals(ContentType.APPLICATION_JSON.getMimeType()) && !(body instanceof String)) {
+    } else if (body != null && StringUtils.isNotEmpty(headerContentType)) {
+      if (headerContentType.equals(ContentType.APPLICATION_JSON.getMimeType()) && !(body instanceof String)) {
         request.bodyString(OBJECT_MAPPER.writeValueAsString(body), ContentType.APPLICATION_JSON);
       } else {
-        request.bodyString(body.toString(), ContentType.parse(contentType));
+        request.bodyString(body.toString(), ContentType.parse(headerContentType));
       }
 
     } else if (body != null) { // if no content type is provided, we set application/json by default
