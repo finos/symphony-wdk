@@ -40,7 +40,7 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
         throw new IllegalArgumentException(
             String.format("Room active status update, in activity %s, is not OBO enabled", updateRoom.getId()));
       } else {
-        // this is a different API call but we support it in the same activity
+        // this is a different API call, but we support it in the same activity
         log.debug("Updating room {} active status", updateRoom.getStreamId());
         execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive());
       }

@@ -28,7 +28,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
@@ -52,7 +51,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(streamService.create(uids)).thenReturn(stream);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/create-mim"));
+    engine.onEvent(messageReceived("/create-mim-with-userids"));
     verify(streamService, timeout(5000)).create(uids);
   }
 
@@ -83,7 +82,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(streamService.create(any(V3RoomAttributes.class))).thenReturn(v3RoomDetail);
 
     engine.deploy(workflow);
-    engine.onEvent(IntegrationTest.messageReceived("/create-room"));
+    engine.onEvent(IntegrationTest.messageReceived("/create-room-with-details"));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(streamService, timeout(5000)).create(argumentCaptor.capture());
@@ -137,9 +136,9 @@ class RoomIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/room/obo/create-mim-with-uids-obo-valid-username.swadl.yaml",
-      "/room/obo/create-mim-with-uids-obo-valid-userid.swadl.yaml"})
-  void createRoomWithUidsObo(String workflowFile) throws Exception {
+  @CsvSource({"/room/obo/create-mim-with-uids-obo-valid-username.swadl.yaml,/create-mim-obo-valid-username",
+      "/room/obo/create-mim-with-uids-obo-valid-userid.swadl.yaml, /create-mim-obo-valid-userid"})
+  void createRoomWithUidsObo(String workflowFile, String command) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
     final List<Long> uids = Arrays.asList(666L, 777L, 999L);
@@ -150,7 +149,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/create-mim"));
+    engine.onEvent(messageReceived(command));
     verify(oboStreamService, timeout(5000)).create(uids);
 
     assertThat(workflow)
@@ -159,9 +158,10 @@ class RoomIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/room/obo/create-room-with-details-obo-username.swadl.yaml",
-      "/room/obo/create-room-with-details-obo-userid.swadl.yaml"})
-  void createRoomWithDetailsObo(String workflowFile) throws Exception {
+  @CsvSource(
+      {"/room/obo/create-room-with-details-obo-username.swadl.yaml, /create-room-with-details-obo-valid-username",
+          "/room/obo/create-room-with-details-obo-userid.swadl.yaml, /create-room-with-details-obo-valid-userid"})
+  void createRoomWithDetailsObo(String workflowFile, String command) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
     final String roomName = "The best room ever";
@@ -187,7 +187,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
 
     engine.deploy(workflow);
-    engine.onEvent(IntegrationTest.messageReceived("/create-room"));
+    engine.onEvent(IntegrationTest.messageReceived(command));
 
     ArgumentCaptor<V3RoomAttributes> argumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
     verify(oboStreamService, timeout(5000)).create(argumentCaptor.capture());
@@ -244,67 +244,10 @@ class RoomIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/create-room"));
+    engine.onEvent(messageReceived("/create-room-obo-unauthorized"));
 
     assertThat(workflow).executed("createRoomOboUnauthorized")
         .notExecuted("scriptActivityNotToBeExecuted");
-  }
-
-  private void assertRoomAttributes(V3RoomAttributes expected, V3RoomAttributes actual) {
-    assertThat(actual.getName()).isEqualTo(expected.getName());
-    assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
-    assertThat(actual.getPublic()).isEqualTo(expected.getPublic());
-    assertThat(actual.getCopyProtected()).isEqualTo(expected.getCopyProtected());
-    assertThat(actual.getDiscoverable()).isEqualTo(expected.getDiscoverable());
-    assertThat(actual.getCrossPod()).isEqualTo(expected.getCrossPod());
-    assertThat(actual.getKeywords()).isEqualTo(expected.getKeywords());
-    assertThat(actual.getMembersCanInvite()).isEqualTo(expected.getMembersCanInvite());
-    assertThat(actual.getReadOnly()).isEqualTo(expected.getReadOnly());
-    assertThat(actual.getViewHistory()).isEqualTo(expected.getViewHistory());
-    assertThat(actual.getSubType()).isEqualTo(expected.getSubType());
-  }
-
-  private V3RoomDetail buildRoomDetail(String id, String name, String description, boolean isPublic,
-      Boolean viewHistory, Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected,
-      Boolean multilateralRoom, Boolean memberCanInvite, String subType, List<RoomTag> keywords) {
-    V3RoomDetail v3RoomDetail = new V3RoomDetail();
-    RoomSystemInfo roomSystemInfo = new RoomSystemInfo();
-    roomSystemInfo.setId(id);
-    V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
-    v3RoomAttributes.name(name)
-        .description(description)
-        ._public(isPublic)
-        .viewHistory(viewHistory)
-        .discoverable(discoverable)
-        .readOnly(readOnly)
-        .crossPod(crossPod)
-        .copyProtected(copyProtected)
-        .multiLateralRoom(multilateralRoom)
-        .membersCanInvite(memberCanInvite)
-        .subType(subType)
-        .keywords(keywords);
-    v3RoomDetail.setRoomSystemInfo(roomSystemInfo);
-    v3RoomDetail.setRoomAttributes(v3RoomAttributes);
-
-    return v3RoomDetail;
-  }
-
-  private V3RoomAttributes buildRoomAttributes(String name, String description, Boolean isPublic, Boolean viewHistory,
-      Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected, Boolean multilateralRoom,
-      Boolean memberCanInvite, String subType, List<RoomTag> keywords) {
-    V3RoomAttributes expectedRoomAttributes = new V3RoomAttributes();
-    return expectedRoomAttributes.name(name)
-        .description(description)
-        ._public(isPublic)
-        .viewHistory(viewHistory)
-        .discoverable(discoverable)
-        .readOnly(readOnly)
-        .crossPod(crossPod)
-        .multiLateralRoom(multilateralRoom)
-        .copyProtected(copyProtected)
-        .subType(subType)
-        .membersCanInvite(memberCanInvite)
-        .keywords(keywords);
   }
 
   @Test
@@ -343,7 +286,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(streamService.getRoomInfo("abc")).thenReturn(roomDetail);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/update-room"));
+    engine.onEvent(messageReceived("/update-room-activate"));
 
     verify(streamService, timeout(5000)).setRoomActive("abc", true);
   }
@@ -419,9 +362,9 @@ class RoomIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/room/obo/add-room-member-obo-valid-username.swadl.yaml",
-      "/room/obo/add-room-member-obo-valid-userid.swadl.yaml"})
-  void addRoomMemberObo(String workflowFile) throws Exception {
+  @CsvSource({"/room/obo/add-room-member-obo-valid-username.swadl.yaml, /add-room-member-obo-valid-username",
+      "/room/obo/add-room-member-obo-valid-userid.swadl.yaml, /add-room-member-obo-valid-userid"})
+  void addRoomMemberObo(String workflowFile, String command) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
 
@@ -429,7 +372,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/add-room-member"));
+    engine.onEvent(messageReceived(command));
 
     verify(oboStreamService, timeout(5000)).addMemberToRoom(123L, "abc");
     verify(oboStreamService, timeout(5000)).addMemberToRoom(456L, "abc");
@@ -443,7 +386,7 @@ class RoomIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(String.class))).thenThrow(new RuntimeException("Unauthorized user"));
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/add-room-member"));
+    engine.onEvent(messageReceived("/add-room-member-obo-unauthorized"));
 
     assertThat(workflow).executed("addRoomMember")
         .notExecuted("scriptActivityNotToBeExecuted");
@@ -547,5 +490,62 @@ class RoomIntegrationTest extends IntegrationTest {
 
     verify(streamService, timeout(5000)).searchRooms(refEq(query), refEq(new PaginationAttribute(10, 10)));
     assertThat(workflow).isExecuted();
+  }
+
+  private void assertRoomAttributes(V3RoomAttributes expected, V3RoomAttributes actual) {
+    assertThat(actual.getName()).isEqualTo(expected.getName());
+    assertThat(actual.getDescription()).isEqualTo(expected.getDescription());
+    assertThat(actual.getPublic()).isEqualTo(expected.getPublic());
+    assertThat(actual.getCopyProtected()).isEqualTo(expected.getCopyProtected());
+    assertThat(actual.getDiscoverable()).isEqualTo(expected.getDiscoverable());
+    assertThat(actual.getCrossPod()).isEqualTo(expected.getCrossPod());
+    assertThat(actual.getKeywords()).isEqualTo(expected.getKeywords());
+    assertThat(actual.getMembersCanInvite()).isEqualTo(expected.getMembersCanInvite());
+    assertThat(actual.getReadOnly()).isEqualTo(expected.getReadOnly());
+    assertThat(actual.getViewHistory()).isEqualTo(expected.getViewHistory());
+    assertThat(actual.getSubType()).isEqualTo(expected.getSubType());
+  }
+
+  private V3RoomDetail buildRoomDetail(String id, String name, String description, boolean isPublic,
+      Boolean viewHistory, Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected,
+      Boolean multilateralRoom, Boolean memberCanInvite, String subType, List<RoomTag> keywords) {
+    V3RoomDetail v3RoomDetail = new V3RoomDetail();
+    RoomSystemInfo roomSystemInfo = new RoomSystemInfo();
+    roomSystemInfo.setId(id);
+    V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
+    v3RoomAttributes.name(name)
+        .description(description)
+        ._public(isPublic)
+        .viewHistory(viewHistory)
+        .discoverable(discoverable)
+        .readOnly(readOnly)
+        .crossPod(crossPod)
+        .copyProtected(copyProtected)
+        .multiLateralRoom(multilateralRoom)
+        .membersCanInvite(memberCanInvite)
+        .subType(subType)
+        .keywords(keywords);
+    v3RoomDetail.setRoomSystemInfo(roomSystemInfo);
+    v3RoomDetail.setRoomAttributes(v3RoomAttributes);
+
+    return v3RoomDetail;
+  }
+
+  private V3RoomAttributes buildRoomAttributes(String name, String description, Boolean isPublic, Boolean viewHistory,
+      Boolean discoverable, Boolean readOnly, Boolean crossPod, Boolean copyProtected, Boolean multilateralRoom,
+      Boolean memberCanInvite, String subType, List<RoomTag> keywords) {
+    V3RoomAttributes expectedRoomAttributes = new V3RoomAttributes();
+    return expectedRoomAttributes.name(name)
+        .description(description)
+        ._public(isPublic)
+        .viewHistory(viewHistory)
+        .discoverable(discoverable)
+        .readOnly(readOnly)
+        .crossPod(crossPod)
+        .multiLateralRoom(multilateralRoom)
+        .copyProtected(copyProtected)
+        .subType(subType)
+        .membersCanInvite(memberCanInvite)
+        .keywords(keywords);
   }
 }

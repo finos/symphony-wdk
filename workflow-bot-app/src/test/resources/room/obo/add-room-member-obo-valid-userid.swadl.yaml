@@ -4,7 +4,7 @@ activities:
       id: addRoomMember
       on:
         message-received:
-          content: "/add-room-member"
+          content: "/add-room-member-obo-valid-userid"
       stream-id: abc
       user-ids:
         - 123

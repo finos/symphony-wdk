@@ -4,7 +4,7 @@ activities:
       id: "createRoomOboUnauthorized"
       on:
         message-received:
-          content: "/create-room"
+          content: "/create-room-obo-unauthorized"
       room-name: "The best room ever"
       room-description: "this is room description"
       public: true
