@@ -1,0 +1,18 @@
+id: promote-room-owner-on-behalf-of-user-unauthorized
+activities:
+  - promote-room-owner:
+      id: promoteRoomOwnerOboUnauthorized
+      on:
+        message-received:
+          content: "/promote-room-owner-obo-unauthorized"
+      stream-id: abc
+      user-ids:
+        - 123
+      obo:
+        username: "john"
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

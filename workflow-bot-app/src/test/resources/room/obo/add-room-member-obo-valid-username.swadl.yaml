@@ -1,7 +1,7 @@
 id: add-room-member-on-behalf-of-user-valid-username
 activities:
   - add-room-member:
-      id: addRoomMember
+      id: addRoomMemberOboValidUsername
       on:
         message-received:
           content: "/add-room-member-obo-valid-username"
