@@ -27,7 +27,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
@@ -74,7 +74,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/create-room"));
+    engine.onEvent(messageReceived("/create-room-and-send-msg"));
 
     verify(streamService, timeout(5000).times(1)).create(uids);
     verify(messageService, timeout(5000).times(1)).send(anyString(), any(Message.class));
@@ -138,7 +138,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.send(eq(streamId), any(Message.class))).thenReturn(message);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/send"));
+    engine.onEvent(messageReceived("/send-with-variables"));
 
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<List<Long>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -169,7 +169,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(messageService.send(eq("123"), any(Message.class))).thenReturn(message("MSG_ID"));
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/send"));
+    engine.onEvent(messageReceived("/send-with-freemarker"));
 
     assertThat(workflow).isExecuted();
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -357,6 +357,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
             getClass().getResourceAsStream("/message/send-attachments-from-file-in-message.swadl.yaml"));
     final String content = "<messageML>here is a msg with attachment</messageML>";
 
+    when(messageService.send(eq("123"), any(Message.class))).thenReturn(message("MSG_WITH_ATTACHMENT_ID"));
+
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/send-attachment-from-file"));
 
@@ -385,9 +387,9 @@ class SendMessageIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/message/obo/send-message-obo-valid-username.swadl.yaml",
-      "/message/obo/send-message-obo-valid-userid.swadl.yaml"})
-  void sendMessageObo(String workflowFile) throws Exception {
+  @CsvSource({"/message/obo/send-message-obo-valid-username.swadl.yaml, /message-obo-valid-username",
+      "/message/obo/send-message-obo-valid-userid.swadl.yaml, /message-obo-valid-userid"})
+  void sendMessageObo(String workflowFile, String command) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
     final V4Message message = message("Hello!");
@@ -397,7 +399,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/message"));
+    engine.onEvent(messageReceived(command));
 
     verify(oboMessageService, timeout(5000)).send(anyString(), any(Message.class));
 
@@ -414,7 +416,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/message"));
+    engine.onEvent(messageReceived("/message-obo-unauthorized"));
 
     assertThat(workflow).executed("sendMessageObo")
         .notExecuted("scriptActivityNotToBeExecuted");
@@ -430,7 +432,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
 
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/message"));
+    engine.onEvent(messageReceived("/message-not-supported"));
 
     assertThat(workflow).executed("sendBlastMessageObo")
         .notExecuted("scriptActivityNotToBeExecuted");

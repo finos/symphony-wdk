@@ -4,7 +4,7 @@ activities:
       id: sendBlastMessageObo
       on:
         message-received:
-          content: "/message"
+          content: "/message-not-supported"
       to:
         stream-ids:
           - "123"

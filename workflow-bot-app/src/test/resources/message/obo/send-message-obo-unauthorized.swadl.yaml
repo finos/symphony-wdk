@@ -4,7 +4,7 @@ activities:
       id: sendMessageObo
       on:
         message-received:
-          content: "/message"
+          content: "/message-obo-unauthorized"
       to:
         stream-id: "123"
       content: <messageML>Hello!</messageML>
