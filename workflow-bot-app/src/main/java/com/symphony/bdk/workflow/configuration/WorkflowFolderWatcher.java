@@ -135,6 +135,9 @@ public class WorkflowFolderWatcher {
   }
 
   private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
+    if (workflowFile.toFile().length() == 0) {
+      return;
+    }
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     workflowEngine.deploy(workflow);
     deployedWorkflows.put(workflowFile, workflow.getId());
