@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor;
 
+import com.symphony.bdk.core.OboServices;
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
@@ -29,6 +31,12 @@ public interface BdkGateway {
    * @return BDK service to manage connections.
    */
   ConnectionService connections();
+
+  OboServices obo(AuthSession oboSession);
+
+  AuthSession obo(String username);
+
+  AuthSession obo(Long userId);
 
   /**
    * @return BDK service to manage Symphony groups (aka SDLs).

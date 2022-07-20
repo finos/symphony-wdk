@@ -1,0 +1,13 @@
+id: create-mim-with-valid-username-obo-workflow
+activities:
+  - create-room:
+      id: createRoomObo
+      on:
+        message-received:
+          content: "/create-mim-obo-valid-username"
+      user-ids:
+        - 666
+        - 777
+        - 999
+      obo:
+        username: "john"

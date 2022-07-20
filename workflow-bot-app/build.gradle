@@ -50,6 +50,9 @@ dependencies {
         }
     }
 
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'

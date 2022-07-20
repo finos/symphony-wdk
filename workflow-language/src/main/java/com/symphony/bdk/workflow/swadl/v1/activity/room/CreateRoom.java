@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,8 +20,10 @@ import javax.annotation.Nullable;
 public class CreateRoom extends BaseActivity {
   @Nullable private String roomName;
   @Nullable private String roomDescription;
-  private List<Long> userIds;
   @Nullable private Map<String, String> keywords;
+  @Nullable private String subType;
+  @Nullable private Obo obo;
+  private List<Long> userIds;
   private Boolean membersCanInvite;
   private Boolean discoverable;
   private Boolean readOnly;
@@ -28,7 +31,6 @@ public class CreateRoom extends BaseActivity {
   private Boolean crossPod;
   private Boolean viewHistory;
   private Boolean multilateralRoom;
-  @Nullable private String subType;
 
   @JsonProperty("public")
   private Boolean isPublic;
@@ -45,4 +47,3 @@ public class CreateRoom extends BaseActivity {
     private String value;
   }
 }
-

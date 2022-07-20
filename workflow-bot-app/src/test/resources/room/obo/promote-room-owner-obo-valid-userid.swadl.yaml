@@ -1,0 +1,12 @@
+id: promote-room-owner-on-behalf-of-user-valid-userid
+activities:
+  - promote-room-owner:
+      id: promoteRoomOwnerOboValidUserid
+      on:
+        message-received:
+          content: "/promote-room-owner-obo-valid-userid"
+      stream-id: abc
+      user-ids:
+        - 123
+      obo:
+        user-id: 12345

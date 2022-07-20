@@ -1,0 +1,19 @@
+id: remove-room-member-on-behalf-of-user-unauthorized
+activities:
+  - remove-room-member:
+      id: removeRoomMemberOboUnauthorized
+      on:
+        message-received:
+          content: "/remove-room-member-obo-unauthorized"
+      stream-id: abc
+      user-ids:
+        - 123
+        - 456
+      obo:
+        username: "john"
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

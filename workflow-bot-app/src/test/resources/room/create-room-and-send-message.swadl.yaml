@@ -1,17 +1,17 @@
-id: my-proposal
+id: create-room-and-send-message
 activities:
-  - create-room: #has as output {"streamId": "AbcDEFgHiJK"}
+  - create-room:
       id: createRoom
       on:
         message-received:
-          content: "/create-room"
+          content: "/create-room-and-send-msg"
       room-name: Test
-      user-ids:  #optional if name is set
+      user-ids:
         - 1234
         - 5678
       public: true
 
-  - send-message: #has as output {"messageId": "LmNOpqrStUVw"}
+  - send-message:
       id: sendmessageid
       to:
         stream-id: ${createRoom.outputs.roomId}

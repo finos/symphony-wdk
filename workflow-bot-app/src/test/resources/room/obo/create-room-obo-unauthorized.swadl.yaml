@@ -1,10 +1,10 @@
-id: create-room-with-details-workflow
+id: create-room-obo-unauthroized
 activities:
   - create-room:
-      id: "create_room_with_details"
+      id: "createRoomOboUnauthorized"
       on:
         message-received:
-          content: "/create-room-with-details"
+          content: "/create-room-obo-unauthorized"
       room-name: "The best room ever"
       room-description: "this is room description"
       public: true
@@ -19,5 +19,11 @@ activities:
       multilateral-room: false
       members-can-invite: true
       sub-type: EMAIL
+      obo:
+        user-id: 12345
 
-
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

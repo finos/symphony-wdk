@@ -1,0 +1,18 @@
+id: update-room-obo-unauthorized
+activities:
+  - update-room:
+      id: updateRoomOboUnauthorized
+      on:
+        message-received:
+          content: "/update-room-obo-unauthorized"
+      stream-id: abc
+      room-description: "Test"
+      discoverable: true
+      obo:
+        user-id: 12345
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

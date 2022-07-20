@@ -1,0 +1,13 @@
+id: add-room-member-on-behalf-of-user-valid-username
+activities:
+  - add-room-member:
+      id: addRoomMemberOboValidUsername
+      on:
+        message-received:
+          content: "/add-room-member-obo-valid-username"
+      stream-id: abc
+      user-ids:
+        - 123
+        - 456
+      obo:
+        username: "john"

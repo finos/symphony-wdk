@@ -1,0 +1,18 @@
+id: send-message-on-behalf-of-user-unauthorized
+activities:
+  - send-message:
+      id: sendMessageObo
+      on:
+        message-received:
+          content: "/message-obo-unauthorized"
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>
+      obo:
+        user-id: 12345
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

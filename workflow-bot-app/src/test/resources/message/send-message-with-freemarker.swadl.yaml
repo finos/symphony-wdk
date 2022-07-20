@@ -10,4 +10,4 @@ activities:
         stream-id: "123"
       on:
         message-received:
-          content: "/send"
+          content: "/send-with-freemarker"

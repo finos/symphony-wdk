@@ -4,7 +4,7 @@ activities:
       id: "create_room_with_details"
       on:
         message-received:
-          content: "/create-room-with-details"
+          content: "/create-room-with-details-obo-valid-username"
       room-name: "The best room ever"
       room-description: "this is room description"
       public: true
@@ -19,5 +19,5 @@ activities:
       multilateral-room: false
       members-can-invite: true
       sub-type: EMAIL
-
-
+      obo:
+        username: "john"

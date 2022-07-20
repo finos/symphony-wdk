@@ -7,7 +7,7 @@ activities:
       content: "<messageML>hello</messageML>"
       on:
         message-received:
-          content: "/send"
+          content: "/send-with-variables"
       to:
         user-ids:
           - ${variables.foo}

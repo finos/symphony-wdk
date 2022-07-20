@@ -1,0 +1,16 @@
+id: update-room-obo-valid-userid
+activities:
+  - update-room:
+      id: updateRoomValidUserId
+      on:
+        message-received:
+          content: "/update-room-obo-userid"
+      stream-id: abc
+      room-description: "Test"
+      discoverable: true
+      obo:
+        user-id: 1234
+  - execute-script:
+      id: checkOutputOboUserId
+      script: |
+        assert updateRoomValidUserId.outputs.room.roomSystemInfo.id == "abc"
