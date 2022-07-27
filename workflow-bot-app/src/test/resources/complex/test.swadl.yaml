@@ -1,0 +1,20 @@
+id: ghi
+activities:
+  - send-message:
+      id: init
+      on:
+        message-received:
+          content: ghi
+      content: |
+        <form id="init"><button type="action" name="x">Init</button></form>
+  - update-message:
+      id: aloha
+      on:
+        one-of:
+          - form-replied:
+              form-id: init
+              exclusive: true
+          - message-received:
+              content: hey
+      message-id: ${init.outputs.msgId}
+      content: Hey
