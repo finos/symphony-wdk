@@ -9,6 +9,13 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Model represent a node/element in a workflow graph.
+ *
+ * It could be an event or an activity
+ * @see Event
+ * @see BaseActivity
+ */
 @Data
 @NoArgsConstructor
 public class WorkflowNode {
@@ -45,6 +52,10 @@ public class WorkflowNode {
 
   public boolean isConditional() {
     return !this.ifConditions.isEmpty();
+  }
+
+  public boolean isConditional(String parentId) {
+    return !this.ifConditions.isEmpty() && this.ifConditions.containsKey(parentId);
   }
 
   public String getIfCondition(String parentId) {

@@ -18,9 +18,8 @@ import org.springframework.stereotype.Component;
 public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
 
   @Override
-  public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, AbstractFlowNodeBuilder<?, ?> builder,
-      BuildProcessContext context)
-      throws JsonProcessingException {
+  public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId, AbstractFlowNodeBuilder<?, ?> builder,
+      BuildProcessContext context) throws JsonProcessingException {
     return addTask(builder, element.getActivity(), context);
   }
 
@@ -40,13 +39,12 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
 
   private AbstractFlowNodeBuilder<?, ?> addScriptTask(AbstractFlowNodeBuilder<?, ?> builder,
       ExecuteScript scriptActivity) {
-    builder = builder.scriptTask()
+    return builder.scriptTask()
         .id(scriptActivity.getId())
         .name(scriptActivity.getId())
         .scriptText(scriptActivity.getScript())
         .scriptFormat(ExecuteScript.SCRIPT_ENGINE)
         .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ScriptTaskAuditListener.class);
-    return builder;
   }
 
   private AbstractFlowNodeBuilder<?, ?> addServiceTask(AbstractFlowNodeBuilder<?, ?> builder, BaseActivity activity)

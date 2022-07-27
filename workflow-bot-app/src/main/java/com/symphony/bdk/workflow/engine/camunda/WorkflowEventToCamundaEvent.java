@@ -271,6 +271,10 @@ public class WorkflowEventToCamundaEvent {
       String presentationMl = event.getSource().getMessage().getMessage();
       String receivedContent = PresentationMLParser.getTextContent(presentationMl);
 
+      runtimeService.createMessageCorrelation(MESSAGE_PREFIX + receivedContent)
+          .setVariables(processVariables)
+          .correlateAll();
+
       List<EventSubscription> subscribedSignals = runtimeService.createEventSubscriptionQuery()
           .eventType(EventType.SIGNAL.name())
           .list();

@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine;
 
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,13 +14,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A direct graph class representing the SWADL workflow
+ *
+ * @see Workflow
+ */
 public class WorkflowDirectGraph {
+  /**
+   * Dictionary map, workflow element id as key, element itself as value
+   */
   @Getter(AccessLevel.PACKAGE)
   private final Map<String, WorkflowNode> dictionary = new HashMap<>();
+  /**
+   * Graph map, workflow element id as key, children elements list as value
+   */
   private final Map<String, NodeChildren> graph = new HashMap<>();
+  /**
+   * Parents map, workflow element id as key, its parents element ids as value
+   */
   @Getter(AccessLevel.PACKAGE)
   private final Map<String, Set<String>> parents = new HashMap<>();
 
+  /**
+   * Workflow start events list
+   */
   @Getter
   private final List<String> startEvents = new ArrayList<>();
 
@@ -32,6 +51,10 @@ public class WorkflowDirectGraph {
 
   public void registerToDictionary(String id, WorkflowNode node) {
     dictionary.put(id, node);
+  }
+
+  public boolean isRegistered(String id) {
+    return dictionary.containsKey(id);
   }
 
   public NodeChildren addChildTo(String id) {
@@ -61,7 +84,7 @@ public class WorkflowDirectGraph {
   @AllArgsConstructor
   public static class NodeChildren {
     @Getter
-    private Gateway gateway = Gateway.EXCLUSIVE;
+    private Gateway gateway;
     @Getter
     private List<String> children = new ArrayList<>();
 

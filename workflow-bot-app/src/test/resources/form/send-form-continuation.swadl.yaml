@@ -40,4 +40,4 @@ activities:
           activity-id: reply1
       to:
         stream-id: ABC
-      content: afterReply1
+      content: afterReply1Timeout

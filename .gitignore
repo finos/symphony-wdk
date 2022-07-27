@@ -103,7 +103,4 @@ workflows/*
 
 datafeed.id
 data/*
-*.css
-*.html
-*.js
 .java-version

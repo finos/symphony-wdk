@@ -9,11 +9,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -212,7 +214,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     assertThatExceptionOfType(ActivityNotFoundException.class)
         .isThrownBy(() -> engine.deploy(workflow))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
-            "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id formReply_unknownActivityId referenced in pongReply"));
+            "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));
   }
 
   @Test
@@ -279,4 +281,49 @@ class FormReplyIntegrationTest extends IntegrationTest {
         .executed("init", "check");
   }
 
+  @Test
+  void sendFormUpdateMessage() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    V4Message message = new V4Message();
+    message.setMessage("<presentationML>/hey</presentationML>");
+    message.messageId("msgId");
+    when(messageService.getMessage(anyString())).thenReturn(message);
+    when(messageService.update(any(V4Message.class), any(Message.class))).thenReturn(message);
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/init"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
+      engine.onEvent(form("msgId", "init", Collections.singletonMap("action", "x")));
+      assertThat(workflow).executed("init", "update");
+    });
+  }
+
+  @Test
+  void sendMessageUpdateMessage() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+    V4Message message = new V4Message();
+    message.setMessage("<presentationML>/hey</presentationML>");
+    message.messageId("msgId");
+    when(messageService.getMessage(anyString())).thenReturn(message);
+    when(messageService.update(any(V4Message.class), any(Message.class))).thenReturn(message);
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/init"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
+      engine.onEvent(messageReceived("/hey"));
+      assertThat(workflow).executed("init", "message-received_/hey", "update");
+    });
+  }
 }
