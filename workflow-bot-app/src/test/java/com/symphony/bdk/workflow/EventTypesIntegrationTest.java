@@ -48,6 +48,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 class EventTypesIntegrationTest extends IntegrationTest {
@@ -143,10 +144,9 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
-    sleepToTimeout(500);
     ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-
-    verify(messageService, times(1)).send(anyString(), argumentCaptor.capture());
+    await().atMost(2, TimeUnit.SECONDS)
+        .untilAsserted(() -> verify(messageService, times(1)).send(anyString(), argumentCaptor.capture()));
 
     assertThat(argumentCaptor.getValue().getContent()).as("expirationActivity has been executed")
         .isEqualTo("<messageML>Expired</messageML>");
@@ -191,10 +191,9 @@ class EventTypesIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
-    sleepToTimeout(500);
-
     ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
-    verify(messageService, timeout(5000).times(1)).send(anyString(), messageArgumentCaptor.capture());
+    await().atMost(2, TimeUnit.SECONDS)
+        .untilAsserted(() -> verify(messageService, times(1)).send(anyString(), messageArgumentCaptor.capture()));
 
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Expired</messageML>");
     assertThat(workflow).executed("firstActivity", "expirationActivity", "scriptActivityToBeExecuted")

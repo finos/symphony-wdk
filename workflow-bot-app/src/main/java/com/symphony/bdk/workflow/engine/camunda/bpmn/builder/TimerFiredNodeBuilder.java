@@ -12,8 +12,11 @@ import org.springframework.stereotype.Component;
 public class TimerFiredNodeBuilder extends AbstractNodeBpmnBuilder {
 
   @Override
-  public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, AbstractFlowNodeBuilder<?, ?> builder,
-      BuildProcessContext context) {
+  public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
+    if (!(builder instanceof AbstractCatchEventBuilder)) {
+      builder = builder.eventBasedGateway().intermediateCatchEvent();
+    }
     if (element.getEvent().getTimerFired().getRepeat() != null) {
       builder = ((AbstractCatchEventBuilder<?, ?>) builder)
           .timerWithCycle(element.getEvent().getTimerFired().getRepeat());

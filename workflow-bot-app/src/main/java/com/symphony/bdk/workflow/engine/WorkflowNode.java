@@ -47,6 +47,10 @@ public class WorkflowNode {
     return !this.ifConditions.isEmpty();
   }
 
+  public boolean isConditional(String parentId) {
+    return !this.ifConditions.isEmpty() && this.ifConditions.containsKey(parentId);
+  }
+
   public String getIfCondition(String parentId) {
     return this.ifConditions.get(parentId);
   }

@@ -1,14 +1,19 @@
 package com.symphony.bdk.workflow.engine;
 
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext.DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.Gateway;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
+import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.RelationalEvents;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class WorkflowDirectGraphBuilder {
-  private static final String DEFAULT_FORM_REPLIED_EVENT_TIMEOUT = "PT24H";
+  private static final String TIMEOUT_SUFFIX = "_timeout";
   /**
    * element id is key, element parent id is value
    */
@@ -39,60 +44,74 @@ public class WorkflowDirectGraphBuilder {
     for (int i = 0; i < activities.size(); i++) {
       Activity activity = activities.get(i);
       String activityId = activity.getActivity().getId();
-      RelationalEvents onEvents = getOnEvents(Optional.of(activity));
-
-      if (onEvents.isEmpty()) {
-        if (i == 0) {
-          throw new NoStartingEventException(workflow.getId());
-        } else {
-          directGraph.addChildTo(activities.get(i - 1).getActivity().getId()).addChild(activityId);
-          directGraph.addParent(activityId, activities.get(i - 1).getActivity().getId());
-          if (activity.getActivity().getIfCondition() != null) {
-            directGraph.readWorkflowNode(activityId)
-                .addIfCondition(activities.get(i - 1).getActivity().getId(), activity.getActivity().getIfCondition());
-          }
-        }
-      }
+      RelationalEvents onEvents = activity.getEvents();
+      computeStandaloneActivities(activities, directGraph, i, activity, activityId, onEvents);
       computeEvents(i, activityId, onEvents, activities, directGraph);
     }
     return directGraph;
   }
 
-  private void computeEvents(int activityIndex, String activityId, RelationalEvents onEvents,
-      List<Activity> activities, WorkflowDirectGraph directGraph) {
+  private void computeStandaloneActivities(List<Activity> activities, WorkflowDirectGraph directGraph, int index,
+      Activity activity, String activityId, RelationalEvents onEvents) {
+    if (onEvents.isEmpty()) {
+      if (index == 0) {
+        throw new NoStartingEventException(workflow.getId());
+      } else {
+        directGraph.addChildTo(activities.get(index - 1).getActivity().getId()).addChild(activityId);
+        directGraph.addParent(activityId, activities.get(index - 1).getActivity().getId());
+        if (activity.getActivity().getIfCondition() != null) {
+          directGraph.readWorkflowNode(activityId)
+              .addIfCondition(activities.get(index - 1).getActivity().getId(), activity.getActivity().getIfCondition());
+        } else if (activity.getActivity().getElseCondition() != null) {
+          throw new InvalidActivityException(workflow.getId(),
+              "Expecting \"if\" keyword to open a new conditional branching, got \"else\"");
+        }
+      }
+    }
+  }
+
+  private void computeEvents(int activityIndex, String activityId, RelationalEvents onEvents, List<Activity> activities,
+      WorkflowDirectGraph directGraph) {
     for (Event event : onEvents.getEvents()) {
-      String nodeId = "";
+      String eventNodeId = "";
       if (isTimerFiredEvent(event)) {
-        nodeId = eventMapper.toTimerFiredEventName(event.getTimerFired());
-        computeFirstActivity(activityIndex, activities, nodeId, onEvents.isExclusive(), directGraph);
-        directGraph.registerToDictionary(nodeId,
-            new WorkflowNode().id(nodeId).event(event).elementType(WorkflowNodeType.TIMER_FIRED_EVENT));
+        eventNodeId = eventMapper.toTimerFiredEventName(event.getTimerFired());
+        computeActivity(activityIndex, activities, eventNodeId, event, onEvents.isExclusive(), directGraph);
+        directGraph.registerToDictionary(eventNodeId,
+            new WorkflowNode().id(eventNodeId).event(event).elementType(WorkflowNodeType.TIMER_FIRED_EVENT));
       } else {
         Optional<String> signalName = eventMapper.toSignalName(event, workflow);
         if (signalName.isPresent()) {
-          nodeId =
-              computeSignal(activityIndex, onEvents.isExclusive(), activities, directGraph, event, signalName.get());
+          eventNodeId = signalName.get();
+          computeActivity(activityIndex, activities, eventNodeId, event, onEvents.isExclusive(), directGraph);
+          computeSignal(directGraph, event, eventNodeId, activityIndex, activityId, activities);
         } else if (event.getActivityExpired() != null) {
-          nodeId = computeExpiredActivity(event, activityId, directGraph);
+          eventNodeId = computeExpiredActivity(event, activityId, directGraph);
         } else if (event.getActivityFailed() != null) {
-          nodeId = event.getActivityFailed().getActivityId();
-          validateNodeId(nodeId, activityId);
+          eventNodeId = event.getActivityFailed().getActivityId();
+          validateNodeId(eventNodeId, activityId);
           directGraph.readWorkflowNode(activityId).setElementType(WorkflowNodeType.ACTIVITY_FAILED_EVENT);
         } else if (event.getActivityCompleted() != null) {
-          nodeId = event.getActivityCompleted().getActivityId();
-          validateNodeId(nodeId, activityId);
-          directGraph.readWorkflowNode(nodeId).setElementType(WorkflowNodeType.ACTIVITY_COMPLETED_EVENT);
-          if (event.getActivityCompleted().getIfCondition() != null) {
-            directGraph.readWorkflowNode(activityId)
-                .addIfCondition(nodeId, event.getActivityCompleted().getIfCondition());
-          }
+          eventNodeId = event.getActivityCompleted().getActivityId();
+          validateNodeId(eventNodeId, activityId);
+          directGraph.readWorkflowNode(eventNodeId).setElementType(WorkflowNodeType.ACTIVITY_COMPLETED_EVENT);
+          BaseActivity currentActivity = activities.get(activityIndex).getActivity();
+          Optional<String> condition = retrieveCondition(event.getActivityCompleted(), currentActivity, directGraph);
+          String finalNodeId = eventNodeId;
+          condition.ifPresent(c -> directGraph.readWorkflowNode(activityId).addIfCondition(finalNodeId, c));
         }
       }
-      directGraph.addChildTo(nodeId)
-          .gateway(onEvents.isExclusive() ? Gateway.EXCLUSIVE : Gateway.PARALLEL)
+      directGraph.addChildTo(eventNodeId)
+          .gateway(onEvents.isExclusive() ? Gateway.EVENT_BASED : Gateway.PARALLEL)
           .addChild(activityId);
-      directGraph.addParent(activityId, nodeId);
+      directGraph.addParent(activityId, eventNodeId);
     }
+  }
+
+  private Optional<String> retrieveCondition(ActivityCompletedEvent event, BaseActivity activity,
+      WorkflowDirectGraph directGraph) {
+    return event.getIfCondition() != null ? Optional.of(event.getIfCondition())
+        : Optional.ofNullable(activity.getIfCondition());
   }
 
   private void validateNodeId(String currentNodeId, String activityId) {
@@ -103,20 +122,30 @@ public class WorkflowDirectGraphBuilder {
     }
   }
 
-  private String computeSignal(int activityIndex, boolean isExclusive, List<Activity> activities,
-      WorkflowDirectGraph directGraph, Event event, String nodeId) {
-    computeFirstActivity(activityIndex, activities, nodeId, isExclusive, directGraph);
-    WorkflowNode signalEvent = new WorkflowNode().id(nodeId).event(event);
+  private void computeSignal(WorkflowDirectGraph directGraph, Event event, String eventNodeId, int activityIndex,
+      String activityId, List<Activity> activities) {
+    WorkflowNode signalEvent = new WorkflowNode().id(eventNodeId).event(event);
     if (isFormRepliedEvent(event)) {
-      validateNodeId(nodeId.substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()), activities.get(activityIndex).getActivity().getId());
+      validateNodeId(eventNodeId.substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()), activityId);
       if (event instanceof EventWithTimeout && StringUtils.isEmpty(((EventWithTimeout) event).getTimeout())) {
         ((EventWithTimeout) event).setTimeout(DEFAULT_FORM_REPLIED_EVENT_TIMEOUT);
       }
-      directGraph.registerToDictionary(nodeId, signalEvent.elementType(WorkflowNodeType.FORM_REPLIED_EVENT));
+      directGraph.registerToDictionary(eventNodeId, signalEvent.elementType(WorkflowNodeType.FORM_REPLIED_EVENT));
     } else {
-      directGraph.registerToDictionary(nodeId, signalEvent.elementType(WorkflowNodeType.SIGNAL_EVENT));
+      Activity activity = activities.get(activityIndex);
+      String timeout = activity.getActivity().getOn().getTimeout(); // timeout value from on event
+      if ((event instanceof EventWithTimeout && StringUtils.isNotEmpty(((EventWithTimeout) event).getTimeout()))
+          // timeout value from activity itself
+          || StringUtils.isNotEmpty(timeout)) {
+        timeout = timeout == null ? ((EventWithTimeout) event).getTimeout() : timeout;
+        // in case of oneOf events list, there might be a timeout setup at 'on' level, this timeout will be applied to
+        // every event in the onfOf list, check if it is already registered, avoid repeating multiple of them
+        String newTimeoutEventId = eventNodeId + TIMEOUT_SUFFIX;
+        String parentId = directGraph.getParents(eventNodeId).get(0);
+        registerTimeoutEvent(directGraph, newTimeoutEventId, parentId, timeout);
+      }
+      directGraph.registerToDictionary(eventNodeId, signalEvent.elementType(WorkflowNodeType.SIGNAL_EVENT));
     }
-    return nodeId;
   }
 
   private String computeExpiredActivity(Event event, String activityId, WorkflowDirectGraph directGraph) {
@@ -125,39 +154,63 @@ public class WorkflowDirectGraphBuilder {
     String grandParentId = directGraph.getParents(parentActivity).get(0);
 
     WorkflowNode parentNode = directGraph.readWorkflowNode(parentActivity);
-    if (parentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT && !parentNode.getEvent()
-        .getFormReplied()
-        .getExclusive()) {
+    if (parentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT) {
       directGraph.readWorkflowNode(activityId).setElementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT);
       return parentActivity;
     } else {
+      String newTimeoutEvent = parentActivity + TIMEOUT_SUFFIX;
       String timeout = ((EventWithTimeout) parentNode.getEvent()).getTimeout();
-      timeout = timeout == null ? DEFAULT_FORM_REPLIED_EVENT_TIMEOUT : timeout;
-      String newTimeoutEvent = parentActivity + "_timeout";
-
-      EventWithTimeout timeoutEvent = new EventWithTimeout();
-      timeoutEvent.setTimeout(timeout);
-      directGraph.registerToDictionary(newTimeoutEvent, new WorkflowNode().id(newTimeoutEvent)
-          .event(timeoutEvent)
-          .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT));
-      directGraph.addParent(newTimeoutEvent, grandParentId);
-
-      directGraph.addChildTo(grandParentId).gateway(Gateway.EVENT_BASED).addChild(newTimeoutEvent);
+      registerTimeoutEvent(directGraph, newTimeoutEvent, grandParentId,
+          Optional.ofNullable(timeout).orElse(DEFAULT_FORM_REPLIED_EVENT_TIMEOUT));
       return newTimeoutEvent;
     }
   }
 
-  private void computeFirstActivity(int activityIndex, List<Activity> activities, String nodeId, boolean isExclusive,
+  private void registerTimeoutEvent(WorkflowDirectGraph directGraph, String timeoutEventId, String parentId,
+      String timeoutValue) {
+    if (!directGraph.isRegistered(timeoutEventId)) {
+      EventWithTimeout timeoutEvent = new EventWithTimeout();
+      timeoutEvent.setTimeout(timeoutValue);
+      directGraph.registerToDictionary(timeoutEventId, new WorkflowNode().id(timeoutEventId)
+          .event(timeoutEvent)
+          .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT));
+      directGraph.addParent(timeoutEventId, parentId);
+      directGraph.addChildTo(parentId).gateway(Gateway.EVENT_BASED).addChild(timeoutEventId);
+    }
+  }
+
+  private void computeActivity(int activityIndex, List<Activity> activities, String nodeId, Event event,
+      boolean isExclusive,
       WorkflowDirectGraph directGraph) {
     if (activityIndex == 0) {
+      validateActivity(activityIndex, activities, event);
       directGraph.addStartEvent(nodeId);
       directGraph.addParent(nodeId, nodeId);
     } else {
       directGraph.addChildTo(activities.get(activityIndex - 1).getActivity().getId())
-          .gateway(isExclusive ? Gateway.EXCLUSIVE : Gateway.PARALLEL)
+          .gateway(isExclusive ? Gateway.EVENT_BASED : Gateway.PARALLEL)
           .addChild(nodeId);
       directGraph.addParent(nodeId, activities.get(activityIndex - 1).getActivity().getId());
     }
+  }
+
+  private void validateActivity(int activityIndex, List<Activity> activities, Event event) {
+    BaseActivity activity = activities.get(activityIndex).getActivity();
+    if (isConditional(activity)) {
+      throw new InvalidActivityException(workflow.getId(),
+          String.format("Starting activity %s cannot have a conditional branching", activity.getId()));
+    }
+    if (event instanceof EventWithTimeout && StringUtils.isNotEmpty(((EventWithTimeout) event).getTimeout())) {
+      throw new InvalidActivityException(workflow.getId(),
+          String.format("Workflow's starting activity %s should not have timeout",
+              activity.getId()));
+    }
+  }
+
+  private boolean isConditional(BaseActivity activity) {
+    return activity.getIfCondition() != null || (activity.getOn() != null
+        && activity.getOn().getActivityCompleted() != null
+        && activity.getOn().getActivityCompleted().getIfCondition() != null);
   }
 
   private boolean isTimerFiredEvent(Event event) {
@@ -168,7 +221,4 @@ public class WorkflowDirectGraphBuilder {
     return event.getFormReplied() != null;
   }
 
-  private RelationalEvents getOnEvents(Optional<Activity> optionalActivity) {
-    return optionalActivity.map(Activity::getEvents).orElseThrow(() -> new NoStartingEventException(workflow.getId()));
-  }
 }

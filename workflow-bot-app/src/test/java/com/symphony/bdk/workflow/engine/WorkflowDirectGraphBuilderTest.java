@@ -32,7 +32,7 @@ class WorkflowDirectGraphBuilderTest {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/complex/approval.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    then(directGraph.getDictionary()).hasSize(9);
+    then(directGraph.getDictionary()).hasSize(8);
     then(directGraph.getStartEvents()).hasSize(1);
   }
 
@@ -49,7 +49,8 @@ class WorkflowDirectGraphBuilderTest {
   @Test
   @DisplayName("Build connection workflow into a direct graph")
   void buildWorkflowDirectGraph_connectionFlow() throws Exception {
-    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/complex/connection-admin-approval.swadl.yaml"));
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/complex/connection-admin-approval.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
     then(directGraph.getDictionary()).hasSize(8);

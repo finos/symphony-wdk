@@ -8,7 +8,6 @@ import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderFactory;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
-import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,13 +18,19 @@ import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
+import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
+import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
+
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasActivitiesOnly;
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasLoopAfterSubProcess;
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasAllConditionalChildren;
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasConditionalString;
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.ERROR_CODE;
 
 /**
  * Events are created with async before to make sure they are not blocking the dispatch of events (starting or
@@ -35,6 +40,8 @@ import java.util.Optional;
 @Component
 public class CamundaBpmnBuilder {
   public static final String DEPLOYMENT_RESOURCE_TOKEN_KEY = "WORKFLOW_TOKEN";
+  public static final String EXCLUSIVE_GATEWAY_SUFFIX = "_exclusive_gateway";
+  public static final String EVENT_GATEWAY_SUFFIX = "_event_gateway";
 
   private final RepositoryService repositoryService;
   private final WorkflowEventToCamundaEvent eventToMessage;
@@ -76,113 +83,104 @@ public class CamundaBpmnBuilder {
     return deploymentBuilder;
   }
 
-  private void buildWorkflowInDfs(NodeChildren nodes, String parentNodeId, BuildProcessContext context)
-      throws JsonProcessingException {
-    List<String> children = nodes.getChildren();
-    for (String currentNodeId : children) {
-      WorkflowNode currentNode = context.readWorkflowNode(currentNodeId);
-      AbstractFlowNodeBuilder<?, ?> camundaBuilder = context.getNodeBuilder(parentNodeId);
-      if (context.isAlreadyBuilt(currentNodeId)) {
-        if (currentNode.isConditional()) {
-          /* shit code */
-          if (!(camundaBuilder instanceof AbstractGatewayBuilder)) {
-            camundaBuilder.exclusiveGateway(currentNodeId + "_exclusive_gateway")
-                .condition("if", currentNode.getIfCondition(parentNodeId))
-                .connectTo(currentNodeId)
-                .moveToNode(currentNodeId + "_exclusive_gateway")
-                .endEvent();
-          } else {
-            camundaBuilder.condition("if", currentNode.getIfCondition(parentNodeId))
-                .connectTo(currentNodeId);
-          }
-          /* end shit */
-        } else {
-          camundaBuilder.connectTo(currentNodeId);
-        }
-        continue;
-      } else {
-        if (camundaBuilder instanceof AbstractGatewayBuilder && currentNode.isConditional()) {
-          camundaBuilder = camundaBuilder.condition("if", currentNode.getIfCondition(parentNodeId));
-        }
-        camundaBuilder =
-            builderFactory.getBuilder(currentNode).build(currentNode, camundaBuilder, context);
-      }
-      computeChildren(currentNodeId, currentNode, camundaBuilder, context);
-    }
-  }
-
-  private void computeChildren(String currentNodeId, WorkflowNode currentNode,
-      AbstractFlowNodeBuilder<?, ?> camundaBuilder, BuildProcessContext context)
-      throws JsonProcessingException {
-    NodeChildren currentNodeChildren = context.readChildren(currentNode.getId());
-    if (currentNodeChildren != null) {
-      if ((currentNode.getElementType() != WorkflowNodeType.FORM_REPLIED_EVENT || isExclusiveFormRepliedNode(
-          currentNode)) && !currentNodeChildren.isChildUnique()) {
-        switch (currentNodeChildren.getGateway()) {
-          case EVENT_BASED:
-            camundaBuilder = camundaBuilder.eventBasedGateway().id(currentNodeId + "_event_gateway");
-            break;
-          case EXCLUSIVE:
-            camundaBuilder = camundaBuilder.exclusiveGateway(currentNodeId + "_exclusive_gateway");
-        }
-      }
-      /*   this is a shit */
-      else if (currentNodeChildren.isChildUnique() && isExclusiveFormRepliedNode(
-          context.readWorkflowNode(currentNodeChildren.getUniqueChild()))) {
-        camundaBuilder = camundaBuilder.eventBasedGateway().id(currentNodeId + "_event_gateway");
-        currentNodeChildren.gateway(WorkflowDirectGraph.Gateway.EVENT_BASED);
-        String newTimeoutEvent = currentNodeId + "_timeout";
-        currentNodeChildren.addChild(newTimeoutEvent);
-
-        EventWithTimeout timeoutEvent = new EventWithTimeout();
-        timeoutEvent.setTimeout("PT24H");
-        context.registerToDictionary(newTimeoutEvent, new WorkflowNode().id(newTimeoutEvent)
-            .event(timeoutEvent)
-            .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT));
-        context.addParent(newTimeoutEvent, currentNodeId);
-        /* end shit */
-      } else if (
-          currentNodeChildren.isChildUnique() && context.isAlreadyBuilt(
-              currentNodeChildren.getUniqueChild())) {
-        // in case of conditional loop, add a default end event
-        if (!context.readWorkflowNode(currentNodeChildren.getUniqueChild()).isConditional()) {
-          camundaBuilder.endEvent();
-        }
-      }
-      context.addNodeBuilder(currentNodeId, camundaBuilder);
-      buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
-    } else {
-      camundaBuilder = camundaBuilder.endEvent();
-      context.addLastNodeBuilder(camundaBuilder);
-    }
-  }
-
-  private boolean isExclusiveFormRepliedNode(WorkflowNode currentNode) {
-    return currentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT && currentNode.getEvent()
-        .getFormReplied()
-        .getExclusive();
-  }
-
   private BpmnModelInstance workflowToBpmn(Workflow workflow) throws JsonProcessingException {
     // spaces are not supported in BPMN here
     String processId = workflow.getId().replaceAll("\\s+", "");
     ProcessBuilder process = Bpmn.createExecutableProcess(processId).name(workflow.getId());
 
-    WorkflowDirectGraphBuilder workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventToMessage);
-    WorkflowDirectGraph workflowDirectGraph = workflowDirectGraphBuilder.build();
-    BuildProcessContext context = new BuildProcessContext(workflowDirectGraph);
-
-    List<String> startEvents = context.getStartEvents();
-    context.addNodeBuilder("", process.startEvent());
-
-    buildWorkflowInDfs(new NodeChildren(startEvents), "", context);
-
-    AbstractFlowNodeBuilder<?, ?> builder = context.getLastNodeBuilder();
-    if (context.hasSubProcess()) {
-      builder = context.removeLastSubProcessBuilder().subProcessDone().endEvent();
-    }
+    WorkflowDirectGraph workflowDirectGraph = new WorkflowDirectGraphBuilder(workflow, eventToMessage).build();
+    BuildProcessContext context = new BuildProcessContext(workflowDirectGraph, process);
+    buildWorkflowInDfs(new NodeChildren(context.getStartEvents()), "", context);
+    AbstractFlowNodeBuilder<?, ?> builder = closeUpSubProcessesIfAny(context, context.getLastNodeBuilder());
     BpmnModelInstance model = builder.done();
     process.addExtensionElement(VariablesListener.create(model, workflow.getVariables()));
     return model;
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> closeUpSubProcessesIfAny(BuildProcessContext context,
+      AbstractFlowNodeBuilder<?, ?> builder) {
+    while (context.hasEventSubProcess()) {
+      builder = context.removeLastEventSubProcessBuilder().subProcessDone();
+      context.cacheSubProcessTimeoutToDone((SubProcessBuilder) builder);
+      builder = builder.endEvent();
+    }
+    while (context.hasTimeoutSubProcess()) {
+      context.removeLastSubProcessTimeoutBuilder().endEvent();
+    }
+    return builder;
+  }
+
+  private void buildWorkflowInDfs(NodeChildren nodes, String parentNodeId, BuildProcessContext context)
+      throws JsonProcessingException {
+    for (String currentNodeId : nodes.getChildren()) {
+      WorkflowNode currentNode = context.readWorkflowNode(currentNodeId);
+      AbstractFlowNodeBuilder<?, ?> builder = context.getNodeBuilder(parentNodeId);
+      boolean alreadyBuilt = context.isAlreadyBuilt(currentNodeId);
+      builder = builderFactory.getBuilder(currentNode).connect(currentNode, parentNodeId, builder, context);
+      if (!alreadyBuilt) {
+        computeChildren(currentNodeId, currentNode, builder, context);
+      }
+    }
+  }
+
+  private void computeChildren(String currentNodeId, WorkflowNode currentNode,
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
+    NodeChildren currentNodeChildren = context.readChildren(currentNode.getId());
+    if (currentNodeChildren != null) {
+      builder = subTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
+      context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
+      buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
+      if (hasAllConditionalChildren(context, currentNodeChildren, currentNodeId) && builder instanceof ExclusiveGatewayBuilder) {
+        // add a default endEvent to the gateway
+        builder.endEvent();
+      }
+    } else {
+      leafNode(currentNodeId, builder, context);
+    }
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> subTreeNodes(String currentNodeId, WorkflowNode currentNode,
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren) {
+    if (currentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT || hasFormRepliedEvent(context,
+        currentNodeChildren)) {
+      return builder;
+    }
+    // in case of conditional loop, add a default end event
+    if (BpmnBuilderHelper.isConditionalLoop(builder, context, currentNodeChildren)) {
+      builder.endEvent();
+      return builder;
+    }
+    if (hasLoopAfterSubProcess(context, currentNodeChildren)) {
+      builder = BpmnBuilderHelper.endEventSubProcess(context, builder);
+    }
+    boolean activities = hasActivitiesOnly(context, currentNodeChildren);
+    // either child or current node is conditional
+    boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
+    builder = addGateway(currentNodeId, builder, activities, conditional);
+    return builder;
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> addGateway(String currentNodeId,
+      AbstractFlowNodeBuilder<?, ?> builder, boolean activities, boolean conditional) {
+    // determine the gateway type
+    if (activities && conditional) {
+      builder = builder.exclusiveGateway(currentNodeId + EXCLUSIVE_GATEWAY_SUFFIX);
+    } else if (!activities) {
+      builder = builder.eventBasedGateway().id(currentNodeId + EVENT_GATEWAY_SUFFIX);
+    }
+    return builder;
+  }
+
+  private void leafNode(String currentNodeId, AbstractFlowNodeBuilder<?, ?> camundaBuilder,
+      BuildProcessContext context) {
+    camundaBuilder = camundaBuilder.endEvent();
+    context.addNodeBuilder(currentNodeId, camundaBuilder);
+    context.addLastNodeBuilder(camundaBuilder);
+  }
+
+  private boolean hasFormRepliedEvent(BuildProcessContext context, NodeChildren currentNodeChildren) {
+    return currentNodeChildren.getChildren()
+        .stream()
+        .anyMatch(s -> context.readWorkflowNode(s).getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT);
   }
 }
