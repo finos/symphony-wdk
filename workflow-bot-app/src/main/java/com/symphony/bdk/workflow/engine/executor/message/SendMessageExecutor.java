@@ -11,10 +11,12 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
+import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,6 +86,12 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
       V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
+      return singletonList(event.getStream().getStreamId());
+
+    } else if (execution.getEvent() != null
+        && execution.getEvent().getSource() instanceof V4UserJoinedRoom) {
+      // or retrieved from the current even
+      V4UserJoinedRoom event = (V4UserJoinedRoom) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
 
     } else {

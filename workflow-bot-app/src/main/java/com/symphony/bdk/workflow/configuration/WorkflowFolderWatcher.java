@@ -7,6 +7,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,14 +41,13 @@ import javax.annotation.PreDestroy;
 public class WorkflowFolderWatcher {
 
   private final String workflowsFolder;
-  private final WorkflowEngine workflowEngine;
-  private final Map<Path, String> deployedWorkflows = new HashMap<>();
+  private final WorkflowEngine<?> workflowEngine;
+  private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
 
   private WatchService watchService;
 
-  public WorkflowFolderWatcher(
-      @Value("${workflows.folder}") String workflowsFolder,
-      @Autowired WorkflowEngine workflowEngine) {
+  public WorkflowFolderWatcher(@Value("${workflows.folder}") String workflowsFolder,
+      @Autowired WorkflowEngine<?> workflowEngine) {
     this.workflowsFolder = workflowsFolder;
     this.workflowEngine = workflowEngine;
   }
@@ -118,7 +118,7 @@ public class WorkflowFolderWatcher {
         addWorkflow(changedFile);
 
       } else if (ev.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-        workflowEngine.undeploy(deployedWorkflows.get(changedFile));
+        workflowEngine.undeploy(deployedWorkflows.get(changedFile).getLeft());
         this.deployedWorkflows.remove(changedFile);
 
       } else if (ev.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
@@ -139,8 +139,13 @@ public class WorkflowFolderWatcher {
       return;
     }
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
-    workflowEngine.deploy(workflow);
-    deployedWorkflows.put(workflowFile, workflow.getId());
+    Object instance = workflowEngine.parseAndValidate(workflow);
+    if (workflow.isToPublish()) {
+      workflowEngine.deploy(workflow, instance);
+    } else if (deployedWorkflows.get(workflowFile) != null && deployedWorkflows.get(workflowFile).getRight()) {
+      workflowEngine.undeploy(deployedWorkflows.get(workflowFile).getLeft());
+    }
+    deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
   }
 
   @PreDestroy

@@ -7,7 +7,7 @@ import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
-import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
+import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,14 +39,16 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
   }
 
   /**
+   * @formatter:off
    * test if the current signal event has a form reply event brother.
    * e.g.
    * on:
    *   one-of:
    *     - form-replied:
-   *        form-id: init
-   *        exclusive: true
+   *         form-id: init
+   *         exclusive: true
    *     - message-received:
+   *  @formatter:on
    */
   private boolean hasFormRepliedEventBrother(BuildProcessContext context, String parentId) {
     return context.readChildren(parentId) != null && context.readChildren(parentId).getChildren()

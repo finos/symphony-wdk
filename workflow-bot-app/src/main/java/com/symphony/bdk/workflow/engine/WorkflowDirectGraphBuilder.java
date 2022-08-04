@@ -106,9 +106,7 @@ public class WorkflowDirectGraphBuilder {
           condition.ifPresent(c -> directGraph.readWorkflowNode(activityId).addIfCondition(finalNodeId, c));
         }
       }
-      directGraph.addChildTo(eventNodeId)
-          .gateway(onEvents.isExclusive() ? Gateway.EVENT_BASED : Gateway.PARALLEL)
-          .addChild(activityId);
+      directGraph.addChildTo(eventNodeId).addChild(activityId);
       directGraph.addParent(activityId, eventNodeId);
     }
   }

@@ -56,4 +56,15 @@ class WorkflowDirectGraphBuilderTest {
     then(directGraph.getDictionary()).hasSize(8);
     then(directGraph.getStartEvents()).hasSize(1);
   }
+
+  @Test
+  @DisplayName("Build all of workflow into a direct graph")
+  void buildWorkflowDirectGraph_allOfFlow() throws Exception {
+    Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/all-of.swadl.yaml"));
+    workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
+    WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
+    then(directGraph.getDictionary()).hasSize(6);
+    then(directGraph.readChildren("start").getGateway()).isEqualTo(WorkflowDirectGraph.Gateway.PARALLEL);
+    then(directGraph.getStartEvents()).hasSize(1);
+  }
 }

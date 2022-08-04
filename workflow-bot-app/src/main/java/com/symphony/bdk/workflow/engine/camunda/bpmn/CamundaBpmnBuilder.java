@@ -26,6 +26,7 @@ import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
+import org.camunda.bpm.model.xml.ModelValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,25 +48,33 @@ public class CamundaBpmnBuilder {
   private final WorkflowNodeBpmnBuilderFactory builderFactory;
 
   @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService,
-      WorkflowEventToCamundaEvent eventToMessage, WorkflowNodeBpmnBuilderFactory builderFactory) {
+  public CamundaBpmnBuilder(RepositoryService repositoryService, WorkflowEventToCamundaEvent eventToMessage,
+      WorkflowNodeBpmnBuilderFactory builderFactory) {
     this.repositoryService = repositoryService;
     this.eventToMessage = eventToMessage;
     this.builderFactory = builderFactory;
   }
 
-  public Deployment addWorkflow(Workflow workflow) throws JsonProcessingException {
+  public BpmnModelInstance parseWorkflowToBpmn(Workflow workflow)
+      throws JsonProcessingException, ModelValidationException {
     BpmnModelInstance instance = workflowToBpmn(workflow);
     try {
-      DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
-          .name(workflow.getId())
-          .addModelInstance(workflow.getId() + ".bpmn", instance);
-      return setWorkflowTokenIfExists(deploymentBuilder, workflow).deploy();
+      Bpmn.validateModel(instance);
+      log.debug("workflow [{}] has been successfully validated.", workflow.getId());
+      return instance;
     } finally {
+      log.debug("workflow [{}]'s validation is done.", workflow.getId());
       if (log.isDebugEnabled()) {
         WorkflowDebugger.generateDebugFiles(workflow.getId(), instance);
       }
     }
+  }
+
+  public Deployment deployWorkflow(Workflow workflow, BpmnModelInstance instance) {
+    DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
+        .name(workflow.getId())
+        .addModelInstance(workflow.getId() + ".bpmn", instance);
+    return setWorkflowTokenIfExists(deploymentBuilder, workflow).deploy();
   }
 
   private DeploymentBuilder setWorkflowTokenIfExists(DeploymentBuilder deploymentBuilder, Workflow workflow) {
@@ -112,41 +121,74 @@ public class CamundaBpmnBuilder {
   private void buildWorkflowInDfs(NodeChildren nodes, String parentNodeId, BuildProcessContext context)
       throws JsonProcessingException {
     for (String currentNodeId : nodes.getChildren()) {
+      log.trace("build node [{}] from parent node [{}]", currentNodeId, parentNodeId);
       WorkflowNode currentNode = context.readWorkflowNode(currentNodeId);
-      AbstractFlowNodeBuilder<?, ?> builder = context.getNodeBuilder(parentNodeId);
       boolean alreadyBuilt = context.isAlreadyBuilt(currentNodeId);
+      log.trace("is a node already built ? [{}]", alreadyBuilt);
+      AbstractFlowNodeBuilder<?, ?> builder = context.getNodeBuilder(parentNodeId);
       builder = builderFactory.getBuilder(currentNode).connect(currentNode, parentNodeId, builder, context);
       if (!alreadyBuilt) {
+        log.trace("compute node [{}] children nodes", currentNodeId);
         computeChildren(currentNodeId, currentNode, builder, context);
       }
     }
   }
 
-  private void computeChildren(String currentNodeId, WorkflowNode currentNode,
-      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
+  private void computeChildren(String currentNodeId, WorkflowNode currentNode, AbstractFlowNodeBuilder<?, ?> builder,
+      BuildProcessContext context) throws JsonProcessingException {
     NodeChildren currentNodeChildren = context.readChildren(currentNode.getId());
     if (currentNodeChildren != null) {
-      builder = subTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
-      context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
-      buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
+      if (currentNodeChildren.getGateway() == WorkflowDirectGraph.Gateway.PARALLEL) {
+        builder = parallelSubTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
+        currentNodeChildren = context.readChildren(currentNodeChildren.getChildren().stream().findFirst().get());
+        context.addNodeBuilder(currentNodeId + "_join_gateway", builder); // cache the builder to reuse for its kids
+        buildWorkflowInDfs(currentNodeChildren, currentNodeId + "_join_gateway", context);
+      } else {
+        builder = exclusiveSubTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
+        context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
+        buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
+      }
       if (hasAllConditionalChildren(context, currentNodeChildren, currentNodeId)
           && builder instanceof ExclusiveGatewayBuilder) {
+        log.trace("after recursive, add default end event to the gateway");
         // add a default endEvent to the gateway
         builder.endEvent();
       }
     } else {
+      log.trace("the node [{}] is a leaf node", currentNodeId);
       leafNode(currentNodeId, builder, context);
     }
   }
 
-  private AbstractFlowNodeBuilder<?, ?> subTreeNodes(String currentNodeId, WorkflowNode currentNode,
+  private AbstractFlowNodeBuilder<?, ?> parallelSubTreeNodes(String currentNodeId, WorkflowNode currentNode,
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren)
+      throws JsonProcessingException {
+    builder = builder.parallelGateway(currentNodeId + "_fork_gateway");
+    for (int i = 0; i < currentNodeChildren.getChildren().size(); i++) {
+      WorkflowNode node = context.readWorkflowNode(currentNodeChildren.getChildren().get(i));
+      if (i == 0) {
+        builder = builderFactory.getBuilder(node).connect(node, currentNodeId, builder, context);
+        builder = builder.parallelGateway(currentNodeId + "_join_gateway");
+      } else {
+        builder = builder.moveToNode(currentNodeId + "_fork_gateway");
+        builder = builderFactory.getBuilder(node).connect(node, currentNodeId, builder, context);
+        builder = builder.connectTo(currentNodeId + "_join_gateway");
+      }
+    }
+    return builder;
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> exclusiveSubTreeNodes(String currentNodeId, WorkflowNode currentNode,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren) {
     if (currentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT || hasFormRepliedEvent(context,
         currentNodeChildren)) {
+      log.trace("the node [{}] itself or one of its children is a form replied event", currentNodeId);
       return builder;
     }
     // in case of conditional loop, add a default end event
     if (BpmnBuilderHelper.isConditionalLoop(builder, context, currentNodeChildren)) {
+      log.trace("there is a conditional loop from the node [{}], add default end event to the gateway loop",
+          currentNodeId);
       builder.endEvent();
       return builder;
     }
@@ -154,8 +196,10 @@ public class CamundaBpmnBuilder {
       builder = BpmnBuilderHelper.endEventSubProcess(context, builder);
     }
     boolean activities = hasActivitiesOnly(context, currentNodeChildren);
-    // either child or current node is conditional
+    // either child or current node is conditional, since the condition can be defined at parent event or activity itself
     boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
+    log.trace("are the children of the node [{}]'s all activities ? [{}], is there any condition in children ? [{}]",
+        currentNodeId, activities, conditional);
     builder = addGateway(currentNodeId, builder, activities, conditional);
     return builder;
   }
@@ -164,8 +208,10 @@ public class CamundaBpmnBuilder {
       boolean activities, boolean conditional) {
     // determine the gateway type
     if (activities && conditional) {
+      log.trace("an exclusive gateway is added follow the node [{}]", currentNodeId);
       builder = builder.exclusiveGateway(currentNodeId + EXCLUSIVE_GATEWAY_SUFFIX);
     } else if (!activities) {
+      log.trace("an event gateway is added follow the node [{}]", currentNodeId);
       builder = builder.eventBasedGateway().id(currentNodeId + EVENT_GATEWAY_SUFFIX);
     }
     return builder;

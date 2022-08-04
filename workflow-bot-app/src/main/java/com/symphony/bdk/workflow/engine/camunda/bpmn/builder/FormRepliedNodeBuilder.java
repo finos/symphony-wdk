@@ -13,6 +13,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EventSubProcessBuilder;
+import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.springframework.stereotype.Component;
 
@@ -21,44 +22,60 @@ import org.springframework.stereotype.Component;
 public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
   /**
    * A form reply is a dedicated sub process doing 2 things:
-   *  - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
-   *    and replies are no longer used
-   *  - waiting for reply with an event sub process that is running for each reply
-   *
+   * - waiting for an expiration time, if the expiration time is reached the entire subprocess ends
+   * and replies are no longer used
+   * - waiting for reply with an event sub process that is running for each reply
    */
   @Override
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
-    FormRepliedEvent formReplied = element.getEvent().getFormReplied();
-    // cache the sub process builder, the form reply might have a brother event, which is going to use this cached builder
-    SubProcessBuilder subProcess = builder.subProcess();
-    context.cacheSubProcess(subProcess);
+    if (builder instanceof ParallelGatewayBuilder) {
+      return builder.exclusiveGateway()
+          .intermediateCatchEvent()
+          .timerWithDuration(readTimeout(element))
+          .connectTo(parentId + "_join_gateway")
+          .moveToLastGateway()
+          .intermediateCatchEvent()
+          .camundaAsyncBefore()
+          .signal(element.getId())
+          .name(element.getId());
+    } else {
+      FormRepliedEvent formReplied = element.getEvent().getFormReplied();
+      // cache the sub process builder, the form reply might have a brother event, which is going to use this cached builder
+      SubProcessBuilder subProcess = builder.subProcess();
+      context.cacheSubProcess(subProcess);
 
-    timeoutFlow(element, subProcess, context);
-    // we add the form reply event sub process inside the subprocess
-    EventSubProcessBuilder subProcessBuilder = subProcess.camundaAsyncBefore().embeddedSubProcess().eventSubProcess();
-    // cache the sub process builder, so to terminate it later
-    context.cacheEventSubProcessToDone(subProcessBuilder);
+      timeoutFlow(element, subProcess, context);
+      // we add the form reply event sub process inside the subprocess
+      EventSubProcessBuilder subProcessBuilder = subProcess.camundaAsyncBefore().embeddedSubProcess().eventSubProcess();
+      // cache the sub process builder, so to terminate it later
+      context.cacheEventSubProcessToDone(subProcessBuilder);
 
-    return subProcessBuilder.startEvent()
-        .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
-        .camundaAsyncBefore()
-        // run multiple instances of the sub process (i.e. multiple replies) if it's true, otherwise execute only once, so exclusive
-        .interrupting(formReplied.getExclusive())
-        .message(element.getId())
-        .name(element.getId());
+      return subProcessBuilder.startEvent()
+          .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
+          .camundaAsyncBefore()
+          // run multiple instances of the sub process (i.e. multiple replies) if it's true, otherwise execute only once, as exclusive
+          .interrupting(formReplied.getExclusive())
+          .message(element.getId())
+          .name(element.getId());
+    }
   }
 
   private void timeoutFlow(WorkflowNode element, SubProcessBuilder subProcess, BuildProcessContext context) {
-    String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
-    if (element.getEvent() instanceof EventWithTimeout) {
-      timeout = ((EventWithTimeout) element.getEvent()).getTimeout();
-    }
+    String timeout = readTimeout(element);
     subProcess.embeddedSubProcess()
         .startEvent()
         .intermediateCatchEvent().timerWithDuration(timeout).serviceTask().camundaExpression("${true}")
         .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ThrowTimeoutDelegate.class.getName())
         .endEvent();
+  }
+
+  private String readTimeout(WorkflowNode element) {
+    String timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+    if (element.getEvent() instanceof EventWithTimeout) {
+      timeout = ((EventWithTimeout) element.getEvent()).getTimeout();
+    }
+    return timeout;
   }
 
   @Override

@@ -14,3 +14,4 @@ logging:
     org.camunda.bpm.engine.pvm: DEBUG
     org.camunda.bpm.dmn.feel: DEBUG
     org.camunda.bpm.engine.script: DEBUG
+    com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: DEBUG
