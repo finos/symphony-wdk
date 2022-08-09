@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -18,6 +19,8 @@ public class GetRooms extends BaseActivity {
   private String query;
   private List<String> labels;
   private Boolean active;
+
+  private Obo obo;
 
   @JsonProperty("private")
   private Boolean isPrivate;

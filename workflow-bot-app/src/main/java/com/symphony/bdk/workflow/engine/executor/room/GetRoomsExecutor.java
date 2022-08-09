@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.room;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
@@ -22,10 +23,9 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
     GetRooms getRooms = execution.getActivity();
     V3RoomSearchResults rooms;
     if (getRooms.getLimit() != null && getRooms.getSkip() != null) {
-      rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms),
-          new PaginationAttribute(getRooms.getSkip(), getRooms.getLimit()));
+      rooms = this.searchRoomsWithPagination(execution);
     } else if (getRooms.getLimit() == null && getRooms.getSkip() == null) {
-      rooms = execution.bdk().streams().searchRooms(toCriteria(getRooms));
+      rooms = this.searchRoomsNoPagination(execution);
     } else {
       throw new IllegalArgumentException(
           String.format("Skip and limit should both be set to get rooms in activity %s", getRooms.getId()));
@@ -53,6 +53,55 @@ public class GetRoomsExecutor implements ActivityExecutor<GetRooms> {
       criteria.setMember(new UserId().id(Long.parseLong(getRooms.getCreatorId())));
     }
     return criteria;
+  }
+
+  private V3RoomSearchResults searchRoomsWithPagination(ActivityExecutorContext<GetRooms> execution) {
+    GetRooms getRooms = execution.getActivity();
+
+    if (this.isObo(getRooms)) {
+      AuthSession authSession;
+      if (getRooms.getObo().getUsername() != null) {
+        authSession = execution.bdk().obo(getRooms.getObo().getUsername());
+      } else {
+        authSession = execution.bdk().obo(getRooms.getObo().getUserId());
+      }
+
+      return execution.bdk()
+          .obo(authSession)
+          .streams()
+          .searchRooms(toCriteria(getRooms), new PaginationAttribute(getRooms.getSkip(), getRooms.getLimit()));
+    } else {
+      return execution.bdk()
+          .streams()
+          .searchRooms(toCriteria(getRooms), new PaginationAttribute(getRooms.getSkip(), getRooms.getLimit()));
+    }
+  }
+
+  private V3RoomSearchResults searchRoomsNoPagination(ActivityExecutorContext<GetRooms> execution) {
+    GetRooms getRooms = execution.getActivity();
+
+    if (this.isObo(getRooms)) {
+      AuthSession authSession;
+      if (getRooms.getObo().getUsername() != null) {
+        authSession = execution.bdk().obo(getRooms.getObo().getUsername());
+      } else {
+        authSession = execution.bdk().obo(getRooms.getObo().getUserId());
+      }
+
+      return execution.bdk()
+          .obo(authSession)
+          .streams()
+          .searchRooms(toCriteria(getRooms));
+    } else {
+      return execution.bdk()
+          .streams()
+          .searchRooms(toCriteria(getRooms));
+    }
+  }
+
+  private boolean isObo(GetRooms activity) {
+    return activity.getObo() != null && (activity.getObo().getUsername() != null
+        || activity.getObo().getUserId() != null);
   }
 
 }

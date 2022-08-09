@@ -1,0 +1,21 @@
+id: get-rooms-on-behalf-of-user-unauthorized
+activities:
+  - get-rooms:
+      id: getRoomsOboUnauthorized
+      on:
+        message-received:
+          content: "/get-rooms-obo-unauthorized"
+      active: true
+      labels:
+        - test
+        - test1
+      query: test
+      sort-order: BASIC
+      obo:
+        username: "john"
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false
