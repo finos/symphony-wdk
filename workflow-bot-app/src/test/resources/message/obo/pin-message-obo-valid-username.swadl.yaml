@@ -1,0 +1,10 @@
+id: pin-message-obo-valid-username
+activities:
+  - pin-message:
+      id: pinMessageOboValidUsername
+      on:
+        message-received:
+          content: /pin-message-obo-valid-username
+      message-id: MSG_ID
+      obo:
+        username: "John"

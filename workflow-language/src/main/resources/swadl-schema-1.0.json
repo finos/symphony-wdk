@@ -1645,6 +1645,10 @@
             "properties": {
                 "message-id": {
                     "$ref": "#/definitions/message-id-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1656,6 +1660,10 @@
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2800,6 +2808,10 @@
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "dependencies": {

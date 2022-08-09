@@ -423,8 +423,8 @@ class RoomIntegrationTest extends IntegrationTest {
 
   @Test
   void removeRoomMemberOboUnauthorized() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/obo/remove-room-member-obo-unauthorized.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/room/obo/remove-room-member-obo-unauthorized.swadl.yaml"));
 
     when(bdkGateway.obo(any(String.class))).thenThrow(new RuntimeException("Unauthorized user"));
 
@@ -465,8 +465,8 @@ class RoomIntegrationTest extends IntegrationTest {
 
   @Test
   void promoteRoomOwnerOboUnauthorized() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/room/obo/promote-room-owner-obo-unauthorized.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/room/obo/promote-room-owner-obo-unauthorized.swadl.yaml"));
 
     when(bdkGateway.obo(any(String.class))).thenThrow(new RuntimeException("Unauthorized user"));
 
@@ -598,7 +598,7 @@ class RoomIntegrationTest extends IntegrationTest {
   @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
   @ParameterizedTest
   @CsvSource({"/room/obo/get-rooms-obo-valid-userid.swadl.yaml, /get-rooms-obo-valid-userid",
-    "/room/obo/get-rooms-obo-valid-username.swadl.yaml, /get-rooms-obo-valid-username"})
+      "/room/obo/get-rooms-obo-valid-username.swadl.yaml, /get-rooms-obo-valid-username"})
   void getRoomsObo(String workflowFile, String command) throws Exception {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
 

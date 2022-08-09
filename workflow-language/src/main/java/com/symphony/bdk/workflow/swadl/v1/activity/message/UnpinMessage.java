@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.message;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,4 +10,5 @@ import lombok.EqualsAndHashCode;
 @Data
 public class UnpinMessage extends BaseActivity {
   private String streamId;
+  private Obo obo;
 }

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.stream;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
@@ -25,10 +26,9 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
     GetUserStreams getUserStreams = execution.getActivity();
     List<StreamAttributes> userStreams;
     if (getUserStreams.getLimit() != null && getUserStreams.getSkip() != null) {
-      userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams),
-          new PaginationAttribute(getUserStreams.getSkip(), getUserStreams.getLimit()));
+      userStreams = this.listUserStreamsWithPagination(execution);
     } else {
-      userStreams = execution.bdk().streams().listStreams(toFilter(getUserStreams));
+      userStreams = this.listUserStreamsNoPagination(execution);
     }
 
     execution.setOutputVariable(OUTPUTS_STREAMS_KEY, userStreams);
@@ -44,5 +44,56 @@ public class GetUserStreamsExecutor implements ActivityExecutor<GetUserStreams> 
           .collect(Collectors.toList()));
     }
     return filter;
+  }
+
+  private List<StreamAttributes> listUserStreamsWithPagination(ActivityExecutorContext<GetUserStreams> execution) {
+    GetUserStreams getUserStreams = execution.getActivity();
+
+    if (this.isObo(getUserStreams)) {
+      AuthSession authSession;
+      if (getUserStreams.getObo().getUsername() != null) {
+        authSession = execution.bdk().obo(getUserStreams.getObo().getUsername());
+      } else {
+        authSession = execution.bdk().obo(getUserStreams.getObo().getUserId());
+      }
+
+      return execution.bdk()
+          .obo(authSession)
+          .streams()
+          .listStreams(toFilter(getUserStreams),
+              new PaginationAttribute(getUserStreams.getSkip(), getUserStreams.getLimit()));
+    } else {
+      return execution.bdk()
+          .streams()
+          .listStreams(toFilter(getUserStreams),
+              new PaginationAttribute(getUserStreams.getSkip(), getUserStreams.getLimit()));
+    }
+  }
+
+  private List<StreamAttributes> listUserStreamsNoPagination(ActivityExecutorContext<GetUserStreams> execution) {
+    GetUserStreams getUserStreams = execution.getActivity();
+
+    if (this.isObo(getUserStreams)) {
+      AuthSession authSession;
+      if (getUserStreams.getObo().getUsername() != null) {
+        authSession = execution.bdk().obo(getUserStreams.getObo().getUsername());
+      } else {
+        authSession = execution.bdk().obo(getUserStreams.getObo().getUserId());
+      }
+
+      return execution.bdk()
+          .obo(authSession)
+          .streams()
+          .listStreams(toFilter(getUserStreams));
+    } else {
+      return execution.bdk()
+          .streams()
+          .listStreams(toFilter(getUserStreams));
+    }
+  }
+
+  private boolean isObo(GetUserStreams activity) {
+    return activity.getObo() != null && (activity.getObo().getUsername() != null
+        || activity.getObo().getUserId() != null);
   }
 }

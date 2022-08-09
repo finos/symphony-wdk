@@ -1,0 +1,15 @@
+id: get-stream-obo-unauthorized
+activities:
+  - get-stream:
+      id: getStreamOboUnauthorized
+      on:
+        message-received:
+          content: /get-stream-obo-unauthorized
+      stream-id: abc
+      obo:
+        username: "john"
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

@@ -50,9 +50,9 @@ public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
     // to return the same info in all cases
     final V3RoomDetail updatedRoom;
     if (isObo) {
-       updatedRoom = execution.bdk().obo(authSession).streams().getRoomInfo(updateRoom.getStreamId());
+      updatedRoom = execution.bdk().obo(authSession).streams().getRoomInfo(updateRoom.getStreamId());
     } else {
-       updatedRoom = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
+      updatedRoom = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
     }
 
     execution.setOutputVariable(OUTPUT_ROOM_KEY, updatedRoom);
