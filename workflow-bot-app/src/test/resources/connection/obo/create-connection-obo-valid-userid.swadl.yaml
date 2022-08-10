@@ -1,0 +1,10 @@
+id: create-connection-obo-valid-userid
+activities:
+  - create-connection:
+      id: createConnectionOboValidUserid
+      on:
+        message-received:
+          content: /create-connection-obo-valid-userid
+      user-id: 1234
+      obo:
+        user-id: 123

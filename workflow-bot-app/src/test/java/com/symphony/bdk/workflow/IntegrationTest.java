@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
+import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.message.model.Attachment;
@@ -82,6 +83,9 @@ public abstract class IntegrationTest {
   @MockBean(name = "oboStreamService")
   OboStreamService oboStreamService;
 
+  @MockBean(name = "oboConnectionService")
+  OboConnectionService oboConnectionService;
+
   @MockBean(name = "streamService")
   StreamService streamService;
 
@@ -147,6 +151,7 @@ public abstract class IntegrationTest {
     when(bdkGateway.obo(any(AuthSession.class))).thenReturn(this.oboServices);
     when(oboServices.messages()).thenReturn(this.oboMessageService);
     when(oboServices.streams()).thenReturn(this.oboStreamService);
+    when(oboServices.connections()).thenReturn(this.oboConnectionService);
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered

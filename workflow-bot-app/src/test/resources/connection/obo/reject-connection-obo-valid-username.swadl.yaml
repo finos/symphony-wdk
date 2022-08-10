@@ -1,0 +1,10 @@
+id: reject-connection-obo-valid-username
+activities:
+  - reject-connection:
+      id: rejectConnectionOboValidUsername
+      on:
+        message-received:
+          content: /reject-connection-obo-valid-username
+      user-id: 1234
+      obo:
+        username: "John"

@@ -1,0 +1,16 @@
+id: remove-connection-obo-unauthorized
+activities:
+  - remove-connection:
+      id: removeConnectionOboUnauthorized
+      on:
+        message-received:
+          content: /remove-connection-obo-unauthorized
+      user-id: 1234
+      obo:
+        user-id: 123
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

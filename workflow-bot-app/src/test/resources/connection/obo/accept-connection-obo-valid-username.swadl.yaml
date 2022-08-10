@@ -1,0 +1,10 @@
+id: accept-connection-obo-valid-username
+activities:
+  - accept-connection:
+      id: acceptConnectionOboValidUsername
+      on:
+        message-received:
+          content: /accept-connection-obo-valid-username
+      user-id: 1234
+      obo:
+        username: "John"
