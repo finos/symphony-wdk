@@ -17,6 +17,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.OboUserService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
 import com.symphony.bdk.gen.api.model.Stream;
@@ -82,6 +83,9 @@ public abstract class IntegrationTest {
 
   @MockBean(name = "oboStreamService")
   OboStreamService oboStreamService;
+
+  @MockBean(name = "oboUserService")
+  OboUserService oboUserService;
 
   @MockBean(name = "oboConnectionService")
   OboConnectionService oboConnectionService;
@@ -151,6 +155,7 @@ public abstract class IntegrationTest {
     when(bdkGateway.obo(any(AuthSession.class))).thenReturn(this.oboServices);
     when(oboServices.messages()).thenReturn(this.oboMessageService);
     when(oboServices.streams()).thenReturn(this.oboStreamService);
+    when(oboServices.users()).thenReturn(this.oboUserService);
     when(oboServices.connections()).thenReturn(this.oboConnectionService);
   }
 

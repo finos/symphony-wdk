@@ -1,0 +1,19 @@
+id: get-users-usernames-obo-unauthorized
+activities:
+  - get-users:
+      id: getUsersUsernamesOboUnauthorized
+      on:
+        message-received:
+          content: /get-users-usernames-obo-unauthorized
+      usernames:
+        - "bob"
+        - "eve"
+      active: false
+      obo:
+        user-id: 1234
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

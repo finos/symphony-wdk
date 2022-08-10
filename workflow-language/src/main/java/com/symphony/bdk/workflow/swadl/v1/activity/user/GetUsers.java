@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,5 +25,7 @@ public class GetUsers extends BaseActivity {
 
   private Boolean local;
   private Boolean active;
+
+  private Obo obo;
 
 }

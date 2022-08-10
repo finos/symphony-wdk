@@ -1,0 +1,20 @@
+id: get-users-emails-obo-unauthorized
+activities:
+  - get-users:
+      id: getUsersEmailsOboUnauthorized
+      on:
+        message-received:
+          content: /get-users-emails-obo-unauthorized
+      emails:
+        - "bob@mail.com"
+        - "eve@mail.com"
+      local: true
+      active: false
+      obo:
+        user-id: 1234
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

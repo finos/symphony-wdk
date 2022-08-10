@@ -1,0 +1,19 @@
+id: get-users-emails-obo-valid-username
+activities:
+  - get-users:
+      id: getUsersEmailsOboValidUsername
+      on:
+        message-received:
+          content: /get-users-emails-obo-valid-username
+      emails:
+        - "bob@mail.com"
+        - "eve@mail.com"
+      local: true
+      active: false
+      obo:
+        username: "John"
+
+  - execute-script:
+      id: script
+      script: |
+        assert getUsersEmailsOboValidUsername.outputs.users != null

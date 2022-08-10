@@ -19,6 +19,8 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
@@ -247,6 +249,36 @@ class UsersIntegrationTest extends IntegrationTest {
     assertThat(workflow).isExecuted();
   }
 
+  @ParameterizedTest
+  @CsvSource({"/user/obo/get-users-ids-obo-valid-username.swadl.yaml, /get-users-ids-obo-valid-username",
+      "/user/obo/get-users-ids-obo-valid-userid.swadl.yaml, /get-users-ids-obo-valid-userid"})
+  void getUsersIdsObo(String workflowFile, String command) throws  Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived(command));
+
+    verify(oboUserService, timeout(5000)).listUsersByIds(List.of(123L, 456L), true, false);
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getUsersIdsOboUnauthorized() throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/user/obo/get-users-ids-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/get-users-ids-obo-unauthorized"));
+
+    assertThat(workflow).executed("getUsersIdsOboUnauthorized").notExecuted("scriptActivityNotToBeExecuted");
+  }
+
   @Test
   void getUsersEmails() throws IOException, ProcessingException {
     final Workflow workflow =
@@ -259,6 +291,36 @@ class UsersIntegrationTest extends IntegrationTest {
     assertThat(workflow).isExecuted();
   }
 
+  @ParameterizedTest
+  @CsvSource({"/user/obo/get-users-emails-obo-valid-username.swadl.yaml, /get-users-emails-obo-valid-username",
+      "/user/obo/get-users-emails-obo-valid-userid.swadl.yaml, /get-users-emails-obo-valid-userid"})
+  void getUsersEmailsObo(String workflowFile, String command) throws  Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived(command));
+
+    verify(oboUserService, timeout(5000)).listUsersByEmails(List.of("bob@mail.com", "eve@mail.com"), true, false);
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getUsersEmailsOboUnauthorized() throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/user/obo/get-users-emails-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/get-users-emails-obo-unauthorized"));
+
+    assertThat(workflow).executed("getUsersEmailsOboUnauthorized").notExecuted("scriptActivityNotToBeExecuted");
+  }
+
   @Test
   void getUsersUsernames() throws IOException, ProcessingException {
     final Workflow workflow =
@@ -269,6 +331,36 @@ class UsersIntegrationTest extends IntegrationTest {
 
     verify(userService, timeout(5000)).listUsersByUsernames(List.of("bob", "eve"), false);
     assertThat(workflow).isExecuted();
+  }
+
+  @ParameterizedTest
+  @CsvSource({"/user/obo/get-users-usernames-obo-valid-username.swadl.yaml, /get-users-usernames-obo-valid-username",
+      "/user/obo/get-users-usernames-obo-valid-userid.swadl.yaml, /get-users-usernames-obo-valid-userid"})
+  void getUsersUsernamesObo(String workflowFile, String command) throws  Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived(command));
+
+    verify(oboUserService, timeout(5000)).listUsersByUsernames(List.of("bob", "eve"), false);
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getUsersUsernamesOboUnauthorized() throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/user/obo/get-users-usernames-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(Long.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/get-users-usernames-obo-unauthorized"));
+
+    assertThat(workflow).executed("getUsersUsernamesOboUnauthorized").notExecuted("scriptActivityNotToBeExecuted");
   }
 
   @Test
