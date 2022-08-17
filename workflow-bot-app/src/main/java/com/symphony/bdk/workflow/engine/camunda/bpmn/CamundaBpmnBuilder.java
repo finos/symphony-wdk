@@ -42,6 +42,7 @@ public class CamundaBpmnBuilder {
   public static final String DEPLOYMENT_RESOURCE_TOKEN_KEY = "WORKFLOW_TOKEN";
   public static final String EXCLUSIVE_GATEWAY_SUFFIX = "_exclusive_gateway";
   public static final String EVENT_GATEWAY_SUFFIX = "_event_gateway";
+  public static final String FORK_GATEWAY = "_fork_gateway";
 
   private final RepositoryService repositoryService;
   private final WorkflowEventToCamundaEvent eventToMessage;
@@ -139,15 +140,12 @@ public class CamundaBpmnBuilder {
     NodeChildren currentNodeChildren = context.readChildren(currentNode.getId());
     if (currentNodeChildren != null) {
       if (currentNodeChildren.getGateway() == WorkflowDirectGraph.Gateway.PARALLEL) {
-        builder = parallelSubTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
-        currentNodeChildren = context.readChildren(currentNodeChildren.getChildren().stream().findFirst().get());
-        context.addNodeBuilder(currentNodeId + "_join_gateway", builder); // cache the builder to reuse for its kids
-        buildWorkflowInDfs(currentNodeChildren, currentNodeId + "_join_gateway", context);
+        builder = builder.parallelGateway(currentNodeId + FORK_GATEWAY);
       } else {
         builder = exclusiveSubTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
-        context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
-        buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
       }
+      context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
+      buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
       if (hasAllConditionalChildren(context, currentNodeChildren, currentNodeId)
           && builder instanceof ExclusiveGatewayBuilder) {
         log.trace("after recursive, add default end event to the gateway");
@@ -158,24 +156,6 @@ public class CamundaBpmnBuilder {
       log.trace("the node [{}] is a leaf node", currentNodeId);
       leafNode(currentNodeId, builder, context);
     }
-  }
-
-  private AbstractFlowNodeBuilder<?, ?> parallelSubTreeNodes(String currentNodeId, WorkflowNode currentNode,
-      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren)
-      throws JsonProcessingException {
-    builder = builder.parallelGateway(currentNodeId + "_fork_gateway");
-    for (int i = 0; i < currentNodeChildren.getChildren().size(); i++) {
-      WorkflowNode node = context.readWorkflowNode(currentNodeChildren.getChildren().get(i));
-      if (i == 0) {
-        builder = builderFactory.getBuilder(node).connect(node, currentNodeId, builder, context);
-        builder = builder.parallelGateway(currentNodeId + "_join_gateway");
-      } else {
-        builder = builder.moveToNode(currentNodeId + "_fork_gateway");
-        builder = builderFactory.getBuilder(node).connect(node, currentNodeId, builder, context);
-        builder = builder.connectTo(currentNodeId + "_join_gateway");
-      }
-    }
-    return builder;
   }
 
   private AbstractFlowNodeBuilder<?, ?> exclusiveSubTreeNodes(String currentNodeId, WorkflowNode currentNode,

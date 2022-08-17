@@ -7,21 +7,20 @@ activities:
           content: /start
           # should be 1-1 only
       content: start fork
+
+  - execute-script:
+      id: script
+      on:
+        message-received:
+          content: /update
+      script:
+        println("script is done")
+
   - send-message:
-      id: join
+      id: endMessage
       on:
         all-of:
         - message-received:
             content: /message
         - user-joined-room: {}
-        - activity-completed:
-            activity-id: script
       content: end join
-
-  - execute-script:
-      id: script
-      on:
-        activity-completed:
-          activity-id: start
-      script:
-        println("script is done")

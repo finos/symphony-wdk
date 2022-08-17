@@ -57,7 +57,7 @@ public class WorkflowDirectGraph {
     return dictionary.containsKey(id);
   }
 
-  public NodeChildren addChildTo(String id) {
+  public NodeChildren getChildren(String id) {
     return graph.computeIfAbsent(id, k -> new NodeChildren());
   }
 
@@ -70,13 +70,13 @@ public class WorkflowDirectGraph {
   }
 
   public List<String> getParents(String id) {
-    return new ArrayList<>(parents.get(id));
+    return parents.get(id) == null ? new ArrayList<>() : new ArrayList<>(parents.get(id));
   }
 
   public enum Gateway {
     EXCLUSIVE,
     EVENT_BASED,
-    PARALLEL;
+    PARALLEL
   }
 
 
@@ -94,6 +94,11 @@ public class WorkflowDirectGraph {
 
     public NodeChildren addChild(String child) {
       this.children.add(child);
+      return this;
+    }
+
+    public NodeChildren removeChild(String child) {
+      this.children.remove(child);
       return this;
     }
 

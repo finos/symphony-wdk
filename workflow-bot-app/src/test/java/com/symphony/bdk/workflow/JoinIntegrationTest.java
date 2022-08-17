@@ -32,13 +32,14 @@ public class JoinIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
     Thread.sleep(1000);
-    engine.onEvent(messageReceived("/message"));
+    engine.onEvent(messageReceived("/update"));
     Thread.sleep(1000);
+    engine.onEvent(messageReceived("/message"));
     verify(messageService, never()).send(eq(streamId), content("end join"));
     engine.onEvent(userJoined());
     Thread.sleep(1000);
     verify(messageService).send(eq(streamId), content("end join"));
-    assertThat(workflow).executed("start", "start_fork_gateway", "script", "start_join_gateway", "start_join_gateway",
-        "start_join_gateway", "join");
+    assertThat(workflow).executed("start", "script", "script_fork_gateway",  "endMessage_join_gateway",
+        "endMessage_join_gateway", "endMessage");
   }
 }

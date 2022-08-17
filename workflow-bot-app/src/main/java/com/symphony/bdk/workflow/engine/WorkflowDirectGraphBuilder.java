@@ -27,6 +27,7 @@ import java.util.Optional;
  */
 public class WorkflowDirectGraphBuilder {
   private static final String TIMEOUT_SUFFIX = "_timeout";
+  private static final String JOIN_GATEWAY = "_join_gateway";
   /**
    * element id is key, element parent id is value
    */
@@ -51,9 +52,26 @@ public class WorkflowDirectGraphBuilder {
       String activityId = activity.getActivity().getId();
       RelationalEvents onEvents = activity.getEvents();
       computeStandaloneActivities(activities, directGraph, i, activity, activityId, onEvents);
+      activityId = computeParallelJoinGateway(directGraph, activity, activityId, onEvents);
       computeEvents(i, activityId, onEvents, activities, directGraph);
     }
     return directGraph;
+  }
+
+  /**
+   * when events are in a "allOf" list, a join gateway is added to ease the final workflow instance construction.
+   */
+  private String computeParallelJoinGateway(WorkflowDirectGraph directGraph, Activity activity, String activityId,
+      RelationalEvents onEvents) {
+    if (!onEvents.isExclusive()) {
+      String joinActivityId = activity.getActivity().getId() + JOIN_GATEWAY;
+      directGraph.registerToDictionary(joinActivityId,
+          new WorkflowNode().id(joinActivityId).elementType(WorkflowNodeType.JOIN_ACTIVITY));
+      directGraph.getChildren(joinActivityId).addChild(activityId);
+      directGraph.addParent(activityId, joinActivityId);
+      activityId = joinActivityId;
+    }
+    return activityId;
   }
 
   private void computeStandaloneActivities(List<Activity> activities, WorkflowDirectGraph directGraph, int index,
@@ -62,7 +80,7 @@ public class WorkflowDirectGraphBuilder {
       if (index == 0) {
         throw new NoStartingEventException(workflow.getId());
       } else {
-        directGraph.addChildTo(activities.get(index - 1).getActivity().getId()).addChild(activityId);
+        directGraph.getChildren(activities.get(index - 1).getActivity().getId()).addChild(activityId);
         directGraph.addParent(activityId, activities.get(index - 1).getActivity().getId());
         if (activity.getActivity().getIfCondition() != null) {
           directGraph.readWorkflowNode(activityId)
@@ -101,18 +119,17 @@ public class WorkflowDirectGraphBuilder {
           validateNodeId(eventNodeId, activityId);
           directGraph.readWorkflowNode(eventNodeId).setElementType(WorkflowNodeType.ACTIVITY_COMPLETED_EVENT);
           BaseActivity currentActivity = activities.get(activityIndex).getActivity();
-          Optional<String> condition = retrieveCondition(event.getActivityCompleted(), currentActivity, directGraph);
+          Optional<String> condition = retrieveCondition(event.getActivityCompleted(), currentActivity);
           String finalNodeId = eventNodeId;
           condition.ifPresent(c -> directGraph.readWorkflowNode(activityId).addIfCondition(finalNodeId, c));
         }
       }
-      directGraph.addChildTo(eventNodeId).addChild(activityId);
+      directGraph.getChildren(eventNodeId).addChild(activityId);
       directGraph.addParent(activityId, eventNodeId);
     }
   }
 
-  private Optional<String> retrieveCondition(ActivityCompletedEvent event, BaseActivity activity,
-      WorkflowDirectGraph directGraph) {
+  private Optional<String> retrieveCondition(ActivityCompletedEvent event, BaseActivity activity) {
     return event.getIfCondition() != null ? Optional.of(event.getIfCondition())
         : Optional.ofNullable(activity.getIfCondition());
   }
@@ -178,19 +195,18 @@ public class WorkflowDirectGraphBuilder {
           .event(timeoutEvent)
           .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT));
       directGraph.addParent(timeoutEventId, parentId);
-      directGraph.addChildTo(parentId).gateway(Gateway.EVENT_BASED).addChild(timeoutEventId);
+      directGraph.getChildren(parentId).gateway(Gateway.EVENT_BASED).addChild(timeoutEventId);
     }
   }
 
   private void computeActivity(int activityIndex, List<Activity> activities, String nodeId, Event event,
-      boolean isExclusive,
-      WorkflowDirectGraph directGraph) {
+      boolean isExclusive, WorkflowDirectGraph directGraph) {
     if (activityIndex == 0) {
       validateActivity(activityIndex, activities, event);
       directGraph.addStartEvent(nodeId);
       directGraph.addParent(nodeId, nodeId);
     } else {
-      directGraph.addChildTo(activities.get(activityIndex - 1).getActivity().getId())
+      directGraph.getChildren(activities.get(activityIndex - 1).getActivity().getId())
           .gateway(isExclusive ? Gateway.EVENT_BASED : Gateway.PARALLEL)
           .addChild(nodeId);
       directGraph.addParent(nodeId, activities.get(activityIndex - 1).getActivity().getId());
