@@ -84,28 +84,7 @@ class EngineIntegrationTest extends IntegrationTest {
   void validateOnlyWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/validation/validate-only.swadl.yaml"));
-
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("ignored message"));
-
     engine.parseAndValidate(workflow);
-
-    engine.onEvent(messageReceived("/test"));
-    verify(messageService, never()).send(anyString(), content("message1"));
-    assertThat(IntegrationTest.repositoryService.createDeploymentQuery().deploymentName("validation").count()).isEqualTo(0);
-  }
-
-  @Test
-  void validateAndDeployThenUnDeployWorkflow() throws IOException, ProcessingException {
-    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
-        "/validation/validate-only.swadl.yaml"));
-
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("ignored message"));
-
-    engine.parseAndValidate(workflow);
-
-    engine.onEvent(messageReceived("/test"));
-    verify(messageService, never()).send(anyString(), content("message1"));
-    assertThat(IntegrationTest.repositoryService.createDeploymentQuery().deploymentName("validation").count()).isEqualTo(0);
   }
 
 }

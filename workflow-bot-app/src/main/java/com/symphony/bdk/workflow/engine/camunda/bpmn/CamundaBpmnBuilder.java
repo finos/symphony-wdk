@@ -130,19 +130,21 @@ public class CamundaBpmnBuilder {
       builder = builderFactory.getBuilder(currentNode).connect(currentNode, parentNodeId, builder, context);
       if (!alreadyBuilt) {
         log.trace("compute node [{}] children nodes", currentNodeId);
-        computeChildren(currentNodeId, currentNode, builder, context);
+        computeChildren(currentNode, builder, context);
       }
     }
   }
 
-  private void computeChildren(String currentNodeId, WorkflowNode currentNode, AbstractFlowNodeBuilder<?, ?> builder,
+  private void computeChildren(WorkflowNode currentNode, AbstractFlowNodeBuilder<?, ?> builder,
       BuildProcessContext context) throws JsonProcessingException {
-    NodeChildren currentNodeChildren = context.readChildren(currentNode.getId());
+    String currentNodeId = currentNode.getId();
+    NodeChildren currentNodeChildren = context.readChildren(currentNodeId);
     if (currentNodeChildren != null) {
       if (currentNodeChildren.getGateway() == WorkflowDirectGraph.Gateway.PARALLEL) {
         builder = builder.parallelGateway(currentNodeId + FORK_GATEWAY);
       } else {
-        builder = exclusiveSubTreeNodes(currentNodeId, currentNode, builder, context, currentNodeChildren);
+        builder =
+            exclusiveSubTreeNodes(currentNodeId, currentNode.getElementType(), builder, context, currentNodeChildren);
       }
       context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
       buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
@@ -158,9 +160,9 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  private AbstractFlowNodeBuilder<?, ?> exclusiveSubTreeNodes(String currentNodeId, WorkflowNode currentNode,
+  private AbstractFlowNodeBuilder<?, ?> exclusiveSubTreeNodes(String currentNodeId, WorkflowNodeType currentNodeType,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren) {
-    if (currentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT || hasFormRepliedEvent(context,
+    if (currentNodeType == WorkflowNodeType.FORM_REPLIED_EVENT || hasFormRepliedEvent(context,
         currentNodeChildren)) {
       log.trace("the node [{}] itself or one of its children is a form replied event", currentNodeId);
       return builder;

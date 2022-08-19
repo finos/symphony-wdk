@@ -29,8 +29,9 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
       if (builder instanceof AbstractGatewayBuilder && element.isConditional()) {
         builder = builder.condition("if", element.getIfCondition(parentId));
       }
-      // in case where the current activity has multiple parents (using one-of events), and one of them is a form replied event
-      // we have to end the form reply sub process first, then connect the activity
+      // in case where the current activity has multiple parents (using one-of events),
+      // and one of them is a form replied event. We have to end the form reply sub process first,
+      // then connect the activity
       if (context.hasEventSubProcess() && context.getParents(element.getId()).size() > 1) {
         builder = endEventSubProcess(context, builder);
       }

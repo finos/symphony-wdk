@@ -69,13 +69,13 @@ public abstract class BaseActivity {
   @JsonIgnore
   public RelationalEvents getEvents() {
     if (on != null && on.getOneOf() != null) {
-      return new RelationalEvents(on.getOneOf(), true);
+      return new RelationalEvents(on.getOneOf(), false);
     } else if (on != null && on.getAllOf() != null) {
-      return new RelationalEvents(on.getAllOf(), false);
+      return new RelationalEvents(on.getAllOf(), true);
     } else if (on != null) {
-      return new RelationalEvents(Collections.singletonList(on), true);
+      return new RelationalEvents(Collections.singletonList(on), false);
     } else {
-      return new RelationalEvents(Collections.emptyList(), true);
+      return new RelationalEvents(Collections.emptyList(), false);
     }
   }
 }

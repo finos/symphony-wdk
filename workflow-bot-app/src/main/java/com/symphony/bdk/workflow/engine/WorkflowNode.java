@@ -10,9 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Model represent a node/element in a workflow graph.
+ * Model represent a node/element in a workflow graph. It could be an event or an activity.
  *
- * It could be an event or an activity
  * @see Event
  * @see BaseActivity
  */

@@ -209,7 +209,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
     assertThatExceptionOfType(InvalidActivityException.class)
         .isThrownBy(() -> engine.deploy(workflow))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
-            "Invalid activity in the workflow invalid-workflow: Workflow's starting activity startingActivity should not have timeout"));
+            "Invalid activity in the workflow invalid-workflow: Workflow's starting activity startingActivity must not have timeout"));
 
   }
 

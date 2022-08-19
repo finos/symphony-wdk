@@ -5,7 +5,6 @@ import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 import com.symphony.bdk.workflow.engine.camunda.variable.FormVariableListener;
 import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
-import com.symphony.bdk.workflow.swadl.v1.event.FormRepliedEvent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.BpmnError;
@@ -40,7 +39,6 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
           .signal(element.getId())
           .name(element.getId());
     } else {
-      FormRepliedEvent formReplied = element.getEvent().getFormReplied();
       // cache the sub process builder, the form reply might have a brother event, which is going to use this cached builder
       SubProcessBuilder subProcess = builder.subProcess();
       context.cacheSubProcess(subProcess);
@@ -54,8 +52,9 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
       return subProcessBuilder.startEvent()
           .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
           .camundaAsyncBefore()
-          // run multiple instances of the sub process (i.e. multiple replies) if it's true, otherwise execute only once, as exclusive
-          .interrupting(formReplied.getExclusive())
+          // run multiple instances of the sub process (i.e. multiple replies) if it's true,
+          // otherwise execute only once, as exclusive
+          .interrupting(element.getEvent().getFormReplied().getExclusive())
           .message(element.getId())
           .name(element.getId());
     }

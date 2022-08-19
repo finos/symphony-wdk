@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
 
   @Override
-  public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId, AbstractFlowNodeBuilder<?, ?> builder,
-      BuildProcessContext context) throws JsonProcessingException {
+  public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
     return addTask(builder, element.getActivity(), context);
   }
 

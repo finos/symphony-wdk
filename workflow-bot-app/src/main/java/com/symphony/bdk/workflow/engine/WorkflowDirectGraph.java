@@ -28,7 +28,7 @@ public class WorkflowDirectGraph {
   /**
    * Graph map, workflow element id as key, children elements list as value
    */
-  private final Map<String, NodeChildren> graph = new HashMap<>();
+  private final Map<String, NodeChildren> children = new HashMap<>();
   /**
    * Parents map, workflow element id as key, its parents element ids as value
    */
@@ -58,7 +58,7 @@ public class WorkflowDirectGraph {
   }
 
   public NodeChildren getChildren(String id) {
-    return graph.computeIfAbsent(id, k -> new NodeChildren());
+    return children.computeIfAbsent(id, k -> new NodeChildren());
   }
 
   public WorkflowNode readWorkflowNode(String id) {
@@ -66,7 +66,11 @@ public class WorkflowDirectGraph {
   }
 
   public NodeChildren readChildren(String id) {
-    return graph.get(id);
+    return children.get(id);
+  }
+
+  public boolean hasSeenBefore(String id) {
+    return parents.containsKey(id);
   }
 
   public List<String> getParents(String id) {
