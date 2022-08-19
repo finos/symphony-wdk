@@ -28,6 +28,8 @@ import javax.annotation.Nullable;
 @CacheConfig(cacheNames = "oboAuthSesssions")
 public class SpringBdkGateway implements BdkGateway {
 
+  private static final String OBO_NOT_CONFIGURED_ERROR_MSG = "At least OBO username or userid should be configured.";
+
   private final MessageService messageService;
   private final StreamService streamService;
   private final UserService userService;
@@ -85,7 +87,7 @@ public class SpringBdkGateway implements BdkGateway {
         throw new RuntimeException(e);
       }
     } else {
-      throw new RuntimeException("At least OBO username or userid should be configured.");
+      throw new RuntimeException(OBO_NOT_CONFIGURED_ERROR_MSG);
     }
   }
 
@@ -99,7 +101,7 @@ public class SpringBdkGateway implements BdkGateway {
         throw new RuntimeException(e);
       }
     } else {
-      throw new RuntimeException("At least OBO username or userid should be configured.");
+      throw new RuntimeException(OBO_NOT_CONFIGURED_ERROR_MSG);
     }
   }
 
