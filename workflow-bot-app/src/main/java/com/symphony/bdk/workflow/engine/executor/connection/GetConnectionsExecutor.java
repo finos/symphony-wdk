@@ -5,6 +5,7 @@ import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.GetConnections;
 
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Slf4j
-public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> {
+public class GetConnectionsExecutor extends OboExecutor<GetConnections, List<UserConnection>>
+    implements ActivityExecutor<GetConnections> {
 
   private static final String OUTPUT_CONNECTIONS_KEY = "connections";
 
@@ -38,20 +40,9 @@ public class GetConnectionsExecutor implements ActivityExecutor<GetConnections> 
     return ConnectionStatus.valueOf(statusString);
   }
 
-  private boolean isObo(GetConnections activity) {
-    return activity.getObo() != null && (activity.getObo().getUsername() != null
-        || activity.getObo().getUserId() != null);
-  }
-
-  private List<UserConnection> doOboWithCache(ActivityExecutorContext<GetConnections> execution) {
+  protected List<UserConnection> doOboWithCache(ActivityExecutorContext<GetConnections> execution) {
     GetConnections activity = execution.getActivity();
-
-    AuthSession authSession;
-    if (activity.getObo().getUsername() != null) {
-      authSession = execution.bdk().obo(activity.getObo().getUsername());
-    } else {
-      authSession = execution.bdk().obo(activity.getObo().getUserId());
-    }
+    AuthSession authSession = this.getOboAuthSession(execution);
 
     return execution.bdk()
         .obo(authSession)

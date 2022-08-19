@@ -6,6 +6,7 @@ import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.UpdateRoom;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,61 +15,54 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class UpdateRoomExecutor implements ActivityExecutor<UpdateRoom> {
+public class UpdateRoomExecutor extends OboExecutor<UpdateRoom, V3RoomDetail> implements ActivityExecutor<UpdateRoom> {
 
   private static final String OUTPUT_ROOM_KEY = "room";
 
   @Override
   public void execute(ActivityExecutorContext<UpdateRoom> execution) {
     UpdateRoom updateRoom = execution.getActivity();
-    final boolean isObo = this.isObo(updateRoom);
-    AuthSession authSession = null;
+    final V3RoomDetail updatedRoomDetails;
 
-    if (shouldUpdateRoom(updateRoom)) {
-      log.debug("Updating room {} attributes", updateRoom.getStreamId());
-      V3RoomAttributes attributes = toAttributes(updateRoom);
-      if (isObo) {
-        authSession = this.getOboAuthSession(execution, updateRoom);
-        execution.bdk().obo(authSession).streams().updateRoom(updateRoom.getStreamId(), attributes);
-      } else {
+    if (this.isObo(updateRoom)) {
+      updatedRoomDetails = this.doOboWithCache(execution);
+    } else {
+      if (shouldUpdateRoom(updateRoom)) {
+        log.debug("Updating room {} attributes", updateRoom.getStreamId());
+        V3RoomAttributes attributes = toAttributes(updateRoom);
         execution.bdk().streams().updateRoom(updateRoom.getStreamId(), attributes);
       }
-    }
 
-    if (updateRoom.getActive() != null) {
-      if (isObo) {
-        throw new IllegalArgumentException(
-            String.format("Room active status update, in activity %s, is not OBO enabled", updateRoom.getId()));
-      } else {
+      if (updateRoom.getActive() != null) {
         // this is a different API call, but we support it in the same activity
         log.debug("Updating room {} active status", updateRoom.getStreamId());
         execution.bdk().streams().setRoomActive(updateRoom.getStreamId(), updateRoom.getActive());
       }
+
+      // services called above return different results and might end up not being called so we explicitly call the API
+      // to return the same info in all cases
+      updatedRoomDetails = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
     }
 
-    // services called above return different results and might end up not being called so we explicitly call the API
-    // to return the same info in all cases
-    final V3RoomDetail updatedRoom;
-    if (isObo) {
-      updatedRoom = execution.bdk().obo(authSession).streams().getRoomInfo(updateRoom.getStreamId());
-    } else {
-      updatedRoom = execution.bdk().streams().getRoomInfo(updateRoom.getStreamId());
-    }
-
-    execution.setOutputVariable(OUTPUT_ROOM_KEY, updatedRoom);
+    execution.setOutputVariable(OUTPUT_ROOM_KEY, updatedRoomDetails);
   }
 
-  private boolean isObo(UpdateRoom updateRoom) {
-    return updateRoom.getObo() != null && (updateRoom.getObo().getUsername() != null
-        || updateRoom.getObo().getUserId() != null);
-  }
+  @Override
+  protected V3RoomDetail doOboWithCache(ActivityExecutorContext<UpdateRoom> execution) {
+    UpdateRoom updateRoom = execution.getActivity();
+    AuthSession authSession = this.getOboAuthSession(execution);
 
-  private AuthSession getOboAuthSession(ActivityExecutorContext<UpdateRoom> execution, UpdateRoom updateRoomActivity) {
-    if (updateRoomActivity.getObo().getUsername() != null) {
-      return execution.bdk().obo(updateRoomActivity.getObo().getUsername());
-    } else {
-      return execution.bdk().obo(updateRoomActivity.getObo().getUserId());
+    if(shouldUpdateRoom(updateRoom)) {
+      log.debug("Updating room {} attributes with OBO", updateRoom.getStreamId());
+      execution.bdk().obo(authSession).streams().updateRoom(updateRoom.getStreamId(), toAttributes(updateRoom));
     }
+
+    if (updateRoom.getActive() != null) {
+      throw new IllegalArgumentException(
+          String.format("Room active status update, in activity %s, is not OBO enabled", updateRoom.getId()));
+    }
+
+    return execution.bdk().obo(authSession).streams().getRoomInfo(updateRoom.getStreamId());
   }
 
   private boolean shouldUpdateRoom(UpdateRoom updateRoom) {

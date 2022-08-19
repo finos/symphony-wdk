@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.swadl.v1.activity.stream;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
+import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,6 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetStream extends BaseActivity {
+public class GetStream extends OboActivity {
   private String streamId;
-  private Obo obo;
 }

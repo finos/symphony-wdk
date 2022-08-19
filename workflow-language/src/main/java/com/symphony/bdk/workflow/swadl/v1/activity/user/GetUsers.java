@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.user;
 
-import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
-import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
+import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +13,7 @@ import javax.annotation.Nullable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GetUsers extends BaseActivity {
+public class GetUsers extends OboActivity {
 
   @Nullable
   private List<Long> userIds;
@@ -25,7 +24,4 @@ public class GetUsers extends BaseActivity {
 
   private Boolean local;
   private Boolean active;
-
-  private Obo obo;
-
 }

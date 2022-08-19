@@ -16,6 +16,7 @@ import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,8 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
+public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
+    implements ActivityExecutor<SendMessage> {
 
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
@@ -54,14 +56,7 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
 
     } else if (isObo(activity) && activity.getObo() != null && streamIds.size() == 1) {
 
-      AuthSession authSession;
-      if (activity.getObo().getUsername() != null) {
-        authSession = execution.bdk().obo(activity.getObo().getUsername());
-      } else {
-        authSession = execution.bdk().obo(activity.getObo().getUserId());
-      }
-
-      message = this.doOboWithCache(execution, authSession, streamIds.get(0), messageToSend);
+      message = this.doOboWithCache(execution);
 
     } else if (isObo(activity) && streamIds.size() > 1) {
       // TODO: Add blast message obo case when it is enabled: https://perzoinc.atlassian.net/browse/PLAT-11231
@@ -82,16 +77,24 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     execution.setOutputVariables(outputs);
   }
 
-  private boolean isObo(SendMessage activity) {
-    return activity.getObo() != null && (activity.getObo().getUsername() != null
-        || activity.getObo().getUserId() != null);
-  }
+  @Override
+  protected V4Message doOboWithCache(ActivityExecutorContext<SendMessage> execution) throws IOException {
+    SendMessage activity = execution.getActivity();
+    List<String> streamIds = resolveStreamId(execution, activity, execution.bdk().streams());
 
-  private V4Message doOboWithCache(ActivityExecutorContext<SendMessage> execution, AuthSession authSession,
-      String streamId, Message messageToSend) {
+    if (streamIds.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("No stream ids set to send a message in activity %s", activity.getId()));
+    }
+
+    String streamId = streamIds.get(0);
+    Message messageToSend = this.buildMessage(execution);
+    AuthSession authSession = this.getOboAuthSession(execution);
+
     OboMessageService messages = execution.bdk()
         .obo(authSession)
         .messages();
+
     return messages.send(streamId, messageToSend);
   }
 

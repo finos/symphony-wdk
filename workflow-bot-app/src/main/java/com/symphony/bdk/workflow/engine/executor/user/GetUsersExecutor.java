@@ -4,14 +4,17 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.GetUsers;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
+public class GetUsersExecutor extends OboExecutor<GetUsers, List<UserV2>>
+    implements ActivityExecutor<GetUsers> {
 
   private static final String OUTPUT_USERS_KEY = "users";
 
@@ -23,78 +26,46 @@ public class GetUsersExecutor implements ActivityExecutor<GetUsers> {
 
     List<UserV2> users = null;
 
-    // Since the workflow is validated by swadl-schema, at least one of the following attributes is not null
-    if (getUsers.getUsernames() != null) {
-      users = this.listUsersByUsernames(context);
+    if (this.isObo(getUsers)) {
+      users = this.doOboWithCache(context);
+    } else if (getUsers.getUsernames() != null) {
+      // Since the workflow is validated by swadl-schema, at least one of the following attributes is not null
+      users = context.bdk().users().listUsersByUsernames(getUsers.getUsernames(), getUsers.getActive());
 
     } else if (getUsers.getUserIds() != null) {
-      users = this.listUsersByIds(context);
+      users = context.bdk().users().listUsersByIds(getUsers.getUserIds(), getUsers.getLocal(), getUsers.getActive());
 
     } else if (getUsers.getEmails() != null) {
-      users = this.listUsersByEmails(context);
+      users = context.bdk().users().listUsersByEmails(getUsers.getEmails(), getUsers.getLocal(), getUsers.getActive());
     }
 
     context.setOutputVariable(OUTPUT_USERS_KEY, users);
   }
 
-  private boolean isObo(GetUsers activity) {
-    return activity.getObo() != null && (activity.getObo().getUsername() != null
-        || activity.getObo().getUserId() != null);
-  }
+  @Override
+  protected List<UserV2> doOboWithCache(ActivityExecutorContext<GetUsers> execution) {
+    GetUsers getUsers = execution.getActivity();
+    AuthSession authSession = this.getOboAuthSession(execution);
 
-  private List<UserV2> listUsersByUsernames(ActivityExecutorContext<GetUsers> context) {
-    GetUsers activity = context.getActivity();
-
-    if (this.isObo(activity)) {
-      AuthSession authSession = this.getAuthSession(context);
-
-      return context.bdk().obo(authSession).users().listUsersByUsernames(activity.getUsernames(), activity.getActive());
-    } else {
-      return context.bdk().users().listUsersByUsernames(activity.getUsernames(), activity.getActive());
-    }
-  }
-
-  private List<UserV2> listUsersByIds(ActivityExecutorContext<GetUsers> context) {
-    GetUsers activity = context.getActivity();
-
-    if (this.isObo(activity)) {
-      AuthSession authSession = this.getAuthSession(context);
-
-      return context.bdk()
+    // Since the workflow is validated by swadl-schema, at least one of the following attributes is not null
+    if (getUsers.getUsernames() != null) {
+      return execution.bdk()
           .obo(authSession)
           .users()
-          .listUsersByIds(activity.getUserIds(), activity.getLocal(), activity.getActive());
-    } else {
-      return context.bdk().users().listUsersByIds(activity.getUserIds(), activity.getLocal(), activity.getActive());
-    }
-  }
-
-  private List<UserV2> listUsersByEmails(ActivityExecutorContext<GetUsers> context) {
-    GetUsers activity = context.getActivity();
-
-    if (this.isObo(activity)) {
-      AuthSession authSession = this.getAuthSession(context);
-
-      return context.bdk()
+          .listUsersByUsernames(getUsers.getUsernames(), getUsers.getActive());
+    } else if (getUsers.getUserIds() != null) {
+      return execution.bdk()
           .obo(authSession)
           .users()
-          .listUsersByEmails(activity.getEmails(), activity.getLocal(), activity.getActive());
-    } else {
-      return context.bdk().users().listUsersByEmails(activity.getEmails(), activity.getLocal(), activity.getActive());
-    }
-  }
-
-  private AuthSession getAuthSession(ActivityExecutorContext<GetUsers> context) {
-    AuthSession authSession;
-    GetUsers activity = context.getActivity();
-
-    if (activity.getObo().getUsername() != null) {
-      authSession = context.bdk().obo(activity.getObo().getUsername());
-    } else {
-      authSession = context.bdk().obo(activity.getObo().getUserId());
+          .listUsersByIds(getUsers.getUserIds(), getUsers.getLocal(), getUsers.getActive());
+    } else if (getUsers.getEmails() != null) {
+      return execution.bdk()
+          .obo(authSession)
+          .users()
+          .listUsersByEmails(getUsers.getEmails(), getUsers.getLocal(), getUsers.getActive());
     }
 
-    return authSession;
+    return Collections.emptyList();
   }
 
 }
