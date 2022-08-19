@@ -37,7 +37,7 @@ public class PinMessageExecutor extends OboExecutor<PinMessage, Void>
       this.updateInstantMessage(execution, messageId, streamId);
     } else if (ROOM.equals(streamType) && this.isObo(activity)) {
       this.doOboWithCache(execution);
-    } else if (ROOM.equals(streamType)){
+    } else if (ROOM.equals(streamType)) {
       this.updateRoomMessage(execution, messageId, streamId);
     } else {
       throw new IllegalArgumentException(

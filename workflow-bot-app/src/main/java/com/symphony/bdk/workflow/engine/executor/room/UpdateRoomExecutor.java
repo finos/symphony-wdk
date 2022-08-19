@@ -52,7 +52,7 @@ public class UpdateRoomExecutor extends OboExecutor<UpdateRoom, V3RoomDetail> im
     UpdateRoom updateRoom = execution.getActivity();
     AuthSession authSession = this.getOboAuthSession(execution);
 
-    if(shouldUpdateRoom(updateRoom)) {
+    if (shouldUpdateRoom(updateRoom)) {
       log.debug("Updating room {} attributes with OBO", updateRoom.getStreamId());
       execution.bdk().obo(authSession).streams().updateRoom(updateRoom.getStreamId(), toAttributes(updateRoom));
     }
