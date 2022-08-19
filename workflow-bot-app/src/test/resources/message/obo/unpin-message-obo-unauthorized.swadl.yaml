@@ -1,0 +1,10 @@
+id: unpin-message-obo-unauthorized
+activities:
+  - unpin-message:
+      id: unpinMessageOboUnauthorized
+      on:
+        message-received:
+          content: /unpin-message-obo-unauthorized
+      stream-id: STREAM_ID
+      obo:
+        username: "John"

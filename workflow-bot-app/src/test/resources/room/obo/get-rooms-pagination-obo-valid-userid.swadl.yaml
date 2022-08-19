@@ -1,0 +1,23 @@
+id: get-rooms-pagination-on-behalf-of-user-valid-userid
+variables:
+  skip: 10
+  limit: 10
+activities:
+  - get-rooms:
+      id: getRoomsPaginationOboValidUserid
+      on:
+        message-received:
+          content: "/get-rooms-pagination-obo-valid-userid"
+      active: true
+      labels:
+        - test
+        - test1
+      query: test
+      skip: ${variables.skip}
+      limit: ${variables.limit}
+      obo:
+        user-id: 12345
+  - execute-script:
+      id: script
+      script: |
+        assert getRoomsPaginationOboValidUserid.outputs.rooms != null

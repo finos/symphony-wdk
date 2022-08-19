@@ -1,0 +1,13 @@
+id: create-mim-with-userids-obo-workflow
+activities:
+  - create-room:
+      id: createRoomObo
+      on:
+        message-received:
+          content: "/create-mim-obo-valid-userid"
+      user-ids:
+        - 666
+        - 777
+        - 999
+      obo:
+        user-id: 12345

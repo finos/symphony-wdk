@@ -1,0 +1,18 @@
+id: get-users-usernames-obo-valid-username
+activities:
+  - get-users:
+      id: getUsersUsernamesOboValidUsername
+      on:
+        message-received:
+          content: /get-users-usernames-obo-valid-username
+      usernames:
+        - "bob"
+        - "eve"
+      active: false
+      obo:
+        username: "John"
+
+  - execute-script:
+      id: script
+      script: |
+        assert getUsersUsernamesOboValidUsername.outputs.users != null

@@ -4,6 +4,7 @@ import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.POST;
 import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.ROOM;
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.timeout;
@@ -23,6 +24,8 @@ import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +43,37 @@ class StreamIntegrationTest extends IntegrationTest {
 
     verify(streamService, timeout(5000)).getStream("abc");
     assertThat(workflow).isExecuted();
+  }
+
+  @ParameterizedTest
+  @CsvSource({"/stream/obo/get-stream-obo-valid-userid.swadl.yaml, /get-stream-obo-valid-userid",
+      "/stream/obo/get-stream-obo-valid-username.swadl.yaml, /get-stream-obo-valid-username"})
+  void getStreamObo(String workflowFile, String command) throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+    when(oboStreamService.getStream("abc")).thenReturn(new V2StreamAttributes());
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived(command));
+
+    verify(oboStreamService, timeout(5000)).getStream("abc");
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getStreamOboUnauthorized() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/stream/obo/get-stream-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(String.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/get-stream-obo-unauthorized"));
+
+    assertThat(workflow).executed("getStreamOboUnauthorized")
+        .notExecuted("scriptActivityNotToBeExecuted");
   }
 
   @Test
@@ -122,6 +156,42 @@ class StreamIntegrationTest extends IntegrationTest {
 
     verify(streamService, timeout(5000)).listStreams(refEq(filter));
     assertThat(workflow).isExecuted();
+  }
+
+  @ParameterizedTest
+  @CsvSource({"/stream/obo/get-user-streams-obo-valid-userid.swadl.yaml, /get-user-streams-obo-valid-userid",
+      "/stream/obo/get-user-streams-obo-valid-username.swadl.yaml, /get-user-streams-obo-valid-username"})
+  void getUserStreamsObo(String workflowFile, String command) throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    StreamFilter filter = new StreamFilter()
+        .streamTypes(List.of(new StreamType().type(ROOM), new StreamType().type(POST)))
+        .includeInactiveStreams(true);
+
+    when(bdkGateway.obo(any(String.class))).thenReturn(botSession);
+    when(bdkGateway.obo(any(Long.class))).thenReturn(botSession);
+    when(oboStreamService.listStreams(refEq(filter))).thenReturn(Collections.emptyList());
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived(command));
+
+    verify(oboStreamService, timeout(5000)).listStreams(refEq(filter));
+    assertThat(workflow).isExecuted();
+  }
+
+  @Test
+  void getUserStreamsOboUnauthorized() throws Exception {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/stream/obo/get-user-streams-obo-unauthorized.swadl.yaml"));
+
+    when(bdkGateway.obo(any(String.class))).thenThrow(new RuntimeException("Unauthorized user"));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/get-user-streams-obo-unauthorized"));
+
+    assertThat(workflow).executed("getUserStreamsOboUnauthorized")
+        .notExecuted("scriptActivityNotToBeExecuted");
   }
 
   @Test

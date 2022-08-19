@@ -1,0 +1,10 @@
+id: remove-connection-obo-valid-userid
+activities:
+  - remove-connection:
+      id: removeConnectionOboValidUserid
+      on:
+        message-received:
+          content: /remove-connection-obo-valid-userid
+      user-id: 1234
+      obo:
+        user-id: 123

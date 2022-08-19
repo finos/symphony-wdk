@@ -1,0 +1,10 @@
+id: get-connection-obo-valid-username
+activities:
+  - get-connection:
+      id: getConnectionOboValidUsername
+      on:
+        message-received:
+          content: /get-connection-obo-valid-username
+      user-id: 1234
+      obo:
+        username: "John"

@@ -1,0 +1,10 @@
+id: pin-message-obo-unauthorized
+activities:
+  - pin-message:
+      id: pinMessageOboUnauthorized
+      on:
+        message-received:
+          content: /pin-message-obo-unauthorized
+      message-id: MSG_ID
+      obo:
+        username: "John"

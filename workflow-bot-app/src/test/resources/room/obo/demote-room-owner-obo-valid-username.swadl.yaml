@@ -1,0 +1,12 @@
+id: demote-room-member-on-behalf-of-user-valid-username
+activities:
+  - demote-room-owner:
+      id: demoteRoomOwnerOboValidUsername
+      on:
+        message-received:
+          content: "/demote-room-owner-obo-valid-username"
+      stream-id: abc
+      user-ids:
+        - 123
+      obo:
+        username: "john"

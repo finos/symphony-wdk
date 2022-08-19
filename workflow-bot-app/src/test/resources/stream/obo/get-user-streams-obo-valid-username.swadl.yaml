@@ -1,0 +1,17 @@
+id: get-user-streams-obo-valid-username
+activities:
+  - get-user-streams:
+      id: getUserStreamsOboValidUsername
+      on:
+        message-received:
+          content: /get-user-streams-obo-valid-username
+      types:
+        - ROOM
+        - POST
+      include-inactive-streams: true
+      obo:
+        username: "John"
+  - execute-script:
+      id: script
+      script: |
+        assert getUserStreamsOboValidUsername.outputs.streams != null

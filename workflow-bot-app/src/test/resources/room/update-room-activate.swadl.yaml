@@ -4,7 +4,7 @@ activities:
       id: updateRoom
       on:
         message-received:
-          content: "/update-room"
+          content: "/update-room-activate"
       stream-id: abc
       active: true
   - execute-script:

@@ -1,0 +1,13 @@
+id: remove-room-member-on-behalf-of-user-valid-username
+activities:
+  - remove-room-member:
+      id: removeRoomMemberOboValidUsername
+      on:
+        message-received:
+          content: "/remove-room-member-obo-valid-username"
+      stream-id: abc
+      user-ids:
+        - 123
+        - 456
+      obo:
+        username: "john"
