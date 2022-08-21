@@ -16,6 +16,9 @@ public class Workflow {
   private String id;
 
   @JsonProperty
+  private Metadata metadata;
+
+  @JsonProperty
   private Map<String, Object> variables = Collections.emptyMap();
 
   @JsonProperty
@@ -23,5 +26,13 @@ public class Workflow {
 
   public Optional<Activity> getFirstActivity() {
     return activities.stream().findFirst();
+  }
+
+  public Metadata getMetadata() {
+    return metadata == null ? new Metadata() : metadata;
+  }
+
+  public boolean isToPublish() {
+    return getMetadata().getPublish();
   }
 }

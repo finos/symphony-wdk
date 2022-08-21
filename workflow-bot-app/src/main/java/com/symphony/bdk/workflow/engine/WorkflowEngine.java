@@ -5,12 +5,15 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import java.io.IOException;
 
-public interface WorkflowEngine {
+public interface WorkflowEngine<K> {
 
   void deploy(Workflow workflow) throws IOException;
 
-  void execute(String workflowId, ExecutionParameters parameters)
-      throws UnauthorizedException, IllegalArgumentException;
+  void deploy(Workflow workflow, Object instance) throws IOException;
+
+  K parseAndValidate(Workflow workflow);
+
+  void execute(String workflowId, ExecutionParameters parameters) throws UnauthorizedException;
 
   <T> void onEvent(RealTimeEvent<T> event);
 

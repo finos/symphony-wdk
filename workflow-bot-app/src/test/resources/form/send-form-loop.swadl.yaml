@@ -19,7 +19,6 @@ activities:
           </form>
         </messageML>
 
-
   - execute-script:
       id: setVariables
       on:
@@ -27,5 +26,5 @@ activities:
           form-id: sendForm
           exclusive: true
       # We go back to the first activity, resending the form
-      script: |
-        variables.loop = (sendForm.action == "reject" )
+      script: |        
+        variables.loop = (sendForm.action == "reject" )        

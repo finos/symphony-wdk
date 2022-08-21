@@ -1,0 +1,20 @@
+id: form-reply-two-oneOf-update-message
+activities:
+  - send-message:
+      id: init
+      on:
+        message-received:
+          content: /init
+      content: |
+        <form id="init"><button type="action" name="x">Init</button></form>
+  - update-message:
+      id: update
+      on:
+        one-of:
+          - form-replied:
+              form-id: init
+              exclusive: true
+          - message-received:
+              content: /hey
+      message-id: ${init.outputs.msgId}
+      content: Hey

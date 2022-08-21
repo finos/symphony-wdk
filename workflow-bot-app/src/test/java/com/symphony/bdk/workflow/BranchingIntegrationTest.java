@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -40,18 +41,18 @@ class BranchingIntegrationTest extends IntegrationTest {
   static Stream<Arguments> expectedErrors() {
     return Stream.of(
         arguments("/branching/invalid/swadl/if-starting-activity.swadl.yaml", InvalidActivityException.class,
-            "Invalid activity in the workflow if-in-starting-activity: Starting activity startingActivity cannot have a conditional branching"),
+            "Invalid activity in the workflow if-in-starting-activity: Workflow's starting activity startingActivity must not have a conditional branching"),
         arguments("/branching/invalid/swadl/else-without-if.swadl.yaml", InvalidActivityException.class,
             "Invalid activity in the workflow else-without-if: Expecting \"if\" keyword to open a new conditional branching, got \"else\""),
-        arguments("/branching/invalid/swadl/else-on-activity-completed-with-branching.swadl.yaml",
-            InvalidActivityException.class,
-            "Invalid activity in the workflow else-on-activity-completed-with-branching: Expecting activity ac2 not to have a parent activity with conditional branching, got ac1"),
+//        arguments("/branching/invalid/swadl/else-on-activity-completed-with-branching.swadl.yaml",
+//            InvalidActivityException.class,
+//            "Invalid activity in the workflow else-on-activity-completed-with-branching: Expecting activity ac2 not to have a parent activity with conditional branching, got ac1"),
         arguments("/branching/invalid/swadl/else-without-on-activity-completed.swadl.yaml",
             InvalidActivityException.class,
-            "Invalid activity in the workflow else-without-on-activity-completed: Expecting activity ac2 not to have a parent activity with conditional branching, got ac1"),
+            "Invalid activity in the workflow else-without-on-activity-completed: Expecting \"if\" keyword to open a new conditional branching, got \"else\""),
         arguments("/branching/invalid/swadl/else-with-unknown-on-activity-completed.swadl.yaml",
-            InvalidActivityException.class,
-            "Invalid activity in the workflow else-with-unknown-on-activity-completed: Expecting activity ac2 not to have a parent activity with conditional branching, got null")
+            ActivityNotFoundException.class,
+            "Invalid activity in the workflow else-with-unknown-on-activity-completed: No activity found with id unknown-id referenced in ac2")
     );
   }
 

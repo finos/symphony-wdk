@@ -15,6 +15,20 @@
             "pattern": "^[a-zA-Z]+[a-zA-Z0-9][^ ]*$",
             "default": "my-workflow"
         },
+        "metadata": {
+            "type": "object",
+            "description": "Some metadata about the workflow",
+            "properties": {
+                "publish": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Should the workflow be published or not, true publish, false otherwise",
+                    "default": true
+                }
+            }
+        },
         "variables": {
             "type": "object",
             "description": "Variables are accessible and editable within the entire workflow. A map of key: value entries is expected."
@@ -700,6 +714,9 @@
                         },
                         {
                             "$ref": "#/definitions/one-of-event"
+                        },
+                        {
+                            "$ref": "#/definitions/all-of-event"
                         }
                     ]
                 }
@@ -964,6 +981,81 @@
             },
             "required": [
                 "activity-completed"
+            ]
+        },
+        "all-of-event": {
+            "type": "object",
+            "properties": {
+                "all-of": {
+                    "description": "Used to receive all listed events.",
+                    "x-intellij-html-description": "Used to receive all listed events.",
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/form-replied-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-completed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-failed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-received-event"
+                            },
+                            {
+                                "$ref": "#/definitions/request-received-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-suppressed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/post-shared-event"
+                            },
+                            {
+                                "$ref": "#/definitions/im-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-updated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-deactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-reactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-joined-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-left-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-requested-join-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-requested-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-accepted-event"
+                            }
+                        ]
+                    }
+                }
+            },
+            "additionalProperties": true,
+            "required": [
+                "all-of"
             ]
         },
         "one-of-event": {

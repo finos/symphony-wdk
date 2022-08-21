@@ -34,6 +34,9 @@ public class Event {
   private List<Event> oneOf;
 
   @JsonProperty
+  private List<Event> allOf;
+
+  @JsonProperty
   private FormRepliedEvent formReplied;
 
   @JsonProperty

@@ -11,10 +11,13 @@ import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.xml.ModelValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class CamundaEngine implements WorkflowEngine {
+public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
   @Autowired
   private RepositoryService repositoryService;
@@ -43,10 +46,27 @@ public class CamundaEngine implements WorkflowEngine {
 
   @Override
   public void deploy(Workflow workflow) throws IOException {
-    checkIdsAreUnique(workflow);
-    Deployment deployment = bpmnBuilder.addWorkflow(workflow);
+    Object instance = parseAndValidate(workflow);
+    deploy(workflow, instance);
+  }
+
+  @Override
+  public void deploy(Workflow workflow, Object bpmnInstance) throws IOException {
+    Deployment deployment = bpmnBuilder.deployWorkflow(workflow, (BpmnModelInstance) bpmnInstance);
     log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);
+  }
+
+  @Override
+  public BpmnModelInstance parseAndValidate(Workflow workflow) {
+    checkIdsAreUnique(workflow);
+    try {
+      return bpmnBuilder.parseWorkflowToBpmn(workflow);
+    } catch (JsonProcessingException | ModelValidationException exception) {
+      throw new IllegalArgumentException(
+          String.format("Workflow parsing process failed, \"%s\" may not be a valid workflow.", workflow.getId()),
+          exception);
+    }
   }
 
   @Override

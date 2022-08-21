@@ -6,9 +6,6 @@ activities:
         one-of:
           - message-received:
               content: /message
-          - activity-completed:
-              activity-id: setVariables
-              if: ${variables.loop == true}
       to:
         stream-id: ABC
       content: |
@@ -18,7 +15,6 @@ activities:
             <button name="reject" type="action">Reject</button>
           </form>
         </messageML>
-
 
   - send-message:
       id: reply1
@@ -41,7 +37,7 @@ activities:
       id: reply1Timeout
       on:
         activity-expired:
-          activity-id: sendForm
+          activity-id: reply1
       to:
         stream-id: ABC
-      content: afterReply1
+      content: afterReply1Timeout

@@ -80,4 +80,11 @@ class EngineIntegrationTest extends IntegrationTest {
     Assertions.assertThat(workflowTwo).isExecuted();
   }
 
+  @Test
+  void validateOnlyWorkflow() throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/validation/validate-only.swadl.yaml"));
+    engine.parseAndValidate(workflow);
+  }
+
 }

@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import lombok.Generated;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -16,6 +17,7 @@ import java.util.Base64;
  */
 @Slf4j
 @Generated // used for debugging/testing
+@UtilityClass
 public final class WorkflowDebugger {
 
   static void generateDebugFiles(String workflowName, BpmnModelInstance instance) {
@@ -70,7 +72,4 @@ public final class WorkflowDebugger {
     return outputFolder;
   }
 
-  private WorkflowDebugger() {
-    // utility class
-  }
 }

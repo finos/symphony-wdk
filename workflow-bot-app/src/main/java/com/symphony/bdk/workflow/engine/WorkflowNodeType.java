@@ -1,0 +1,13 @@
+package com.symphony.bdk.workflow.engine;
+
+public enum WorkflowNodeType {
+  TIMER_FIRED_EVENT,
+  SIGNAL_EVENT,
+  FORM_REPLIED_EVENT,
+  ACTIVITY_COMPLETED_EVENT,
+  ACTIVITY_FAILED_EVENT,
+  ACTIVITY_EXPIRED_EVENT,
+  JOIN_ACTIVITY,
+  ACTIVITY;
+
+}

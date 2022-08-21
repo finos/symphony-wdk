@@ -29,6 +29,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -39,6 +40,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.AfterEach;
@@ -70,6 +72,9 @@ public abstract class IntegrationTest {
 
   @SuppressFBWarnings
   public static HistoryService historyService;
+
+  @SuppressFBWarnings
+  public static RepositoryService repositoryService;
 
   // Mock the BDK
   @MockBean
@@ -120,6 +125,11 @@ public abstract class IntegrationTest {
   @Autowired
   public void setHistoryService(HistoryService historyService) {
     IntegrationTest.historyService = historyService;
+  }
+
+  @Autowired
+  public void setRepositoryService(RepositoryService repositoryService) {
+    IntegrationTest.repositoryService = repositoryService;
   }
 
   protected static V4Message message(String msgId) {
@@ -191,12 +201,23 @@ public abstract class IntegrationTest {
     V4Message message = new V4Message();
     message.setMessage("<presentationML>" + content + "</presentationML>");
     messageSent.setMessage(message);
-
     V4Stream stream = new V4Stream();
     stream.setStreamId("123");
     message.setStream(stream);
 
     return new RealTimeEvent<>(initiator, messageSent);
+  }
+
+  public static RealTimeEvent<V4UserJoinedRoom> userJoined() {
+    V4User user = new V4User();
+    user.setUserId(123L);
+    V4Stream stream = new V4Stream();
+    stream.setStreamId("123");
+    V4UserJoinedRoom joinedRoom = new V4UserJoinedRoom();
+    joinedRoom.affectedUser(user);
+    joinedRoom.setStream(stream);
+
+    return new RealTimeEvent<>(new V4Initiator(), joinedRoom);
   }
 
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId,
@@ -269,6 +290,7 @@ public abstract class IntegrationTest {
 
     assertThat(processes)
         .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
+        .filteredOn(p -> !p.getActivityType().equals("noneEndEvent"))
         .extracting(HistoricActivityInstance::getActivityName)
         .containsExactly(activityIds);
   }
