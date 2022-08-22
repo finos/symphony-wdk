@@ -7,7 +7,6 @@ import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
-import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.springframework.stereotype.Component;
 
 @Component

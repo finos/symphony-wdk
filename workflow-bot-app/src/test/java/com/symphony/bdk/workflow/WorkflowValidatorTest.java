@@ -27,14 +27,14 @@ import java.util.stream.Stream;
 class WorkflowValidatorTest {
 
   static Stream<Arguments> firstActivities() {
-    BaseActivity mockActivity1 = mock(BaseActivity.class);
+    final BaseActivity mockActivity1 = mock(BaseActivity.class);
     when(mockActivity1.getIfCondition()).thenReturn("condition");
 
-    BaseActivity mockActivity2 = mock(BaseActivity.class);
+    final BaseActivity mockActivity2 = mock(BaseActivity.class);
     EventWithTimeout mockEvent1 = mock(EventWithTimeout.class);
     when(mockEvent1.getTimeout()).thenReturn("PT24h");
 
-    BaseActivity mockActivity3 = mock(BaseActivity.class);
+    final BaseActivity mockActivity3 = mock(BaseActivity.class);
     EventWithTimeout mockEvent2 = mock(EventWithTimeout.class);
     when(mockEvent2.getTimeout()).thenReturn("PT24h");
     when(mockActivity3.getOn()).thenReturn(mockEvent2);

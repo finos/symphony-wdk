@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -283,7 +282,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormUpdateMessage() throws Exception {
-    Workflow workflow =
+    final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
@@ -306,7 +305,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendMessageUpdateMessage() throws Exception {
-    Workflow workflow =
+    final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));

@@ -39,7 +39,8 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
           .signal(element.getId())
           .name(element.getId());
     } else {
-      // cache the sub process builder, the form reply might have a brother event, which is going to use this cached builder
+      // cache the sub process builder, the form reply might have a brother event,
+      // which is going to use this cached builder
       SubProcessBuilder subProcess = builder.subProcess();
       context.cacheSubProcess(subProcess);
 
