@@ -12,7 +12,10 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0')
+    implementation('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0') {
+        exclude group: 'org.eclipse.jetty.http2', module: 'http2-server'
+    }
+
     implementation platform('com.fasterxml.jackson:jackson-bom:2.13.2.20220328')
     implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.6')
 
@@ -24,7 +27,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.h2database:h2:2.1.214'
 
     implementation 'org.slf4j:slf4j-api'
     runtimeOnly 'ch.qos.logback:logback-classic'
