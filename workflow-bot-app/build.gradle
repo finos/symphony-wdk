@@ -12,9 +12,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0') {
-        exclude group: 'org.eclipse.jetty.http2', module: 'http2-server'
-    }
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0')
 
     implementation platform('com.fasterxml.jackson:jackson-bom:2.13.2.20220328')
     implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.6')
@@ -61,6 +59,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.awaitility:awaitility'
+    testImplementation 'org.eclipse.jetty.http2:http2-server:11.0.11'
     testImplementation 'com.github.tomakehurst:wiremock-jre8:2.32.0'
 }
 
