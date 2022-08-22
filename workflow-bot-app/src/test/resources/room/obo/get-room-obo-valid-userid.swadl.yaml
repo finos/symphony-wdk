@@ -1,0 +1,14 @@
+id: get-room-on-behalf-of-user-valid-userid
+activities:
+  - get-room:
+      id: getRoomOboValidUserid
+      on:
+        message-received:
+          content: "/get-room-obo-valid-userid"
+      stream-id: abc
+      obo:
+        user-id: 12345
+  - execute-script:
+      id: script
+      script: |
+        assert getRoomOboValidUserid.outputs.room != null

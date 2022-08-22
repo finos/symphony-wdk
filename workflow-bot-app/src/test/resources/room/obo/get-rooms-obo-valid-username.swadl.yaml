@@ -1,0 +1,19 @@
+id: get-rooms-on-behalf-of-user-valid-username
+activities:
+  - get-rooms:
+      id: getRoomsOboValidUsername
+      on:
+        message-received:
+          content: "/get-rooms-obo-valid-username"
+      active: true
+      labels:
+        - test
+        - test1
+      query: test
+      sort-order: BASIC
+      obo:
+        username: "john"
+  - execute-script:
+      id: script
+      script: |
+        assert getRoomsOboValidUsername.outputs.rooms != null

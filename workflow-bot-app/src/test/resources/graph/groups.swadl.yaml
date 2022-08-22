@@ -1,0 +1,39 @@
+# Using group (distribution list) activities
+id: groups
+activities:
+  - create-group:
+      id: create
+      on:
+        message-received:
+          content: /group
+      type: SDL
+      name: test-group
+      profile:
+        display-name: Test Group
+      owner:
+        id: 190 # To be changed with the tenant/pod id
+        type: TENANT
+      members:
+        - tenant-id: 190 # To be changed with the tenant/pod id
+          user-id: 13056700579841 # To be changed with a real user id
+  - get-group:
+      id: get
+      group-id: ${get.outputs.group.id}
+      on:
+        message-received:
+          content: /start
+  - update-group:
+      id: updateAvatar
+      group-id: ${get.outputs.group.id}
+      image-path: "/attachments/logo.png"
+  - add-group-member:
+      id: add
+      group-id: ${get.outputs.group.id}
+      members:
+        - user-id: 13056700581328
+          tenant-id: 190
+        - user-id: 13056700581174
+          tenant-id: 190
+  - get-groups:
+      id: gets
+      type: SDL

@@ -1,0 +1,16 @@
+id: pin-message-im-obo-not-supported
+activities:
+  - pin-message:
+      id: pinMessageImOboNotSupported
+      on:
+        message-received:
+          content: /pin-message-im-obo-not-supported
+      message-id: MSG_ID
+      obo:
+        user-id: 123
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.message;
 
-import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SendMessage extends BaseActivity {
+public class SendMessage extends OboActivity {
 
   @Nullable private String template;
   @Nullable private String content;

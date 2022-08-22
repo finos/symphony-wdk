@@ -1,0 +1,51 @@
+id: connection-admin-approval
+variables:
+  # a user that is validating connection requests made to the bot
+  administrator: 13056700579841
+activities:
+  - execute-script:
+      id: vars
+      on:
+        connection-requested: { }
+      script: |
+        variables.user = event.initiator.user.userId
+  - send-message:
+      id: form
+      to:
+        user-ids:
+          - ${variables.administrator}
+      content: |
+        <messageML>
+          <form id="form">
+            User ${event.initiator.user.displayName} would like to connect to the bot, accept or reject request?
+            <br/>
+            <button name="accept" type="action">Accept</button>
+            <button name="reject" type="action">Reject</button>
+          </form>
+        </messageML>
+  - accept-connection:
+      id: formReplyAccept
+      on:
+        form-replied:
+          form-id: form
+      if: ${form.action == 'accept'}
+      user-id: ${variables.user}
+  - send-message:
+      id: accepted
+      to:
+        user-ids:
+          - ${variables.administrator}
+      content: Connection accepted
+  - reject-connection:
+      id: formReplyReject
+      on:
+        form-replied:
+          form-id: form
+      if: ${form.action == 'reject'}
+      user-id: ${variables.user}
+  - send-message:
+      id: rejected
+      to:
+        user-ids:
+          - ${variables.administrator}
+      content: Connection rejected

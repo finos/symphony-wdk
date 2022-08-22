@@ -1,0 +1,29 @@
+id: create-room-obo-unauthroized
+activities:
+  - create-room:
+      id: "createRoomOboUnauthorized"
+      on:
+        message-received:
+          content: "/create-room-obo-unauthorized"
+      room-name: "The best room ever"
+      room-description: "this is room description"
+      public: true
+      view-history: true
+      keywords:
+        "A": "AA"
+        "B": "BB"
+      discoverable: false
+      read-only: true
+      copy-protected: true
+      cross-pod: true
+      multilateral-room: false
+      members-can-invite: true
+      sub-type: EMAIL
+      obo:
+        user-id: 12345
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

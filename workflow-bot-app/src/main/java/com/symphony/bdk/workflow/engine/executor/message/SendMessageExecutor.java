@@ -2,7 +2,9 @@ package com.symphony.bdk.workflow.engine.executor.message;
 
 import static java.util.Collections.singletonList;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.gen.api.model.Stream;
@@ -11,12 +13,16 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
+import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
+@Component
+public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
+    implements ActivityExecutor<SendMessage> {
 
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
@@ -48,6 +56,15 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
       throw new IllegalArgumentException(
           String.format("No stream ids set to send a message in activity %s", activity.getId()));
 
+    } else if (isObo(activity) && activity.getObo() != null && streamIds.size() == 1) {
+
+      message = this.doOboWithCache(execution);
+
+    } else if (isObo(activity) && streamIds.size() > 1) {
+      // TODO: Add blast message obo case when it is enabled: https://perzoinc.atlassian.net/browse/PLAT-11231
+      throw new IllegalArgumentException(
+          String.format("Blast message, in activity %s, is not OBO enabled", activity.getId()));
+
     } else if (streamIds.size() == 1) {
       message = execution.bdk().messages().send(streamIds.get(0), messageToSend);
 
@@ -60,6 +77,27 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     outputs.put(OUTPUT_MESSAGE_KEY, message);
     outputs.put(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
     execution.setOutputVariables(outputs);
+  }
+
+  @Override
+  protected V4Message doOboWithCache(ActivityExecutorContext<SendMessage> execution) throws IOException {
+    SendMessage activity = execution.getActivity();
+    List<String> streamIds = resolveStreamId(execution, activity, execution.bdk().streams());
+
+    if (streamIds.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("No stream ids set to send a message in activity %s", activity.getId()));
+    }
+
+    String streamId = streamIds.get(0);
+    Message messageToSend = this.buildMessage(execution);
+    AuthSession authSession = this.getOboAuthSession(execution);
+
+    OboMessageService messages = execution.bdk()
+        .obo(authSession)
+        .messages();
+
+    return messages.send(streamId, messageToSend);
   }
 
   private List<String> resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
@@ -84,6 +122,12 @@ public class SendMessageExecutor implements ActivityExecutor<SendMessage> {
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
       V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
+      return singletonList(event.getStream().getStreamId());
+
+    } else if (execution.getEvent() != null
+        && execution.getEvent().getSource() instanceof V4UserJoinedRoom) {
+      // or retrieved from the current even
+      V4UserJoinedRoom event = (V4UserJoinedRoom) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
 
     } else {

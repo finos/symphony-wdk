@@ -1,0 +1,23 @@
+id: create-room-with-details-workflow
+activities:
+  - create-room:
+      id: "create_room_with_details"
+      on:
+        message-received:
+          content: "/create-room-with-details-obo-valid-username"
+      room-name: "The best room ever"
+      room-description: "this is room description"
+      public: true
+      view-history: true
+      keywords:
+        "A": "AA"
+        "B": "BB"
+      discoverable: false
+      read-only: true
+      copy-protected: true
+      cross-pod: true
+      multilateral-room: false
+      members-can-invite: true
+      sub-type: EMAIL
+      obo:
+        username: "john"

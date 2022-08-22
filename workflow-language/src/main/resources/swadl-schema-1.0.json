@@ -15,6 +15,20 @@
             "pattern": "^[a-zA-Z]+[a-zA-Z0-9][^ ]*$",
             "default": "my-workflow"
         },
+        "metadata": {
+            "type": "object",
+            "description": "Some metadata about the workflow",
+            "properties": {
+                "publish": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "description": "Should the workflow be published or not, true publish, false otherwise",
+                    "default": true
+                }
+            }
+        },
         "variables": {
             "type": "object",
             "description": "Variables are accessible and editable within the entire workflow. A map of key: value entries is expected."
@@ -700,6 +714,9 @@
                         },
                         {
                             "$ref": "#/definitions/one-of-event"
+                        },
+                        {
+                            "$ref": "#/definitions/all-of-event"
                         }
                     ]
                 }
@@ -964,6 +981,81 @@
             },
             "required": [
                 "activity-completed"
+            ]
+        },
+        "all-of-event": {
+            "type": "object",
+            "properties": {
+                "all-of": {
+                    "description": "Used to receive all listed events.",
+                    "x-intellij-html-description": "Used to receive all listed events.",
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/form-replied-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-completed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/activity-failed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-received-event"
+                            },
+                            {
+                                "$ref": "#/definitions/request-received-event"
+                            },
+                            {
+                                "$ref": "#/definitions/message-suppressed-event"
+                            },
+                            {
+                                "$ref": "#/definitions/post-shared-event"
+                            },
+                            {
+                                "$ref": "#/definitions/im-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-created-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-updated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-deactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-reactivated-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-promoted-to-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/room-member-demoted-from-owner-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-joined-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-left-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/user-requested-join-room-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-requested-event"
+                            },
+                            {
+                                "$ref": "#/definitions/connection-accepted-event"
+                            }
+                        ]
+                    }
+                }
+            },
+            "additionalProperties": true,
+            "required": [
+                "all-of"
             ]
         },
         "one-of-event": {
@@ -1443,6 +1535,10 @@
                 },
                 "sub-type": {
                     "$ref": "#/definitions/sub-type"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "anyOf": [
@@ -1504,6 +1600,10 @@
                 },
                 "active": {
                     "$ref": "#/definitions/active"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             }
         },
@@ -1517,6 +1617,10 @@
                 "user-ids": {
                     "description": "User ids to add to the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1534,6 +1638,10 @@
                 "user-ids": {
                     "description": "User ids to remove from the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1551,6 +1659,10 @@
                 "user-ids": {
                     "description": "User ids to promote in the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1568,6 +1680,10 @@
                 "user-ids": {
                     "description": "User ids to demote in the room.",
                     "$ref": "#/definitions/user-ids-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1591,6 +1707,10 @@
                     "items": {
                         "$ref": "#/definitions/attachment"
                     }
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1625,6 +1745,10 @@
             "properties": {
                 "message-id": {
                     "$ref": "#/definitions/message-id-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -1636,6 +1760,10 @@
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2644,6 +2772,10 @@
                         "string"
                     ],
                     "description": "If true, it searches for active users only. If false, it searches for inactive users only. If not set, it searches for all users regardless of their status."
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "oneOf": [
@@ -2668,6 +2800,10 @@
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2678,6 +2814,10 @@
             "properties": {
                 "stream-id": {
                     "$ref": "#/definitions/stream-id-inner"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2689,6 +2829,10 @@
             "properties": {
                 "user-id": {
                     "$ref": "#/definitions/user-id"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2764,6 +2908,10 @@
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "dependencies": {
@@ -2941,6 +3089,10 @@
                 },
                 "skip": {
                     "$ref": "#/definitions/skip"
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             },
             "required": [
@@ -2997,6 +3149,10 @@
                         "REJECTED",
                         "ALL"
                     ]
+                },
+                "obo": {
+                    "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made",
+                    "$ref": "#/definitions/obo-inner"
                 }
             }
         },
@@ -3568,6 +3724,22 @@
                 }
             ],
             "description": "Group's unique identifier."
+        },
+        "obo-inner": {
+            "type": "object",
+            "description": "Defines whether the activity will be executed on behalf of a user and the user on whose behalf the call will be made.",
+            "properties": {
+                "user-id": {
+                    "$ref": "#/definitions/user-id"
+                },
+                "username": {
+                    "$ref": "#/definitions/name"
+                }
+            },
+            "anyOf": [
+                {"required":  ["user-id"]},
+                {"required":  ["username"]}
+            ]
         },
         "to": {
             "type": "object",

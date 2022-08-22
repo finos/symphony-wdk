@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
-import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UpdateRoom extends BaseActivity {
+public class UpdateRoom extends OboActivity {
   private String streamId;
 
   @Nullable private String roomName;

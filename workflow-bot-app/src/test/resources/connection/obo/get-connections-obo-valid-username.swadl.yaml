@@ -1,0 +1,13 @@
+id: get-connections-obo-valid-username
+activities:
+  - get-connections:
+      id: getConnectionsOboValidUsername
+      on:
+        message-received:
+          content: /get-connections-obo-valid-username
+      user-ids:
+        - 666
+        - 777
+      status: ACCEPTED
+      obo:
+        username: "John"

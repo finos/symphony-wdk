@@ -3,15 +3,21 @@ package com.symphony.bdk.workflow;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
+import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.session.SessionService;
+import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.OboUserService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
 import com.symphony.bdk.gen.api.model.Stream;
@@ -23,6 +29,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -33,6 +40,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.AfterEach;
@@ -65,9 +73,27 @@ public abstract class IntegrationTest {
   @SuppressFBWarnings
   public static HistoryService historyService;
 
+  @SuppressFBWarnings
+  public static RepositoryService repositoryService;
+
   // Mock the BDK
   @MockBean
   AuthSession botSession;
+
+  @MockBean
+  OboServices oboServices;
+
+  @MockBean(name = "oboMessageService")
+  OboMessageService oboMessageService;
+
+  @MockBean(name = "oboStreamService")
+  OboStreamService oboStreamService;
+
+  @MockBean(name = "oboUserService")
+  OboUserService oboUserService;
+
+  @MockBean(name = "oboConnectionService")
+  OboConnectionService oboConnectionService;
 
   @MockBean(name = "streamService")
   StreamService streamService;
@@ -101,6 +127,11 @@ public abstract class IntegrationTest {
     IntegrationTest.historyService = historyService;
   }
 
+  @Autowired
+  public void setRepositoryService(RepositoryService repositoryService) {
+    IntegrationTest.repositoryService = repositoryService;
+  }
+
   protected static V4Message message(String msgId) {
     final V4Message message = new V4Message();
     message.setMessageId(msgId);
@@ -131,6 +162,11 @@ public abstract class IntegrationTest {
     when(bdkGateway.connections()).thenReturn(this.connectionService);
     when(bdkGateway.users()).thenReturn(this.userService);
     when(bdkGateway.groups()).thenReturn(this.groupService);
+    when(bdkGateway.obo(any(AuthSession.class))).thenReturn(this.oboServices);
+    when(oboServices.messages()).thenReturn(this.oboMessageService);
+    when(oboServices.streams()).thenReturn(this.oboStreamService);
+    when(oboServices.users()).thenReturn(this.oboUserService);
+    when(oboServices.connections()).thenReturn(this.oboConnectionService);
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered
@@ -165,12 +201,23 @@ public abstract class IntegrationTest {
     V4Message message = new V4Message();
     message.setMessage("<presentationML>" + content + "</presentationML>");
     messageSent.setMessage(message);
-
     V4Stream stream = new V4Stream();
     stream.setStreamId("123");
     message.setStream(stream);
 
     return new RealTimeEvent<>(initiator, messageSent);
+  }
+
+  public static RealTimeEvent<V4UserJoinedRoom> userJoined() {
+    V4User user = new V4User();
+    user.setUserId(123L);
+    V4Stream stream = new V4Stream();
+    stream.setStreamId("123");
+    V4UserJoinedRoom joinedRoom = new V4UserJoinedRoom();
+    joinedRoom.affectedUser(user);
+    joinedRoom.setStream(stream);
+
+    return new RealTimeEvent<>(new V4Initiator(), joinedRoom);
   }
 
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId,
@@ -243,6 +290,7 @@ public abstract class IntegrationTest {
 
     assertThat(processes)
         .filteredOn(p -> !p.getActivityType().equals("signalStartEvent"))
+        .filteredOn(p -> !p.getActivityType().equals("noneEndEvent"))
         .extracting(HistoricActivityInstance::getActivityName)
         .containsExactly(activityIds);
   }

@@ -1,0 +1,18 @@
+id: demote-room-owner-on-behalf-of-user-unauthorized
+activities:
+  - demote-room-owner:
+      id: demoteRoomOwnerOboUnauthorized
+      on:
+        message-received:
+          content: "/demote-room-owner-obo-unauthorized"
+      stream-id: abc
+      user-ids:
+        - 123
+      obo:
+        username: "john"
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

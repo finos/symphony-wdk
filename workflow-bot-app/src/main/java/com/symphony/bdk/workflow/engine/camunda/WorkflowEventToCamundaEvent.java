@@ -29,12 +29,14 @@ import com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.TimerFiredEvent;
 
+import io.micrometer.core.instrument.util.StringUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.event.EventType;
 import org.camunda.bpm.engine.runtime.EventSubscription;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
@@ -49,6 +51,7 @@ import java.util.Set;
 // event filtering to see how it is going to evolve, at least it is easy to understand.
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class WorkflowEventToCamundaEvent {
 
   private static final String MESSAGE_PREFIX = "message-received_";
@@ -68,14 +71,22 @@ public class WorkflowEventToCamundaEvent {
   private static final String CONNECTION_REQUESTED = "connection-requested";
   private static final String CONNECTION_ACCEPTED = "connection-accepted";
   private static final String REQUEST_RECEIVED = "request-received";
+  private static final String TIMER_FIRED_DATE = "timerFired_date";
+  private static final String TIMER_FIRED_CYCLE = "timerFired_cycle";
+
 
   private static final AntPathMatcher MESSAGE_RECEIVED_CONTENT_MATCHER = new AntPathMatcher();
 
-  @Autowired
-  private RuntimeService runtimeService;
+  private final RuntimeService runtimeService;
 
-  @Autowired
-  private SessionService sessionService;
+  private final SessionService sessionService;
+
+  public String toTimerFiredEventName(TimerFiredEvent event) {
+    if (StringUtils.isNotEmpty(event.getRepeat())) {
+      return TIMER_FIRED_CYCLE;
+    }
+    return TIMER_FIRED_DATE;
+  }
 
   public Optional<String> toSignalName(Event event, Workflow workflow) {
     if (event.getMessageReceived() != null) {
@@ -131,7 +142,7 @@ public class WorkflowEventToCamundaEvent {
     } else if (event.getConnectionAccepted() != null) {
       return Optional.of(CONNECTION_ACCEPTED);
 
-    } else if (event.getFormReplied() != null && event.getFormReplied().getExclusive()) {
+    } else if (event.getFormReplied() != null) {
       return Optional.of(String.format("%s%s", FORM_REPLY_PREFIX, event.getFormReplied().getFormId()));
 
     } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
@@ -168,38 +179,47 @@ public class WorkflowEventToCamundaEvent {
       messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
 
     } else if (event.getSource() instanceof V4RoomCreated) {
+      log.debug("receive a room created event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_CREATED)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomUpdated) {
+      log.debug("receive a room updated event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_UPDATED)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomDeactivated) {
+      log.debug("receive a room reactivated event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_DEACTIVATED)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomReactivated) {
+      log.debug("receive a room reactivated event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_REACTIVATED)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4UserJoinedRoom) {
+      log.debug("receive an user joined room event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_JOINED_ROOM)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4UserLeftRoom) {
+      log.debug("receive an user left room event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_LEFT_ROOM)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomMemberDemotedFromOwner) {
+      log.debug("receive a member demoted from owner event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_MEMBER_DEMOTED_FROM_OWNER)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4RoomMemberPromotedToOwner) {
+      log.debug("receive a room member promoted to owner event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_MEMBER_PROMOTED_TO_OWNER)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4MessageSuppressed) {
+      log.debug("receive a message suppressed event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_SUPPRESSED)
           .setVariables(processVariables).send();
 
@@ -208,18 +228,22 @@ public class WorkflowEventToCamundaEvent {
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4InstantMessageCreated) {
+      log.debug("receive a IM created event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.IM_CREATED)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4UserRequestedToJoinRoom) {
+      log.debug("receive a user join room request event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_REQUESTED_JOIN_ROOM)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4ConnectionRequested) {
+      log.debug("receive a connection requested event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_REQUESTED)
           .setVariables(processVariables).send();
 
     } else if (event.getSource() instanceof V4ConnectionAccepted) {
+      log.debug("receive a connection accepted event");
       runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_ACCEPTED)
           .setVariables(processVariables).send();
     } else if (event.getSource() instanceof RequestReceivedEvent) {
@@ -228,19 +252,18 @@ public class WorkflowEventToCamundaEvent {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> void formReplyToMessage(RealTimeEvent<T> event,
-      Map<String, Object> processVariables) {
+  private <T> void formReplyToMessage(RealTimeEvent<T> event, Map<String, Object> processVariables) {
     // we expect the activity id to be the same as the form id to work
     // correlation across processes is based on the message id that was created to send the form
     V4SymphonyElementsAction implEvent = (V4SymphonyElementsAction) event.getSource();
+    log.debug("received form reply [{}]", implEvent.getFormId());
     Map<String, Object> formReplies = (Map<String, Object>) implEvent.getFormValues();
     String formId = implEvent.getFormId();
     processVariables.put(FormVariableListener.FORM_VARIABLES, singletonMap(formId, formReplies));
     runtimeService.createMessageCorrelation(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX + formId)
         .processInstanceVariableEquals(
-            String.format("%s.%s.%s",
-                formId, ActivityExecutorContext.OUTPUTS, SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY),
-            implEvent.getFormMessageId())
+            String.format("%s.%s.%s", formId, ActivityExecutorContext.OUTPUTS,
+                SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY), implEvent.getFormMessageId())
         .setVariables(processVariables)
         .correlateAll();
   }
@@ -259,8 +282,13 @@ public class WorkflowEventToCamundaEvent {
 
     // Event's message cannot be null, this if statement is only added to fix Sonar warnings
     if (event.getSource().getMessage() != null) {
+      log.debug("receive message [{}]", event.getSource().getMessage().getMessageId());
       String presentationMl = event.getSource().getMessage().getMessage();
       String receivedContent = PresentationMLParser.getTextContent(presentationMl);
+
+      runtimeService.createMessageCorrelation(MESSAGE_PREFIX + receivedContent)
+          .setVariables(processVariables)
+          .correlateAll();
 
       List<EventSubscription> subscribedSignals = runtimeService.createEventSubscriptionQuery()
           .eventType(EventType.SIGNAL.name())

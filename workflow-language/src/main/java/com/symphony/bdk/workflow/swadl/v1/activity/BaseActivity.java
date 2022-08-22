@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.swadl.v1.activity;
 
-import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,7 +8,6 @@ import lombok.Data;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -47,12 +45,12 @@ public abstract class BaseActivity {
   @JsonProperty
   private EventWithTimeout on;
 
-  @JsonProperty("if")
   @Nullable
+  @JsonProperty("if")
   private String ifCondition;
 
-  @JsonProperty("else")
   @Nullable
+  @JsonProperty("else")
   private Object elseCondition;
 
   /**
@@ -69,13 +67,15 @@ public abstract class BaseActivity {
   }
 
   @JsonIgnore
-  public List<Event> getEvents() {
+  public RelationalEvents getEvents() {
     if (on != null && on.getOneOf() != null) {
-      return on.getOneOf();
+      return new RelationalEvents(on.getOneOf(), false);
+    } else if (on != null && on.getAllOf() != null) {
+      return new RelationalEvents(on.getAllOf(), true);
     } else if (on != null) {
-      return Collections.singletonList(on);
+      return new RelationalEvents(Collections.singletonList(on), false);
     } else {
-      return Collections.emptyList();
+      return new RelationalEvents(Collections.emptyList(), false);
     }
   }
 }

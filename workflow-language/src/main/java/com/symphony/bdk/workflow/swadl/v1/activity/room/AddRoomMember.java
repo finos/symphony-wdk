@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
-import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AddRoomMember extends BaseActivity {
+public class AddRoomMember extends OboActivity {
   private String streamId;
   private List<Long> userIds = List.of();
 }

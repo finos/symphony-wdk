@@ -1,0 +1,10 @@
+id: unpin-message-obo-valid-userid
+activities:
+  - unpin-message:
+      id: unpinMessageOboValidUserid
+      on:
+        message-received:
+          content: /unpin-message-obo-valid-userid
+      stream-id: STREAM_ID
+      obo:
+        user-id: 123

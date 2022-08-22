@@ -4,7 +4,7 @@ activities:
       id: "create_room_with_details"
       on:
         message-received:
-          content: "/create-room"
+          content: "/create-room-with-details"
       room-name: "The best room ever"
       room-description: "this is room description"
       public: true

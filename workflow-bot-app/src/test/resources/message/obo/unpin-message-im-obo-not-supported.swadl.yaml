@@ -1,0 +1,16 @@
+id: unpin-message-im-obo-not-supported
+activities:
+  - unpin-message:
+      id: unpinMessageImOboNotSupported
+      on:
+        message-received:
+          content: /unpin-message-im-obo-not-supported
+      stream-id: STREAM_ID
+      obo:
+        user-id: 123
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

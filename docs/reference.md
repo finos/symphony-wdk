@@ -2223,6 +2223,58 @@ activities:
 
 Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
 
+
+## OBO
+
+OBO or On-Behalf-Of authentication allows an extension application to be able to execute an activity on behalf of an application end-user, when the activity is OBO enabled.
+
+The property `obo` is used to define the user executing the activity using either his username or the user id.
+
+Example:
+```yaml
+- send-message:
+    id: sendMessageObo
+    content: Message sent on behalf of user 734583310035744 
+    to:
+      stream-id: ${createRoomObo.outputs.roomId}
+    obo:
+      user-id: 734583310035744
+```
+
+```yaml
+- create-room:
+      id: createRoomObo
+      room-name: OBO created room
+      room-description: Example of a room created with obo
+      user-ids:
+        - 734583310035744
+        - 625588317732700
+      obo:
+        username: username@symphony.com
+```
+
+The list of OBO enabled activities:
+- [send-message](#send-message)
+- [pin-message](#pin-message)
+- [unpin-message](#unpin-message)
+- [create-room](#create-room)
+- [update-room](#update-room)
+- [add-room-member](#add-room-member)
+- [remove-room-member](#remove-room-member)
+- [promote-room-owner](#promote-room-owner)
+- [demote-room-owner](#demote-room-owner)
+- [get-stream](#get-stream)
+- [get-room](#get-room)
+- [get-rooms](#get-rooms)
+- [get-user-streams](#get-user-streams)
+- [get-users](#get-users)
+- [create-connection](#create-connection)
+- [get-connection](#get-connection)
+- [get-connections](#get-connections)
+- [remove-connection](#remove-connection)
+- [accept-connection](#accept-connection)
+- [reject-connection](#reject-connection)
+
 ## Utility functions
 
 WDK provides some utility functions that can be used to process data in SWADL or in [templates](#send-message-content).

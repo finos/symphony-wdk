@@ -1,0 +1,19 @@
+id: get-connections-obo-unauthorized
+activities:
+  - get-connections:
+      id: getConnectionsOboUnauthorized
+      on:
+        message-received:
+          content: /get-connections-obo-unauthorized
+      user-ids:
+        - 666
+        - 777
+      status: ACCEPTED
+      obo:
+        user-id: 123
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

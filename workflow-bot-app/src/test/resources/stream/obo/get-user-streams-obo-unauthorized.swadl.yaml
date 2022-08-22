@@ -1,0 +1,18 @@
+id: get-user-streams-obo-unauthorized
+activities:
+  - get-user-streams:
+      id: getUserStreamsOboUnauthorized
+      on:
+        message-received:
+          content: /get-user-streams-obo-unauthorized
+      types:
+        - ROOM
+        - POST
+      include-inactive-streams: true
+      obo:
+        username: "John"
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

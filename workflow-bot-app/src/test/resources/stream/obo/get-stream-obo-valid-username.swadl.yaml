@@ -1,0 +1,14 @@
+id: get-stream-obo-valid-username
+activities:
+  - get-stream:
+      id: getStreamOboValidUsername
+      on:
+        message-received:
+          content: /get-stream-obo-valid-username
+      stream-id: abc
+      obo:
+        username: "john"
+  - execute-script:
+      id: script
+      script: |
+        assert getStreamOboValidUsername.outputs.stream != null

@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow.swadl.v1.activity.room;
 
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.activity.Obo;
+import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +15,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class RemoveRoomMember extends BaseActivity {
+public class RemoveRoomMember extends OboActivity {
   private String streamId;
   private List<Long> userIds = List.of();
 }
