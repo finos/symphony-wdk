@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Metadata {
+public class Properties {
 
   @JsonProperty
   private Boolean publish = true;

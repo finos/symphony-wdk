@@ -30,6 +30,15 @@ activities:
 Workflow's id should start with a letter and should not contain empty spaces. It is required. The id will appear in logs
 and audit trails.
 
+## properties
+
+Workflow's properties section with one single field for the moment. This sections is not required. The default value
+will be applied in the workflow in case they are not defined.
+
+### publish (properties)
+
+A boolean property indicating if the current workflow need to deploy when it is `true`, otherwise not.
+
 ## variables
 
 Variables are accessible and editable within the entire workflow. A map of key/value entries is expected. Simple types
@@ -148,6 +157,14 @@ Example: _PT60S_ for a 60 seconds timeout.
 
 Used to receive at least one of the listed events. Multiple events can be listed but a given time only one will trigger
 the activity. It can be either one of them.
+
+#### all-of
+
+Used to receive all listed events. Multiple events can be listed. The process will hold until all events have happened
+to trigger the activity.
+
+Note: Currently this list supports to have only one [activity-completed](#activity-completed)
+/[activity-failed](#activity-failed) type event. This limitation will be fixed in a newer version later.
 
 ### if
 
@@ -875,7 +892,8 @@ Message id of the message to be updated. Both url safe and base64 encoded urls a
 
 #### <a name="silent"></a> silent
 
-Silent flag in the update message activity. The new updated message will be marked as read when the flag is set to true, unread otherwise.
+Silent flag in the update message activity. The new updated message will be marked as read when the flag is set to true,
+unread otherwise.
 The default value is true.
 
 ### pin-message
@@ -2048,7 +2066,8 @@ group | [ReadGroup](https://javadoc.io/doc/org.finos.symphony.bdk.ext/symphony-g
 
 ### get-groups
 
-Retrieve groups of specified type (distribution list). _Distribution List Manager role_ is required to use this activity.
+Retrieve groups of specified type (distribution list). _Distribution List Manager role_ is required to use this
+activity.
 
 Key | Type   | Required |
 ------------ |--------|----------|
@@ -2193,6 +2212,7 @@ as lists and maps are supported.
 Unless set explicitly the `Content-Type` header will be `application/json` by default.
 
 ### encode-query-params
+
 If false, the url query parameters will not be encoded.
 It is set to true by default.
 
@@ -2223,18 +2243,19 @@ activities:
 
 Script to execute (only [Groovy](https://groovy-lang.org/) is supported).
 
-
 ## OBO
 
-OBO or On-Behalf-Of authentication allows an extension application to be able to execute an activity on behalf of an application end-user, when the activity is OBO enabled.
+OBO or On-Behalf-Of authentication allows an extension application to be able to execute an activity on behalf of an
+application end-user, when the activity is OBO enabled.
 
 The property `obo` is used to define the user executing the activity using either his username or the user id.
 
 Example:
+
 ```yaml
 - send-message:
     id: sendMessageObo
-    content: Message sent on behalf of user 734583310035744 
+    content: Message sent on behalf of user 734583310035744
     to:
       stream-id: ${createRoomObo.outputs.roomId}
     obo:
@@ -2243,17 +2264,18 @@ Example:
 
 ```yaml
 - create-room:
-      id: createRoomObo
-      room-name: OBO created room
-      room-description: Example of a room created with obo
-      user-ids:
-        - 734583310035744
-        - 625588317732700
-      obo:
-        username: username@symphony.com
+    id: createRoomObo
+    room-name: OBO created room
+    room-description: Example of a room created with obo
+    user-ids:
+      - 734583310035744
+      - 625588317732700
+    obo:
+      username: username@symphony.com
 ```
 
 The list of OBO enabled activities:
+
 - [send-message](#send-message)
 - [pin-message](#pin-message)
 - [unpin-message](#unpin-message)
