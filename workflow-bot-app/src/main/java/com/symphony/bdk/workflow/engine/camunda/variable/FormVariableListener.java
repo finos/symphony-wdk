@@ -25,6 +25,7 @@ public class FormVariableListener implements ExecutionListener {
   public void notify(DelegateExecution execution) {
     Object formVariable = execution.getVariable(FORM_VARIABLES);
     // do we have a form variable in the current process?
+    log.debug("receive a form, checking the form variables");
     if (formVariable instanceof Map) {
       Map<String, Map<String, Object>> form = (Map<String, Map<String, Object>>) formVariable;
       // there should be only one form.FORM_ID entry

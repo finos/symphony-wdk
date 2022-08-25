@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
-import static java.util.Collections.singletonList;
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
@@ -19,7 +17,6 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
-import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -33,6 +30,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 @Slf4j
 @Component
@@ -105,31 +104,30 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
     if (activity.getTo() != null && activity.getTo().getStreamId() != null) {
       // either the stream id is set explicitly in the workflow
       return singletonList(activity.getTo().getStreamId());
-
     } else if (activity.getTo() != null && activity.getTo().getStreamIds() != null) {
       return activity.getTo().getStreamIds();
-
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
       return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
-
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
       // or retrieved from the current even
       V4MessageSent event = (V4MessageSent) execution.getEvent().getSource();
       return singletonList(event.getMessage().getStream().getStreamId());
-
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
       V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
-
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4UserJoinedRoom) {
       // or retrieved from the current even
       V4UserJoinedRoom event = (V4UserJoinedRoom) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
-
+    } else if (execution.getEvent() != null
+        && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
+      // or retrieved from the current even
+      V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
+      return singletonList(event.getStream().getStreamId());
     } else {
       throw new IllegalArgumentException(
           String.format("No stream id set to send a message in activity %s", activity.getId()));

@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn.builder;
 
+import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
@@ -7,7 +8,6 @@ import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
-import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -51,7 +51,9 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
    *  @formatter:on
    */
   private boolean hasFormRepliedEventBrother(BuildProcessContext context, String parentId) {
-    return context.readChildren(parentId) != null && context.readChildren(parentId).getChildren()
+    return context.readChildren(parentId) != null
+        && context.readChildren(parentId).getGateway() != WorkflowDirectGraph.Gateway.PARALLEL && context.readChildren(
+            parentId).getChildren()
         .stream()
         .anyMatch(s -> context.readWorkflowNode(s).getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT);
   }

@@ -29,15 +29,10 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
     if (builder instanceof ParallelGatewayBuilder) {
-      return builder.exclusiveGateway()
-          .intermediateCatchEvent()
-          .timerWithDuration(readTimeout(element))
-          .connectTo(parentId + "_join_gateway")
-          .moveToLastGateway()
-          .intermediateCatchEvent()
+      return builder.intermediateCatchEvent()
           .camundaAsyncBefore()
-          .signal(element.getId())
-          .name(element.getId());
+          .name(element.getId())
+          .message(element.getId());
     } else {
       // cache the sub process builder, the form reply might have a brother event, which is going to use this cached builder
       SubProcessBuilder subProcess = builder.subProcess();
