@@ -151,12 +151,10 @@ the activity. It can be either one of them.
 
 #### all-of
 
-Used to receive all listed events. Multiple events can be listed. The process will hold until all events have happened 
-to trigger the activity. 
+Used to receive all listed events. Multiple events can be listed. The process will hold until all events have happened to trigger the activity.
 
-Note: Currently this list supports to have only one activity-completed/activity-failed type event. This limitation will be fixed
+Note: Currently this list supports to have only one [activity-completed](#activity-completed)/[activity-failed](#activity-failed) type event. This limitation will be fixed
 in a newer version later.
-
 ### if
 
 Conditional execution of the activity based on a boolean expression. Workflow variables can be used within the
