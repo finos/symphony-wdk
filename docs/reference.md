@@ -149,6 +149,14 @@ Example: _PT60S_ for a 60 seconds timeout.
 Used to receive at least one of the listed events. Multiple events can be listed but a given time only one will trigger
 the activity. It can be either one of them.
 
+#### all-of
+
+Used to receive all listed events. Multiple events can be listed. The process will hold until all events have happened 
+to trigger the activity. 
+
+Note: Currently this list supports to have only one activity-completed/activity-failed type event. This limitation will be fixed
+in a newer version later.
+
 ### if
 
 Conditional execution of the activity based on a boolean expression. Workflow variables can be used within the

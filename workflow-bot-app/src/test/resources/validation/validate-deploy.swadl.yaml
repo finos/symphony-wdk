@@ -1,5 +1,5 @@
 id: validation
-metadata:
+properties:
   publish: true
 activities:
   - send-message:

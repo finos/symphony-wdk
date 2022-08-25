@@ -15,7 +15,7 @@
             "pattern": "^[a-zA-Z]+[a-zA-Z0-9][^ ]*$",
             "default": "my-workflow"
         },
-        "metadata": {
+        "properties": {
             "type": "object",
             "description": "Some metadata about the workflow",
             "properties": {
