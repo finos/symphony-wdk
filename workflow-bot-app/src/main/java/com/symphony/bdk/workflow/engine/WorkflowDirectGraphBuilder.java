@@ -212,7 +212,7 @@ public class WorkflowDirectGraphBuilder {
     if (activityIndex == 0) {
       validateFirstActivity(activities.get(0).getActivity(), event, workflow.getId());
       directGraph.addStartEvent(nodeId);
-      directGraph.addParent(nodeId, nodeId);
+      //directGraph.addParent(nodeId, nodeId); //TODO: verify if this is needed
     } else {
       boolean isParallel = onEvents.isParallel();
       String allOfEventParentId = onEvents.getParentId();

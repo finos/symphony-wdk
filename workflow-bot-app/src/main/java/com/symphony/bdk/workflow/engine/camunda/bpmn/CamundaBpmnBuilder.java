@@ -10,6 +10,7 @@ import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraphBuilder;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderFactory;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
@@ -48,12 +49,16 @@ public class CamundaBpmnBuilder {
   private final WorkflowEventToCamundaEvent eventToMessage;
   private final WorkflowNodeBpmnBuilderFactory builderFactory;
 
+  private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
+
   @Autowired
   public CamundaBpmnBuilder(RepositoryService repositoryService, WorkflowEventToCamundaEvent eventToMessage,
-      WorkflowNodeBpmnBuilderFactory builderFactory) {
+      WorkflowNodeBpmnBuilderFactory builderFactory,
+      WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
     this.repositoryService = repositoryService;
     this.eventToMessage = eventToMessage;
     this.builderFactory = builderFactory;
+    this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
   }
 
   public BpmnModelInstance parseWorkflowToBpmn(Workflow workflow)
@@ -99,6 +104,7 @@ public class CamundaBpmnBuilder {
 
     WorkflowDirectGraph workflowDirectGraph = new WorkflowDirectGraphBuilder(workflow, eventToMessage).build();
     BuildProcessContext context = new BuildProcessContext(workflowDirectGraph, process);
+    this.workflowDirectGraphCachingService.putDirectGraph(workflow.getId(), workflowDirectGraph);
     buildWorkflowInDfs(new NodeChildren(context.getStartEvents()), "", context);
     AbstractFlowNodeBuilder<?, ?> builder = closeUpSubProcessesIfAny(context, context.getLastNodeBuilder());
     BpmnModelInstance model = builder.done();

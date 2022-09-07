@@ -7,16 +7,15 @@ import java.util.List;
 
 @Data
 @Builder
-public class ActivityView {
-  private String workflowId;
+public class ActivityInstanceView {
   private String instanceId;
   private String activityId;
-  private String type; //TODO: enum needed here
+  private TaskTypeEnum type;
   private InstanceStatusEnum status;
+  private String previousActivityId;
+  private List<String> nextActivityIds;
   private Long startDate;
   private Long endDate;
 
-  private String previousActivityId; //TODO: ignore for now
-  private List<String> nextActivityIds; //TODO: ignore for now
   private List<String> variablesModified; //TODO: ignore for now
 }

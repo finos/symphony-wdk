@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class ActivitiesView {
-  private List<ActivityView> activities;
+public class ActivitiesInstancesView {
+  private String workflowId;
+  private List<ActivityInstanceView> activities;
 }

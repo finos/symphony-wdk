@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class InstanceView {
   private String workflowId;
+  private Integer workflowVersion;
   private String instanceId;
   private InstanceStatusEnum status;
   private Long startDate;

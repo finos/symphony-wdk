@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +21,13 @@ import java.util.Set;
  *
  * @see Workflow
  */
+@CacheConfig(cacheNames = "workflowDirectGraph")
+@Cacheable
 public class WorkflowDirectGraph {
   /**
    * Dictionary map, workflow element id as key, element itself as value
    */
-  @Getter(AccessLevel.PACKAGE)
+  @Getter()//AccessLevel.PACKAGE)
   private final Map<String, WorkflowNode> dictionary = new HashMap<>();
   /**
    * Graph map, workflow element id as key, children elements list as value
