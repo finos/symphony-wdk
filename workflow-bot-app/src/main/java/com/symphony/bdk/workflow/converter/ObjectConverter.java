@@ -1,0 +1,29 @@
+package com.symphony.bdk.workflow.converter;
+
+import java.util.List;
+
+/**
+ * Object converter, convert a given object to a target object if their converter is registered.
+ */
+public interface ObjectConverter {
+
+  /**
+   * Convert the given object to target object in the given type.
+   *
+   * @param source object to be converted
+   * @param tClass target object class type
+   * @param <T>    target object type
+   * @return converted target object
+   */
+  <T> T convert(Object source, Class<T> tClass);
+
+  /**
+   * Convert the given object list into a list of the given target type.
+   *
+   * @param source a list of objects to be converted
+   * @param tClass target list element's class type
+   * @param <T>    target list element's object type
+   * @return a list of converted target objects
+   */
+  <T> List<T> convertCollection(List<?> source, Class<T> tClass);
+}

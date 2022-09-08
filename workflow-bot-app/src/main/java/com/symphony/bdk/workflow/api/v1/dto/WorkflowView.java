@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class WorkflowView {
-  private String workflowId;
+  private String id;
+  private String version;
 }

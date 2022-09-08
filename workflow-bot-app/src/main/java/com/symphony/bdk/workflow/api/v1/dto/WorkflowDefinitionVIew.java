@@ -11,5 +11,5 @@ import java.util.Map;
 public class WorkflowDefinitionVIew {
   private String workflowId;
   private List<Map<String, String>> variables;
-  private List<TaskDefinitionView> activities;
+  private List<TaskDefinitionView> flowNodes;
 }

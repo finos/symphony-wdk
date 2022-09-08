@@ -12,13 +12,12 @@ import java.time.Instant;
 @Data
 @Builder
 @JsonInclude(Include.NON_NULL)
-public class ActivityInstanceView {
-  private String workflowId;
+public class WorkflowInstView {
+  private String id;
+  private Integer version;
   private String instanceId;
-  private String activityId;
-  private TaskTypeEnum type;
+  private StatusEnum status;
   private Instant startDate;
   private Instant endDate;
   private Duration duration;
-  private VariableView variables;
 }

@@ -1,10 +1,11 @@
 package com.symphony.bdk.workflow.api.v1;
 
-import com.symphony.bdk.workflow.api.v1.dto.ActivitiesInstancesView;
-import com.symphony.bdk.workflow.api.v1.dto.InstanceView;
+import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionVIew;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
-import com.symphony.bdk.workflow.engine.camunda.monitor.service.MonitoringService;
+import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +32,14 @@ public class MonitoringApiController {
   }
 
   @GetMapping("/{workflowId}/instances")
-  public List<InstanceView> listWorkflowInstances(@PathVariable String workflowId) {
+  public List<WorkflowInstView> listWorkflowInstances(@PathVariable String workflowId) {
     return monitoringService.listWorkflowInstances(workflowId);
   }
 
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
-  public ActivitiesInstancesView listInstanceActivities(@PathVariable String workflowId, @PathVariable String instanceId) {
-    return monitoringService.listInstanceActivities(workflowId, instanceId);
+  public WorkflowActivitiesView listInstanceActivities(@PathVariable String workflowId,
+      @PathVariable String instanceId) {
+    return monitoringService.listWorkflowInstanceActivities(workflowId, instanceId);
   }
 
   @GetMapping("/{workflowId}/definitions")
