@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow.engine;
 
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +9,8 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,17 +26,17 @@ public class WorkflowDirectGraph {
   /**
    * Dictionary map, workflow element id as key, element itself as value
    */
-  @Getter()//AccessLevel.PACKAGE)
-  private final Map<String, WorkflowNode> dictionary = new HashMap<>();
+  @Getter
+  private final Map<String, WorkflowNode> dictionary = new LinkedHashMap<>();
   /**
    * Graph map, workflow element id as key, children elements list as value
    */
-  private final Map<String, NodeChildren> children = new HashMap<>();
+  private final Map<String, NodeChildren> children = new LinkedHashMap<>();
   /**
    * Parents map, workflow element id as key, its parents element ids as value
    */
-  @Getter(AccessLevel.PACKAGE)
-  private final Map<String, Set<String>> parents = new HashMap<>();
+  @Getter
+  private final Map<String, Set<String>> parents = new LinkedHashMap<>();
 
   /**
    * Workflow start events list

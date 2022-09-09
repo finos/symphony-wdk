@@ -32,6 +32,6 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
   @Override
   public List<WorkflowInstanceDomain> findAllById(String id) {
     return objectConverter.convertCollection(historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionKey(id).list(), WorkflowInstanceDomain.class);
+        .processDefinitionKey(id).orderByProcessInstanceStartTime().asc().list(), WorkflowInstanceDomain.class);
   }
 }
