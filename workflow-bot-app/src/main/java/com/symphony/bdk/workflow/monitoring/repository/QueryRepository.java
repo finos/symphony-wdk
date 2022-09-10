@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public interface QueryRepository<T, ID> {
-  default Optional<T> findById(ID var1) {
+public interface QueryRepository<T, I> {
+  default Optional<T> findById(I var1) {
     return Optional.empty();
   }
 

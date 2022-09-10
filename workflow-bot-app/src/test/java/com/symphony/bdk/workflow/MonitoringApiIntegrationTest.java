@@ -287,7 +287,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void AlistWorkflowActivitiesDefinitions_unknownWorkflowId() {
+  public void listWorkflowActivitiesDefinitions_unknownWorkflowId() {
     final JsonPath expectedJson = new JsonPath(
         getClass().getResourceAsStream("/monitoring/expected/unknown-workflow-definition-response-payload.json"));
 

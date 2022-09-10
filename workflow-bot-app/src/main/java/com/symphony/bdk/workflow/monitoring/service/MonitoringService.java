@@ -7,7 +7,7 @@ import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionVIew;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
@@ -79,8 +79,8 @@ public class MonitoringService {
   }
 
   //TODO: handle case where the workflow is not deployed (404?)
-  public WorkflowDefinitionVIew listWorkflowActivities(String workflowId) {
-    WorkflowDefinitionVIew.WorkflowDefinitionVIewBuilder builder = WorkflowDefinitionVIew.builder()
+  public WorkflowDefinitionView listWorkflowActivities(String workflowId) {
+    WorkflowDefinitionView.WorkflowDefinitionViewBuilder builder = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
         .flowNodes(new ArrayList<>())
         .variables(Collections.emptyList()); //TODO: handles variables

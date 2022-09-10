@@ -19,7 +19,7 @@ import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionVIew;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -251,13 +251,13 @@ class WorkflowsApiControllerTest {
     TaskDefinitionView activity1 = activityDefinitionView("activity1", Collections.singletonList("event"),
         Collections.emptyList(), TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
 
-    WorkflowDefinitionVIew workflowDefinitionVIew = WorkflowDefinitionVIew.builder()
+    WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
         .variables(Collections.emptyList())
         .flowNodes(Arrays.asList(activity0, event, activity1))
         .build();
 
-    when(monitoringService.listWorkflowActivities(workflowId)).thenReturn(workflowDefinitionVIew);
+    when(monitoringService.listWorkflowActivities(workflowId)).thenReturn(workflowDefinitionView);
 
     mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, workflowId)))
         .andExpect(status().isOk())

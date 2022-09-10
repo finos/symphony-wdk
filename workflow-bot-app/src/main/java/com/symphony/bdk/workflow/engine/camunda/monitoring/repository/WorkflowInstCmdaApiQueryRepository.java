@@ -26,8 +26,6 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
    * Tested with an activity having its first activity doing a sleep of 3minutes. During the 3 minutes,
    * while the first activity execution is ongoing, this method returns the process instance id.
    *
-   * @param id
-   * @return
    */
   @Override
   public List<WorkflowInstanceDomain> findAllById(String id) {

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 public class TaskDefinitionView {
   private TaskTypeEnum type;
   private List<String> parents;

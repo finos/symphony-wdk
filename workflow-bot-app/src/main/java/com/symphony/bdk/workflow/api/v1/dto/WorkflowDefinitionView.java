@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Data
 @Builder
-public class WorkflowDefinitionVIew {
+public class WorkflowDefinitionView {
   private String workflowId;
   private List<Map<String, String>> variables;
   private List<TaskDefinitionView> flowNodes;

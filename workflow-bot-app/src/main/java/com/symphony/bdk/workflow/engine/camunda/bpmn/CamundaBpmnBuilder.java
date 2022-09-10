@@ -184,7 +184,8 @@ public class CamundaBpmnBuilder {
       builder = BpmnBuilderHelper.endEventSubProcess(context, builder);
     }
     boolean activities = hasActivitiesOnly(context, currentNodeChildren);
-    // either child or current node is conditional, since the condition can be defined at parent event or activity itself
+    // either child or current node is conditional, since the condition can be defined
+    // at parent event or activity itself
     boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
     log.trace("are the children of the node [{}]'s all activities ? [{}], is there any condition in children ? [{}]",
         currentNodeId, activities, conditional);

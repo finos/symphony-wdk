@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.api.v1;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionVIew;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
@@ -81,7 +81,7 @@ public class WorkflowsApiController {
   }
 
   @GetMapping("/{workflowId}/definitions")
-  public WorkflowDefinitionVIew listWorkflowActivities(@PathVariable String workflowId) {
+  public WorkflowDefinitionView listWorkflowActivities(@PathVariable String workflowId) {
     return monitoringService.listWorkflowActivities(workflowId);
   }
 

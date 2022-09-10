@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -283,9 +282,6 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendFormUpdateMessage() throws Exception {
-    Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
-
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     V4Message message = new V4Message();
     message.setMessage("<presentationML>/hey</presentationML>");
@@ -293,6 +289,8 @@ class FormReplyIntegrationTest extends IntegrationTest {
     when(messageService.getMessage(anyString())).thenReturn(message);
     when(messageService.update(any(V4Message.class), any(Message.class))).thenReturn(message);
 
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
     engine.deploy(workflow);
 
     // trigger workflow execution
@@ -306,9 +304,6 @@ class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test
   void sendMessageUpdateMessage() throws Exception {
-    Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
-
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
     V4Message message = new V4Message();
     message.setMessage("<presentationML>/hey</presentationML>");
@@ -316,6 +311,8 @@ class FormReplyIntegrationTest extends IntegrationTest {
     when(messageService.getMessage(anyString())).thenReturn(message);
     when(messageService.update(any(V4Message.class), any(Message.class))).thenReturn(message);
 
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-update-message.swadl.yaml"));
     engine.deploy(workflow);
 
     // trigger workflow execution
