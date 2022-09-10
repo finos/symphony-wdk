@@ -45,7 +45,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId) {
     List<ActivityInstanceDomain> result =
         objectConverter.convertCollection(historyService.createHistoricActivityInstanceQuery()
-            .processInstanceId(instanceId)
+            .processInstanceId(instanceId).orderByHistoricActivityInstanceStartTime().asc()
             .list(), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
