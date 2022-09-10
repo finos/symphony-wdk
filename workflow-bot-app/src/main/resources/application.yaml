@@ -4,11 +4,12 @@ workflows:
 
 # BDK configuration
 bdk:
-  host:
+  host: develop.symphony.com
   bot:
-    username:
+    username: botsoufiane
     privateKey:
-      path:
+      path: /Users/soufiane/.symphony/rsa-develop/privateKey.pem
+
   default-headers:
     User-Agent: "Symphony-WDK/@wdk.version@ Java/${java.version}"
 

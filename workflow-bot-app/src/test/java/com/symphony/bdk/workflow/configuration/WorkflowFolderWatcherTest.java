@@ -1,28 +1,46 @@
 package com.symphony.bdk.workflow.configuration;
 
-import org.junit.jupiter.api.Disabled;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
-//TODO: fix unit test
+import com.symphony.bdk.workflow.engine.WorkflowEngine;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 @Disabled("Slow to run on Mac")
 class WorkflowFolderWatcherTest {
-/*
+
   @TempDir
   File workflowsFolder;
   private WorkflowEngine engine;
 
+  private WorkflowDeployer workflowDeployer;
+
   @BeforeEach
   void setUp() {
     engine = mock(WorkflowEngine.class);
+    workflowDeployer = new WorkflowDeployer(engine);
   }
 
   @Test
   void workflowAlreadyInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
 
-    verify(engine, timeout(5_000)).deploy(any());
+    verify(engine, timeout(5_000)).deploy(any(), any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -30,13 +48,13 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowAddedInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     copyWorkflow();
 
-    verify(engine, timeout(10_000)).deploy(any());
+    verify(engine, timeout(10_000)).deploy(any(), any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -44,12 +62,12 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowRemovedFromFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).deploy(any());
+    verify(engine, timeout(5_000)).deploy(any(), any());
 
     FileUtils.forceDelete(new File(workflowsFolder, "workflow.swadl.yaml"));
     verify(engine, timeout(10_000)).undeploy(any());
@@ -60,16 +78,17 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowModifiedInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).deploy(any());
+    verify(engine, timeout(5_000)).deploy(any(), any());
 
     copyWorkflow();
+    Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     verify(engine, timeout(10_000)).undeploy(any());
-    verify(engine, timeout(10_000).times(2)).deploy(any());
+    verify(engine, timeout(10_000).times(2)).deploy(any(), any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -79,8 +98,8 @@ class WorkflowFolderWatcherTest {
     Thread watcherThread = new Thread(() -> {
       try {
         watcher.monitorWorkflowsFolder();
-      } catch (InterruptedException | IOException | ProcessingException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioException) {
+        throw new RuntimeException(ioException);
       }
     });
     watcherThread.start();
@@ -90,5 +109,5 @@ class WorkflowFolderWatcherTest {
   private void copyWorkflow() throws IOException {
     FileOutputStream destination = new FileOutputStream(new File(workflowsFolder, "workflow.swadl.yaml"));
     IOUtils.copy(getClass().getResourceAsStream("workflow.swadl.yaml"), destination);
-  }*/
+  }
 }

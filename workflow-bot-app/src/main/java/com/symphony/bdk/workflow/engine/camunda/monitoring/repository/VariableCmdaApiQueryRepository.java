@@ -24,9 +24,13 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   public VariablesDomain findGlobalByWorkflowInstanceId(String id) {
     HistoricVariableInstanceEntity variables = (HistoricVariableInstanceEntity)historyService.createHistoricVariableInstanceQuery().processInstanceId(id).variableName("variables").singleResult();
     VariablesDomain variablesDomain = new VariablesDomain();
-    variablesDomain.setOutputs((Map<String, Object>)variables.getValue());
-    variablesDomain.setRevision(variables.getRevision());
-    variablesDomain.setUpdateTime(variables.getCreateTime().toInstant());
+
+    if (variables != null) {
+      variablesDomain.setOutputs((Map<String, Object>) variables.getValue());
+      variablesDomain.setRevision(variables.getRevision());
+      variablesDomain.setUpdateTime(variables.getCreateTime().toInstant());
+    }
+
     return variablesDomain;
   }
 }

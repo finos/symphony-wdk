@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,13 +73,19 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   }
 
   private List<HistoricVariableInstance> getHistoricVariableInstances(String instanceId, List<String> serviceTasks) {
-    StringBuilder sql = new StringBuilder("select * from ACT_HI_VARINST where PROC_INST_ID_ = '");
-    sql.append(instanceId).append("' and NAME_ in (");
-    for (String name : serviceTasks) {
-      sql.append("'").append(name).append("',");
+    if (!serviceTasks.isEmpty()) {
+      StringBuilder sql = new StringBuilder("select * from ACT_HI_VARINST where PROC_INST_ID_ = '");
+      sql.append(instanceId).append("'");
+
+      sql.append(" and NAME_ in (");
+      for (String name : serviceTasks) {
+        sql.append("'").append(name).append("',");
+      }
+      sql.deleteCharAt(sql.length() - 1);
+      sql.append(")");
+
+      return historyService.createNativeHistoricVariableInstanceQuery().sql(sql.toString()).list();
     }
-    sql.deleteCharAt(sql.length() - 1);
-    sql.append(")");
-    return historyService.createNativeHistoricVariableInstanceQuery().sql(sql.toString()).list();
+    return Collections.emptyList();
   }
 }

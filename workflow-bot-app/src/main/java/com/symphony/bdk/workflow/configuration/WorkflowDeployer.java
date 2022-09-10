@@ -56,10 +56,15 @@ public class WorkflowDeployer {
     }
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     Object instance = workflowEngine.parseAndValidate(workflow);
+    Pair<String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
     if (workflow.isToPublish()) {
+      if (deployedWorkflow != null && deployedWorkflow.getRight()) {
+        workflowEngine.undeploy(deployedWorkflow.getLeft());
+      }
+
       workflowEngine.deploy(workflow, instance);
-    } else if (deployedWorkflows.get(workflowFile) != null && deployedWorkflows.get(workflowFile).getRight()) {
-      workflowEngine.undeploy(deployedWorkflows.get(workflowFile).getLeft());
+    } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
+      workflowEngine.undeploy(deployedWorkflow.getLeft());
     }
     deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
   }

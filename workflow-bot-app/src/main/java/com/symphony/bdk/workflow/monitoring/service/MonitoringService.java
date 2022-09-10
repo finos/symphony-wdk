@@ -55,19 +55,21 @@ public class MonitoringService {
 
     // set activity type
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
-    Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
-        .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
-        .collect(Collectors.toMap(
-            Map.Entry::getKey,
-            e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
-        );
+    if (directGraph != null) {
+      Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
+          .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
+          .collect(Collectors.toMap(
+              Map.Entry::getKey,
+              e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
+          );
 
-    activities
-        .forEach(activity -> {
-          // set activity type
-          activity.setType(TaskTypeEnum.findByAbbr(
-              activityIdToTypeMap.get(activity.getActivityId())));
-        });
+      activities
+          .forEach(activity -> {
+            // set activity type
+            activity.setType(TaskTypeEnum.findByAbbr(
+                activityIdToTypeMap.get(activity.getActivityId())));
+          });
+    }
 
     VariablesDomain globalVariables = this.variableQueryRepository.findGlobalByWorkflowInstanceId(instanceId);
     WorkflowActivitiesView result = new WorkflowActivitiesView();
