@@ -91,6 +91,8 @@ including:
 - workflow.process.completed
 - workflow.process.running
 
+More metrics are exposed by the WDK public api under /wdk. See [http://localhost:8080/wdk/swagger-ui.html#/workflows-api-controller](http://localhost:8080/wdk/swagger-ui.html#/workflows-api-controller)
+
 ## Logging
 
 By default, logs produced by the bot goes to the console and we [recommend](https://12factor.net/logs) to keep it that
