@@ -37,6 +37,9 @@ spring:
     password:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
   main:
     banner-mode: off
