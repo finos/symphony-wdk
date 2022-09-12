@@ -18,6 +18,7 @@ import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowQueryRepository;
+import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
 import lombok.RequiredArgsConstructor;
@@ -49,27 +50,30 @@ public class MonitoringService {
   }
 
   public WorkflowActivitiesView listWorkflowInstanceActivities(String workflowId, String instanceId) {
+    List<ActivityInstanceDomain> activityInstances =
+        activityQueryRepository.findAllByWorkflowInstanceId(instanceId);
     List<ActivityInstanceView> activities =
-        objectConverter.convertCollection(activityQueryRepository.findAllByWorkflowInstanceId(instanceId),
-            ActivityInstanceView.class);
+        objectConverter.convertCollection(activityInstances, ActivityInstanceView.class);
 
     // set activity type
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
-    if (directGraph != null) {
-      Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
-          .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
-          .collect(Collectors.toMap(
-              Map.Entry::getKey,
-              e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
-          );
 
-      activities
-          .forEach(activity -> {
-            // set activity type
-            activity.setType(TaskTypeEnum.findByAbbr(
-                activityIdToTypeMap.get(activity.getActivityId())));
-          });
+    if (directGraph == null || activityInstances.isEmpty()) {
+      throw new IllegalArgumentException(String.format(
+          "Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
+          workflowId, instanceId));
     }
+
+    Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
+        .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
+        );
+
+    // set activity type
+    activities.forEach(
+        activity -> activity.setType(TaskTypeEnum.findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
 
     VariablesDomain globalVariables = this.variableQueryRepository.findGlobalByWorkflowInstanceId(instanceId);
     WorkflowActivitiesView result = new WorkflowActivitiesView();
@@ -78,7 +82,6 @@ public class MonitoringService {
     return result;
   }
 
-  //TODO: handle case where the workflow is not deployed (404?)
   public WorkflowDefinitionView listWorkflowActivities(String workflowId) {
     WorkflowDefinitionView.WorkflowDefinitionViewBuilder builder = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
@@ -87,36 +90,39 @@ public class MonitoringService {
 
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
     ArrayList<TaskDefinitionView> activities = new ArrayList<>();
-    if (directGraph != null) {
-      Map<String, WorkflowNode> dictionary = directGraph.getDictionary();
-      dictionary.forEach((key, value) -> {
-        WorkflowNode workflowNode = dictionary.get(key);
 
-        TaskDefinitionView.TaskDefinitionViewBuilder taskDefinitionViewBuilder =
-            TaskDefinitionView.builder()
-                .parents(directGraph.getParents(workflowNode.getId()))
-                .children(directGraph.getChildren(workflowNode.getId()).getChildren());
-
-        if (workflowNode.getActivity() != null) {
-          taskDefinitionViewBuilder.type(
-              TaskTypeEnum.findByAbbr(workflowNode.getActivity().getClass().getSimpleName()));
-
-          ActivityDefinitionView activityDefinitionView =
-              new ActivityDefinitionView(taskDefinitionViewBuilder.build(), workflowNode.getActivity().getId());
-
-          activities.add(activityDefinitionView);
-        } else if (workflowNode.getEvent() != null) {
-          taskDefinitionViewBuilder.type(
-              TaskTypeEnum.findByAbbr(workflowNode.getEvent().getEventType()));
-
-          EventDefinitionView eventDefinitionView = new EventDefinitionView(taskDefinitionViewBuilder.build());
-          activities.add(eventDefinitionView);
-        }
-      });
-
-      builder.flowNodes(activities);
+    if (directGraph == null) {
+      throw new IllegalArgumentException(
+          String.format("No workflow deployed with id '%s' is found", workflowId));
     }
 
+    Map<String, WorkflowNode> dictionary = directGraph.getDictionary();
+    dictionary.forEach((key, value) -> {
+      WorkflowNode workflowNode = dictionary.get(key);
+
+      TaskDefinitionView.TaskDefinitionViewBuilder taskDefinitionViewBuilder =
+          TaskDefinitionView.builder()
+              .parents(directGraph.getParents(workflowNode.getId()))
+              .children(directGraph.getChildren(workflowNode.getId()).getChildren());
+
+      if (workflowNode.getActivity() != null) {
+        taskDefinitionViewBuilder.type(
+            TaskTypeEnum.findByAbbr(workflowNode.getActivity().getClass().getSimpleName()));
+
+        ActivityDefinitionView activityDefinitionView =
+            new ActivityDefinitionView(taskDefinitionViewBuilder.build(), workflowNode.getActivity().getId());
+
+        activities.add(activityDefinitionView);
+      } else if (workflowNode.getEvent() != null) {
+        taskDefinitionViewBuilder.type(
+            TaskTypeEnum.findByAbbr(workflowNode.getEvent().getEventType()));
+
+        EventDefinitionView eventDefinitionView = new EventDefinitionView(taskDefinitionViewBuilder.build());
+        activities.add(eventDefinitionView);
+      }
+    });
+
+    builder.flowNodes(activities);
     return builder.build();
   }
 }

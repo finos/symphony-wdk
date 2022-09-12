@@ -13,7 +13,7 @@ import static org.mockito.Mockito.verify;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.engine.UnauthorizedException;
+import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 

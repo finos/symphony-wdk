@@ -23,8 +23,8 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.engine.UnauthorizedException;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
@@ -239,6 +239,23 @@ class WorkflowsApiControllerTest {
   }
 
   @Test
+  void listWorkflowInstanceActivities_illegalArgument() throws Exception {
+    final String illegalWorkflowId = "testWorkflowId";
+    final String illegalInstanceId = "testInstanceId";
+    final String errorMsg =
+        String.format("Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
+            illegalWorkflowId, illegalInstanceId);
+
+    when(monitoringService.listWorkflowInstanceActivities(illegalInstanceId, illegalInstanceId)).thenThrow(
+        new IllegalArgumentException(errorMsg));
+
+    mockMvc.perform(request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("message").value(errorMsg));
+  }
+
+  @Test
   void listWorkflowActivities() throws Exception {
     final String workflowId = "testWorkflowId";
 
@@ -276,6 +293,18 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("$.flowNodes[2].type").value("SEND_MESSAGE_ACTIVITY"))
         .andExpect(jsonPath("$.flowNodes[2].parents[0]").value("event"))
         .andExpect(jsonPath("$.flowNodes[2].children").isEmpty());
+  }
+
+  @Test
+  void listWorkflowActivities_illegalArgument() throws Exception {
+    final String illegalWorkflowId = "testWorkflowId";
+    final String errorMsg =  String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
+
+    when(monitoringService.listWorkflowActivities(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
+
+    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId)))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("message").value(errorMsg));
   }
 
   private WorkflowInstView workflowInstView(String workflowId, String instanceId, long start, long end, Integer version,

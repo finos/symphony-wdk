@@ -3,7 +3,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.engine.UnauthorizedException;
+import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
