@@ -91,7 +91,7 @@ including:
 - workflow.process.completed
 - workflow.process.running
 
-More metrics are exposed by the WDK public api under /wdk. See [http://localhost:8080/wdk/swagger-ui.html#/workflows-api-controller](http://localhost:8080/wdk/swagger-ui.html#/workflows-api-controller)
+More metrics are exposed by the WDK public api under /wdk. See [http://localhost:8080/wdk/swagger-ui.html#](http://localhost:8080/wdk/swagger-ui.html#)
 
 ## Logging
 
