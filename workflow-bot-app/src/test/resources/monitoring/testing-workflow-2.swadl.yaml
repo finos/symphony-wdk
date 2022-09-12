@@ -1,0 +1,16 @@
+id: testingWorkflow2
+activities:
+  - send-message:
+      id: testingWorkflow2SendMsg1
+      on:
+        message-received:
+          content: "/testingWorkflow2"
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>
+
+  - send-message:
+      id: testingWorkflow2SendMsg2
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>

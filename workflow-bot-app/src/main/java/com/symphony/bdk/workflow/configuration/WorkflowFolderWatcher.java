@@ -1,32 +1,22 @@
 package com.symphony.bdk.workflow.configuration;
 
-import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.HashMap;
-import java.util.Map;
 import javax.annotation.PreDestroy;
 
 /**
@@ -41,41 +31,23 @@ import javax.annotation.PreDestroy;
 public class WorkflowFolderWatcher {
 
   private final String workflowsFolder;
-  private final WorkflowEngine<?> workflowEngine;
-  private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
+  private final WorkflowDeployer workflowDeployer;
 
   private WatchService watchService;
 
   public WorkflowFolderWatcher(@Value("${workflows.folder}") String workflowsFolder,
-      @Autowired WorkflowEngine<?> workflowEngine) {
+      @Autowired WorkflowDeployer workflowDeployer) {
     this.workflowsFolder = workflowsFolder;
-    this.workflowEngine = workflowEngine;
+    this.workflowDeployer = workflowDeployer;
   }
 
   @Scheduled(fixedDelay = Long.MAX_VALUE) // will run once after startup and wait for file events
-  public void monitorWorkflowsFolder() throws InterruptedException, IOException, ProcessingException {
-    watchService = FileSystems.getDefault().newWatchService();
+  public void monitorWorkflowsFolder() throws IOException {
+    this.watchService = FileSystems.getDefault().newWatchService();
     Path path = Paths.get(workflowsFolder);
+    this.workflowDeployer.addAllWorkflowsFromFolder(this.workflowsFolder, path);
 
-    if (!Files.isDirectory(path)) {
-      throw new IllegalArgumentException("Could not find workflows folder to monitor with path: " + workflowsFolder);
-    }
-
-    log.info("Watching workflows from {}", path);
-    File[] existingFiles = path.toFile().listFiles();
-    if (existingFiles != null) {
-      for (File file : existingFiles) {
-        if (isYaml(file.toPath())) {
-          try {
-            addWorkflow(file.toPath());
-          } catch (Exception e) {
-            log.error("Failed to add workflow for file {}", file, e);
-          }
-        }
-      }
-    }
-
-    path.register(watchService,
+    path.register(this.watchService,
         StandardWatchEventKinds.ENTRY_DELETE,
         StandardWatchEventKinds.ENTRY_MODIFY,
         StandardWatchEventKinds.ENTRY_CREATE);
@@ -101,51 +73,12 @@ public class WorkflowFolderWatcher {
 
   private void handleFileEventOrLogError(Path path, WatchEvent<?> event) {
     try {
-      handleFileEvent(path, event);
+      WatchEvent<Path> ev = (WatchEvent<Path>) event;
+      Path changedFile = path.resolve(ev.context());
+      this.workflowDeployer.handleFileEvent(changedFile, ev);
     } catch (Exception e) {
       log.error("Failed to update workflow for file change event {}", event.context(), e);
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private void handleFileEvent(Path path, WatchEvent<?> event) throws IOException, ProcessingException {
-    WatchEvent<Path> ev = (WatchEvent<Path>) event;
-    Path changedFile = path.resolve(ev.context());
-
-    if (isYaml(changedFile)) {
-
-      if (ev.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
-        addWorkflow(changedFile);
-
-      } else if (ev.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-        workflowEngine.undeploy(deployedWorkflows.get(changedFile).getLeft());
-        this.deployedWorkflows.remove(changedFile);
-
-      } else if (ev.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
-        addWorkflow(changedFile);
-
-      } else {
-        log.debug("Unknown event: {}", ev);
-      }
-    }
-  }
-
-  private boolean isYaml(Path changedFile) {
-    return changedFile.toString().endsWith(".yaml") || changedFile.toString().endsWith(".yml");
-  }
-
-  private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
-    if (workflowFile.toFile().length() == 0) {
-      return;
-    }
-    Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
-    Object instance = workflowEngine.parseAndValidate(workflow);
-    if (workflow.isToPublish()) {
-      workflowEngine.deploy(workflow, instance);
-    } else if (deployedWorkflows.get(workflowFile) != null && deployedWorkflows.get(workflowFile).getRight()) {
-      workflowEngine.undeploy(deployedWorkflows.get(workflowFile).getLeft());
-    }
-    deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
   }
 
   @PreDestroy
@@ -156,4 +89,5 @@ public class WorkflowFolderWatcher {
       log.error("Failed to stop monitoring workflows folder", e);
     }
   }
+
 }

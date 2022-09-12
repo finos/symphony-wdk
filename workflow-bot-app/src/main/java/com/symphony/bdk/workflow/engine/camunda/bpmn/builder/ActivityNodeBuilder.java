@@ -20,7 +20,7 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
   @Override
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
-    return addTask(builder, element.getActivity(), context);
+    return addTask(builder, element.getActivity());
   }
 
   @Override
@@ -28,8 +28,8 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
     return WorkflowNodeType.ACTIVITY;
   }
 
-  protected AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity,
-      BuildProcessContext context) throws JsonProcessingException {
+  protected AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)
+      throws JsonProcessingException {
     // hardcoded so we can rely on Camunda's script task instead of a service task
     if (activity instanceof ExecuteScript) {
       return addScriptTask(eventBuilder, (ExecuteScript) activity);

@@ -25,7 +25,7 @@ public class ActivityFailedNodeBuilder extends ActivityNodeBuilder {
     builder = ((AbstractActivityBuilder<?, ?>) builder).boundaryEvent()
         .name("error_" + element.getId())
         .error();
-    return addTask(builder, element.getActivity(), context);
+    return addTask(builder, element.getActivity());
   }
 
   @Override

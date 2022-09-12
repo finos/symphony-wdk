@@ -26,7 +26,7 @@ public class ActivityExpiredNodeBuilder extends ActivityNodeBuilder {
         builder = context.removeLastEventSubProcessBuilder().subProcessDone();
         builder = ((SubProcessBuilder) builder).boundaryEvent().error(ERROR_CODE);
       }
-      return addTask(builder, element.getActivity(), context);
+      return addTask(builder, element.getActivity());
     }
     String timeout = ((EventWithTimeout) element.getEvent()).getTimeout();
     if (builder instanceof AbstractCatchEventBuilder) {

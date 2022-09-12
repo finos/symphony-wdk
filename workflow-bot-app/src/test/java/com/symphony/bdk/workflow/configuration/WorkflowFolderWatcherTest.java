@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,19 +25,22 @@ class WorkflowFolderWatcherTest {
   File workflowsFolder;
   private WorkflowEngine engine;
 
+  private WorkflowDeployer workflowDeployer;
+
   @BeforeEach
   void setUp() {
     engine = mock(WorkflowEngine.class);
+    workflowDeployer = new WorkflowDeployer(engine);
   }
 
   @Test
   void workflowAlreadyInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
 
-    verify(engine, timeout(5_000)).deploy(any());
+    verify(engine, timeout(5_000)).deploy(any(), any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -46,13 +48,13 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowAddedInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     copyWorkflow();
 
-    verify(engine, timeout(10_000)).deploy(any());
+    verify(engine, timeout(10_000)).deploy(any(), any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -60,12 +62,12 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowRemovedFromFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).deploy(any());
+    verify(engine, timeout(5_000)).deploy(any(), any());
 
     FileUtils.forceDelete(new File(workflowsFolder, "workflow.swadl.yaml"));
     verify(engine, timeout(10_000)).undeploy(any());
@@ -76,16 +78,17 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowModifiedInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), engine);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).deploy(any());
+    verify(engine, timeout(5_000)).deploy(any(), any());
 
     copyWorkflow();
+    Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     verify(engine, timeout(10_000)).undeploy(any());
-    verify(engine, timeout(10_000).times(2)).deploy(any());
+    verify(engine, timeout(10_000).times(2)).deploy(any(), any());
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -95,8 +98,8 @@ class WorkflowFolderWatcherTest {
     Thread watcherThread = new Thread(() -> {
       try {
         watcher.monitorWorkflowsFolder();
-      } catch (InterruptedException | IOException | ProcessingException e) {
-        throw new RuntimeException(e);
+      } catch (IOException ioException) {
+        throw new RuntimeException(ioException);
       }
     });
     watcherThread.start();

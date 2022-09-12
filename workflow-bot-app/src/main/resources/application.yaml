@@ -74,4 +74,3 @@ management:
         include: "*"
   server:
     port: 8081
-
