@@ -100,7 +100,7 @@ public class WorkflowsApiController {
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class)})
   @GetMapping("/{workflowId}/definitions")
   public WorkflowDefinitionView listWorkflowActivities(@PathVariable String workflowId) {
-    return monitoringService.listWorkflowActivities(workflowId);
+    return monitoringService.getWorkflowDefinition(workflowId);
   }
 
 }

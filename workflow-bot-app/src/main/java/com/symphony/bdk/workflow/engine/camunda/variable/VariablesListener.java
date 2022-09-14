@@ -21,8 +21,6 @@ import java.util.Map;
 @Slf4j
 public class VariablesListener implements ExecutionListener {
 
-  private static final String VARIABLES_FIELD = "variables";
-
   // automatically injected by Camunda
   private Expression variables;
 
@@ -33,7 +31,7 @@ public class VariablesListener implements ExecutionListener {
     listener.setCamundaClass(VariablesListener.class.getName());
 
     CamundaField field = instance.newInstance(CamundaField.class);
-    field.setCamundaName(VARIABLES_FIELD);
+    field.setCamundaName(ActivityExecutorContext.VARIABLES);
     field.setCamundaStringValue(CamundaExecutor.OBJECT_MAPPER.writeValueAsString(variables));
     listener.getCamundaFields().add(field);
 

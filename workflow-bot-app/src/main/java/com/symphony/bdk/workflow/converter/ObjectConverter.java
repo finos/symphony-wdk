@@ -11,19 +11,19 @@ public interface ObjectConverter {
    * Convert the given object to target object in the given type.
    *
    * @param source object to be converted
-   * @param tClass target object class type
+   * @param targetClass target object class type
    * @param <T>    target object type
    * @return converted target object
    */
-  <T> T convert(Object source, Class<T> tClass);
+  <T> T convert(Object source, Class<T> targetClass);
 
   /**
    * Convert the given object list into a list of the given target type.
    *
    * @param source a list of objects to be converted
-   * @param tClass target list element's class type
+   * @param targetClass target list element's class type
    * @param <T>    target list element's object type
    * @return a list of converted target objects
    */
-  <T> List<T> convertCollection(List<?> source, Class<T> tClass);
+  <T> List<T> convertCollection(List<?> source, Class<T> targetClass);
 }

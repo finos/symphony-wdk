@@ -5,6 +5,6 @@ public enum StatusEnum {
   COMPLETED;
 
   public static StatusEnum toInstanceStatusEnum(String status) {
-    return status.equals("ACTIVE") ? StatusEnum.PENDING : StatusEnum.COMPLETED;
+    return "ACTIVE".equals(status) ? StatusEnum.PENDING : StatusEnum.COMPLETED;
   }
 }

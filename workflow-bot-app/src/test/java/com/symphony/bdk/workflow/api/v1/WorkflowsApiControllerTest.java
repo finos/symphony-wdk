@@ -212,18 +212,14 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("globalVariables.outputs[\"globalTwo\"]").value("valueTwo"))
         .andExpect(jsonPath("globalVariables.revision").value(0))
 
-        .andExpect(jsonPath("activities[0].variables.updateTime").isNotEmpty())
-
         .andExpect(jsonPath("activities[0].workflowId").value(workflowId))
         .andExpect(jsonPath("activities[0].instanceId").value(instanceId))
         .andExpect(jsonPath("activities[0].activityId").value("activity0"))
         .andExpect(jsonPath("activities[0].type").value("SEND_MESSAGE_ACTIVITY"))
         .andExpect(jsonPath("activities[0].startDate").isNotEmpty())
         .andExpect(jsonPath("activities[0].endDate").isNotEmpty())
-        .andExpect(jsonPath("activities[0].variables.outputs[\"a\"]").value("b"))
-        .andExpect(jsonPath("activities[0].variables.outputs[\"c\"]").value("d"))
-        .andExpect(jsonPath("activities[0].variables.revision").value(0))
-        .andExpect(jsonPath("activities[0].variables.updateTime").isNotEmpty())
+        .andExpect(jsonPath("activities[0].outputs[\"a\"]").value("b"))
+        .andExpect(jsonPath("activities[0].outputs[\"c\"]").value("d"))
 
         .andExpect(jsonPath("activities[1].workflowId").value(workflowId))
         .andExpect(jsonPath("activities[1].instanceId").value(instanceId))
@@ -232,10 +228,8 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("activities[1].startDate").isNotEmpty())
         .andExpect(jsonPath("activities[1].endDate").isNotEmpty())
 
-        .andExpect(jsonPath("activities[0].variables.outputs[\"a\"]").value("b"))
-        .andExpect(jsonPath("activities[0].variables.outputs[\"c\"]").value("d"))
-        .andExpect(jsonPath("activities[0].variables.revision").value(0))
-        .andExpect(jsonPath("activities[0].variables.updateTime").isNotEmpty());
+        .andExpect(jsonPath("activities[0].outputs[\"a\"]").value("b"))
+        .andExpect(jsonPath("activities[0].outputs[\"c\"]").value("d"));
   }
 
   @Test
@@ -257,7 +251,7 @@ class WorkflowsApiControllerTest {
         .flowNodes(Arrays.asList(activity0, event, activity1))
         .build();
 
-    when(monitoringService.listWorkflowActivities(workflowId)).thenReturn(workflowDefinitionView);
+    when(monitoringService.getWorkflowDefinition(workflowId)).thenReturn(workflowDefinitionView);
 
     mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, workflowId)))
         .andExpect(status().isOk())
@@ -300,7 +294,7 @@ class WorkflowsApiControllerTest {
         .type(type)
         .startDate(Instant.ofEpochMilli(start))
         .endDate(Instant.ofEpochMilli(end))
-        .variables(variables)
+        .outputs(variables.getOutputs())
         .build();
   }
 

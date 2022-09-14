@@ -30,7 +30,6 @@ class WorkflowValidatorTest {
     BaseActivity mockActivity1 = mock(BaseActivity.class);
     when(mockActivity1.getIfCondition()).thenReturn("condition");
 
-    BaseActivity mockActivity2 = mock(BaseActivity.class);
     EventWithTimeout mockEvent1 = mock(EventWithTimeout.class);
     when(mockEvent1.getTimeout()).thenReturn("PT24h");
 
@@ -39,6 +38,7 @@ class WorkflowValidatorTest {
     when(mockEvent2.getTimeout()).thenReturn("PT24h");
     when(mockActivity3.getOn()).thenReturn(mockEvent2);
     when(mockEvent2.getActivityCompleted()).thenReturn(mock(ActivityCompletedEvent.class));
+    BaseActivity mockActivity2 = mock(BaseActivity.class);
 
     return Stream.of(
         arguments(mockActivity1, null, "workflow"),

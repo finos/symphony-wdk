@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 
 @Data
 @Builder
@@ -18,5 +19,5 @@ public class ActivityInstanceView {
   private Instant startDate;
   private Instant endDate;
   private Duration duration;
-  private VariableView variables;
+  private Map<String, Object> outputs;
 }
