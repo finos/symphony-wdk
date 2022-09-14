@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfiguration {
 
-  private ApiInfo apiInfo() {;
+  private ApiInfo apiInfo() {
     return new ApiInfoBuilder()
         .title("Symphony Workflow Developer Kit (WDK) apis")
         .description("Documentation of WDK apis allowing to execute, monitor and manage workflows")

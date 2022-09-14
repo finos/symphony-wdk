@@ -91,18 +91,13 @@ public class WorkflowsApiController {
   @ApiOperation("List the completed activities in a given instance for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowActivitiesView.class),
       @ApiResponse(code = 404,
-          message = "Either no workflow deployed with id {workflowId} is found or the instance id {instanceId} is not correct",
+          message = "Either no workflow deployed with id {workflowId} is found or the instance id {instanceId} "
+              + "is not correct",
           response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
   public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(@PathVariable String workflowId,
       @PathVariable String instanceId) {
-    try {
-      return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId));
-    } catch (IllegalArgumentException illegalArgumentException) {
-      log.warn("No workflow deployed with id \"{}\" is found or the instance id \"{}\" is not found", workflowId,
-          instanceId);
-      return new ResponseEntity(new ErrorResponse(illegalArgumentException.getMessage()), HttpStatus.NOT_FOUND);
-    }
+    return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId));
   }
 
   @ApiOperation("List activities definitions for a given workflow")
@@ -110,12 +105,7 @@ public class WorkflowsApiController {
       @ApiResponse(code = 404, message = "No workflow deployed with id {Id} is found", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/definitions")
   public ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(@PathVariable String workflowId) {
-    try {
-      return ResponseEntity.ok(monitoringService.listWorkflowActivities(workflowId));
-    } catch (IllegalArgumentException illegalArgumentException) {
-      log.warn("No workflow deployed with id \"{}\" is found", workflowId);
-      return new ResponseEntity(new ErrorResponse(illegalArgumentException.getMessage()), HttpStatus.NOT_FOUND);
-    }
+    return ResponseEntity.ok(monitoringService.listWorkflowActivities(workflowId));
   }
 
 }
