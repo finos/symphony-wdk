@@ -10,6 +10,7 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.UnauthorizedException;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
+import com.symphony.bdk.workflow.monitoring.service.WorkflowsTokenVerifier;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +20,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,10 +40,13 @@ public class WorkflowsApiController {
 
   private final MonitoringService monitoringService;
   private final WorkflowEngine workflowEngine;
+  private final WorkflowsTokenVerifier workflowsTokenVerifier;
 
-  public WorkflowsApiController(WorkflowEngine workflowEngine, MonitoringService monitoringService) {
+  public WorkflowsApiController(WorkflowEngine workflowEngine, MonitoringService monitoringService,
+      WorkflowsTokenVerifier workflowsTokenVerifier) {
     this.workflowEngine = workflowEngine;
     this.monitoringService = monitoringService;
+    this.workflowsTokenVerifier = workflowsTokenVerifier;
   }
 
   @ApiOperation("Triggers the execution of a workflow given by its id. This is an asynchronous operation.")
@@ -77,13 +82,14 @@ public class WorkflowsApiController {
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowView.class, responseContainer = "List")})
   @GetMapping("/")
   public List<WorkflowView> listAllWorkflows() {
-    return monitoringService.listAllWorkflows();
+    return monitoringService.listAllWorkflows("blahTokenBlah");
   }
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowInstView.class, responseContainer = "List")})
   @GetMapping("/{workflowId}/instances")
+  @PreAuthorize("@workflowsTokenVerifier.isAuthorized(#workflowId)")
   public List<WorkflowInstView> listWorkflowInstances(@PathVariable String workflowId) {
     return monitoringService.listWorkflowInstances(workflowId);
   }
