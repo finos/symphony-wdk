@@ -30,18 +30,21 @@ public class DefaultObjectConverter implements ObjectConverter {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T convert(Object source, Class<T> tClass) {
+  public <T> T convert(Object source, Class<T> targetClass) {
     if (Objects.isNull(source)) {
       return null;
     }
 
-    Converter converter = converterMap.get(new ConverterKey(source.getClass(), tClass));
+    Converter converter = converterMap.get(new ConverterKey(source.getClass(), targetClass));
     Class clz = source.getClass();
     while (converter == null && clz != null) {
       clz = clz.getSuperclass();
-      converter = converterMap.get(new ConverterKey(clz, tClass));
+      converter = converterMap.get(new ConverterKey(clz, targetClass));
     }
-    validConverter(tClass, converter);
+
+    if (Objects.isNull(converter)) {
+      throw new IllegalArgumentException("Cannot find converter for " + targetClass);
+    }
     return (T) converter.apply(source);
   }
 
@@ -50,30 +53,18 @@ public class DefaultObjectConverter implements ObjectConverter {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public <T> List<T> convertCollection(List<?> source, Class<T> tClass) {
+  public <T> List<T> convertCollection(List<?> source, Class<T> targetClass) {
     if (Objects.isNull(source) || source.isEmpty()) {
       return Collections.emptyList();
     }
 
-    Converter converter = converterMap.get(new ConverterKey(source.get(0).getClass(), tClass));
-    validConverter(tClass, converter);
+    Converter converter = converterMap.get(new ConverterKey(source.get(0).getClass(), targetClass));
+    if (Objects.isNull(converter)) {
+      throw new IllegalArgumentException("Cannot find converter for " + targetClass);
+    }
 
     List<T> collection = converter.applyCollection(source);
     return collection.isEmpty() ? Collections.emptyList() : collection;
-  }
-
-  /**
-   * validate the converter, if the converter is not found in the registered map, throw a exception.
-   *
-   * @param tClass    target class type
-   * @param converter the given converter from the registered map.
-   * @param <T>       target object type
-   * @throws IllegalArgumentException thrown if converter is not found.
-   */
-  private <T> void validConverter(Class<T> tClass, Converter converter) {
-    if (Objects.isNull(converter)) {
-      throw new IllegalArgumentException("Cannot find converter for " + tClass);
-    }
   }
 
   /**

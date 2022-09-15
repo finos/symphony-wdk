@@ -17,5 +17,6 @@ public class ActivityInstanceDomain {
   private final Instant startDate;
   private final Instant endDate;
   private final Duration duration;
-  private VariablesDomain variables;
+  @Builder.Default
+  private VariablesDomain variables = new VariablesDomain();
 }

@@ -23,23 +23,15 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,10 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@ContextConfiguration
-@RunWith(SpringRunner.class)
 public class MonitoringApiIntegrationTest extends IntegrationTest {
 
   private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows/";
@@ -59,8 +47,6 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
       "wdk/v1/workflows/%s/instances/%s/activities";
   private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/wdk/v1/workflows/%s/definitions";
 
-  @LocalServerPort
-  private int port;
 
   @Autowired MonitoringService monitoringService;
 
@@ -189,10 +175,8 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("activities[0].startDate", not(empty()))
         .body("activities[0].endDate", not(empty()))
         .body("activities[0].duration", not(empty()))
-        .body("activities[0].variables.outputs.message", not(empty()))
-        .body("activities[0].variables.outputs.msgId", not(empty()))
-        .body("activities[0].variables.revision", equalTo(0))
-        .body("activities[0].variables.updateTime", not(empty()))
+        .body("activities[0].outputs.message", not(empty()))
+        .body("activities[0].outputs.msgId", not(empty()))
 
         .body("activities[1].workflowId", equalTo("testingWorkflow4"))
         .body("activities[1].instanceId", not(empty()))
@@ -201,11 +185,8 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("activities[1].startDate", not(empty()))
         .body("activities[1].endDate", not(empty()))
         .body("activities[1].duration", not(empty()))
-        .body("activities[1].variables.outputs.message", not(empty()))
-        .body("activities[1].variables.outputs.msgId", not(empty()))
-        .body("activities[1].variables.revision", equalTo(0))
-        .body("activities[1].variables.updateTime", not(empty()))
-
+        .body("activities[1].outputs.message", not(empty()))
+        .body("activities[1].outputs.msgId", not(empty()))
 
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
@@ -302,14 +283,6 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.NOT_FOUND.value())
         .body("message", equalTo(expectedErrorMsg));
-  }
-
-  @Before
-  public void setUp() {
-    RestAssured.baseURI = "http://localhost";
-    RestAssured.port = port;
-
-    when(bdkGateway.messages()).thenReturn(messageService);
   }
 
   private List<TaskDefinitionView> toTaskDefinitionViewList(List<Object> objects)

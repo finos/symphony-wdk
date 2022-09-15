@@ -83,6 +83,7 @@ public class MonitoringService {
   }
 
   public WorkflowDefinitionView listWorkflowActivities(String workflowId) {
+//  public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
     WorkflowDefinitionView.WorkflowDefinitionViewBuilder builder = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
         .flowNodes(new ArrayList<>())

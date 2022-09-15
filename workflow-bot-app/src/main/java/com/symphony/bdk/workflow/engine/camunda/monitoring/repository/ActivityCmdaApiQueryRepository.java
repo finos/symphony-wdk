@@ -29,15 +29,6 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
    * Instance activities are the sum of executed activities from the historyService (with status COMPLETED)
    * and the activities not started yet from the workflow mapping object (with status PENDING)
    * and eventually the one activity being executed (with status ONGOING).
-   *
-   * <p>In order to have an ongoing activity, I tried with an execute-script having a sleep,
-   * as long as the activity (the sleep) is not completed,
-   * historyService and runtimeService are not updated with new rows.
-   *
-   * <p>--> Maybe Camunda is synchronous and needs to be completely free (no ongoing work/activity) to update database.
-   *
-   * <p>Let's try with a new activity who does a lot of work (a big for loop..): Same behavior
-   *
    */
   @Override
   public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId) {

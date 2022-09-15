@@ -95,6 +95,8 @@ public class WorkflowsApiController {
   @GetMapping("/{workflowId}/definitions")
   public ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(@PathVariable String workflowId) {
     return ResponseEntity.ok(monitoringService.listWorkflowActivities(workflowId));
+//  public WorkflowDefinitionView listWorkflowActivities(@PathVariable String workflowId) {
+//    return monitoringService.getWorkflowDefinition(workflowId);
   }
 
 }
