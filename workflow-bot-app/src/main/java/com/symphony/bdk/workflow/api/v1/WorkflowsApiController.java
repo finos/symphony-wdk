@@ -8,7 +8,6 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
 import io.swagger.annotations.Api;
@@ -56,18 +55,8 @@ public class WorkflowsApiController {
       @ApiParam("Arguments to be passed to the event triggering the workflow") @RequestBody
           WorkflowExecutionRequest arguments) {
 
-    try {
-      log.info("Executing workflow {}", id);
-      workflowEngine.execute(id, new ExecutionParameters(arguments.getArgs(), token));
-
-    } catch (IllegalArgumentException illegalArgumentException) {
-      log.warn("The workflow id \"{}\" provided in the request does not exist", id);
-      return new ResponseEntity<>(new ErrorResponse(illegalArgumentException.getMessage()), HttpStatus.NOT_FOUND);
-
-    } catch (UnauthorizedException unauthorizedException) {
-      log.warn("The token provided in the request is not valid for this workflow");
-      return new ResponseEntity<>(new ErrorResponse(unauthorizedException.getMessage()), HttpStatus.UNAUTHORIZED);
-    }
+    log.info("Executing workflow {}", id);
+    workflowEngine.execute(id, new ExecutionParameters(arguments.getArgs(), token));
 
     return ResponseEntity.noContent().build();
   }

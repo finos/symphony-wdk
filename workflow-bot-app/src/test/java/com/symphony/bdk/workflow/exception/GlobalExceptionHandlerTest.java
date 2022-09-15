@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 
@@ -14,11 +13,13 @@ class GlobalExceptionHandlerTest {
   private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
   @Test
-  void testRuntimeException() {
-    RuntimeException runtimeException = new RuntimeException("", new Throwable());
-    assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(() -> globalExceptionHandler.handle(runtimeException))
-        .satisfies(e -> assertThat(e).isEqualTo(runtimeException));
+  void testUnauthorizedException() {
+    ErrorResponse expectedErrorResponse = new ErrorResponse("Unauthorized exception's message");
+    ResponseEntity<ErrorResponse> response =
+        globalExceptionHandler.handle(new UnauthorizedException("Unauthorized exception's message"));
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    assertThat(response.getBody()).isEqualTo(expectedErrorResponse);
   }
 
   @Test
