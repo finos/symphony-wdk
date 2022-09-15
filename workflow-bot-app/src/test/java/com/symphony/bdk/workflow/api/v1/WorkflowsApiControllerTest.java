@@ -285,7 +285,7 @@ class WorkflowsApiControllerTest {
     final String illegalWorkflowId = "testWorkflowId";
     final String errorMsg = String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
 
-    when(monitoringService.listWorkflowActivities(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
+    when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
 
     mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId)))
         .andExpect(status().isNotFound())

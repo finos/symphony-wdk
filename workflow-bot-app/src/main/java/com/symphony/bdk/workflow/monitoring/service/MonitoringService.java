@@ -82,12 +82,11 @@ public class MonitoringService {
     return result;
   }
 
-  public WorkflowDefinitionView listWorkflowActivities(String workflowId) {
-//  public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
+  public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
     WorkflowDefinitionView.WorkflowDefinitionViewBuilder builder = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
         .flowNodes(new ArrayList<>())
-        .variables(Collections.emptyList()); //TODO: handles variables
+        .variables(Collections.emptyList());
 
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
     ArrayList<TaskDefinitionView> activities = new ArrayList<>();

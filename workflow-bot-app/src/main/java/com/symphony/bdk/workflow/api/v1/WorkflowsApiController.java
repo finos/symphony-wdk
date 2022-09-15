@@ -94,9 +94,7 @@ public class WorkflowsApiController {
       @ApiResponse(code = 404, message = "No workflow deployed with id {Id} is found", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/definitions")
   public ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(@PathVariable String workflowId) {
-    return ResponseEntity.ok(monitoringService.listWorkflowActivities(workflowId));
-//  public WorkflowDefinitionView listWorkflowActivities(@PathVariable String workflowId) {
-//    return monitoringService.getWorkflowDefinition(workflowId);
+    return ResponseEntity.ok(monitoringService.getWorkflowDefinition(workflowId));
   }
 
 }

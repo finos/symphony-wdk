@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -20,8 +22,8 @@ import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowQueryRepository;
+import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
-import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import org.assertj.core.util.Maps;
@@ -99,7 +101,10 @@ class MonitoringServiceTest {
         .duration(Duration.ofMillis(2000))
         .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
         .outputs(Maps.newHashMap("key", "value2")).build();
-    when(activityQueryRepository.findAllByWorkflowInstanceId(anyString())).thenReturn(Collections.emptyList());
+
+    when(activityQueryRepository.findAllByWorkflowInstanceId(anyString())).thenReturn(Collections.singletonList(
+        ActivityInstanceDomain.builder()
+            .build())); // returns at least one item, otherwise an IllegalArgumentException will be thrown
     when(objectConverter.convertCollection(anyList(), eq(ActivityInstanceView.class))).thenReturn(
         List.of(view1, view2));
 
@@ -121,7 +126,7 @@ class MonitoringServiceTest {
     directGraph.registerToDictionary("activity1", activity1);
     directGraph.registerToDictionary("activity2", activity2);
 
-    when(workflowDirectGraphCachingService.getDirectGraph(eq("workflow"))).thenReturn(directGraph);
+    when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(directGraph);
 
     // mock variables
     VariablesDomain vars = new VariablesDomain();
@@ -146,6 +151,97 @@ class MonitoringServiceTest {
   }
 
   @Test
+  void listWorkflowInstanceActivities_badInstanceId_illegalArgumentException() {
+    // given
+    ActivityInstanceView view1 = ActivityInstanceView.builder()
+        .instanceId("instance")
+        .activityId("activity1")
+        .workflowId("workflow")
+        .endDate(Instant.now())
+        .startDate(Instant.now())
+        .duration(Duration.ofMillis(2000))
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .outputs(Maps.newHashMap("key", "value1")).build();
+    ActivityInstanceView view2 = ActivityInstanceView.builder()
+        .instanceId("instance")
+        .activityId("activity2")
+        .workflowId("workflow")
+        .endDate(Instant.now())
+        .startDate(Instant.now())
+        .duration(Duration.ofMillis(2000))
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .outputs(Maps.newHashMap("key", "value2")).build();
+
+    when(activityQueryRepository.findAllByWorkflowInstanceId(anyString())).thenReturn(Collections.emptyList());
+    when(objectConverter.convertCollection(anyList(), eq(ActivityInstanceView.class))).thenReturn(
+        List.of(view1, view2));
+
+    // mock graph
+    WorkflowNode activity1 = new WorkflowNode();
+    SendMessage sendMessage = new SendMessage();
+    sendMessage.setContent("content");
+    sendMessage.setId("activity1");
+    activity1.activity(sendMessage);
+    activity1.id("activity1");
+
+    WorkflowNode activity2 = new WorkflowNode();
+    sendMessage.setContent("content");
+    sendMessage.setId("activity1");
+    activity2.activity(sendMessage);
+    activity2.id("activity2");
+
+    WorkflowDirectGraph directGraph = new WorkflowDirectGraph();
+    directGraph.registerToDictionary("activity1", activity1);
+    directGraph.registerToDictionary("activity2", activity2);
+
+    when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(directGraph);
+
+    // when
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+            () -> service.listWorkflowInstanceActivities("workflow", "instance"))
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
+            "Either no workflow deployed with id 'workflow' is found or the instance id 'instance' is not correct"));
+  }
+
+  @Test
+  void listWorkflowInstanceActivities_badWorkflowId_illegalArgumentException() {
+    // given
+    ActivityInstanceView view1 = ActivityInstanceView.builder()
+        .instanceId("instance")
+        .activityId("activity1")
+        .workflowId("workflow")
+        .endDate(Instant.now())
+        .startDate(Instant.now())
+        .duration(Duration.ofMillis(2000))
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .outputs(Maps.newHashMap("key", "value1")).build();
+    ActivityInstanceView view2 = ActivityInstanceView.builder()
+        .instanceId("instance")
+        .activityId("activity2")
+        .workflowId("workflow")
+        .endDate(Instant.now())
+        .startDate(Instant.now())
+        .duration(Duration.ofMillis(2000))
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .outputs(Maps.newHashMap("key", "value2")).build();
+
+    when(activityQueryRepository.findAllByWorkflowInstanceId(anyString())).thenReturn(Collections.singletonList(
+        ActivityInstanceDomain.builder()
+            .build())); // returns at least one item, otherwise an IllegalArgumentException will be thrown
+    when(objectConverter.convertCollection(anyList(), eq(ActivityInstanceView.class))).thenReturn(
+        List.of(view1, view2));
+
+    // mock graph
+    when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(null);
+
+    // when
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+            () -> service.listWorkflowInstanceActivities("workflow", "instance"))
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
+            "Either no workflow deployed with id 'workflow' is found or the instance id 'instance' is not correct"));
+  }
+
+  @Test
   void getWorkflowDefinition() {
     // mock graph
     WorkflowNode activity1 = new WorkflowNode();
@@ -167,7 +263,7 @@ class MonitoringServiceTest {
     directGraph.addParent("activity2", "activity1");
     directGraph.getChildren("activity1").addChild("activity2");
 
-    when(workflowDirectGraphCachingService.getDirectGraph(eq("workflow"))).thenReturn(directGraph);
+    when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(directGraph);
 
     // when
     WorkflowDefinitionView definitionView = service.getWorkflowDefinition("workflow");
