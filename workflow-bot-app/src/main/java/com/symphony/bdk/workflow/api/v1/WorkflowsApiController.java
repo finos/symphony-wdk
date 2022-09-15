@@ -7,7 +7,6 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.engine.UnauthorizedException;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
@@ -56,18 +55,8 @@ public class WorkflowsApiController {
       @ApiParam("Arguments to be passed to the event triggering the workflow") @RequestBody
           WorkflowExecutionRequest arguments) {
 
-    try {
-      log.info("Executing workflow {}", id);
-      workflowEngine.execute(id, new ExecutionParameters(arguments.getArgs(), token));
-
-    } catch (IllegalArgumentException illegalArgumentException) {
-      log.warn("The workflow id {} provided in the request does not exist", id);
-      return new ResponseEntity<>(new ErrorResponse(illegalArgumentException.getMessage()), HttpStatus.NOT_FOUND);
-
-    } catch (UnauthorizedException unauthorizedException) {
-      log.warn("The token provided in the request is not valid for this workflow");
-      return new ResponseEntity<>(new ErrorResponse(unauthorizedException.getMessage()), HttpStatus.UNAUTHORIZED);
-    }
+    log.info("Executing workflow {}", id);
+    workflowEngine.execute(id, new ExecutionParameters(arguments.getArgs(), token));
 
     return ResponseEntity.noContent().build();
   }
@@ -76,31 +65,36 @@ public class WorkflowsApiController {
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowView.class, responseContainer = "List")})
   @GetMapping("/")
-  public List<WorkflowView> listAllWorkflows() {
-    return monitoringService.listAllWorkflows();
+  public ResponseEntity<List<WorkflowView>> listAllWorkflows() {
+    return ResponseEntity.ok(monitoringService.listAllWorkflows());
   }
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowInstView.class, responseContainer = "List")})
   @GetMapping("/{workflowId}/instances")
-  public List<WorkflowInstView> listWorkflowInstances(@PathVariable String workflowId) {
-    return monitoringService.listWorkflowInstances(workflowId);
+  public ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(@PathVariable String workflowId) {
+    return ResponseEntity.ok(monitoringService.listWorkflowInstances(workflowId));
   }
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
-  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowActivitiesView.class)})
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowActivitiesView.class),
+      @ApiResponse(code = 404,
+          message = "Either no workflow deployed with id {workflowId} is found or the instance id {instanceId} "
+              + "is not correct",
+          response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
-  public WorkflowActivitiesView listInstanceActivities(@PathVariable String workflowId,
+  public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(@PathVariable String workflowId,
       @PathVariable String instanceId) {
-    return monitoringService.listWorkflowInstanceActivities(workflowId, instanceId);
+    return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId));
   }
 
   @ApiOperation("List activities definitions for a given workflow")
-  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class)})
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class),
+      @ApiResponse(code = 404, message = "No workflow deployed with id {Id} is found", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/definitions")
-  public WorkflowDefinitionView listWorkflowActivities(@PathVariable String workflowId) {
-    return monitoringService.getWorkflowDefinition(workflowId);
+  public ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(@PathVariable String workflowId) {
+    return ResponseEntity.ok(monitoringService.getWorkflowDefinition(workflowId));
   }
 
 }

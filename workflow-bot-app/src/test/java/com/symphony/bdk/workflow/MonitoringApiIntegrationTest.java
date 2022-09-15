@@ -4,7 +4,6 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -197,19 +196,23 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listInstanceActivities_unknownWorkflowId() {
-    engine.undeploy("testingWorkflow1");
+  public void listInstanceActivities_unknownWorkflowId_unknownInstanceId() {
+    final String unknownWorkflowId = "unknownWorkflowId";
+    final String unknownInstanceId = "unknownInstanceId";
+    final String expectedErrorMsg =
+        String.format("Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
+            unknownWorkflowId, unknownInstanceId);
+
+    engine.undeploy(unknownWorkflowId);
 
     given()
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "testingWorkflow1", "unknownInstanceId"))
+        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, unknownWorkflowId, unknownInstanceId))
         .then()
         .assertThat()
-        .body("activities", equalTo(Collections.EMPTY_LIST))
-        .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
-        .body("globalVariables.revision", equalTo(0))
-        .body("globalVariables.updateTime", isEmptyOrNullString());
+        .statusCode(HttpStatus.NOT_FOUND.value())
+        .body("message", equalTo(expectedErrorMsg));
   }
 
   @Test
@@ -269,17 +272,17 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
 
   @Test
   public void listWorkflowActivitiesDefinitions_unknownWorkflowId() {
-    final JsonPath expectedJson = new JsonPath(
-        getClass().getResourceAsStream("/monitoring/expected/unknown-workflow-definition-response-payload.json"));
+    final String unknownWorkflowId = "unknownWorkflowId";
+    final String expectedErrorMsg = String.format("No workflow deployed with id '%s' is found", unknownWorkflowId);
 
     given()
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "unknownWorkflowId"))
+        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, unknownWorkflowId))
         .then()
         .assertThat()
-        .statusCode(HttpStatus.OK.value())
-        .body("", equalTo(expectedJson.getMap("")));
+        .statusCode(HttpStatus.NOT_FOUND.value())
+        .body("message", equalTo(expectedErrorMsg));
   }
 
   private List<TaskDefinitionView> toTaskDefinitionViewList(List<Object> objects)
