@@ -1,3 +1,4 @@
+
 package com.symphony.bdk.workflow.exception;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
@@ -23,10 +24,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
 
-  @ExceptionHandler(RuntimeException.class)
-  public void handle(RuntimeException exception) {
-    log.error("Runtime exception: [{}]", exception.getMessage());
-    throw exception;
+  @ExceptionHandler(UnauthorizedException.class)
+  public ResponseEntity<ErrorResponse> handle(UnauthorizedException exception) {
+    log.error("Unauthorized exception: [{}]", exception.getMessage());
+    return handle(exception.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
@@ -39,3 +40,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.status(status).body(new ErrorResponse(errorMessage));
   }
 }
+

@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.api.v1;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -35,8 +34,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.util.NestedServletException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -87,22 +84,16 @@ class WorkflowsApiControllerTest {
   }
 
   @Test
-  void executeWorkflowById_runTimeExceptionTest() {
+  void executeWorkflowById_runTimeExceptionTest() throws Exception {
     doThrow(new RuntimeException("Error parsing presentationML")).when(workflowEngine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
-    MockHttpServletRequestBuilder request =
-        request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH).header("X-Workflow-Token", "myToken")
+    mockMvc.perform(request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH)
+            .header("X-Workflow-Token", "myToken")
             .contentType("application/json")
-            .content("{\"args\": {\"content\":\"hello\"}}");
-    try {
-      mockMvc.perform(request);
-      fail("A RuntimeException should have been thrown");
-    } catch (Exception exception) {
-      assertThat(exception).isInstanceOf(NestedServletException.class);
-      assertThat(exception.getMessage()).isEqualTo(
-          "Request processing failed; nested exception is java.lang.RuntimeException: Error parsing presentationML");
-    }
+            .content("{\"args\": {\"content\":\"hello\"}}"))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.message").value("Error parsing presentationML"));
   }
 
   @Test
@@ -298,7 +289,7 @@ class WorkflowsApiControllerTest {
   @Test
   void listWorkflowActivities_illegalArgument() throws Exception {
     final String illegalWorkflowId = "testWorkflowId";
-    final String errorMsg =  String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
+    final String errorMsg = String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
 
     when(monitoringService.listWorkflowActivities(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
 
@@ -353,3 +344,4 @@ class WorkflowsApiControllerTest {
   }
 
 }
+
