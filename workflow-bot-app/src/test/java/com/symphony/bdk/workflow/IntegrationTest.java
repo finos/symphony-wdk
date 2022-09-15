@@ -39,6 +39,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.restassured.RestAssured;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
@@ -48,8 +49,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -59,10 +62,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@ContextConfiguration
 @Import(IntegrationTestConfiguration.class)
 public abstract class IntegrationTest {
+
+  @LocalServerPort
+  private int port;
 
   @Autowired
   WorkflowEngine engine;
@@ -167,6 +174,11 @@ public abstract class IntegrationTest {
     when(oboServices.streams()).thenReturn(this.oboStreamService);
     when(oboServices.users()).thenReturn(this.oboUserService);
     when(oboServices.connections()).thenReturn(this.oboConnectionService);
+
+    RestAssured.baseURI = "http://localhost";
+    RestAssured.port = port;
+
+    when(bdkGateway.messages()).thenReturn(messageService);
   }
 
   // make sure we start the test with a clean engine to avoid the same /command to be registered

@@ -79,7 +79,7 @@ public class MonitoringService {
   }
 
   //TODO: handle case where the workflow is not deployed (404?)
-  public WorkflowDefinitionView listWorkflowActivities(String workflowId) {
+  public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
     WorkflowDefinitionView.WorkflowDefinitionViewBuilder builder = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
         .flowNodes(new ArrayList<>())

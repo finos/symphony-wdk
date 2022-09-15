@@ -19,6 +19,7 @@ public class WorkflowInstViewConverter implements Converter<WorkflowInstanceDoma
         .status(StatusEnum.toInstanceStatusEnum(domain.getStatus()))
         .startDate(domain.getStartDate())
         .endDate(domain.getEndDate())
+        .duration(domain.getDuration())
         .build();
   }
 }
