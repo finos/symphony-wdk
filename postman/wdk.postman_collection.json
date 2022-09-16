@@ -13,7 +13,7 @@
 				"header": [
 					{
 						"key": "X-Workflow-Token",
-						"value": "secret",
+						"value": "",
 						"type": "text"
 					}
 				],
@@ -43,7 +43,7 @@
 					"variable": [
 						{
 							"key": "workflowId",
-							"value": null
+							"value": ""
 						}
 					]
 				}
@@ -54,7 +54,13 @@
 			"name": "List all instances for a workflow given by its Id",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "X-Monitoring-Token",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances",
 					"protocol": "http",
@@ -72,7 +78,7 @@
 					"variable": [
 						{
 							"key": "workflowId",
-							"value": null
+							"value": ""
 						}
 					]
 				}
@@ -83,7 +89,13 @@
 			"name": "List all deployed workflows",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "X-Monitoring-Token",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:8080/wdk/v1/workflows/",
 					"protocol": "http",
@@ -108,7 +120,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "X-Monitoring-Token",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -152,7 +170,13 @@
 			"name": "List activities definitions for a workflow given by its Id",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "X-Monitoring-Token",
+						"value": "",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/definitions",
 					"protocol": "http",
