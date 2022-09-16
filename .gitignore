@@ -87,10 +87,16 @@ nb-configuration.xml
 ##############################
 .DS_Store
 
+
+##############################
+## WDK
+##############################
 workflow-bot-app/rsa/
 
 workflow-bot-app/*.bpmn
 workflow-bot-app/*.png
+*.bpmn
+*.png
 
 workflow-bot-app/workflows
 !workflow-bot-app/workflows/README.txt

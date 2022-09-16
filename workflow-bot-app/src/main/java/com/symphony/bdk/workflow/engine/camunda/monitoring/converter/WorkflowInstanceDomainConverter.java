@@ -17,7 +17,7 @@ public class WorkflowInstanceDomainConverter
     return WorkflowInstanceDomain.builder()
         .id(historicProcessInstance.getId())
         .name(historicProcessInstance.getProcessDefinitionKey())
-        .instanceId(historicProcessInstance.getId())
+        .instanceId(historicProcessInstance.getProcessInstanceId())
         .version(historicProcessInstance.getProcessDefinitionVersion())
         .startDate(historicProcessInstance.getStartTime().toInstant())
         .endDate(historicProcessInstance.getEndTime() == null ? null : historicProcessInstance.getEndTime().toInstant())

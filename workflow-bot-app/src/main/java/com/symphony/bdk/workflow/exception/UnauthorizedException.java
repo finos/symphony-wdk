@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.engine;
+package com.symphony.bdk.workflow.exception;
 
 
 public class UnauthorizedException extends RuntimeException {

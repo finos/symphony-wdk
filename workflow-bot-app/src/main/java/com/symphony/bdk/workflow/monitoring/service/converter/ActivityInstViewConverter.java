@@ -20,7 +20,7 @@ public class ActivityInstViewConverter implements Converter<ActivityInstanceDoma
           .startDate(domain.getStartDate())
           .endDate(domain.getEndDate())
           .duration(domain.getDuration())
-          .variables(new VariableView(domain.getVariables()))
+          .outputs(domain.getVariables().getOutputs())
           .build();
     }
     return null;
