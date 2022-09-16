@@ -39,11 +39,6 @@ public class MonitoringService {
   private final VariableQueryRepository variableQueryRepository;
   private final ObjectConverter objectConverter;
 
-  //@PreAuthorize("hasAuthority('FOO_READ_PRIVILEGE')")
-  public List<WorkflowView> listAllWorkflows(String token) {
-    return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);
-  }
-
   public List<WorkflowView> listAllWorkflows() {
     return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);
   }
