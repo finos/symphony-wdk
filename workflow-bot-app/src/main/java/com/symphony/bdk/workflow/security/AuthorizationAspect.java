@@ -1,6 +1,6 @@
-package com.symphony.bdk.workflow.monitoring.service;
+package com.symphony.bdk.workflow.security;
 
-import com.symphony.bdk.workflow.engine.UnauthorizedException;
+import com.symphony.bdk.workflow.exception.UnauthorizedException;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -13,25 +13,27 @@ import javax.servlet.http.HttpServletRequest;
 
 @Component
 @Aspect
-public class PermissionAspect {
+public class AuthorizationAspect {
 
   private final String monitoringToken;
 
-  public PermissionAspect(@Value("${wdk.properties.monitoring-token}") String monitoringToken) {
+  private static final String UNAUTHORIZED_EXCEPTION_MESSAGE = "Request token is not valid";
+
+  public AuthorizationAspect(@Value("${wdk.properties.monitoring-token}") String monitoringToken) {
     this.monitoringToken = monitoringToken;
   }
 
   @Before("@within(org.springframework.web.bind.annotation.RequestMapping) && @annotation(authorized)")
-  public void permissionCheck(Authorized authorized) {
+  public void authorizationCheck(Authorized authorized) {
     HttpServletRequest httpServletRequest = getHttpServletRequest();
     String headerKey = authorized.headerTokenKey();
 
     if (monitoringToken == null) {
-      throw new UnauthorizedException("Monitoring token environment variable should be set.");
+      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE);
     }
 
     if (headerKey == null || !monitoringToken.equals(httpServletRequest.getHeader(headerKey))) {
-      throw new UnauthorizedException("Incorrect token");
+      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE);
     }
   }
 

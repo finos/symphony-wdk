@@ -51,6 +51,8 @@ class WorkflowsApiControllerTest {
       "/v1/workflows/%s/instances/%s/activities";
   private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/v1/workflows/%s/definitions";
 
+  private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
+
   @Autowired
   protected MockMvc mockMvc;
 
@@ -129,7 +131,9 @@ class WorkflowsApiControllerTest {
 
     when(monitoringService.listAllWorkflows()).thenReturn(Arrays.asList(workflowView1, workflowView2));
 
-    mockMvc.perform(request(HttpMethod.GET, LIST_WORKFLOWS_PATH))
+    mockMvc.perform(
+        request(HttpMethod.GET, LIST_WORKFLOWS_PATH)
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("id1"))
@@ -148,7 +152,9 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listWorkflowInstances("testWorkflowId")).thenReturn(
         Arrays.asList(instanceView1, instanceView2));
 
-    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId")))
+    mockMvc.perform(
+        request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId"))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("testWorkflowId"))
@@ -196,7 +202,8 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId)).thenReturn(workflowActivitiesView);
 
     mockMvc.perform(
-            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId)))
+            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("globalVariables.outputs[\"globalOne\"]").value("valueOne"))
@@ -234,8 +241,10 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listWorkflowInstanceActivities(illegalInstanceId, illegalInstanceId)).thenThrow(
         new IllegalArgumentException(errorMsg));
 
-    mockMvc.perform(request(HttpMethod.GET,
-            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId)))
+    mockMvc.perform(
+        request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("message").value(errorMsg));
   }
@@ -261,7 +270,9 @@ class WorkflowsApiControllerTest {
 
     when(monitoringService.getWorkflowDefinition(workflowId)).thenReturn(workflowDefinitionView);
 
-    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, workflowId)))
+    mockMvc.perform(
+        request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, workflowId))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("$.workflowId").value(workflowId))
@@ -287,7 +298,9 @@ class WorkflowsApiControllerTest {
 
     when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
 
-    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId)))
+    mockMvc.perform(
+        request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("message").value(errorMsg));
   }

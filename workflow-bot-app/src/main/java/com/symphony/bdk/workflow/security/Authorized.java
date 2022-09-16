@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.monitoring.service;
+package com.symphony.bdk.workflow.security;
 
 import org.springframework.stereotype.Component;
 
@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Authorized {
-    String headerTokenKey() default "";
+  String headerTokenKey() default "";
 }
