@@ -32,7 +32,7 @@ dependencies {
     runtimeOnly 'ch.qos.logback:logback-classic'
 
     implementation 'org.aspectj:aspectjrt:1.9.9.1'
-    implementation 'org.aspectj:aspectjweaver:1.6.10'
+    implementation 'org.aspectj:aspectjweaver:1.9.9.1'
 
     implementation platform('org.camunda.bpm:camunda-bom:7.16.0')
     implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter'
