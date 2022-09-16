@@ -3,8 +3,6 @@ workflows:
   folder: ./workflows
 
 wdk:
-  #workflows:
-  #path: ./workflow
   properties:
     monitoring-token: ${wdk.monitoring.token}
 
