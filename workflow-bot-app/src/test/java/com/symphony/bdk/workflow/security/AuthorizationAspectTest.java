@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.symphony.bdk.workflow.exception.ApiDisabledException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ class AuthorizationAspectTest {
     AuthorizationAspect authorizationAspect = new AuthorizationAspect(null);
     Authorized authorizedInstance = createAuthorizedInstance();
 
-    assertThatExceptionOfType(ApiDisabledException.class)
+    assertThatExceptionOfType(UnauthorizedException.class)
         .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
         .satisfies(
             e -> assertThat(e.getMessage()).isEqualTo(String.format(API_DISABLED_EXCEPTION_MESSAGE, "/mock/path")));

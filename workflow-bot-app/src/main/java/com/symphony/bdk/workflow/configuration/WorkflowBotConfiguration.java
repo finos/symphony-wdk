@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Profile;
 public class WorkflowBotConfiguration {
 
   @Bean("workflowResourcesProvider")
-  public ResourceProvider workflowResourcesProvider(@Value("${workflows.folder}") String resourcesFolder) {
-    // ./workflows folder is used both to load workflows and local resources
+  public ResourceProvider workflowResourcesProvider(@Value("${wdk.workflows.path}") String resourcesFolder) {
+    // the folder is used both to load workflows and local resources
     return new WorkflowResourcesProvider(resourcesFolder);
   }
 

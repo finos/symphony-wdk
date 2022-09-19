@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.security;
 
-import com.symphony.bdk.workflow.exception.ApiDisabledException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 
 import org.aspectj.lang.annotation.Aspect;
@@ -29,7 +28,7 @@ public class AuthorizationAspect {
     HttpServletRequest httpServletRequest = getHttpServletRequest();
 
     if (monitoringToken == null || monitoringToken.isEmpty()) {
-      throw new ApiDisabledException(
+      throw new UnauthorizedException(
           String.format("The endpoint %s is disabled and cannot be called", httpServletRequest.getRequestURI()));
     }
 

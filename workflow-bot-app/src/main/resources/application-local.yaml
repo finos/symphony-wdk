@@ -1,3 +1,10 @@
+# WDK configuration
+wdk:
+  workflows:
+    path: ./workflows
+  properties:
+    monitoring-token: ${wdk.monitoring.token:} # The default value is an empty String
+
 # BDK configuration for local development
 bdk:
   host: xxx

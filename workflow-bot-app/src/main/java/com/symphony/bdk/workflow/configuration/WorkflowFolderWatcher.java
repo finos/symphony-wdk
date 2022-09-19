@@ -27,7 +27,7 @@ import javax.annotation.PreDestroy;
 @Generated // slow tests on Mac
 @Slf4j
 @Service
-@ConditionalOnProperty(value = "workflows.folder")
+@ConditionalOnProperty(value = "wdk.workflows.path")
 public class WorkflowFolderWatcher {
 
   private final String workflowsFolder;
@@ -35,7 +35,7 @@ public class WorkflowFolderWatcher {
 
   private WatchService watchService;
 
-  public WorkflowFolderWatcher(@Value("${workflows.folder}") String workflowsFolder,
+  public WorkflowFolderWatcher(@Value("${wdk.workflows.path}") String workflowsFolder,
       @Autowired WorkflowDeployer workflowDeployer) {
     this.workflowsFolder = workflowsFolder;
     this.workflowDeployer = workflowDeployer;

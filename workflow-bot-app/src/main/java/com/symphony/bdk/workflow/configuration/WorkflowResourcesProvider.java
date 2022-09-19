@@ -17,7 +17,7 @@ public class WorkflowResourcesProvider implements ResourceProvider {
 
   private final String resourcesFolder;
 
-  public WorkflowResourcesProvider(@Value("${workflows.folder}") String resourcesFolder) {
+  public WorkflowResourcesProvider(@Value("${wdk.workflows.path}") String resourcesFolder) {
     this.resourcesFolder = resourcesFolder;
   }
 
