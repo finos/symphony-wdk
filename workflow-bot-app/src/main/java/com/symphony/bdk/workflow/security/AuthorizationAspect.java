@@ -17,7 +17,9 @@ public class AuthorizationAspect {
 
   private final String monitoringToken;
 
-  private static final String UNAUTHORIZED_EXCEPTION_MESSAGE = "Request token is not valid";
+  private static final String UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE = "Request token is not valid";
+  private static final String UNAUTHORIZED_EXCEPTION_DISABLED_API_MESSAGE =
+      "The endpoint %s is disabled and cannot be called";
 
   public AuthorizationAspect(@Value("${wdk.properties.monitoring-token}") String monitoringToken) {
     this.monitoringToken = monitoringToken;
@@ -29,14 +31,14 @@ public class AuthorizationAspect {
 
     if (monitoringToken == null || monitoringToken.isEmpty()) {
       throw new UnauthorizedException(
-          String.format("The endpoint %s is disabled and cannot be called", httpServletRequest.getRequestURI()));
+          String.format(UNAUTHORIZED_EXCEPTION_DISABLED_API_MESSAGE, httpServletRequest.getRequestURI()));
     }
 
     String headerKey = authorized.headerTokenKey();
 
     if (headerKey == null || !monitoringToken.equals(
         httpServletRequest.getHeader(headerKey))) {
-      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE);
+      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE);
     }
   }
 
