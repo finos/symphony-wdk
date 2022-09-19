@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
+import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
@@ -133,7 +134,7 @@ class MonitoringServiceTest {
     vars.setRevision(2);
     vars.setUpdateTime(Instant.now());
     vars.setOutputs(Maps.newHashMap("key", "value"));
-    when(variableQueryRepository.findGlobalByWorkflowInstanceId(anyString())).thenReturn(vars);
+    when(variableQueryRepository.findGlobalVarsByWorkflowInstanceId(anyString())).thenReturn(vars);
 
     // when
     WorkflowActivitiesView workflowInstanceActivities = service.listWorkflowInstanceActivities("workflow", "instance");
@@ -274,5 +275,24 @@ class MonitoringServiceTest {
     then(definitionView.getFlowNodes().get(0).getChildren()).hasSize(1);
     then(definitionView.getFlowNodes().get(1).getParents()).hasSize(1);
     then(definitionView.getFlowNodes().get(0).getType()).isEqualTo(TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
+  }
+
+  @Test
+  void testListWorkflowInstanceGlobalVars() {
+    // mock graph
+    VariablesDomain domain = new VariablesDomain();
+    domain.setUpdateTime(Instant.now());
+    domain.setRevision(1);
+    domain.setOutputs(Maps.newHashMap("key", "value"));
+    when(variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(anyString())).thenReturn(List.of(domain));
+
+    // when
+    List<VariableView> variableViews = service.listWorkflowInstanceGlobalVars("workflow", "id");
+
+    // then
+    then(variableViews).hasSize(1);
+    then(variableViews.get(0).getUpdateTime()).isNotNull();
+    then(variableViews.get(0).getRevision()).isEqualTo(1);
+    then(variableViews.get(0).getOutputs()).hasSize(1);
   }
 }

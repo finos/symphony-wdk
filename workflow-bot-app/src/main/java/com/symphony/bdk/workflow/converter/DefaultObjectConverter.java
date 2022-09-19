@@ -53,12 +53,54 @@ public class DefaultObjectConverter implements ObjectConverter {
    */
   @Override
   @SuppressWarnings("unchecked")
+  public <T> T convert(Object source, Class<?> sourceClass, Class<T> targetClass) {
+    if (Objects.isNull(source)) {
+      return null;
+    }
+    if (!sourceClass.isAssignableFrom(source.getClass())) {
+      throw new IllegalArgumentException("Cannot find converter for the given source type " + sourceClass);
+    }
+    Converter converter = converterMap.get(new ConverterKey(source.getClass(), targetClass));
+    if (Objects.isNull(converter)) {
+      throw new IllegalArgumentException("Cannot find converter for " + targetClass);
+    }
+    return (T) converter.apply(source);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @SuppressWarnings("unchecked")
   public <T> List<T> convertCollection(List<?> source, Class<T> targetClass) {
     if (Objects.isNull(source) || source.isEmpty()) {
       return Collections.emptyList();
     }
 
     Converter converter = converterMap.get(new ConverterKey(source.get(0).getClass(), targetClass));
+    if (Objects.isNull(converter)) {
+      throw new IllegalArgumentException("Cannot find converter for " + targetClass);
+    }
+
+    List<T> collection = converter.applyCollection(source);
+    return collection.isEmpty() ? Collections.emptyList() : collection;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> List<T> convertCollection(List<?> source, Class<?> sourceClass, Class<T> targetClass) {
+    if (Objects.isNull(source) || source.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    if (!sourceClass.isAssignableFrom(source.get(0).getClass())) {
+      throw new IllegalArgumentException("Cannot find converter for the given source type " + sourceClass);
+    }
+
+    Converter converter = converterMap.get(new ConverterKey(sourceClass, targetClass));
     if (Objects.isNull(converter)) {
       throw new IllegalArgumentException("Cannot find converter for " + targetClass);
     }

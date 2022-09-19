@@ -75,7 +75,7 @@ public class MonitoringService {
     activities.forEach(
         activity -> activity.setType(TaskTypeEnum.findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
 
-    VariablesDomain globalVariables = this.variableQueryRepository.findGlobalByWorkflowInstanceId(instanceId);
+    VariablesDomain globalVariables = this.variableQueryRepository.findGlobalVarsByWorkflowInstanceId(instanceId);
     WorkflowActivitiesView result = new WorkflowActivitiesView();
     result.setActivities(activities);
     result.setGlobalVariables(new VariableView(globalVariables));
@@ -124,5 +124,12 @@ public class MonitoringService {
 
     builder.flowNodes(activities);
     return builder.build();
+  }
+
+  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId) {
+    return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId)
+        .stream()
+        .map(VariableView::new)
+        .collect(Collectors.toList());
   }
 }

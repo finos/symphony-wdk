@@ -92,7 +92,6 @@ class WorkflowFolderWatcherTest {
 
     copyWorkflow();
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(10_000)).undeploy(any());
     verify(engine, timeout(10_000).times(2)).deploy(any(), any());
 
     watcher.stopMonitoring();
