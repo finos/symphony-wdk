@@ -44,7 +44,9 @@ public interface WorkflowsApi {
   @ApiOperation("List all deployed workflows")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowView.class, responseContainer = "List"),
-          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class),
+          @ApiResponse(code = 423, message = "The endpoint /wdk/v1/workflow is disabled and cannot be called",
+              response = ErrorResponse.class)})
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   @GetMapping("/")
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
@@ -54,7 +56,9 @@ public interface WorkflowsApi {
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowInstView.class, responseContainer = "List"),
-          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class),
+          @ApiResponse(code = 423, message = "The endpoint /wdk/v1/workflow is disabled and cannot be called",
+              response = ErrorResponse.class)})
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   @GetMapping("/{workflowId}/instances")
   ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(@PathVariable String workflowId,
@@ -63,7 +67,9 @@ public interface WorkflowsApi {
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowActivitiesView.class),
-      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class),
+      @ApiResponse(code = 423, message = "The endpoint /wdk/v1/workflow is disabled and cannot be called",
+          response = ErrorResponse.class)})
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
   ResponseEntity<WorkflowActivitiesView> listInstanceActivities(@PathVariable String workflowId,
@@ -73,7 +79,9 @@ public interface WorkflowsApi {
 
   @ApiOperation("List activities definitions for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class),
-      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class),
+      @ApiResponse(code = 423, message = "The endpoint /wdk/v1/workflow is disabled and cannot be called",
+          response = ErrorResponse.class)})
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   @GetMapping("/{workflowId}/definitions")
   ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(@PathVariable String workflowId,

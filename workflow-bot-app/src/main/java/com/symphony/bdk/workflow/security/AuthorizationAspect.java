@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.security;
 
+import com.symphony.bdk.workflow.exception.ApiDisabledException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 
 import org.aspectj.lang.annotation.Aspect;
@@ -26,18 +27,21 @@ public class AuthorizationAspect {
   @Before("@within(org.springframework.web.bind.annotation.RequestMapping) && @annotation(authorized)")
   public void authorizationCheck(Authorized authorized) {
     HttpServletRequest httpServletRequest = getHttpServletRequest();
-    String headerKey = authorized.headerTokenKey();
 
-    if (monitoringToken == null) {
-      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE);
+    if (monitoringToken == null || monitoringToken.isEmpty()) {
+      throw new ApiDisabledException(
+          String.format("The endpoint %s is disabled and cannot be called", httpServletRequest.getRequestURI()));
     }
 
-    if (headerKey == null || !monitoringToken.equals(httpServletRequest.getHeader(headerKey))) {
+    String headerKey = authorized.headerTokenKey();
+
+    if (headerKey == null || !monitoringToken.equals(
+        httpServletRequest.getHeader(headerKey))) {
       throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_MESSAGE);
     }
   }
 
-  private HttpServletRequest getHttpServletRequest() {
+  protected HttpServletRequest getHttpServletRequest() {
     return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
   }
 }

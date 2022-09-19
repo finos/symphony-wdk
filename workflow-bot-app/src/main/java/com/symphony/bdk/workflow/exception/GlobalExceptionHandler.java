@@ -23,6 +23,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return handle(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  @ExceptionHandler(ApiDisabledException.class)
+  public ResponseEntity<ErrorResponse> handle(ApiDisabledException exception) {
+    log.error("ApiDisabled exception: [{}]", exception.getMessage());
+    return handle(exception.getMessage(), HttpStatus.LOCKED);
+  }
 
   @ExceptionHandler(UnauthorizedException.class)
   public ResponseEntity<ErrorResponse> handle(UnauthorizedException exception) {
