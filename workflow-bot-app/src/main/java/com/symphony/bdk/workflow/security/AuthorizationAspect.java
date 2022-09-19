@@ -41,7 +41,7 @@ public class AuthorizationAspect {
     }
   }
 
-  protected HttpServletRequest getHttpServletRequest() {
+  private HttpServletRequest getHttpServletRequest() {
     return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
   }
 }
