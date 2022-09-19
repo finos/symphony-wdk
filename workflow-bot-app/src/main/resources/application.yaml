@@ -4,7 +4,7 @@ workflows:
 
 wdk:
   properties:
-    monitoring-token: ${wdk.monitoring.token}
+    monitoring-token: ${wdk.monitoring.token} # The default value is an empty String
 
 # BDK configuration
 bdk:
