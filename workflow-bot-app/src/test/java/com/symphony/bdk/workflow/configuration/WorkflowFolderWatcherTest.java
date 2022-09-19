@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 
@@ -26,16 +27,20 @@ class WorkflowFolderWatcherTest {
   private WorkflowEngine engine;
 
   private WorkflowDeployer workflowDeployer;
+  private WorkflowBotConfiguration workflowBotConfiguration;
 
   @BeforeEach
   void setUp() {
     engine = mock(WorkflowEngine.class);
+    workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
     workflowDeployer = new WorkflowDeployer(engine);
+
+    when(workflowBotConfiguration.getWorkflowsFolderPath()).thenReturn(workflowsFolder.getPath());
   }
 
   @Test
   void workflowAlreadyInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowDeployer, workflowBotConfiguration);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
@@ -48,7 +53,7 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowAddedInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowDeployer, workflowBotConfiguration);
 
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
@@ -62,7 +67,7 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowRemovedFromFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowDeployer, workflowBotConfiguration);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
@@ -78,7 +83,7 @@ class WorkflowFolderWatcherTest {
 
   @Test
   void workflowModifiedInFolder() throws IOException, InterruptedException {
-    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowsFolder.getAbsolutePath(), workflowDeployer);
+    WorkflowFolderWatcher watcher = new WorkflowFolderWatcher(workflowDeployer, workflowBotConfiguration);
 
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);

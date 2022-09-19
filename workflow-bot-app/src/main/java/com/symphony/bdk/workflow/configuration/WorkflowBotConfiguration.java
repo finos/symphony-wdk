@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.configuration;
 import com.symphony.bdk.ext.group.SymphonyGroupBdkExtension;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -11,13 +12,20 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 @EnableCaching
+@Getter
 @Profile("!test")
 public class WorkflowBotConfiguration {
 
+  @Value("${wdk.workflows.path:./workflows}")
+  private String workflowsFolderPath;
+
+  @Value("${wdk.properties.monitoring-token:}")
+  private String monitoringToken;
+
   @Bean("workflowResourcesProvider")
-  public ResourceProvider workflowResourcesProvider(@Value("${wdk.workflows.path}") String resourcesFolder) {
+  public ResourceProvider workflowResourcesProvider() {
     // the folder is used both to load workflows and local resources
-    return new WorkflowResourcesProvider(resourcesFolder);
+    return new WorkflowResourcesProvider(this.workflowsFolderPath);
   }
 
   @Bean
