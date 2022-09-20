@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.api.v1;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
+import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
@@ -38,7 +39,7 @@ public interface WorkflowsApi {
       @ApiParam("Workflow's token to authenticate the request") @RequestHeader(name = "X-Workflow-Token") String token,
       @ApiParam("Workflow's id that is provided in SWADL") @PathVariable String id,
       @ApiParam("Arguments to be passed to the event triggering the workflow") @RequestBody
-          WorkflowExecutionRequest arguments);
+      WorkflowExecutionRequest arguments);
 
   @ApiOperation("List all deployed workflows")
   @ApiResponses(
@@ -48,7 +49,7 @@ public interface WorkflowsApi {
   @GetMapping("/")
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
       @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token);
+      String token);
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
@@ -58,7 +59,7 @@ public interface WorkflowsApi {
   @GetMapping("/{workflowId}/instances")
   ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(@PathVariable String workflowId,
       @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token);
+      String token);
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowActivitiesView.class),
@@ -68,14 +69,26 @@ public interface WorkflowsApi {
   ResponseEntity<WorkflowActivitiesView> listInstanceActivities(@PathVariable String workflowId,
       @PathVariable String instanceId,
       @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token);
+      String token);
 
-  @ApiOperation("List activities definitions for a given workflow")
+  @ApiOperation("Get activities definitions for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class),
       @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   @GetMapping("/{workflowId}/definitions")
-  ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(@PathVariable String workflowId,
+  ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(@PathVariable String workflowId,
       @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token);
+      String token);
+
+  @ApiOperation("List global variables for a given workflow")
+  @ApiResponses(
+      value = {@ApiResponse(code = 200, message = "OK", response = VariableView.class, responseContainer = "List"),
+          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+  @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
+  @GetMapping("/{workflowId}/instances/{instanceId}/variables")
+  ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(@PathVariable String workflowId,
+      @PathVariable String instanceId,
+      @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
+      String token);
+
 }

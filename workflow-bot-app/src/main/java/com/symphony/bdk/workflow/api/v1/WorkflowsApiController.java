@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.api.v1;
 
+import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
@@ -59,8 +60,13 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  public ResponseEntity<WorkflowDefinitionView> listWorkflowActivities(String workflowId, String token) {
+  public ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(String workflowId, String token) {
     return ResponseEntity.ok(monitoringService.getWorkflowDefinition(workflowId));
+  }
+
+  @Override
+  public ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(String workflowId, String instanceId, String token) {
+    return ResponseEntity.ok(monitoringService.listWorkflowInstanceGlobalVars(workflowId, instanceId));
   }
 
 }

@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow.converter;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -42,7 +42,19 @@ class DefaultObjectConverterTest {
   @Test
   void convert_SourceToTarget_Succeed() {
     Target target = objectConverter.convert(new Source(), Target.class);
-    then(target).isNotNull();
+    assertThat(target).isNotNull();
+  }
+
+  @Test
+  void convert_SourceToTarget_SucceedWithSpecificSourceClass() {
+    Target target = objectConverter.convert(new Source(), Source.class, Target.class);
+    assertThat(target).isNotNull();
+  }
+
+  @Test
+  void convert_SourceToTarget_FailWithSpecificSourceClass() {
+    assertThatThrownBy(() -> objectConverter.convert(new Source(), Target.class, Target.class)).isInstanceOf(
+        IllegalArgumentException.class).hasMessageContaining("Cannot find converter for the given source type");
   }
 
   @Test
@@ -54,8 +66,24 @@ class DefaultObjectConverterTest {
   @Test
   void convertCollection_SourceToTarget_Succeed() {
     List<Target> target = objectConverter.convertCollection(Collections.singletonList(new Source()), Target.class);
-    then(target).isNotEmpty();
-    then(target).hasSize(1);
+    assertThat(target).isNotEmpty();
+    assertThat(target).hasSize(1);
+  }
+
+  @Test
+  void convertCollection_SourceToTarget_SucceedWithSpecificSourceClass() {
+    List<Target> target =
+        objectConverter.convertCollection(Collections.singletonList(new Source()), Source.class, Target.class);
+    assertThat(target).isNotEmpty();
+    assertThat(target).hasSize(1);
+  }
+
+  @Test
+  void convertCollection_SourceToTarget_FailWithSpecificSourceClass() {
+    assertThatThrownBy(
+        () -> objectConverter.convertCollection(Collections.singletonList(new Source()), Target.class,
+            Target.class)).isInstanceOf(
+        IllegalArgumentException.class);
   }
 
   @Test
@@ -66,6 +94,7 @@ class DefaultObjectConverterTest {
   }
 
   private static class Source {}
+
 
   private static class Target {}
 

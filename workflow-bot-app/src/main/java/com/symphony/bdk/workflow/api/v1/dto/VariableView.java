@@ -4,11 +4,13 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.Map;
 
 @Data
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class VariableView {
   private Map<String, Object> outputs;
