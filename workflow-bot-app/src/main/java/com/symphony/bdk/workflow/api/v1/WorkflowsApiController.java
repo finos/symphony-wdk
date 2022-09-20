@@ -4,6 +4,7 @@ import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,8 +75,9 @@ public class WorkflowsApiController {
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowInstView.class, responseContainer = "List")})
   @GetMapping("/{workflowId}/instances")
-  public ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(@PathVariable String workflowId) {
-    return ResponseEntity.ok(monitoringService.listWorkflowInstances(workflowId));
+  public ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(@PathVariable String workflowId,
+      @RequestParam(required = false) String status) {
+    return ResponseEntity.ok(monitoringService.listWorkflowInstances(workflowId, status));
   }
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
@@ -85,8 +88,13 @@ public class WorkflowsApiController {
           response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
   public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(@PathVariable String workflowId,
-      @PathVariable String instanceId) {
-    return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId));
+      @PathVariable String instanceId, @RequestParam(required = false) Long startedBefore,
+      @RequestParam(required = false) Long startedAfter, @RequestParam(required = false) Long finishedBefore,
+      @RequestParam(required = false) Long finishedAfter) {
+    WorkflowInstLifeCycleFilter lifeCycleFilter =
+        new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);
+    return ResponseEntity.ok(
+        monitoringService.listWorkflowInstanceActivities(workflowId, instanceId, lifeCycleFilter));
   }
 
   @ApiOperation("List activities definitions for a given workflow")

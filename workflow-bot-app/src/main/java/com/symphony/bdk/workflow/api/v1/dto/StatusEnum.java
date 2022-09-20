@@ -5,6 +5,12 @@ public enum StatusEnum {
   COMPLETED;
 
   public static StatusEnum toInstanceStatusEnum(String status) {
-    return "ACTIVE".equals(status) ? StatusEnum.PENDING : StatusEnum.COMPLETED;
+    if ("ACTIVE".equalsIgnoreCase(status) || PENDING.name().equalsIgnoreCase(status)) {
+      return StatusEnum.PENDING;
+    } else if (COMPLETED.name().equalsIgnoreCase(status)) {
+      return StatusEnum.COMPLETED;
+    } else {
+      throw new IllegalArgumentException(String.format("Workflow instance status %s is not known", status));
+    }
   }
 }

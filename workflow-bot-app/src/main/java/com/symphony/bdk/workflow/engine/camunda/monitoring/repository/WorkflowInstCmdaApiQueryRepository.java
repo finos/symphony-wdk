@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
@@ -7,6 +8,7 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDo
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -28,8 +30,24 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
    *
    */
   @Override
-  public List<WorkflowInstanceDomain> findAllById(String id) {
-    return objectConverter.convertCollection(historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionKey(id).orderByProcessInstanceStartTime().asc().list(), WorkflowInstanceDomain.class);
+  public List<WorkflowInstanceDomain> findAllById(String id, StatusEnum status) {
+    HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery()
+        .processDefinitionKey(id);
+
+    if (status != null) {
+      switch (status) {
+        case COMPLETED:
+          historicProcessInstanceQuery.finished();
+          break;
+        case PENDING:
+          historicProcessInstanceQuery.unfinished();
+          break;
+        default:
+          break;
+      }
+    }
+
+    return objectConverter.convertCollection(
+        historicProcessInstanceQuery.orderByProcessInstanceStartTime().asc().list(), WorkflowInstanceDomain.class);
   }
 }

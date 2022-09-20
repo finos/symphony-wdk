@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
@@ -8,10 +9,12 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricActivityInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,11 +34,31 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
    * and eventually the one activity being executed (with status ONGOING).
    */
   @Override
-  public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId) {
-    List<ActivityInstanceDomain> result =
-        objectConverter.convertCollection(historyService.createHistoricActivityInstanceQuery()
-            .processInstanceId(instanceId).orderByHistoricActivityInstanceStartTime().asc()
-            .list(), ActivityInstanceDomain.class);
+  public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId,
+      WorkflowInstLifeCycleFilter lifeCycleFilter) {
+    HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()
+        .processInstanceId(instanceId);
+
+    if (lifeCycleFilter.getStartedBefore() != null) {
+      historicActivityInstanceQuery.startedBefore(new Date(lifeCycleFilter.getStartedBefore() * 1000));
+    }
+
+    if (lifeCycleFilter.getStartedAfter() != null) {
+      historicActivityInstanceQuery.startedAfter(new Date(lifeCycleFilter.getStartedAfter() * 1000));
+    }
+
+    if (lifeCycleFilter.getFinishedBefore() != null) {
+      historicActivityInstanceQuery.finishedBefore(new Date(lifeCycleFilter.getFinishedBefore() * 1000));
+    }
+
+    if (lifeCycleFilter.getFinishedAfter() != null) {
+      historicActivityInstanceQuery.finishedAfter(new Date(lifeCycleFilter.getFinishedAfter() * 1000));
+    }
+
+    List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery
+        .orderByHistoricActivityInstanceStartTime()
+        .asc()
+        .list(), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
         .filter(a -> a.getType().equals("serviceTask"))
