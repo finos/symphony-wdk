@@ -19,7 +19,6 @@ import java.lang.annotation.Annotation;
 class AuthorizationAspectTest {
 
   private static final String UNAUTHORIZED_EXCEPTION_MESSAGE = "Request token is not valid";
-  private static final String API_DISABLED_EXCEPTION_MESSAGE = "The endpoint %s is disabled and cannot be called";
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
   private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
 
@@ -38,7 +37,7 @@ class AuthorizationAspectTest {
     assertThatExceptionOfType(UnauthorizedException.class)
         .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
         .satisfies(
-            e -> assertThat(e.getMessage()).isEqualTo(String.format(API_DISABLED_EXCEPTION_MESSAGE, "/mock/path")));
+            e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_MESSAGE));
   }
 
   @Test
