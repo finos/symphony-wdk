@@ -18,8 +18,12 @@ from the framework applies here.
 
 ### Workflow bot specific configuration
 
-`workflows.folder`: The path to the folder containing SWADL files to load on startup and to watch for changes. Defaults
+`wdk.workflows.path`: The path to the folder containing SWADL files to load on startup and to watch for changes. Defaults
 to _./workflows_, relative to the working directory when starting the bot.
+
+`wdk.properties.monitoring-token`: The token to authenticate requests to the [monitoring api](#monitoring). Defaults to an empty
+String. It can be set as an environment variable in the run configuration. Not setting the monitoring-token and keeping
+its default value disables the monitoring api.
 
 ### BDK specific configuration
 
@@ -139,7 +143,7 @@ Here are a few steps to help:
   - Then the workflow bot contacts the Agent to listen to datafeed events, does it work?
   - Any networking issues could be caused by firewall, DNS or proxy misconfiguration. Make sure those are set according
     to your environment.
-- Then the workflow bot tries to load workflows from the workflows folder (`workflows.folder` property)
+- Then the workflow bot tries to load workflows from the workflows folder (`wdk.workflows.path` property)
   - Is the folder accessible to the bot?
 - The deployment of workflows can fail if those are invalid
   - Make sure to configure the [JSON Schema](./concepts.md#swadl) to check the workflow's validity from your editor

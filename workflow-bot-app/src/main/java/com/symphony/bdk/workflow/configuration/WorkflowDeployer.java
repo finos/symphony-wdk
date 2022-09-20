@@ -54,16 +54,15 @@ public class WorkflowDeployer {
     if (workflowFile.toFile().length() == 0) {
       return;
     }
+    log.debug("Adding a new workflow");
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     Object instance = workflowEngine.parseAndValidate(workflow);
     Pair<String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
     if (workflow.isToPublish()) {
-      if (deployedWorkflow != null && deployedWorkflow.getRight()) {
-        workflowEngine.undeploy(deployedWorkflow.getLeft());
-      }
-
+      log.debug("Deploying this new workflow");
       workflowEngine.deploy(workflow, instance);
     } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
+      log.debug("Workflow is a draft version, undeloying the old version");
       workflowEngine.undeploy(deployedWorkflow.getLeft());
     }
     deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));

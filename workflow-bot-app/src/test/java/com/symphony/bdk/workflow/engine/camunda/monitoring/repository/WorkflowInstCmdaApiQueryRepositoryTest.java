@@ -1,18 +1,15 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.converter.ObjectConverter;
-import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
-import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
 import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.community.mockito.QueryMocks;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +60,6 @@ class WorkflowInstCmdaApiQueryRepositoryTest {
     List<WorkflowInstanceDomain> all = queryRepository.findAllById("workflow");
 
     // given
-    then(all).hasSize(2);
+    assertThat(all).hasSize(2);
   }
 }

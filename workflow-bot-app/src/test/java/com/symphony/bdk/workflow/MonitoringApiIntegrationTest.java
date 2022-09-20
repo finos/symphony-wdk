@@ -39,19 +39,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class MonitoringApiIntegrationTest extends IntegrationTest {
+class MonitoringApiIntegrationTest extends IntegrationTest {
 
   private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows/";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "wdk/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "wdk/v1/workflows/%s/instances/%s/activities";
   private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/wdk/v1/workflows/%s/definitions";
+  private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
+  private static final String X_MONITORING_TOKEN_HEADER_VALUE = "MONITORING_TOKEN_VALUE";
 
 
   @Autowired MonitoringService monitoringService;
 
   @Test
-  public void listAllWorkflows() throws Exception {
+  void listAllWorkflows() throws Exception {
     final Workflow workflow1 =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
     final Workflow workflow2 =
@@ -63,6 +65,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
     engine.deploy(workflow2);
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(LIST_WORKFLOWS_PATH)
@@ -76,10 +79,11 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listAllWorkflows_noWorkflowDeployed() {
+  void listAllWorkflows_noWorkflowDeployed() {
     engine.undeployAll();
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(LIST_WORKFLOWS_PATH)
@@ -90,7 +94,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listWorkflowInstances() throws Exception {
+  void listWorkflowInstances() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
     final V4Message message = message("Hello!");
@@ -104,6 +108,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
     Thread.sleep(2000);
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCES_PATH, "testingWorkflow3"))
@@ -121,10 +126,11 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listWorkflowInstances_unknownWorkflow() {
+  void listWorkflowInstances_unknownWorkflow() {
     engine.undeployAll();
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCES_PATH, "testingWorkflow1"))
@@ -135,7 +141,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listInstanceActivities() throws Exception {
+  void listInstanceActivities() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
@@ -161,6 +167,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
     }
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "testingWorkflow4", processDefinition.get()))
@@ -196,7 +203,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listInstanceActivities_unknownWorkflowId_unknownInstanceId() {
+  void listInstanceActivities_unknownWorkflowId_unknownInstanceId() {
     final String unknownWorkflowId = "unknownWorkflowId";
     final String unknownInstanceId = "unknownInstanceId";
     final String expectedErrorMsg =
@@ -206,6 +213,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
     engine.undeploy(unknownWorkflowId);
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, unknownWorkflowId, unknownInstanceId))
@@ -216,7 +224,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listWorkflowActivitiesDefinitions() throws Exception {
+  void listWorkflowActivitiesDefinitions() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
 
@@ -226,6 +234,7 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
     Thread.sleep(2000);
 
     Response response = given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "testingWorkflow5"))
@@ -271,11 +280,12 @@ public class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  public void listWorkflowActivitiesDefinitions_unknownWorkflowId() {
+  void listWorkflowActivitiesDefinitions_unknownWorkflowId() {
     final String unknownWorkflowId = "unknownWorkflowId";
     final String expectedErrorMsg = String.format("No workflow deployed with id '%s' is found", unknownWorkflowId);
 
     given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, unknownWorkflowId))

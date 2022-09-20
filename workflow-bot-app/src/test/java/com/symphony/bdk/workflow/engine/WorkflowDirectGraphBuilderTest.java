@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
@@ -32,8 +32,8 @@ class WorkflowDirectGraphBuilderTest {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/approval.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    then(directGraph.getDictionary()).hasSize(8);
-    then(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getDictionary()).hasSize(8);
+    assertThat(directGraph.getStartEvents()).hasSize(1);
   }
 
   @Test
@@ -42,8 +42,8 @@ class WorkflowDirectGraphBuilderTest {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/groups.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    then(directGraph.getDictionary()).hasSize(7);
-    then(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getDictionary()).hasSize(7);
+    assertThat(directGraph.getStartEvents()).hasSize(1);
   }
 
   @Test
@@ -53,8 +53,8 @@ class WorkflowDirectGraphBuilderTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/connection-admin-approval.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    then(directGraph.getDictionary()).hasSize(8);
-    then(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getDictionary()).hasSize(8);
+    assertThat(directGraph.getStartEvents()).hasSize(1);
   }
 
   @Test
@@ -63,8 +63,8 @@ class WorkflowDirectGraphBuilderTest {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/all-of.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    then(directGraph.getDictionary()).hasSize(8);
-    then(directGraph.readChildren("scriptTrue").getGateway()).isEqualTo(WorkflowDirectGraph.Gateway.PARALLEL);
-    then(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getDictionary()).hasSize(8);
+    assertThat(directGraph.readChildren("scriptTrue").getGateway()).isEqualTo(WorkflowDirectGraph.Gateway.PARALLEL);
+    assertThat(directGraph.getStartEvents()).hasSize(1);
   }
 }

@@ -49,7 +49,10 @@ class WorkflowsApiControllerTest {
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "/v1/workflows/%s/instances/%s/activities";
-  private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/v1/workflows/%s/definitions";
+  private static final String GET_WORKFLOW_DEFINITIONS_PATH = "/v1/workflows/%s/definitions";
+  private static final String LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH = "/v1/workflows/%s/instances/%s/variables";
+
+  private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
 
   @Autowired
   protected MockMvc mockMvc;
@@ -129,7 +132,9 @@ class WorkflowsApiControllerTest {
 
     when(monitoringService.listAllWorkflows()).thenReturn(Arrays.asList(workflowView1, workflowView2));
 
-    mockMvc.perform(request(HttpMethod.GET, LIST_WORKFLOWS_PATH))
+    mockMvc.perform(
+        request(HttpMethod.GET, LIST_WORKFLOWS_PATH)
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("id1"))
@@ -148,7 +153,9 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listWorkflowInstances("testWorkflowId")).thenReturn(
         Arrays.asList(instanceView1, instanceView2));
 
-    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId")))
+    mockMvc.perform(
+        request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId"))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("testWorkflowId"))
@@ -196,7 +203,8 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId)).thenReturn(workflowActivitiesView);
 
     mockMvc.perform(
-            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId)))
+            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("globalVariables.outputs[\"globalOne\"]").value("valueOne"))
@@ -234,14 +242,16 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listWorkflowInstanceActivities(illegalInstanceId, illegalInstanceId)).thenThrow(
         new IllegalArgumentException(errorMsg));
 
-    mockMvc.perform(request(HttpMethod.GET,
-            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId)))
+    mockMvc.perform(
+        request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("message").value(errorMsg));
   }
 
   @Test
-  void listWorkflowActivities() throws Exception {
+  void getWorkflowDefinitions() throws Exception {
     final String workflowId = "testWorkflowId";
 
     TaskDefinitionView activity0 = activityDefinitionView("activity0", Collections.emptyList(),
@@ -261,7 +271,9 @@ class WorkflowsApiControllerTest {
 
     when(monitoringService.getWorkflowDefinition(workflowId)).thenReturn(workflowDefinitionView);
 
-    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, workflowId)))
+    mockMvc.perform(
+        request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, workflowId))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("$.workflowId").value(workflowId))
@@ -281,13 +293,45 @@ class WorkflowsApiControllerTest {
   }
 
   @Test
+  void listWorkflowInstanceGlobalVariables() throws Exception {
+    final String workflowId = "testWorkflowId";
+    final String instanceId = "testInstanceId";
+
+    VariableView globalVariableV0 = new VariableView();
+    globalVariableV0.setOutputs(Map.of("globalOne", "valueOne", "globalTwo", "valueTwo"));
+    globalVariableV0.setRevision(0);
+    globalVariableV0.setUpdateTime(Instant.now().minusSeconds(20));
+
+    VariableView globalVariableV1 = new VariableView();
+    globalVariableV1.setOutputs(Map.of("globalOne", "valueOne2", "globalTwo", "valueTwo2"));
+    globalVariableV1.setRevision(1);
+    globalVariableV1.setUpdateTime(Instant.now().minusSeconds(10));
+
+    when(monitoringService.listWorkflowInstanceGlobalVars(eq(workflowId), eq(instanceId))).thenReturn(
+        List.of(globalVariableV0, globalVariableV1));
+
+    mockMvc.perform(
+            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH, workflowId, instanceId))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("[0].outputs[\"globalOne\"]").value("valueOne"))
+        .andExpect(jsonPath("[0].outputs[\"globalTwo\"]").value("valueTwo"))
+        .andExpect(jsonPath("[0].revision").value(0))
+        .andExpect(jsonPath("[1].outputs[\"globalOne\"]").value("valueOne2"))
+        .andExpect(jsonPath("[1].outputs[\"globalTwo\"]").value("valueTwo2"))
+        .andExpect(jsonPath("[1].revision").value(1));
+  }
+
+  @Test
   void listWorkflowActivities_illegalArgument() throws Exception {
     final String illegalWorkflowId = "testWorkflowId";
     final String errorMsg = String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
 
     when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
 
-    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId)))
+    mockMvc.perform(
+        request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("message").value(errorMsg));
   }

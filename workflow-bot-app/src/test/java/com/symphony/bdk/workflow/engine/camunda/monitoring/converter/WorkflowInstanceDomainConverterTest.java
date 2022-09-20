@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.converter;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
@@ -33,13 +33,13 @@ class WorkflowInstanceDomainConverterTest {
     WorkflowInstanceDomain domain = converter.apply(entity);
 
     // then
-    then(domain.getVersion()).isEqualTo(4);
-    then(domain.getId()).isEqualTo("id");
-    then(domain.getName()).isEqualTo("workflow");
-    then(domain.getInstanceId()).isEqualTo("instance-id");
-    then(domain.getStatus()).isEqualTo("COMPLETE");
-    then(domain.getStartDate()).isEqualTo(start.toInstant());
-    then(domain.getEndDate()).isEqualTo(end.toInstant());
-    then(domain.getDuration()).isEqualTo(duration);
+    assertThat(domain.getVersion()).isEqualTo(4);
+    assertThat(domain.getId()).isEqualTo("id");
+    assertThat(domain.getName()).isEqualTo("workflow");
+    assertThat(domain.getInstanceId()).isEqualTo("instance-id");
+    assertThat(domain.getStatus()).isEqualTo("COMPLETE");
+    assertThat(domain.getStartDate()).isEqualTo(start.toInstant());
+    assertThat(domain.getEndDate()).isEqualTo(end.toInstant());
+    assertThat(domain.getDuration()).isEqualTo(duration);
   }
 }

@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -40,9 +40,9 @@ class WorkflowCmdaApiQueryRepositoryTest {
     List<WorkflowDomain> all = queryRepository.findAll();
 
     // then
-    then(all).hasSize(1);
-    then(all.get(0).getId()).isEqualTo("wf");
-    then(all.get(0).getName()).isEqualTo("workflow");
-    then(all.get(0).getVersion()).isEqualTo(3);
+    assertThat(all).hasSize(1);
+    assertThat(all.get(0).getId()).isEqualTo("wf");
+    assertThat(all.get(0).getName()).isEqualTo("workflow");
+    assertThat(all.get(0).getVersion()).isEqualTo(3);
   }
 }

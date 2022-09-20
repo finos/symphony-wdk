@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -82,10 +82,10 @@ class ActivityCmdaApiQueryRepositoryTest {
 
     List<ActivityInstanceDomain> result = queryRepository.findAllByWorkflowInstanceId("inst");
 
-    then(result).hasSize(2);
-    then(result.get(0).getId()).isEqualTo("id1");
-    then(result.get(0).getName()).isEqualTo("instance1");
-    then(result.get(0).getVariables().getOutputs()).hasSize(1);
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getId()).isEqualTo("id1");
+    assertThat(result.get(0).getName()).isEqualTo("instance1");
+    assertThat(result.get(0).getVariables().getOutputs()).hasSize(1);
   }
 
   @Test
@@ -108,9 +108,9 @@ class ActivityCmdaApiQueryRepositoryTest {
         List.of(domain1, domain2));
 
     List<ActivityInstanceDomain> result = queryRepository.findAllByWorkflowInstanceId("inst");
-    then(result).hasSize(2);
-    then(result.get(0).getId()).isEqualTo("id1");
-    then(result.get(0).getName()).isEqualTo("instance1");
-    then(result.get(0).getVariables().getOutputs()).hasSize(0);
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getId()).isEqualTo("id1");
+    assertThat(result.get(0).getName()).isEqualTo("instance1");
+    assertThat(result.get(0).getVariables().getOutputs()).hasSize(0);
   }
 }

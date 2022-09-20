@@ -4,7 +4,6 @@ import com.symphony.bdk.workflow.engine.ResourceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +16,7 @@ public class WorkflowResourcesProvider implements ResourceProvider {
 
   private final String resourcesFolder;
 
-  public WorkflowResourcesProvider(@Value("${workflows.folder}") String resourcesFolder) {
+  public WorkflowResourcesProvider(String resourcesFolder) {
     this.resourcesFolder = resourcesFolder;
   }
 
