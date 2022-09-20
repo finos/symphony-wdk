@@ -23,7 +23,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return handle(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-
   @ExceptionHandler(UnauthorizedException.class)
   public ResponseEntity<ErrorResponse> handle(UnauthorizedException exception) {
     log.error("Unauthorized exception: [{}]", exception.getMessage());

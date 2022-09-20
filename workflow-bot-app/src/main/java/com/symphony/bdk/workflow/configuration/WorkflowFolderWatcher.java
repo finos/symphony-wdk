@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow.configuration;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import javax.annotation.PreDestroy;
 @Generated // slow tests on Mac
 @Slf4j
 @Service
-@ConditionalOnProperty(value = "workflows.folder")
+@ConditionalOnProperty(value = "wdk.workflows.path")
 public class WorkflowFolderWatcher {
 
   private final String workflowsFolder;
@@ -35,10 +34,10 @@ public class WorkflowFolderWatcher {
 
   private WatchService watchService;
 
-  public WorkflowFolderWatcher(@Value("${workflows.folder}") String workflowsFolder,
-      @Autowired WorkflowDeployer workflowDeployer) {
-    this.workflowsFolder = workflowsFolder;
+  public WorkflowFolderWatcher(@Autowired WorkflowDeployer workflowDeployer,
+      @Autowired WorkflowBotConfiguration workflowBotConfiguration) {
     this.workflowDeployer = workflowDeployer;
+    this.workflowsFolder = workflowBotConfiguration.getWorkflowsFolderPath();
   }
 
   @Scheduled(fixedDelay = Long.MAX_VALUE) // will run once after startup and wait for file events

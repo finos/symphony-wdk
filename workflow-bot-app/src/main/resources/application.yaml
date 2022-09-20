@@ -1,6 +1,9 @@
-# Bot configuration
-workflows:
-  folder: ./workflows
+# WDK configuration
+wdk:
+  workflows:
+    path: ./workflows
+  properties:
+    monitoring-token: ${wdk.monitoring.token:} # The default value is an empty String
 
 # BDK configuration
 bdk:

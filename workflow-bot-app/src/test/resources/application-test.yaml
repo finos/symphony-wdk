@@ -1,3 +1,10 @@
+# WDK configuration
+wdk:
+  workflows:
+    path: false # disable file watcher for tests
+  properties:
+    monitoring-token: MONITORING_TOKEN_VALUE
+
 # disable DF events listener for tests, we are generating the events in the test directly
 bdk:
   datafeed:
@@ -14,10 +21,6 @@ logging:
     org.camunda.bpm.engine.script: DEBUG
     com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: DEBUG
     com.symphony.bdk.workflow: DEBUG
-
-# disable file watcher for tests
-workflows:
-  folder: false
 
 camunda:
   bpm:
