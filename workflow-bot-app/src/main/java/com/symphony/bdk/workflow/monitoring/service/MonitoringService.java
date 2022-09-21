@@ -3,11 +3,13 @@ package com.symphony.bdk.workflow.monitoring.service;
 import com.symphony.bdk.workflow.api.v1.dto.ActivityDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
 import com.symphony.bdk.workflow.api.v1.dto.EventDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
@@ -20,6 +22,7 @@ import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryReposito
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
+import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -44,21 +47,29 @@ public class MonitoringService {
     return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);
   }
 
-  public List<WorkflowInstView> listWorkflowInstances(String workflowId) {
-    return objectConverter.convertCollection(workflowInstQueryRepository.findAllById(workflowId),
-        WorkflowInstView.class);
+  public List<WorkflowInstView> listWorkflowInstances(String workflowId, String status) {
+    List<WorkflowInstanceDomain> allById;
+
+    if (status != null) {
+      allById = workflowInstQueryRepository.findAllById(workflowId, StatusEnum.toInstanceStatusEnum(status));
+    } else {
+      allById = workflowInstQueryRepository.findAllById(workflowId, null);
+    }
+
+    return objectConverter.convertCollection(allById, WorkflowInstView.class);
   }
 
-  public WorkflowActivitiesView listWorkflowInstanceActivities(String workflowId, String instanceId) {
+  public WorkflowActivitiesView listWorkflowInstanceActivities(String workflowId, String instanceId,
+      WorkflowInstLifeCycleFilter lifeCycleFilter) {
     List<ActivityInstanceDomain> activityInstances =
-        activityQueryRepository.findAllByWorkflowInstanceId(instanceId);
+        activityQueryRepository.findAllByWorkflowInstanceId(instanceId, lifeCycleFilter);
     List<ActivityInstanceView> activities =
         objectConverter.convertCollection(activityInstances, ActivityInstanceView.class);
 
     // set activity type
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
 
-    if (directGraph == null || activityInstances.isEmpty()) {
+    if (directGraph == null) {
       throw new IllegalArgumentException(String.format(
           "Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
           workflowId, instanceId));
@@ -126,8 +137,9 @@ public class MonitoringService {
     return builder.build();
   }
 
-  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId) {
-    return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId)
+  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, Long occurredBefore,
+      Long occurredAfter) {
+    return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId, occurredBefore, occurredAfter)
         .stream()
         .map(VariableView::new)
         .collect(Collectors.toList());

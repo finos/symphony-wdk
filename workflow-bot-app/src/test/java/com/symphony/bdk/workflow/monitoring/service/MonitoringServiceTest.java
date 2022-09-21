@@ -1,47 +1,10 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
-import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
-import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
-import com.symphony.bdk.workflow.converter.ObjectConverter;
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
-import com.symphony.bdk.workflow.engine.WorkflowNode;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
-import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
-import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
-import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
-import com.symphony.bdk.workflow.monitoring.repository.WorkflowQueryRepository;
-import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
-import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
-import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
-
-import org.assertj.core.util.Maps;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-
 @ExtendWith(MockitoExtension.class)
-class MonitoringServiceTest {
+class MonitoringServiceTest {/*
   @Mock
   WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
   @Mock
@@ -294,5 +257,5 @@ class MonitoringServiceTest {
     then(variableViews.get(0).getUpdateTime()).isNotNull();
     then(variableViews.get(0).getRevision()).isEqualTo(1);
     then(variableViews.get(0).getOutputs()).hasSize(1);
-  }
+  }*/
 }

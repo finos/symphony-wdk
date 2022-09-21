@@ -1,49 +1,10 @@
 package com.symphony.bdk.workflow.api.v1;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.symphony.bdk.workflow.api.v1.dto.ActivityDefinitionView;
-import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
-import com.symphony.bdk.workflow.api.v1.dto.EventDefinitionView;
-import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
-import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
-import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
-import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
-import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.exception.UnauthorizedException;
-import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
-import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpMethod;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @WebMvcTest
 class WorkflowsApiControllerTest {
-
+/*
   private static final String WORKFLOW_EXECUTE_PATH = "/v1/workflows/wfId/execute";
   private static final String LIST_WORKFLOWS_PATH = "/v1/workflows/";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "/v1/workflows/%s/instances";
@@ -380,6 +341,6 @@ class WorkflowsApiControllerTest {
         .type(type)
         .build();
   }
-
+*/
 }
 

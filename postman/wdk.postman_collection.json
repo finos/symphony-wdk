@@ -43,7 +43,7 @@
 					"variable": [
 						{
 							"key": "workflowId",
-							"value": ""
+							"value": "welcome"
 						}
 					]
 				}
@@ -62,7 +62,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances",
+					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances?status=Completed",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -74,6 +74,12 @@
 						"workflows",
 						":workflowId",
 						"instances"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "Completed"
+						}
 					],
 					"variable": [
 						{
@@ -137,7 +143,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/activities",
+					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/activities?startedBefore=1663743489949&startedAfter=1663743499949&finishedBefore=1663743499949&finishedAfter=1663743499949",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -151,6 +157,24 @@
 						"instances",
 						":instanceId",
 						"activities"
+					],
+					"query": [
+						{
+							"key": "startedBefore",
+							"value": "1663743489949"
+						},
+						{
+							"key": "startedAfter",
+							"value": "1663743499949"
+						},
+						{
+							"key": "finishedBefore",
+							"value": "1663743499949"
+						},
+						{
+							"key": "finishedAfter",
+							"value": "1663743499949"
+						}
 					],
 					"variable": [
 						{
@@ -194,6 +218,57 @@
 					"variable": [
 						{
 							"key": "workflowId",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List workflow's global variables",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Monitoring-Token",
+						"value": "myBestToken",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/variables?occurredBefore=1663743489949&occurredAfter=1663743489949",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"wdk",
+						"v1",
+						"workflows",
+						":workflowId",
+						"instances",
+						":instanceId",
+						"variables"
+					],
+					"query": [
+						{
+							"key": "occurredBefore",
+							"value": "1663743489949"
+						},
+						{
+							"key": "occurredAfter",
+							"value": "1663743489949"
+						}
+					],
+					"variable": [
+						{
+							"key": "workflowId",
+							"value": ""
+						},
+						{
+							"key": "instanceId",
 							"value": ""
 						}
 					]

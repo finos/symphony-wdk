@@ -40,19 +40,19 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .processInstanceId(instanceId);
 
     if (lifeCycleFilter.getStartedBefore() != null) {
-      historicActivityInstanceQuery.startedBefore(new Date(lifeCycleFilter.getStartedBefore() * 1000));
+      historicActivityInstanceQuery.startedBefore(new Date(lifeCycleFilter.getStartedBefore()));
     }
 
     if (lifeCycleFilter.getStartedAfter() != null) {
-      historicActivityInstanceQuery.startedAfter(new Date(lifeCycleFilter.getStartedAfter() * 1000));
+      historicActivityInstanceQuery.startedAfter(new Date(lifeCycleFilter.getStartedAfter()));
     }
 
     if (lifeCycleFilter.getFinishedBefore() != null) {
-      historicActivityInstanceQuery.finishedBefore(new Date(lifeCycleFilter.getFinishedBefore() * 1000));
+      historicActivityInstanceQuery.finishedBefore(new Date(lifeCycleFilter.getFinishedBefore()));
     }
 
     if (lifeCycleFilter.getFinishedAfter() != null) {
-      historicActivityInstanceQuery.finishedAfter(new Date(lifeCycleFilter.getFinishedAfter() * 1000));
+      historicActivityInstanceQuery.finishedAfter(new Date(lifeCycleFilter.getFinishedAfter()));
     }
 
     List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery
