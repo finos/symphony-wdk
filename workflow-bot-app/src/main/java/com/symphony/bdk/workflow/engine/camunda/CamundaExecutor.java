@@ -52,8 +52,8 @@ public class CamundaExecutor implements JavaDelegate {
   public static final ObjectMapper OBJECT_MAPPER;
 
   // set MDC entries so that executors can produce log that we can contextualize
-  private static final String MDC_PROCESS_ID = "PROCESS_ID";
-  private static final String MDC_ACTIVITY_ID = "ACTIVITY_ID";
+  private static final String MDC_PROCESS_ID = "X-PROCESS-ID";
+  private static final String MDC_ACTIVITY_ID = "X-ACTIVITY-ID";
 
   static {
     SimpleModule module = new SimpleModule();

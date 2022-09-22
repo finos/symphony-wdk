@@ -21,6 +21,7 @@ activities:
       on:
         form-replied:
           form-id: sendForm
+          exclusive: false
       to:
         stream-id: "123"
       content: |

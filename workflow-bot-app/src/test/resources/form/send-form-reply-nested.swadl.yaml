@@ -21,6 +21,7 @@ activities:
         timeout: PT1S
         form-replied:
           form-id: sendForm
+          exclusive: false
       to:
         stream-id: abc
       content: |
@@ -37,6 +38,7 @@ activities:
         timeout: PT1S
         form-replied:
           form-id: sendSecondForm
+          exclusive: false
       script: println "collect"
 
   - send-message:

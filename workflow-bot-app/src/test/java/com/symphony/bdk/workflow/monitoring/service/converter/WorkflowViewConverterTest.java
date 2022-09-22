@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.monitoring.service.converter;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowDomain;
@@ -19,7 +19,6 @@ class WorkflowViewConverterTest {
     WorkflowView view = converter.apply(domain);
 
     // then
-    then(view.getId()).isEqualTo("workflow");
-    then(view.getVersion()).isEqualTo("2");
+    assertThat(view.getId()).isEqualTo("workflow");
   }
 }
