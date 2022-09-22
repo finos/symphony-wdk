@@ -9,9 +9,11 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricDetail;
 import org.camunda.bpm.engine.history.HistoricDetailQuery;
+import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +47,16 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   @Override
   public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id, Long occurredBefore,
       Long occurredAfter) {
-    String varId = historyService.createHistoricVariableInstanceQuery()
+    HistoricVariableInstance variables = historyService.createHistoricVariableInstanceQuery()
         .variableName("variables")
         .processInstanceId(id)
-        .singleResult()
-        .getId();
+        .singleResult();
+
+    if (variables == null) {
+      return Collections.emptyList();
+    }
+
+    String varId = variables.getId();
 
     HistoricDetailQuery historicDetailQuery = historyService.createHistoricDetailQuery()
         .processInstanceId(id)

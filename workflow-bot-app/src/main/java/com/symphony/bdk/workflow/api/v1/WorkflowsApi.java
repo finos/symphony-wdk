@@ -36,9 +36,10 @@ public interface WorkflowsApi {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PostMapping("/{id}/execute")
   ResponseEntity<Object> executeWorkflowById(
-      @ApiParam("Workflow's token to authenticate the request") @RequestHeader(name = "X-Workflow-Token") String token,
-      @ApiParam("Workflow's id that is provided in SWADL") @PathVariable String id,
-      @ApiParam("Arguments to be passed to the event triggering the workflow") @RequestBody
+      @ApiParam(value = "Workflow's token to authenticate the request", required = true)
+      @RequestHeader(name = "X-Workflow-Token") String token,
+      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id,
+      @ApiParam(value = "Arguments to be passed to the event triggering the workflow") @RequestBody
           WorkflowExecutionRequest arguments);
 
   @ApiOperation("List all deployed workflows")
@@ -47,8 +48,8 @@ public interface WorkflowsApi {
           @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
   @GetMapping("/")
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
-      @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token);
+      @ApiParam("Workflows monitoring token to authenticate the request")
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token);
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
@@ -56,9 +57,9 @@ public interface WorkflowsApi {
           @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances")
   ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(
-      @ApiParam("Workflow's id to list instances") @PathVariable String workflowId,
-      @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token,
+      @ApiParam(value = "Workflow's id to list instances", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Workflows monitoring token to authenticate the request")
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
       @ApiParam("Optional query parameter to filter instances by status [Completed / Pending]")
       @RequestParam(required = false) String status);
 
@@ -67,25 +68,26 @@ public interface WorkflowsApi {
       @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
   ResponseEntity<WorkflowActivitiesView> listInstanceActivities(
-      @ApiParam("Workflow's id to list instance activities") @PathVariable String workflowId,
-      @ApiParam("Workflow's instance id to list activities") @PathVariable String instanceId,
-      @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token, @ApiParam(
-      "Optional query parameter to filter activities having started before the date. "
-          + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false) Long startedBefore,
+      @ApiParam(value = "Workflow's id to list instance activities", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Workflow's instance id to list activities", required = true) @PathVariable String instanceId,
+      @ApiParam("Workflows monitoring token to authenticate the request")
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
       @ApiParam(
-          "Optional query parameter to filter activities having started after the date. "
-              + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false) Long startedAfter,
+          value = "Optional query parameter to filter activities having started before the date. "
+              + "The date is a Unix timestamp in milliseconds", name = "started_before")
+      @RequestParam(required = false, name = "started_before") Long startedBefore,
       @ApiParam(
-          "Optional query parameter to filter activities having finished before the date. "
-              + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false) Long finishedBefore,
+          value = "Optional query parameter to filter activities having started after the date. "
+              + "The date is a Unix timestamp in milliseconds", name = "started_after")
+      @RequestParam(required = false, name = "started_after") Long startedAfter,
       @ApiParam(
-          "Optional query parameter to filter activities having finished after the date. "
-              + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false) Long finishedAfter
+          value = "Optional query parameter to filter activities having finished before the date. "
+              + "The date is a Unix timestamp in milliseconds", name = "finished_before")
+      @RequestParam(required = false, name = "finished_before") Long finishedBefore,
+      @ApiParam(
+          value = "Optional query parameter to filter activities having finished after the date. "
+              + "The date is a Unix timestamp in milliseconds", name = "finished_after")
+      @RequestParam(required = false, name = "finished_after") Long finishedAfter
   );
 
   @ApiOperation("Get activities definitions for a given workflow")
@@ -93,9 +95,9 @@ public interface WorkflowsApi {
       @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/definitions")
   ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(
-      @ApiParam("Workflow's id to get activities definitions") @PathVariable String workflowId,
-      @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token);
+      @ApiParam(value = "Workflow's id to get activities definitions", required = true) @PathVariable String workflowId,
+      @ApiParam("Workflows monitoring token to authenticate the request")
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token);
 
   @ApiOperation("List global variables for a given workflow")
   @ApiResponses(
@@ -103,16 +105,16 @@ public interface WorkflowsApi {
           @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/variables")
   ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(
-      @ApiParam("Workflow's id to list global variables") @PathVariable String workflowId,
-      @ApiParam("Workflow's instance id to list global variables") @PathVariable String instanceId,
-      @ApiParam("Workflows monitoring token to authenticate the request") @RequestHeader(name = X_MONITORING_TOKEN_KEY)
-          String token,
-      @ApiParam("Optional query parameter to filter global variables update occurred before the date. "
-          + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false) Long occurredBefore,
-      @ApiParam(
-          "Optional query parameter to filter global variables update occurred after the date. "
+      @ApiParam(value = "Workflow's id to list global variables", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Workflow's instance id to list global variables", required = true) @PathVariable
+          String instanceId,
+      @ApiParam("Workflows monitoring token to authenticate the request")
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @ApiParam(value = "Optional query parameter to filter global variables update occurred before the date. "
               + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false) Long occurredAfter);
+      @RequestParam(required = false, name = "updated_before") Long updatedBefore,
+      @ApiParam(value = "Optional query parameter to filter global variables update occurred after the date. "
+              + "The date is a Unix timestamp in milliseconds")
+      @RequestParam(required = false, name = "updated_after") Long updatedAfter);
 
 }

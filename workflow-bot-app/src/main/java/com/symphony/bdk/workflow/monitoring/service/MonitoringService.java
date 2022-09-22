@@ -62,7 +62,7 @@ public class MonitoringService {
   public WorkflowActivitiesView listWorkflowInstanceActivities(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter) {
     List<ActivityInstanceDomain> activityInstances =
-        activityQueryRepository.findAllByWorkflowInstanceId(instanceId, lifeCycleFilter);
+        activityQueryRepository.findAllByWorkflowInstanceId(workflowId, instanceId, lifeCycleFilter);
     List<ActivityInstanceView> activities =
         objectConverter.convertCollection(activityInstances, ActivityInstanceView.class);
 
@@ -137,8 +137,7 @@ public class MonitoringService {
     return builder.build();
   }
 
-  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, Long occurredBefore,
-      Long occurredAfter) {
+  public List<VariableView> listWorkflowInstanceGlobalVars(String instanceId, Long occurredBefore, Long occurredAfter) {
     return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId, occurredBefore, occurredAfter)
         .stream()
         .map(VariableView::new)

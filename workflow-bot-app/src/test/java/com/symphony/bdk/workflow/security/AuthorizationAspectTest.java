@@ -18,45 +18,67 @@ import java.lang.annotation.Annotation;
 
 class AuthorizationAspectTest {
 
-  private static final String UNAUTHORIZED_EXCEPTION_MESSAGE = "Request token is not valid";
+  private static final String UNAUTHORIZED_EXCEPTION_BAD_TOKEN_MESSAGE = "Request token is not valid";
+  private static final String UNAUTHORIZED_EXCEPTION_MISSING_HEADER_MESSAGE = "Request header %s is missing";
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
   private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
 
   @Test
-  void authorization_noMonitoringTokenTest() {
+  void test_authorization_monitoringTokenNotConfigured_headerSet() {
     WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
     when(workflowBotConfiguration.getMonitoringToken()).thenReturn(null);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/mock/path");
+    request.addHeader(X_MONITORING_TOKEN_HEADER_KEY, "BAD_MONITORING_TOKEN_VALUE");
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
     AuthorizationAspect authorizationAspect = new AuthorizationAspect(workflowBotConfiguration);
     Authorized authorizedInstance = createAuthorizedInstance();
 
     assertThatExceptionOfType(UnauthorizedException.class)
+        .as("No token will match when the monitoring token is not configured")
         .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
         .satisfies(
-            e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_MESSAGE));
+            e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_BAD_TOKEN_MESSAGE));
   }
 
   @Test
-  void authorization_noHeaderTokenTest() {
+  void test_authorization_monitoringTokenNotConfigured_headerSetWithEmptyString() {
+    WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
+    when(workflowBotConfiguration.getMonitoringToken()).thenReturn("");
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader(X_MONITORING_TOKEN_HEADER_KEY, "");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+    AuthorizationAspect authorizationAspect = new AuthorizationAspect(workflowBotConfiguration);
+    Authorized authorizedInstance = createAuthorizedInstance();
+
+    assertThatExceptionOfType(UnauthorizedException.class)
+        .as("No token will match when the monitoring token is not configured, including empty string")
+        .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
+        .satisfies(
+            e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_BAD_TOKEN_MESSAGE));
+  }
+
+  @Test
+  void test_authorization_monitoringTokenConfigured_headerTokenNotSet() {
     WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
     when(workflowBotConfiguration.getMonitoringToken()).thenReturn(MONITORING_TOKEN_VALUE);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
     AuthorizationAspect authorizationAspect = new AuthorizationAspect(workflowBotConfiguration);
     Authorized authorizedInstance = createAuthorizedInstance();
 
     assertThatExceptionOfType(UnauthorizedException.class)
+        .as("The header is not set in the request")
         .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
-        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_MESSAGE));
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
+            String.format(UNAUTHORIZED_EXCEPTION_MISSING_HEADER_MESSAGE, X_MONITORING_TOKEN_HEADER_KEY)));
   }
 
   @Test
-  void authorization_headerToken_notMatchingTest() {
+  void tst_authorization_headerToken_notMatching() {
     WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
     when(workflowBotConfiguration.getMonitoringToken()).thenReturn(MONITORING_TOKEN_VALUE);
 
@@ -67,12 +89,13 @@ class AuthorizationAspectTest {
     Authorized authorizedInstance = createAuthorizedInstance();
 
     assertThatExceptionOfType(UnauthorizedException.class)
+        .as("The provided token does not match the monitoring token")
         .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
-        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_MESSAGE));
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_BAD_TOKEN_MESSAGE));
   }
 
   @Test
-  void authorization_headerToken_matchingTest() {
+  void test_authorization_headerToken_matching() {
     WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
     when(workflowBotConfiguration.getMonitoringToken()).thenReturn(MONITORING_TOKEN_VALUE);
 

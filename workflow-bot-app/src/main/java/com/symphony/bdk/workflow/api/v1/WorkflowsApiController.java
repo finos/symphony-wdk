@@ -71,9 +71,9 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(String workflowId, String instanceId,
-      String token, Long occurredBefore, Long occurredAfter) {
+      String token, Long updatedBefore, Long updatedAfter) {
     return ResponseEntity.ok(
-        monitoringService.listWorkflowInstanceGlobalVars(workflowId, instanceId, occurredBefore, occurredAfter));
+        monitoringService.listWorkflowInstanceGlobalVars(instanceId, updatedBefore, updatedAfter));
   }
 
 }

@@ -6,6 +6,6 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDo
 import java.util.List;
 
 public interface ActivityQueryRepository extends QueryRepository<ActivityInstanceDomain, String> {
-  List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId,
+  List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter);
 }

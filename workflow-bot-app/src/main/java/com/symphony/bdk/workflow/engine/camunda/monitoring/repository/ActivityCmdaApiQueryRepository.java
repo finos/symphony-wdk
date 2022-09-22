@@ -34,7 +34,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
    * and eventually the one activity being executed (with status ONGOING).
    */
   @Override
-  public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId,
+  public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter) {
     HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()
         .processInstanceId(instanceId);
@@ -58,7 +58,10 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
     List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery
         .orderByHistoricActivityInstanceStartTime()
         .asc()
-        .list(), ActivityInstanceDomain.class);
+        .list()
+        .stream()
+        .filter(actInstance -> workflowId.equals(actInstance.getProcessDefinitionKey()))
+        .collect(Collectors.toList()), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
         .filter(a -> a.getType().equals("serviceTask"))
