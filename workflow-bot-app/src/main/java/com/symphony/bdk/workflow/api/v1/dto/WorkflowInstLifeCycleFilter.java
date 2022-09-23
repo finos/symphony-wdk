@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class WorkflowInstLifeCycleFilter {
-  private final Long startedBefore;
-  private final Long startedAfter;
-  private final Long finishedBefore;
-  private final Long finishedAfter;
+  private final String startedBefore;
+  private final String startedAfter;
+  private final String finishedBefore;
+  private final String finishedAfter;
 }

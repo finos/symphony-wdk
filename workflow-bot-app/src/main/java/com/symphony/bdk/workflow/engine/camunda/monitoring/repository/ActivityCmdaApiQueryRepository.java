@@ -11,10 +11,10 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricActivityInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,19 +40,19 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .processInstanceId(instanceId);
 
     if (lifeCycleFilter.getStartedBefore() != null) {
-      historicActivityInstanceQuery.startedBefore(new Date(lifeCycleFilter.getStartedBefore()));
+      historicActivityInstanceQuery.startedBefore(new DateTime(lifeCycleFilter.getStartedBefore()).toDate());
     }
 
     if (lifeCycleFilter.getStartedAfter() != null) {
-      historicActivityInstanceQuery.startedAfter(new Date(lifeCycleFilter.getStartedAfter()));
+      historicActivityInstanceQuery.startedAfter(new DateTime(lifeCycleFilter.getStartedAfter()).toDate());
     }
 
     if (lifeCycleFilter.getFinishedBefore() != null) {
-      historicActivityInstanceQuery.finishedBefore(new Date(lifeCycleFilter.getFinishedBefore()));
+      historicActivityInstanceQuery.finishedBefore(new DateTime(lifeCycleFilter.getFinishedBefore()).toDate());
     }
 
     if (lifeCycleFilter.getFinishedAfter() != null) {
-      historicActivityInstanceQuery.finishedAfter(new Date(lifeCycleFilter.getFinishedAfter()));
+      historicActivityInstanceQuery.finishedAfter(new DateTime(lifeCycleFilter.getFinishedAfter()).toDate());
     }
 
     List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery
@@ -64,7 +64,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .collect(Collectors.toList()), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
-        .filter(a -> a.getType().equals("serviceTask"))
+        .filter(a -> a.getType().equals("serviceTask") || a.getType().equals("scriptTask"))
         .map(ActivityInstanceDomain::getName)
         .collect(Collectors.toList());
 
@@ -82,7 +82,12 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
 
     result.stream()
         .filter(a -> a.getType().equals("serviceTask"))
-        .forEach(activity -> activity.setVariables(variablesDomainMap.get(activity.getName())));
+        .forEach(activity -> {
+          VariablesDomain variablesDomain = variablesDomainMap.get(activity.getName());
+          if (variablesDomain != null) {
+            activity.setVariables(variablesDomain);
+          }
+        });
 
     return result;
   }

@@ -16,7 +16,7 @@ import java.time.temporal.ChronoUnit;
 class WorkflowInstViewConverterTest {
 
   @ParameterizedTest
-  @CsvSource(value = {"ACTIVE,PENDING", ",COMPLETED"})
+  @CsvSource(value = {"ACTIVE,PENDING", "COMPLETED,COMPLETED"})
   void apply(String status, String expected) {
     // given
     Instant start = Instant.now();

@@ -1,8 +1,6 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
-import com.symphony.bdk.workflow.api.v1.dto.ActivityDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
-import com.symphony.bdk.workflow.api.v1.dto.EventDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
@@ -31,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -61,6 +60,10 @@ public class MonitoringService {
 
   public WorkflowActivitiesView listWorkflowInstanceActivities(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter) {
+
+    // check if the instance belongs to the provided workflow
+    this.checkIsInstanceOfWorkflow(workflowId, instanceId);
+
     List<ActivityInstanceDomain> activityInstances =
         activityQueryRepository.findAllByWorkflowInstanceId(workflowId, instanceId, lifeCycleFilter);
     List<ActivityInstanceView> activities =
@@ -69,22 +72,18 @@ public class MonitoringService {
     // set activity type
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
 
-    if (directGraph == null) {
-      throw new IllegalArgumentException(String.format(
-          "Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
-          workflowId, instanceId));
+    if (directGraph != null) {
+      Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
+          .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
+          .collect(Collectors.toMap(
+              Map.Entry::getKey,
+              e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
+          );
+
+      // set activity type
+      activities.forEach(
+          activity -> activity.setType(TaskTypeEnum.findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
     }
-
-    Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
-        .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
-        .collect(Collectors.toMap(
-            Map.Entry::getKey,
-            e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
-        );
-
-    // set activity type
-    activities.forEach(
-        activity -> activity.setType(TaskTypeEnum.findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
 
     VariablesDomain globalVariables = this.variableQueryRepository.findGlobalVarsByWorkflowInstanceId(instanceId);
     WorkflowActivitiesView result = new WorkflowActivitiesView();
@@ -113,34 +112,47 @@ public class MonitoringService {
 
       TaskDefinitionView.TaskDefinitionViewBuilder taskDefinitionViewBuilder =
           TaskDefinitionView.builder()
+              .nodeId(workflowNode.getId())
               .parents(directGraph.getParents(workflowNode.getId()))
               .children(directGraph.getChildren(workflowNode.getId()).getChildren());
 
       if (workflowNode.getActivity() != null) {
         taskDefinitionViewBuilder.type(
             TaskTypeEnum.findByAbbr(workflowNode.getActivity().getClass().getSimpleName()));
-
-        ActivityDefinitionView activityDefinitionView =
-            new ActivityDefinitionView(taskDefinitionViewBuilder.build(), workflowNode.getActivity().getId());
-
-        activities.add(activityDefinitionView);
       } else if (workflowNode.getEvent() != null) {
         taskDefinitionViewBuilder.type(
             TaskTypeEnum.findByAbbr(workflowNode.getEvent().getEventType()));
-
-        EventDefinitionView eventDefinitionView = new EventDefinitionView(taskDefinitionViewBuilder.build());
-        activities.add(eventDefinitionView);
       }
+
+      activities.add(taskDefinitionViewBuilder.build());
     });
 
     builder.flowNodes(activities);
     return builder.build();
   }
 
-  public List<VariableView> listWorkflowInstanceGlobalVars(String instanceId, Long occurredBefore, Long occurredAfter) {
+  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, String occurredBefore,
+      String occurredAfter) {
+    // check if the instance belongs to the provided workflow
+    this.checkIsInstanceOfWorkflow(workflowId, instanceId);
+
     return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId, occurredBefore, occurredAfter)
         .stream()
         .map(VariableView::new)
         .collect(Collectors.toList());
+  }
+
+  private void checkIsInstanceOfWorkflow(String workflowId, String instanceId) {
+    Optional<WorkflowInstView> instance = this.listWorkflowInstances(workflowId, null)
+        .stream()
+        .filter(workflowInstView -> workflowInstView.getInstanceId().equals(instanceId) && workflowInstView.getId()
+            .equals(workflowId))
+        .findAny();
+
+    if (instance.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format("Either no workflow deployed with id %s, or %s is not an instance of it", workflowId,
+              instanceId));
+    }
   }
 }

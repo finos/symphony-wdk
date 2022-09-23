@@ -11,10 +11,10 @@ import org.camunda.bpm.engine.history.HistoricDetail;
 import org.camunda.bpm.engine.history.HistoricDetailQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +45,8 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   }
 
   @Override
-  public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id, Long occurredBefore,
-      Long occurredAfter) {
+  public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id, String occurredBefore,
+      String occurredAfter) {
     HistoricVariableInstance variables = historyService.createHistoricVariableInstanceQuery()
         .variableName("variables")
         .processInstanceId(id)
@@ -63,12 +63,12 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .variableInstanceId(varId);
 
 
-    if (occurredBefore != null) {
-      historicDetailQuery = historicDetailQuery.occurredBefore(new Date(occurredBefore));
+    if (occurredBefore != null && !occurredBefore.isEmpty()) {
+      historicDetailQuery = historicDetailQuery.occurredBefore(new DateTime(occurredBefore).toDate());
     }
 
-    if (occurredAfter != null) {
-      historicDetailQuery = historicDetailQuery.occurredAfter(new Date(occurredAfter));
+    if (occurredAfter != null && !occurredAfter.isEmpty()) {
+      historicDetailQuery = historicDetailQuery.occurredAfter(new DateTime(occurredAfter).toDate());
     }
 
     List<HistoricDetail> historicDetails = historicDetailQuery

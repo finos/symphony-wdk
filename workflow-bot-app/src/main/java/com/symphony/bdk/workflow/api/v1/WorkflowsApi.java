@@ -74,20 +74,24 @@ public interface WorkflowsApi {
       @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
       @ApiParam(
           value = "Optional query parameter to filter activities having started before the date. "
-              + "The date is a Unix timestamp in milliseconds", name = "started_before")
-      @RequestParam(required = false, name = "started_before") Long startedBefore,
+              + "The date is an ISO 8601 date",
+          name = "started_before", example = "2022-09-21T15:43:24.917Z")
+      @RequestParam(required = false, name = "started_before") String startedBefore,
       @ApiParam(
           value = "Optional query parameter to filter activities having started after the date. "
-              + "The date is a Unix timestamp in milliseconds", name = "started_after")
-      @RequestParam(required = false, name = "started_after") Long startedAfter,
+              + "The date is an ISO 8601 date",
+          name = "started_after", example = "2022-09-21T15:43:24.917Z")
+      @RequestParam(required = false, name = "started_after") String startedAfter,
       @ApiParam(
           value = "Optional query parameter to filter activities having finished before the date. "
-              + "The date is a Unix timestamp in milliseconds", name = "finished_before")
-      @RequestParam(required = false, name = "finished_before") Long finishedBefore,
+              + "The date is an ISO 8601 date",
+          name = "finished_before", example = "2022-09-21T15:43:24.917Z")
+      @RequestParam(required = false, name = "finished_before") String finishedBefore,
       @ApiParam(
           value = "Optional query parameter to filter activities having finished after the date. "
-              + "The date is a Unix timestamp in milliseconds", name = "finished_after")
-      @RequestParam(required = false, name = "finished_after") Long finishedAfter
+              + "The date is an ISO 8601 date",
+          name = "finished_after", example = "2022-09-21T15:43:24.917Z")
+      @RequestParam(required = false, name = "finished_after") String finishedAfter
   );
 
   @ApiOperation("Get activities definitions for a given workflow")
@@ -111,10 +115,10 @@ public interface WorkflowsApi {
       @ApiParam("Workflows monitoring token to authenticate the request")
       @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
       @ApiParam(value = "Optional query parameter to filter global variables update occurred before the date. "
-              + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false, name = "updated_before") Long updatedBefore,
+              + "The date is an ISO 8601 date", example = "2022-09-21T15:43:24.917Z")
+      @RequestParam(required = false, name = "updated_before") String updatedBefore,
       @ApiParam(value = "Optional query parameter to filter global variables update occurred after the date. "
-              + "The date is a Unix timestamp in milliseconds")
-      @RequestParam(required = false, name = "updated_after") Long updatedAfter);
+          + "The date is an ISO 8601 date", example = "2022-09-21T15:43:24.917Z")
+      @RequestParam(required = false, name = "updated_after") String updatedAfter);
 
 }

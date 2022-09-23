@@ -55,7 +55,7 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(String workflowId, String instanceId,
-      String token, Long startedBefore, Long startedAfter, Long finishedBefore, Long finishedAfter) {
+      String token, String startedBefore, String startedAfter, String finishedBefore, String finishedAfter) {
     WorkflowInstLifeCycleFilter lifeCycleFilter =
         new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);
 
@@ -71,9 +71,9 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(String workflowId, String instanceId,
-      String token, Long updatedBefore, Long updatedAfter) {
+      String token, String updatedBefore, String updatedAfter) {
     return ResponseEntity.ok(
-        monitoringService.listWorkflowInstanceGlobalVars(instanceId, updatedBefore, updatedAfter));
+        monitoringService.listWorkflowInstanceGlobalVars(workflowId, instanceId, updatedBefore, updatedAfter));
   }
 
 }

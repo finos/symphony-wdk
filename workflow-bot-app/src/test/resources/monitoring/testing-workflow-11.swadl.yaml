@@ -1,0 +1,15 @@
+id: testingWorkflow11
+activities:
+  - execute-script:
+      id: script1TestingWorkflow11
+      on:
+        message-received:
+          content: /testingWorkflow11
+      script: |
+
+  - execute-script:
+      id: script2TestingWorkflow11
+      on:
+        message-received:
+          content: /continueTestingWorkflow11
+      script: |
