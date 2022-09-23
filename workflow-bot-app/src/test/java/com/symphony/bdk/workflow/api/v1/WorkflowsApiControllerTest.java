@@ -138,10 +138,8 @@ class WorkflowsApiControllerTest {
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("id1"))
-        .andExpect(jsonPath("[0].version").value("1"))
 
-        .andExpect(jsonPath("[1].id").value("id2"))
-        .andExpect(jsonPath("[1].version").value("2"));
+        .andExpect(jsonPath("[1].id").value("id2"));
   }
 
   @Test

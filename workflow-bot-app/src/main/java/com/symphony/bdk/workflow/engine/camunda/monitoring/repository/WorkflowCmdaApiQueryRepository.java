@@ -22,7 +22,7 @@ public class WorkflowCmdaApiQueryRepository extends CamundaAbstractQueryReposito
 
   @Override
   public List<WorkflowDomain> findAll() {
-    return objectConverter.convertCollection(repositoryService.createProcessDefinitionQuery().list(),
+    return objectConverter.convertCollection(repositoryService.createProcessDefinitionQuery().latestVersion().list(),
         WorkflowDomain.class);
   }
 }

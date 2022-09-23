@@ -13,7 +13,7 @@ dependencies {
     implementation project(':workflow-language')
 
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0')
-    implementation platform('com.fasterxml.jackson:jackson-bom:2.13.2.20220328')
+    implementation platform('com.fasterxml.jackson:jackson-bom:2.13.4')
     implementation platform('org.springframework.boot:spring-boot-dependencies:2.6.6')
 
     implementation 'org.apache.httpcomponents.client5:httpclient5-fluent:5.1.3'
@@ -56,15 +56,14 @@ dependencies {
     }
 
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
-    implementation 'io.springfox:springfox-swagger2:2.9.2'
-    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.awaitility:awaitility'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.32.0'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.34.0'
     testImplementation 'io.rest-assured:rest-assured:4.5.1'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
     testImplementation("org.camunda.community.mockito:camunda-platform-7-mockito:6.17.1")
