@@ -26,6 +26,7 @@ import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 class MonitoringApiIntegrationTest extends IntegrationTest {
 
   private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows/";
@@ -46,6 +48,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "wdk/v1/workflows/%s/instances/%s/activities";
   private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/wdk/v1/workflows/%s/definitions";
+  private static final String LIST_WORKFLOW_GLOBAL_VARIABLES = "/wdk/v1/workflows/%s/instances/%s/variables";
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
   private static final String X_MONITORING_TOKEN_HEADER_VALUE = "MONITORING_TOKEN_VALUE";
   private static final String INVALID_X_MONITORING_TOKEN_EXCEPTION_MESSAGE = "Request token is not valid";
@@ -53,6 +56,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
       "Request header X-Monitoring-Token is missing";
   private static final String BAD_WORKFLOW_INSTANCE_STATUS_EXCEPTION_MESSAGE =
       "Workflow instance status %s is not known. Allowed values [Completed, Pending]";
+  private static final String UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE =
+      "Either no workflow deployed with id %s, or %s is not an instance of it";
 
   @Autowired MonitoringService monitoringService;
 
@@ -94,6 +99,9 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final JsonPath expectedJson = new JsonPath(
         getClass().getResourceAsStream("/monitoring/expected/list-workflows-response-payload.json"));
 
+    engine.undeploy(workflow1.getId()); // clean any old running instance
+    engine.undeploy(workflow2.getId()); // clean any old running instance
+
     engine.deploy(workflow1);
     engine.deploy(workflow2);
 
@@ -107,8 +115,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .statusCode(HttpStatus.OK.value())
         .body("", equalTo(expectedJson.getList("")));
 
-    engine.undeploy("testingWorkflow1");
-    engine.undeploy("testingWorkflow2");
+    engine.undeploy(workflow1.getId());
+    engine.undeploy(workflow1.getId());
   }
 
   @Test
@@ -129,11 +137,42 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   @Test
   void listWorkflowInstances_noStatusFilter() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
     final V4Message message = message("Hello!");
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/testingWorkflow1"));
+
+    // Wait for the workflow to get executed
+    Thread.sleep(2000);
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH, "testingWorkflow1"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("[0].id", equalTo("testingWorkflow1"))
+        .body("[0].version", equalTo(1))
+        .body("[0].status", equalTo("COMPLETED"))
+        .body("[0].instanceId", not(isEmptyString()))
+        .body("[0].startDate", not(isEmptyString()))
+        .body("[0].endDate", not(isEmptyString()));
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflowInstances_completedStatusFilter() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow3"));
 
@@ -144,7 +183,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH, "testingWorkflow3"))
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow3"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
@@ -155,55 +194,27 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("[0].startDate", not(isEmptyString()))
         .body("[0].endDate", not(isEmptyString()));
 
-    engine.undeploy("testingWorkflow3");
-  }
-
-  @Test
-  void listWorkflowInstances_completedStatusFilter() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-6.swadl.yaml"));
-
-    engine.deploy(workflow);
-    engine.onEvent(messageReceived("/testingWorkflow6"));
-
-    // Wait for the workflow to get executed
-    Thread.sleep(2000);
-
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow6"))
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.OK.value())
-        .body("[0].id", equalTo("testingWorkflow6"))
-        .body("[0].version", equalTo(1))
-        .body("[0].status", equalTo("COMPLETED"))
-        .body("[0].instanceId", not(isEmptyString()))
-        .body("[0].startDate", not(isEmptyString()))
-        .body("[0].endDate", not(isEmptyString()));
-
-    given()
-        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
-        .contentType(ContentType.JSON)
-        .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow6"))
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow3"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("", empty());
 
-    engine.undeploy("testingWorkflow6");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
   void listWorkflowInstances_pendingStatusFilter() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-7.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/testingWorkflow7"));
+    engine.onEvent(messageReceived("/testingWorkflow4"));
 
     // Wait for the workflow to get executed
     Thread.sleep(2000);
@@ -212,11 +223,11 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow7"))
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow4"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
-        .body("[0].id", equalTo("testingWorkflow7"))
+        .body("[0].id", equalTo("testingWorkflow4"))
         .body("[0].version", equalTo(1))
         .body("[0].status", equalTo("PENDING"))
         .body("[0].instanceId", not(isEmptyString()))
@@ -227,13 +238,13 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow7"))
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow4"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("", empty());
 
-    engine.undeploy("testingWorkflow7");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
@@ -243,7 +254,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(path, "testingWorkflow7"))
+        .get(String.format(path, "testingWorkflow4"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.NOT_FOUND.value())
@@ -268,32 +279,33 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   @Test
   void listInstanceActivities() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
 
     final V4Message message = message("Hello!");
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
-    engine.onEvent(messageReceived("/testingWorkflow4"));
+    engine.onEvent(messageReceived("/testingWorkflow1"));
 
     // Wait for the workflow to get executed
     Thread.sleep(2000);
 
-    String processDefinition = this.getOneProcessInstanceId("testingWorkflow4");
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow1");
 
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "testingWorkflow4", processDefinition))
+        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "testingWorkflow1", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow1"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("testingWorkflow4SendMsg1"))
+        .body("activities[0].activityId", equalTo("testingWorkflow1SendMsg1"))
         .body("activities[0].type", equalTo("SEND_MESSAGE_ACTIVITY"))
         .body("activities[0].startDate", not(empty()))
         .body("activities[0].endDate", not(empty()))
@@ -301,9 +313,9 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("activities[0].outputs.message", not(empty()))
         .body("activities[0].outputs.msgId", not(empty()))
 
-        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
+        .body("activities[1].workflowId", equalTo("testingWorkflow1"))
         .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("testingWorkflow4SendMsg2"))
+        .body("activities[1].activityId", equalTo("testingWorkflow1SendMsg2"))
         .body("activities[1].type", equalTo("SEND_MESSAGE_ACTIVITY"))
         .body("activities[1].startDate", not(empty()))
         .body("activities[1].endDate", not(empty()))
@@ -315,34 +327,34 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy("testingWorkflow4");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
-  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   void listInstanceActivities_startedBeforeFilter() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-8.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/testingWorkflow8"));
+    engine.onEvent(messageReceived("/testingWorkflow4"));
 
     // Wait for the first activity to get executed
     Thread.sleep(2000);
 
     Instant afterFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/continueTestingWorkflow8"));
+    engine.onEvent(messageReceived("/continueTestingWorkflow4"));
 
     // Wait for the second activity to get executed
     Thread.sleep(2000);
 
     Instant afterSecondSlashInstant = Instant.now();
 
-    String processDefinition = this.getOneProcessInstanceId("testingWorkflow8");
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow4");
 
     // No activity started yet
     given()
@@ -350,7 +362,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?started_before=" + beforeFirstSlashInstant,
-            "testingWorkflow8", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
@@ -365,15 +377,15 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?started_before=" + afterFirstSlashInstant,
-            "testingWorkflow8", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow8"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow8"))
+        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -384,50 +396,50 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?started_before=" + afterSecondSlashInstant,
-            "testingWorkflow8", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow8"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow8"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
+        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow8"))
+        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
         .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow8"))
+        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy("testingWorkflow8");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
-  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   void listInstanceActivities_startedAfterFilter() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-9.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/testingWorkflow9"));
+    engine.onEvent(messageReceived("/testingWorkflow4"));
 
     // Wait for the first activity to get executed
     Thread.sleep(2000);
 
     Instant afterFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/continueTestingWorkflow9"));
+    engine.onEvent(messageReceived("/continueTestingWorkflow4"));
 
     // Wait for the second activity to get executed
     Thread.sleep(2000);
 
     Instant afterSecondSlashInstant = Instant.now();
 
-    String processDefinition = this.getOneProcessInstanceId("testingWorkflow9");
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow4");
 
     // Both workflow's activities have started
     given()
@@ -435,18 +447,18 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?started_after=" + beforeFirstSlashInstant,
-            "testingWorkflow9", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow9"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow9"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
+        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow9"))
+        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
         .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow9"))
+        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -457,15 +469,15 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?started_after=" + afterFirstSlashInstant,
-            "testingWorkflow9", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow9"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script2TestingWorkflow9"))
+        .body("activities[0].activityId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -476,7 +488,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?started_after=" + afterSecondSlashInstant,
-            "testingWorkflow9", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
@@ -486,34 +498,34 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy("testingWorkflow9");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
-  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   void listInstanceActivities_finishedBeforeFilter() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-10.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/testingWorkflow10"));
+    engine.onEvent(messageReceived("/testingWorkflow4"));
 
     // Wait for the first activity to get executed
     Thread.sleep(2000);
 
     Instant afterFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/continueTestingWorkflow10"));
+    engine.onEvent(messageReceived("/continueTestingWorkflow4"));
 
     // Wait for the second activity to get executed
     Thread.sleep(2000);
 
     Instant afterSecondSlashInstant = Instant.now();
 
-    String processDefinition = this.getOneProcessInstanceId("testingWorkflow10");
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow4");
 
     // No activity finished yet
     given()
@@ -521,7 +533,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?finished_before=" + beforeFirstSlashInstant,
-            "testingWorkflow10", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
@@ -537,15 +549,15 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?finished_before=" + afterFirstSlashInstant,
-            "testingWorkflow10", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow10"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow10"))
+        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -556,50 +568,50 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?finished_before=" + afterSecondSlashInstant,
-            "testingWorkflow10", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow10"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow10"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
+        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow10"))
+        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
         .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow10"))
+        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy("testingWorkflow10");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
-  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   void listInstanceActivities_finishedAfterFilter() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-11.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/testingWorkflow11"));
+    engine.onEvent(messageReceived("/testingWorkflow4"));
 
     // Wait for the first activity to get executed
     Thread.sleep(2000);
 
     Instant afterFirstSlashInstant = Instant.now();
 
-    engine.onEvent(messageReceived("/continueTestingWorkflow11"));
+    engine.onEvent(messageReceived("/continueTestingWorkflow4"));
 
     // Wait for the second activity to get executed
     Thread.sleep(2000);
 
     Instant afterSecondSlashInstant = Instant.now();
 
-    String processDefinition = this.getOneProcessInstanceId("testingWorkflow11");
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow4");
 
     // Both workflow's activities have finished
     given()
@@ -607,18 +619,18 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?finished_after=" + beforeFirstSlashInstant,
-            "testingWorkflow11", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow11"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow11"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
+        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow11"))
+        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
         .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow11"))
+        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -629,15 +641,15 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?finished_after=" + afterFirstSlashInstant,
-            "testingWorkflow11", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
         .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow11"))
+        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
         .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script2TestingWorkflow11"))
+        .body("activities[0].activityId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -648,7 +660,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + "?finished_after=" + afterSecondSlashInstant,
-            "testingWorkflow11", processDefinition))
+            "testingWorkflow4", processDefinition))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
@@ -658,7 +670,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy("testingWorkflow11");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
@@ -666,8 +678,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final String unknownWorkflowId = "unknownWorkflowId";
     final String unknownInstanceId = "unknownInstanceId";
     final String expectedErrorMsg =
-        String.format("Either no workflow deployed with id %s, or %s is not an instance of it", unknownWorkflowId,
-            unknownInstanceId);
+        String.format(UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE, unknownWorkflowId, unknownInstanceId);
 
     engine.undeploy(unknownWorkflowId);
 
@@ -685,8 +696,9 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   @Test
   void listWorkflowActivitiesDefinitions() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
 
+    engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     // Wait for the workflow to get executed
@@ -696,7 +708,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "testingWorkflow5"))
+        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "testingWorkflow1"))
         .thenReturn();
 
     // actual flow nodes
@@ -716,38 +728,38 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     // expected flow nodes
     TaskDefinitionView expectedSendMessageActivity1 = TaskDefinitionView.builder()
-        .nodeId("testingWorkflow5SendMsg1")
+        .nodeId("testingWorkflow1SendMsg1")
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY)
-        .parents(Collections.singletonList("message-received_/testingWorkflow5"))
-        .children(Collections.singletonList("testingWorkflow5SendMsg2"))
+        .parents(Collections.singletonList("message-received_/testingWorkflow1"))
+        .children(Collections.singletonList("testingWorkflow1SendMsg2"))
         .build();
 
     TaskDefinitionView expectedSendMessageActivity2 = TaskDefinitionView.builder()
-        .nodeId("testingWorkflow5SendMsg2")
+        .nodeId("testingWorkflow1SendMsg2")
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY)
-        .parents(Collections.singletonList("testingWorkflow5SendMsg1"))
+        .parents(Collections.singletonList("testingWorkflow1SendMsg1"))
         .children(Collections.emptyList())
         .build();
 
     TaskDefinitionView expectedMessageReceivedEventTask = TaskDefinitionView.builder()
-        .nodeId("message-received_/testingWorkflow5")
+        .nodeId("message-received_/testingWorkflow1")
         .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
         .parents(Collections.emptyList())
-        .children(Collections.singletonList("testingWorkflow5SendMsg1"))
+        .children(Collections.singletonList("testingWorkflow1SendMsg1"))
         .build();
 
     List<TaskDefinitionView> expectedTaskDefinitions =
         Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2, expectedMessageReceivedEventTask);
 
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-    assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("testingWorkflow5");
+    assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("testingWorkflow1");
     assertThat(response.body().jsonPath().getList("variables")).isEmpty();
 
     assertThat(taskDefinitionViews)
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
-    engine.undeploy("testingWorkflow5");
+    engine.undeploy(workflow.getId());
   }
 
   @Test
@@ -766,9 +778,209 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("message", equalTo(expectedErrorMsg));
   }
 
-  private String getOneProcessInstanceId(String workflowId) {
+  // TODO: Flaky test
+  @Disabled("Flaky test: for some reason, the two first updates have the same revision and the order is not guaranteed")
+  void listWorkflowGlobalVariables() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/testingWorkflow5"));
+
+    // Wait for the first activity to get executed
+    Thread.sleep(2000);
+
+    engine.onEvent(messageReceived("/continueTestingWorkflow5"));
+
+    // Wait for the second activity to get executed
+    Thread.sleep(2000);
+
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow5");
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES, "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", hasSize(3))
+
+        .body("[1].revision", equalTo(0))
+        .body("[1].outputs.key1", equalTo("value_1_updated"))
+        .body("[1].outputs.key2", equalTo("value_2_initial"))
+        .body("[1].outputs.key3", equalTo("value_3_added"))
+        .body("[1].updateTime", not(empty()))
+
+        .body("[0].revision", equalTo(0))
+        .body("[0].outputs.key1", equalTo("value_1_initial"))
+        .body("[0].outputs.key2", equalTo("value_2_initial"))
+        .body("[0].updateTime", not(empty()))
+
+        .body("[2].revision", equalTo(1))
+        .body("[2].outputs.key1", equalTo("value_1_updated"))
+        .body("[2].outputs.key2", equalTo("value_2_initial"))
+        .body("[2].outputs.key3", equalTo("value_3_added"))
+        .body("[2].outputs.key4", equalTo("value_4_added"))
+        .body("[2].updateTime", not(empty()));
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflowGlobalVariables_updatedBeforeFilter() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+
+    Instant beforeFirstSlashInstant = Instant.now();
+    engine.onEvent(messageReceived("/testingWorkflow5"));
+
+    // Wait for the first activity to get executed
+    Thread.sleep(2000);
+
+    Instant afterFirstSlashInstant = Instant.now();
+    engine.onEvent(messageReceived("/continueTestingWorkflow5"));
+
+    // Wait for the second activity to get executed
+    Thread.sleep(2000);
+
+    Instant afterSecondSlashInstant = Instant.now();
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow5");
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + "?updated_before=" + beforeFirstSlashInstant,
+            "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + "?updated_before=" + afterFirstSlashInstant,
+            "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", hasSize(2))
+        .body("[0].revision", equalTo(0))
+        .body("[1].revision", equalTo(0));
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + "?updated_before=" + afterSecondSlashInstant,
+            "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", hasSize(3))
+        .body("[0].revision", equalTo(0))
+        .body("[1].revision", equalTo(0))
+        .body("[2].revision", equalTo(1));
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflowGlobalVariables_updatedAfterFilter() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+
+    Instant beforeFirstSlashInstant = Instant.now();
+    engine.onEvent(messageReceived("/testingWorkflow5"));
+
+    // Wait for the first activity to get executed
+    Thread.sleep(2000);
+
+    Instant afterFirstSlashInstant = Instant.now();
+    engine.onEvent(messageReceived("/continueTestingWorkflow5"));
+
+    // Wait for the second activity to get executed
+    Thread.sleep(2000);
+
+    Instant afterSecondSlashInstant = Instant.now();
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow5");
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + "?updated_after=" + beforeFirstSlashInstant,
+            "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", hasSize(3))
+        .body("[0].revision", equalTo(0))
+        .body("[1].revision", equalTo(0))
+        .body("[2].revision", equalTo(1));
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + "?updated_after=" + afterFirstSlashInstant,
+            "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", hasSize(1))
+        .body("[0].revision", equalTo(1));
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + "?updated_after=" + afterSecondSlashInstant,
+            "testingWorkflow5", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflowGlobalVariables_unknownWorkflowId_unknownInstanceId() {
+    final String unknownWorkflowId = "unknownWorkflowId";
+    final String unknownInstanceId = "unknownInstanceId";
+    final String expectedErrorMsg =
+        String.format(UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE, unknownWorkflowId, unknownInstanceId);
+
+    engine.undeployAll(); // clean any old running instance
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES, unknownWorkflowId, unknownInstanceId))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.NOT_FOUND.value())
+        .body("message", equalTo(expectedErrorMsg));
+  }
+
+  private String getLastProcessInstanceId(String workflowId) {
     Optional<String> processDefinition = historyService.createHistoricProcessInstanceQuery()
         .processDefinitionKey(workflowId)
+        .orderByProcessInstanceStartTime()
+        .desc() // if many instances are found, always return the latest
         .list()
         .stream()
         .map(HistoricProcessInstance::getId)

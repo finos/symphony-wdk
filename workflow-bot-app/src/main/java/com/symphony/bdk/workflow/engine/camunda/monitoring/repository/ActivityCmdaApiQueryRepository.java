@@ -6,6 +6,7 @@ import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -39,19 +40,19 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
     HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()
         .processInstanceId(instanceId);
 
-    if (lifeCycleFilter.getStartedBefore() != null) {
+    if (!StringUtils.isBlank(lifeCycleFilter.getStartedBefore())) {
       historicActivityInstanceQuery.startedBefore(new DateTime(lifeCycleFilter.getStartedBefore()).toDate());
     }
 
-    if (lifeCycleFilter.getStartedAfter() != null) {
+    if (!StringUtils.isBlank(lifeCycleFilter.getStartedAfter())) {
       historicActivityInstanceQuery.startedAfter(new DateTime(lifeCycleFilter.getStartedAfter()).toDate());
     }
 
-    if (lifeCycleFilter.getFinishedBefore() != null) {
+    if (!StringUtils.isBlank(lifeCycleFilter.getFinishedBefore())) {
       historicActivityInstanceQuery.finishedBefore(new DateTime(lifeCycleFilter.getFinishedBefore()).toDate());
     }
 
-    if (lifeCycleFilter.getFinishedAfter() != null) {
+    if (!StringUtils.isBlank(lifeCycleFilter.getFinishedAfter())) {
       historicActivityInstanceQuery.finishedAfter(new DateTime(lifeCycleFilter.getFinishedAfter()).toDate());
     }
 
@@ -64,7 +65,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .collect(Collectors.toList()), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
-        .filter(a -> a.getType().equals("serviceTask") || a.getType().equals("scriptTask"))
+        .filter(a -> a.getType().equals("serviceTask"))
         .map(ActivityInstanceDomain::getName)
         .collect(Collectors.toList());
 

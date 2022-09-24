@@ -4,6 +4,7 @@ import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -63,11 +64,11 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .variableInstanceId(varId);
 
 
-    if (occurredBefore != null && !occurredBefore.isEmpty()) {
+    if (!StringUtils.isBlank(occurredBefore)) {
       historicDetailQuery = historicDetailQuery.occurredBefore(new DateTime(occurredBefore).toDate());
     }
 
-    if (occurredAfter != null && !occurredAfter.isEmpty()) {
+    if (!StringUtils.isBlank(occurredAfter)) {
       historicDetailQuery = historicDetailQuery.occurredAfter(new DateTime(occurredAfter).toDate());
     }
 

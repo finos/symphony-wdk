@@ -1,8 +1,0 @@
-id: testingWorkflow6
-activities:
-  - execute-script:
-      id: scriptTestingWorkflow6
-      on:
-        message-received:
-          content: /testingWorkflow6
-      script: |

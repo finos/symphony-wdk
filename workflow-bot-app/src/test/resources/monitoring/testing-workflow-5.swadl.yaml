@@ -1,16 +1,21 @@
 id: testingWorkflow5
+variables:
+  key1: "value_1_initial"
+  key2: "value_2_initial"
 activities:
-  - send-message:
-      id: testingWorkflow5SendMsg1
+  - execute-script:
+      id: script1TestingWorkflow5
       on:
         message-received:
-          content: "/testingWorkflow5"
-      to:
-        stream-id: "123"
-      content: <messageML>Hello!</messageML>
+          content: /testingWorkflow5
+      script: |
+        variables.key1 = "value_1_updated"
+        variables.key3 = "value_3_added"
 
-  - send-message:
-      id: testingWorkflow5SendMsg2
-      to:
-        stream-id: "123"
-      content: <messageML>Hello!</messageML>
+  - execute-script:
+      id: script2TestingWorkflow5
+      on:
+        message-received:
+          content: /continueTestingWorkflow5
+      script: |
+        variables.key4 = "value_4_added"

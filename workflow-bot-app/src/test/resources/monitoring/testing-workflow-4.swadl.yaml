@@ -1,16 +1,15 @@
 id: testingWorkflow4
 activities:
-  - send-message:
-      id: testingWorkflow4SendMsg1
+  - execute-script:
+      id: script1TestingWorkflow4
       on:
         message-received:
-          content: "/testingWorkflow4"
-      to:
-        stream-id: "123"
-      content: <messageML>Hello!</messageML>
+          content: /testingWorkflow4
+      script: |
 
-  - send-message:
-      id: testingWorkflow4SendMsg2
-      to:
-        stream-id: "123"
-      content: <messageML>Hello!</messageML>
+  - execute-script:
+      id: script2TestingWorkflow4
+      on:
+        message-received:
+          content: /continueTestingWorkflow4
+      script: |
