@@ -8,10 +8,13 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDo
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepository
@@ -34,20 +37,39 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
     HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery()
         .processDefinitionKey(id);
 
+    List<HistoricProcessInstance> instances = new ArrayList<>();
     if (status != null) {
       switch (status) {
         case COMPLETED:
-          historicProcessInstanceQuery.finished();
+          instances = historicProcessInstanceQuery.finished()
+              .orderByProcessInstanceStartTime()
+              .asc()
+              .list()
+              .stream()
+              .filter(
+                  instance -> instance.getEndActivityId() != null && instance.getEndActivityId().startsWith("endEvent"))
+              .collect(Collectors.toList());
+          break;
+        case FAILED:
+          instances = historicProcessInstanceQuery.finished()
+              .orderByProcessInstanceStartTime()
+              .asc()
+              .list()
+              .stream()
+              .filter(instance -> instance.getEndActivityId() != null && !instance.getEndActivityId()
+                  .startsWith("endEvent"))
+              .collect(Collectors.toList());
           break;
         case PENDING:
-          historicProcessInstanceQuery.unfinished();
+          instances = historicProcessInstanceQuery.unfinished().orderByProcessInstanceStartTime().asc().list();
           break;
         default:
           break;
       }
+    } else {
+      instances = historicProcessInstanceQuery.orderByProcessInstanceStartTime().asc().list();
     }
 
-    return objectConverter.convertCollection(
-        historicProcessInstanceQuery.orderByProcessInstanceStartTime().asc().list(), WorkflowInstanceDomain.class);
+    return objectConverter.convertCollection(instances, WorkflowInstanceDomain.class);
   }
 }

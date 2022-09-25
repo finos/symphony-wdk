@@ -40,19 +40,19 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
     HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()
         .processInstanceId(instanceId);
 
-    if (!StringUtils.isBlank(lifeCycleFilter.getStartedBefore())) {
+    if (StringUtils.isNotBlank(lifeCycleFilter.getStartedBefore())) {
       historicActivityInstanceQuery.startedBefore(new DateTime(lifeCycleFilter.getStartedBefore()).toDate());
     }
 
-    if (!StringUtils.isBlank(lifeCycleFilter.getStartedAfter())) {
+    if (StringUtils.isNotBlank(lifeCycleFilter.getStartedAfter())) {
       historicActivityInstanceQuery.startedAfter(new DateTime(lifeCycleFilter.getStartedAfter()).toDate());
     }
 
-    if (!StringUtils.isBlank(lifeCycleFilter.getFinishedBefore())) {
+    if (StringUtils.isNotBlank(lifeCycleFilter.getFinishedBefore())) {
       historicActivityInstanceQuery.finishedBefore(new DateTime(lifeCycleFilter.getFinishedBefore()).toDate());
     }
 
-    if (!StringUtils.isBlank(lifeCycleFilter.getFinishedAfter())) {
+    if (StringUtils.isNotBlank(lifeCycleFilter.getFinishedAfter())) {
       historicActivityInstanceQuery.finishedAfter(new DateTime(lifeCycleFilter.getFinishedAfter()).toDate());
     }
 

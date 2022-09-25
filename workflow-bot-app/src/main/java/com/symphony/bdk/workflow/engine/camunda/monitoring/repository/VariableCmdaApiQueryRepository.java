@@ -64,11 +64,11 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .variableInstanceId(varId);
 
 
-    if (!StringUtils.isBlank(occurredBefore)) {
+    if (StringUtils.isNotBlank(occurredBefore)) {
       historicDetailQuery = historicDetailQuery.occurredBefore(new DateTime(occurredBefore).toDate());
     }
 
-    if (!StringUtils.isBlank(occurredAfter)) {
+    if (StringUtils.isNotBlank(occurredAfter)) {
       historicDetailQuery = historicDetailQuery.occurredAfter(new DateTime(occurredAfter).toDate());
     }
 

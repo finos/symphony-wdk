@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -55,7 +56,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   private static final String MISSING_X_MONITORING_TOKEN_HEADER_EXCEPTION_MESSAGE =
       "Request header X-Monitoring-Token is missing";
   private static final String BAD_WORKFLOW_INSTANCE_STATUS_EXCEPTION_MESSAGE =
-      "Workflow instance status %s is not known. Allowed values [Completed, Pending]";
+      "Workflow instance status %s is not known. Allowed values [Completed, Pending, Failed]";
   private static final String UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE =
       "Either no workflow deployed with id %s, or %s is not an instance of it";
 
@@ -162,47 +163,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("[0].status", equalTo("COMPLETED"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))
-        .body("[0].endDate", not(isEmptyString()));
-
-    engine.undeploy(workflow.getId());
-  }
-
-  @Test
-  void listWorkflowInstances_completedStatusFilter() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
-
-    engine.undeploy(workflow.getId()); // clean any old running instance
-    engine.deploy(workflow);
-    engine.onEvent(messageReceived("/testingWorkflow3"));
-
-    // Wait for the workflow to get executed
-    Thread.sleep(2000);
-
-    given()
-        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
-        .contentType(ContentType.JSON)
-        .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow3"))
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.OK.value())
-        .body("[0].id", equalTo("testingWorkflow3"))
-        .body("[0].version", equalTo(1))
-        .body("[0].status", equalTo("COMPLETED"))
-        .body("[0].instanceId", not(isEmptyString()))
-        .body("[0].startDate", not(isEmptyString()))
-        .body("[0].endDate", not(isEmptyString()));
-
-    given()
-        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
-        .contentType(ContentType.JSON)
-        .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow3"))
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.OK.value())
-        .body("", empty());
+        .body("[0].endDate", not(isEmptyString()))
+        .body("[0].duration", not(isEmptyString()));
 
     engine.undeploy(workflow.getId());
   }
@@ -232,13 +194,128 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("[0].status", equalTo("PENDING"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))
-        .body("[0].endDate", not(isEmptyString()));
+        .body("[0].endDate", isEmptyOrNullString())
+        .body("[0].duration", isEmptyOrNullString());
 
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
         .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow4"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=failed", "testingWorkflow4"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflowInstances_completedStatusFilter() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/testingWorkflow3"));
+
+    // Wait for the workflow to get executed
+    Thread.sleep(2000);
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow3"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("[0].id", equalTo("testingWorkflow3"))
+        .body("[0].version", equalTo(1))
+        .body("[0].status", equalTo("COMPLETED"))
+        .body("[0].instanceId", not(isEmptyString()))
+        .body("[0].startDate", not(isEmptyString()))
+        .body("[0].endDate", not(isEmptyString()))
+        .body("[0].duration", not(isEmptyString()));
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow3"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=failed", "testingWorkflow3"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflowInstances_failedStatusFilter() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenThrow(new RuntimeException("Unauthorized"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/testingWorkflow1"));
+
+    // Wait for the workflow to get executed
+    Thread.sleep(2000);
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=failed", "testingWorkflow1"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("[0].id", equalTo("testingWorkflow1"))
+        .body("[0].version", equalTo(1))
+        .body("[0].status", equalTo("FAILED"))
+        .body("[0].instanceId", not(isEmptyString()))
+        .body("[0].startDate", not(isEmptyString()))
+        .body("[0].endDate", not(isEmptyString()))
+        .body("[0].duration", not(isEmptyString()));
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=completed", "testingWorkflow1"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("", empty());
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow1"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())

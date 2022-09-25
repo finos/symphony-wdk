@@ -60,7 +60,7 @@ public interface WorkflowsApi {
       @ApiParam(value = "Workflow's id to list instances", required = true) @PathVariable String workflowId,
       @ApiParam(value = "Workflows monitoring token to authenticate the request")
       @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
-      @ApiParam("Optional query parameter to filter instances by status [Completed / Pending]")
+      @ApiParam("Optional query parameter to filter instances by status [Pending | Completed | Failed]")
       @RequestParam(required = false) String status);
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")

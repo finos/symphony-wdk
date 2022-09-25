@@ -5,15 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.Duration;
 import java.util.Date;
 
 class WorkflowInstanceDomainConverterTest {
 
-  @Test
-  void apply() {
+  @ParameterizedTest
+  @CsvSource({"PENDING, PENDING, ", "COMPLETED, COMPLETED, endEvent", "COMPLETED, FAILED, notEndEvent", "UNKNOWN,,"})
+  void apply(String sourceState, String targetState, String endActivityId) {
     // given
     HistoricProcessInstanceEntity entity = new HistoricProcessInstanceEntity();
     entity.setId("id");
@@ -22,7 +24,8 @@ class WorkflowInstanceDomainConverterTest {
     entity.setProcessDefinitionVersion(4);
     Date start = new Date();
     entity.setStartTime(start);
-    entity.setState("COMPLETE");
+    entity.setState(sourceState);
+    entity.setEndActivityId(endActivityId);
     Date end = new Date();
     entity.setEndTime(end);
     Duration duration = Duration.between(start.toInstant(), end.toInstant());
@@ -37,7 +40,7 @@ class WorkflowInstanceDomainConverterTest {
     assertThat(domain.getId()).isEqualTo("id");
     assertThat(domain.getName()).isEqualTo("workflow");
     assertThat(domain.getInstanceId()).isEqualTo("instance-id");
-    assertThat(domain.getStatus()).isEqualTo("COMPLETE");
+    assertThat(domain.getStatus()).isEqualTo(targetState);
     assertThat(domain.getStartDate()).isEqualTo(start.toInstant());
     assertThat(domain.getEndDate()).isEqualTo(end.toInstant());
     assertThat(domain.getDuration()).isEqualTo(duration);

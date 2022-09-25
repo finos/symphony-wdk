@@ -88,7 +88,7 @@ class MonitoringServiceTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"completed", "COMPLETED", "pending", "PENDING", "active"})
+  @CsvSource({"completed", "COMPLETED", "pending", "PENDING", "active", "FAILED", "failed"})
   void listWorkflowInstances_completedFilter(String status) {
     when(workflowInstQueryRepository.findAllById(anyString(), any(StatusEnum.class))).thenReturn(
         Collections.emptyList());
@@ -105,7 +105,7 @@ class MonitoringServiceTest {
         .as("bad_status is not a valid workflow instance status")
         .isThrownBy(() -> service.listWorkflowInstances("id", "bad_status"))
         .satisfies(exception -> assertThat(exception.getMessage()).isEqualTo(
-            "Workflow instance status bad_status is not known. Allowed values [Completed, Pending]"));
+            "Workflow instance status bad_status is not known. Allowed values [Completed, Pending, Failed]"));
   }
 
   @Test
