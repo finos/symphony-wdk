@@ -192,9 +192,9 @@ class MonitoringServiceTest {
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
 
     // when
+    WorkflowInstLifeCycleFilter lifeCycleFilter = new WorkflowInstLifeCycleFilter("", "", "", "");
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
-            () -> service.listWorkflowInstanceActivities("workflow", "instance",
-                new WorkflowInstLifeCycleFilter("", "", "", "")))
+            () -> service.listWorkflowInstanceActivities("workflow", "instance", lifeCycleFilter))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Either no workflow deployed with id workflow, or instance is not an instance of it"));
   }
@@ -248,11 +248,11 @@ class MonitoringServiceTest {
         Collections.singletonList(workflowInstanceDomain));
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(
         List.of(workflowInstView));
-    when(variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(anyString(), anyString(),
-        anyString())).thenReturn(List.of(domain));
+    when(variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(anyString(), any(), any())).thenReturn(
+        List.of(domain));
 
     // when
-    List<VariableView> variableViews = service.listWorkflowInstanceGlobalVars("workflow", "instance", "", "");
+    List<VariableView> variableViews = service.listWorkflowInstanceGlobalVars("workflow", "instance", null, null);
 
     // then
     then(variableViews).hasSize(1);

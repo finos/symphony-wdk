@@ -90,7 +90,7 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
         .orElse("");
 
     if (!workflowToken.isEmpty() && !workflowToken.equals(parameters.getToken())) {
-      throw new UnauthorizedException("Request token is not valid");
+      throw new UnauthorizedException("Request is not authorised");
     }
 
     // dispatch event

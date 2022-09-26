@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -71,7 +72,7 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(String workflowId, String instanceId,
-      String token, String updatedBefore, String updatedAfter) {
+      String token, Instant updatedBefore, Instant updatedAfter) {
     return ResponseEntity.ok(
         monitoringService.listWorkflowInstanceGlobalVars(workflowId, instanceId, updatedBefore, updatedAfter));
   }

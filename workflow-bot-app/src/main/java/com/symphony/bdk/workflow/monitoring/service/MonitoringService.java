@@ -25,6 +25,7 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDo
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -131,8 +132,8 @@ public class MonitoringService {
     return builder.build();
   }
 
-  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, String updatedBefore,
-      String updatedAfter) {
+  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, Instant updatedBefore,
+      Instant updatedAfter) {
     // check if the instance belongs to the provided workflow
     this.checkIsInstanceOfWorkflow(workflowId, instanceId);
 

@@ -46,7 +46,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), "badToken");
     assertThatExceptionOfType(UnauthorizedException.class).isThrownBy(
             () -> engine.execute("request-received", executionParameters))
-        .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Request token is not valid"));
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Request is not authorised"));
     verify(messageService, never()).send(anyString(), any(Message.class));
   }
 
@@ -60,7 +60,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), null);
     assertThatExceptionOfType(UnauthorizedException.class).isThrownBy(
             () -> engine.execute("request-received", executionParameters))
-        .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Request token is not valid"));
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Request is not authorised"));
     verify(messageService, never()).send(anyString(), any(Message.class));
   }
 

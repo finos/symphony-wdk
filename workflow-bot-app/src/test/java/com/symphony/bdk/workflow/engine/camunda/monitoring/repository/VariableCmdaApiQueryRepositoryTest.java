@@ -62,7 +62,7 @@ class VariableCmdaApiQueryRepositoryTest {
         List.of(domain));
 
     // when
-    List<VariablesDomain> global = queryRepository.findGlobalVarsHistoryByWorkflowInstId("id", "", "");
+    List<VariablesDomain> global = queryRepository.findGlobalVarsHistoryByWorkflowInstId("id", null, null);
     // then
     assertThat(global).hasSize(1);
     assertThat(global.get(0).getRevision()).isEqualTo(1);

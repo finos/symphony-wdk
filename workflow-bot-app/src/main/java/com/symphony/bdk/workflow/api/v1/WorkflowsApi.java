@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.time.Instant;
 import java.util.List;
 
 @Api("Api to execute and monitor workflows")
@@ -32,7 +33,7 @@ public interface WorkflowsApi {
   @ApiOperation("Triggers the execution of a workflow given by its id. This is an asynchronous operation.")
   @ApiResponses(value = {@ApiResponse(code = 204, message = "", response = Object.class),
       @ApiResponse(code = 404, message = "No workflow found with id {id}", response = ErrorResponse.class),
-      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PostMapping("/{id}/execute")
   ResponseEntity<Object> executeWorkflowById(
@@ -45,7 +46,7 @@ public interface WorkflowsApi {
   @ApiOperation("List all deployed workflows")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowView.class, responseContainer = "List"),
-          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+          @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @GetMapping("/")
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
       @ApiParam("Workflows monitoring token to authenticate the request")
@@ -54,7 +55,7 @@ public interface WorkflowsApi {
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowInstView.class, responseContainer = "List"),
-          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+          @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances")
   ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(
       @ApiParam(value = "Workflow's id to list instances", required = true) @PathVariable String workflowId,
@@ -65,7 +66,7 @@ public interface WorkflowsApi {
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowActivitiesView.class),
-      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/activities")
   ResponseEntity<WorkflowActivitiesView> listInstanceActivities(
       @ApiParam(value = "Workflow's id to list instance activities", required = true) @PathVariable String workflowId,
@@ -96,7 +97,7 @@ public interface WorkflowsApi {
 
   @ApiOperation("Get activities definitions for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class),
-      @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/definitions")
   ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(
       @ApiParam(value = "Workflow's id to get activities definitions", required = true) @PathVariable String workflowId,
@@ -106,7 +107,7 @@ public interface WorkflowsApi {
   @ApiOperation("List global variables for a given workflow")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = VariableView.class, responseContainer = "List"),
-          @ApiResponse(code = 401, message = "Request token is not valid", response = ErrorResponse.class)})
+          @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/variables")
   ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(
       @ApiParam(value = "Workflow's id to list global variables", required = true) @PathVariable String workflowId,
@@ -116,9 +117,9 @@ public interface WorkflowsApi {
       @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
       @ApiParam(value = "Optional query parameter to filter global variables update occurred before the date. "
               + "The date is an ISO 8601 date", example = "2022-09-21T15:43:24.917Z")
-      @RequestParam(required = false, name = "updated_before") String updatedBefore,
+      @RequestParam(required = false, name = "updated_before") Instant updatedBefore,
       @ApiParam(value = "Optional query parameter to filter global variables update occurred after the date. "
           + "The date is an ISO 8601 date", example = "2022-09-21T15:43:24.917Z")
-      @RequestParam(required = false, name = "updated_after") String updatedAfter);
+      @RequestParam(required = false, name = "updated_after") Instant updatedAfter);
 
 }

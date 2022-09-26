@@ -4,7 +4,6 @@ import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -47,8 +46,8 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   }
 
   @Override
-  public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id, String updatedBefore,
-      String updatedAfter) {
+  public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id, Instant updatedBefore,
+      Instant updatedAfter) {
     HistoricVariableInstance variables = historyService.createHistoricVariableInstanceQuery()
         .variableName("variables")
         .processInstanceId(id)
@@ -65,12 +64,12 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .variableInstanceId(varId);
 
 
-    if (StringUtils.isNotBlank(updatedBefore)) {
-      historicDetailQuery = historicDetailQuery.occurredBefore(Date.from(Instant.parse(updatedBefore)));
+    if (updatedBefore != null) {
+      historicDetailQuery = historicDetailQuery.occurredBefore(Date.from(updatedBefore));
     }
 
-    if (StringUtils.isNotBlank(updatedAfter)) {
-      historicDetailQuery = historicDetailQuery.occurredAfter(Date.from(Instant.parse(updatedAfter)));
+    if (updatedAfter != null) {
+      historicDetailQuery = historicDetailQuery.occurredAfter(Date.from(updatedAfter));
     }
 
     List<HistoricDetail> historicDetails = historicDetailQuery

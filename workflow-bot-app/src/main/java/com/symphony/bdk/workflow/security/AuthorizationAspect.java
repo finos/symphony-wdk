@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @Aspect
 public class AuthorizationAspect {
 
-  private static final String UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE = "Request token is not valid";
+  private static final String UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE = "Request is not authorised";
 
   private final WorkflowBotConfiguration workflowBotConfiguration;
 
@@ -28,10 +28,6 @@ public class AuthorizationAspect {
     String monitoringToken = workflowBotConfiguration.getMonitoringToken();
     String headerKey = authorized.headerTokenKey();
     HttpServletRequest httpServletRequest = getHttpServletRequest();
-
-    if (headerKey != null && httpServletRequest.getHeader(headerKey) == null) {
-      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE);
-    }
 
     if (headerKey == null || monitoringToken == null || monitoringToken.isEmpty() || !monitoringToken.equals(
         httpServletRequest.getHeader(headerKey))) {
