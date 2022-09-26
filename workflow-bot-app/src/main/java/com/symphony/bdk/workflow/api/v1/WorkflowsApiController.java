@@ -56,7 +56,7 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(String workflowId, String instanceId,
-      String token, String startedBefore, String startedAfter, String finishedBefore, String finishedAfter) {
+      String token, Instant startedBefore, Instant startedAfter, Instant finishedBefore, Instant finishedAfter) {
     WorkflowInstLifeCycleFilter lifeCycleFilter =
         new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);
 

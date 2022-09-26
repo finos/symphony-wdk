@@ -6,7 +6,6 @@ import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -14,7 +13,6 @@ import org.camunda.bpm.engine.history.HistoricActivityInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -41,20 +39,20 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
     HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()
         .processInstanceId(instanceId);
 
-    if (StringUtils.isNotBlank(lifeCycleFilter.getStartedBefore())) {
-      historicActivityInstanceQuery.startedBefore(Date.from(Instant.parse(lifeCycleFilter.getStartedBefore())));
+    if (lifeCycleFilter.getStartedBefore() != null) {
+      historicActivityInstanceQuery.startedBefore(Date.from(lifeCycleFilter.getStartedBefore()));
     }
 
-    if (StringUtils.isNotBlank(lifeCycleFilter.getStartedAfter())) {
-      historicActivityInstanceQuery.startedAfter(Date.from(Instant.parse(lifeCycleFilter.getStartedAfter())));
+    if (lifeCycleFilter.getStartedAfter() != null) {
+      historicActivityInstanceQuery.startedAfter(Date.from(lifeCycleFilter.getStartedAfter()));
     }
 
-    if (StringUtils.isNotBlank(lifeCycleFilter.getFinishedBefore())) {
-      historicActivityInstanceQuery.finishedBefore(Date.from(Instant.parse(lifeCycleFilter.getFinishedBefore())));
+    if (lifeCycleFilter.getFinishedBefore() != null) {
+      historicActivityInstanceQuery.finishedBefore(Date.from(lifeCycleFilter.getFinishedBefore()));
     }
 
-    if (StringUtils.isNotBlank(lifeCycleFilter.getFinishedAfter())) {
-      historicActivityInstanceQuery.finishedAfter(Date.from(Instant.parse(lifeCycleFilter.getFinishedAfter())));
+    if (lifeCycleFilter.getFinishedAfter() != null) {
+      historicActivityInstanceQuery.finishedAfter(Date.from(lifeCycleFilter.getFinishedAfter()));
     }
 
     List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery

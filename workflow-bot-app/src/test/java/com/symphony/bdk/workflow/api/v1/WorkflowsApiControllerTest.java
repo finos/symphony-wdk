@@ -27,6 +27,8 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -229,6 +231,16 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("activities[0].outputs[\"c\"]").value("d"));
   }
 
+  @ParameterizedTest
+  @CsvSource({"?started_before=INVALID_INSTANT", "?started_after=INVALID_INSTANT", "?finished_before=INVALID_INSTANT",
+      "?finished_after=INVALID_INSTANT"})
+  void listWorkflowInstanceActivitiesBadQueryParameter(String queryParam) throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + queryParam, "workflowId", "instanceId"))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test
   void listWorkflowInstanceActivities_illegalArgument() throws Exception {
     final String illegalWorkflowId = "testWorkflowId";
@@ -325,6 +337,16 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("[1].outputs[\"globalTwo\"]").value("valueTwo2"))
         .andExpect(jsonPath("[1].revision").value(1));
   }
+
+  @ParameterizedTest
+  @CsvSource({"?updated_before=INVALID", "?updated_after=INVALID"})
+  void listWorkflowInstanceGlobalVariablesBadQueryParameter(String queryParam) throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH + queryParam, "workflowId", "instanceId"))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+        .andExpect(status().isBadRequest());
+  }
+
 
   @Test
   void listWorkflowActivities_illegalArgument() throws Exception {

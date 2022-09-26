@@ -748,6 +748,20 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     engine.undeploy(workflow.getId());
   }
 
+  @ParameterizedTest
+  @CsvSource({"?started_before=INVALID_INSTANT", "?started_after=INVALID_INSTANT", "?finished_before=INVALID_INSTANT",
+      "?finished_after=INVALID_INSTANT"})
+  void listInstanceActivities_invalidFilter(String queryParam) {
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + queryParam, "testingWorkflow4", ""))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.BAD_REQUEST.value());
+  }
+
   @Test
   void listInstanceActivities_unknownWorkflowId_unknownInstanceId() {
     final String unknownWorkflowId = "unknownWorkflowId";
@@ -1029,6 +1043,19 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("", empty());
 
     engine.undeploy(workflow.getId());
+  }
+
+  @ParameterizedTest
+  @CsvSource({"?updated_before=INVALID", "?updated_after=INVALID"})
+  void listWorkflowGlobalVariables_invalidFilter(String queryParam) {
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_GLOBAL_VARIABLES + queryParam, "testingWorkflow5", ""))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.BAD_REQUEST.value());
   }
 
   @Test

@@ -77,22 +77,22 @@ public interface WorkflowsApi {
           value = "Optional query parameter to filter activities having started before the date. "
               + "The date is an ISO 8601 date",
           name = "started_before", example = "2022-09-21T15:43:24.917Z")
-      @RequestParam(required = false, name = "started_before") String startedBefore,
+      @RequestParam(required = false, name = "started_before") Instant startedBefore,
       @ApiParam(
           value = "Optional query parameter to filter activities having started after the date. "
               + "The date is an ISO 8601 date",
           name = "started_after", example = "2022-09-21T15:43:24.917Z")
-      @RequestParam(required = false, name = "started_after") String startedAfter,
+      @RequestParam(required = false, name = "started_after") Instant startedAfter,
       @ApiParam(
           value = "Optional query parameter to filter activities having finished before the date. "
               + "The date is an ISO 8601 date",
           name = "finished_before", example = "2022-09-21T15:43:24.917Z")
-      @RequestParam(required = false, name = "finished_before") String finishedBefore,
+      @RequestParam(required = false, name = "finished_before") Instant finishedBefore,
       @ApiParam(
           value = "Optional query parameter to filter activities having finished after the date. "
               + "The date is an ISO 8601 date",
           name = "finished_after", example = "2022-09-21T15:43:24.917Z")
-      @RequestParam(required = false, name = "finished_after") String finishedAfter
+      @RequestParam(required = false, name = "finished_after") Instant finishedAfter
   );
 
   @ApiOperation("Get activities definitions for a given workflow")

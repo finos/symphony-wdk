@@ -170,8 +170,8 @@ class MonitoringServiceTest {
     when(variableQueryRepository.findGlobalVarsByWorkflowInstanceId(anyString())).thenReturn(vars);
 
     // when
-    WorkflowActivitiesView workflowInstanceActivities =
-        service.listWorkflowInstanceActivities("workflow", "instance", new WorkflowInstLifeCycleFilter("", "", "", ""));
+    WorkflowActivitiesView workflowInstanceActivities = service.listWorkflowInstanceActivities("workflow", "instance",
+        new WorkflowInstLifeCycleFilter(null, null, null, null));
 
     // then
     then(workflowInstanceActivities.getActivities()).hasSize(2);
@@ -192,7 +192,7 @@ class MonitoringServiceTest {
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
 
     // when
-    WorkflowInstLifeCycleFilter lifeCycleFilter = new WorkflowInstLifeCycleFilter("", "", "", "");
+    WorkflowInstLifeCycleFilter lifeCycleFilter = new WorkflowInstLifeCycleFilter(null, null, null, null);
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
             () -> service.listWorkflowInstanceActivities("workflow", "instance", lifeCycleFilter))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
