@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
@@ -8,10 +9,12 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.history.HistoricActivityInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,11 +34,31 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
    * and eventually the one activity being executed (with status ONGOING).
    */
   @Override
-  public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String instanceId) {
-    List<ActivityInstanceDomain> result =
-        objectConverter.convertCollection(historyService.createHistoricActivityInstanceQuery()
-            .processInstanceId(instanceId).orderByHistoricActivityInstanceStartTime().asc()
-            .list(), ActivityInstanceDomain.class);
+  public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String workflowId, String instanceId,
+      WorkflowInstLifeCycleFilter lifeCycleFilter) {
+    HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()
+        .processInstanceId(instanceId);
+
+    if (lifeCycleFilter.getStartedBefore() != null) {
+      historicActivityInstanceQuery.startedBefore(Date.from(lifeCycleFilter.getStartedBefore()));
+    }
+
+    if (lifeCycleFilter.getStartedAfter() != null) {
+      historicActivityInstanceQuery.startedAfter(Date.from(lifeCycleFilter.getStartedAfter()));
+    }
+
+    if (lifeCycleFilter.getFinishedBefore() != null) {
+      historicActivityInstanceQuery.finishedBefore(Date.from(lifeCycleFilter.getFinishedBefore()));
+    }
+
+    if (lifeCycleFilter.getFinishedAfter() != null) {
+      historicActivityInstanceQuery.finishedAfter(Date.from(lifeCycleFilter.getFinishedAfter()));
+    }
+
+    List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery
+        .orderByHistoricActivityInstanceStartTime()
+        .asc()
+        .list(), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
         .filter(a -> a.getType().equals("serviceTask"))
@@ -55,7 +78,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         }));
 
     result.stream()
-        .filter(a -> a.getType().equals("serviceTask"))
+        .filter(a -> a.getType().equals("serviceTask") && variablesDomainMap.get(a.getName()) != null)
         .forEach(activity -> activity.setVariables(variablesDomainMap.get(activity.getName())));
 
     return result;

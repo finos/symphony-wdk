@@ -10,15 +10,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.symphony.bdk.workflow.api.v1.dto.ActivityDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
-import com.symphony.bdk.workflow.api.v1.dto.EventDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -28,6 +27,8 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -133,8 +134,8 @@ class WorkflowsApiControllerTest {
     when(monitoringService.listAllWorkflows()).thenReturn(Arrays.asList(workflowView1, workflowView2));
 
     mockMvc.perform(
-        request(HttpMethod.GET, LIST_WORKFLOWS_PATH)
-            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+            request(HttpMethod.GET, LIST_WORKFLOWS_PATH)
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("id1"))
@@ -148,12 +149,12 @@ class WorkflowsApiControllerTest {
         workflowInstView("testWorkflowId", "instance1", 222L, 666L, 1, StatusEnum.COMPLETED);
     WorkflowInstView instanceView2 = workflowInstView("testWorkflowId", "instance2", 333L, 777L, 2, StatusEnum.PENDING);
 
-    when(monitoringService.listWorkflowInstances("testWorkflowId")).thenReturn(
+    when(monitoringService.listWorkflowInstances(eq("testWorkflowId"), any())).thenReturn(
         Arrays.asList(instanceView1, instanceView2));
 
     mockMvc.perform(
-        request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId"))
-            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId"))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("[0].id").value("testWorkflowId"))
@@ -198,7 +199,8 @@ class WorkflowsApiControllerTest {
     workflowActivitiesView.setActivities(Arrays.asList(activityInstanceView1, activityInstanceView2));
     workflowActivitiesView.setGlobalVariables(new VariableView(globalVariables));
 
-    when(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId)).thenReturn(workflowActivitiesView);
+    when(monitoringService.listWorkflowInstanceActivities(eq(workflowId), eq(instanceId),
+        any(WorkflowInstLifeCycleFilter.class))).thenReturn(workflowActivitiesView);
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId))
@@ -229,6 +231,16 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("activities[0].outputs[\"c\"]").value("d"));
   }
 
+  @ParameterizedTest
+  @CsvSource({"?started_before=INVALID_INSTANT", "?started_after=INVALID_INSTANT", "?finished_before=INVALID_INSTANT",
+      "?finished_after=INVALID_INSTANT"})
+  void listWorkflowInstanceActivitiesBadQueryParameter(String queryParam) throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH + queryParam, "workflowId", "instanceId"))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test
   void listWorkflowInstanceActivities_illegalArgument() throws Exception {
     final String illegalWorkflowId = "testWorkflowId";
@@ -237,13 +249,13 @@ class WorkflowsApiControllerTest {
         String.format("Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
             illegalWorkflowId, illegalInstanceId);
 
-    when(monitoringService.listWorkflowInstanceActivities(illegalInstanceId, illegalInstanceId)).thenThrow(
-        new IllegalArgumentException(errorMsg));
+    when(monitoringService.listWorkflowInstanceActivities(eq(illegalInstanceId), eq(illegalInstanceId),
+        any(WorkflowInstLifeCycleFilter.class))).thenThrow(new IllegalArgumentException(errorMsg));
 
     mockMvc.perform(
-        request(HttpMethod.GET,
-            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId))
-            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+            request(HttpMethod.GET,
+                String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, illegalInstanceId, illegalInstanceId))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("message").value(errorMsg));
   }
@@ -252,14 +264,17 @@ class WorkflowsApiControllerTest {
   void getWorkflowDefinitions() throws Exception {
     final String workflowId = "testWorkflowId";
 
-    TaskDefinitionView activity0 = activityDefinitionView("activity0", Collections.emptyList(),
-        Collections.singletonList("event"), TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
+    TaskDefinitionView activity0 =
+        new TaskDefinitionView("activity0", TaskTypeEnum.SEND_MESSAGE_ACTIVITY, Collections.emptyList(),
+            Collections.singletonList("event0"));
 
-    TaskDefinitionView event = eventDefinitionView(Collections.singletonList("activity0"),
-        Collections.singletonList("activity1"), TaskTypeEnum.ROOM_UPDATED_EVENT);
+    TaskDefinitionView event =
+        new TaskDefinitionView("event0", TaskTypeEnum.ROOM_UPDATED_EVENT, Collections.singletonList("activity0"),
+            Collections.singletonList("activity1"));
 
-    TaskDefinitionView activity1 = activityDefinitionView("activity1", Collections.singletonList("event"),
-        Collections.emptyList(), TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
+    TaskDefinitionView activity1 =
+        new TaskDefinitionView("activity1", TaskTypeEnum.SEND_MESSAGE_ACTIVITY, Collections.singletonList("event0"),
+            Collections.emptyList());
 
     WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
@@ -270,23 +285,26 @@ class WorkflowsApiControllerTest {
     when(monitoringService.getWorkflowDefinition(workflowId)).thenReturn(workflowDefinitionView);
 
     mockMvc.perform(
-        request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, workflowId))
-            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+            request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, workflowId))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("$.workflowId").value(workflowId))
         .andExpect(jsonPath("$.variables").isEmpty())
 
+        .andExpect(jsonPath("$.flowNodes[0].nodeId").value("activity0"))
         .andExpect(jsonPath("$.flowNodes[0].type").value("SEND_MESSAGE_ACTIVITY"))
         .andExpect(jsonPath("$.flowNodes[0].parents").isEmpty())
-        .andExpect(jsonPath("$.flowNodes[0].children[0]").value("event"))
+        .andExpect(jsonPath("$.flowNodes[0].children[0]").value("event0"))
 
+        .andExpect(jsonPath("$.flowNodes[1].nodeId").value("event0"))
         .andExpect(jsonPath("$.flowNodes[1].type").value("ROOM_UPDATED_EVENT"))
         .andExpect(jsonPath("$.flowNodes[1].parents[0]").value("activity0"))
         .andExpect(jsonPath("$.flowNodes[1].children[0]").value("activity1"))
 
+        .andExpect(jsonPath("$.flowNodes[2].nodeId").value("activity1"))
         .andExpect(jsonPath("$.flowNodes[2].type").value("SEND_MESSAGE_ACTIVITY"))
-        .andExpect(jsonPath("$.flowNodes[2].parents[0]").value("event"))
+        .andExpect(jsonPath("$.flowNodes[2].parents[0]").value("event0"))
         .andExpect(jsonPath("$.flowNodes[2].children").isEmpty());
   }
 
@@ -305,7 +323,7 @@ class WorkflowsApiControllerTest {
     globalVariableV1.setRevision(1);
     globalVariableV1.setUpdateTime(Instant.now().minusSeconds(10));
 
-    when(monitoringService.listWorkflowInstanceGlobalVars(eq(workflowId), eq(instanceId))).thenReturn(
+    when(monitoringService.listWorkflowInstanceGlobalVars(eq(workflowId), eq(instanceId), any(), any())).thenReturn(
         List.of(globalVariableV0, globalVariableV1));
 
     mockMvc.perform(
@@ -320,6 +338,16 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("[1].revision").value(1));
   }
 
+  @ParameterizedTest
+  @CsvSource({"?updated_before=INVALID", "?updated_after=INVALID"})
+  void listWorkflowInstanceGlobalVariablesBadQueryParameter(String queryParam) throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,
+            String.format(LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH + queryParam, "workflowId", "instanceId"))
+            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+        .andExpect(status().isBadRequest());
+  }
+
+
   @Test
   void listWorkflowActivities_illegalArgument() throws Exception {
     final String illegalWorkflowId = "testWorkflowId";
@@ -328,8 +356,8 @@ class WorkflowsApiControllerTest {
     when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
 
     mockMvc.perform(
-        request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId))
-            .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+            request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("message").value(errorMsg));
   }
@@ -359,25 +387,4 @@ class WorkflowsApiControllerTest {
         .outputs(variables.getOutputs())
         .build();
   }
-
-  private ActivityDefinitionView activityDefinitionView(String activityId, List<String> parents, List<String> children,
-      TaskTypeEnum type) {
-    TaskDefinitionView taskDefinitionView = this.taskDefinitionView(parents, children, type);
-    return new ActivityDefinitionView(taskDefinitionView, activityId);
-  }
-
-  private EventDefinitionView eventDefinitionView(List<String> parents, List<String> children, TaskTypeEnum type) {
-    TaskDefinitionView taskDefinitionView = this.taskDefinitionView(parents, children, type);
-    return new EventDefinitionView(taskDefinitionView);
-  }
-
-  private TaskDefinitionView taskDefinitionView(List<String> parents, List<String> children, TaskTypeEnum type) {
-    return TaskDefinitionView.builder()
-        .parents(parents)
-        .children(children)
-        .type(type)
-        .build();
-  }
-
 }
-

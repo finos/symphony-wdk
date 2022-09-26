@@ -11,6 +11,7 @@ import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings("checkstyle:JavadocTagContinuationIndentation")
 public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
 
   @Override

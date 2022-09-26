@@ -4,6 +4,7 @@ import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -47,15 +49,18 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  public ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(String workflowId, String token) {
-    return ResponseEntity.ok(monitoringService.listWorkflowInstances(workflowId));
+  public ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(String workflowId, String token, String status) {
+    return ResponseEntity.ok(monitoringService.listWorkflowInstances(workflowId, status));
   }
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(String workflowId, String instanceId,
-      String token) {
-    return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId));
+      String token, Instant startedBefore, Instant startedAfter, Instant finishedBefore, Instant finishedAfter) {
+    WorkflowInstLifeCycleFilter lifeCycleFilter =
+        new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);
+
+    return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId, lifeCycleFilter));
   }
 
   @Override
@@ -65,8 +70,11 @@ public class WorkflowsApiController implements WorkflowsApi {
   }
 
   @Override
-  public ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(String workflowId, String instanceId, String token) {
-    return ResponseEntity.ok(monitoringService.listWorkflowInstanceGlobalVars(workflowId, instanceId));
+  @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
+  public ResponseEntity<List<VariableView>> listWorkflowGlobalVariables(String workflowId, String instanceId,
+      String token, Instant updatedBefore, Instant updatedAfter) {
+    return ResponseEntity.ok(
+        monitoringService.listWorkflowInstanceGlobalVars(workflowId, instanceId, updatedBefore, updatedAfter));
   }
 
 }

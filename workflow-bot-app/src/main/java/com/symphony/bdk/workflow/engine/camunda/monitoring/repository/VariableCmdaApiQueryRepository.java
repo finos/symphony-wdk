@@ -8,9 +8,14 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricDetail;
+import org.camunda.bpm.engine.history.HistoricDetailQuery;
+import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,15 +46,33 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   }
 
   @Override
-  public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id) {
-    String varId = historyService.createHistoricVariableInstanceQuery()
+  public List<VariablesDomain> findGlobalVarsHistoryByWorkflowInstId(String id, Instant updatedBefore,
+      Instant updatedAfter) {
+    HistoricVariableInstance variables = historyService.createHistoricVariableInstanceQuery()
         .variableName("variables")
         .processInstanceId(id)
-        .singleResult()
-        .getId();
-    List<HistoricDetail> historicDetails = historyService.createHistoricDetailQuery()
+        .singleResult();
+
+    if (variables == null) {
+      return Collections.emptyList();
+    }
+
+    String varId = variables.getId();
+
+    HistoricDetailQuery historicDetailQuery = historyService.createHistoricDetailQuery()
         .processInstanceId(id)
-        .variableInstanceId(varId)
+        .variableInstanceId(varId);
+
+
+    if (updatedBefore != null) {
+      historicDetailQuery = historicDetailQuery.occurredBefore(Date.from(updatedBefore));
+    }
+
+    if (updatedAfter != null) {
+      historicDetailQuery = historicDetailQuery.occurredAfter(Date.from(updatedAfter));
+    }
+
+    List<HistoricDetail> historicDetails = historicDetailQuery
         .orderByVariableRevision()
         .asc()
         .list();

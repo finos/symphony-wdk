@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @Aspect
 public class AuthorizationAspect {
 
-  private static final String UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE = "Request token is not valid";
+  private static final String UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE = "Request is not authorised";
 
   private final WorkflowBotConfiguration workflowBotConfiguration;
 

@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 
@@ -80,7 +81,8 @@ class ActivityCmdaApiQueryRepositoryTest {
     when(inst2.getValue()).thenReturn(Collections.singletonMap("outputs", vars2));
     when(inst2.getCreateTime()).thenReturn(new Date());
 
-    List<ActivityInstanceDomain> result = queryRepository.findAllByWorkflowInstanceId("inst");
+    List<ActivityInstanceDomain> result = queryRepository.findAllByWorkflowInstanceId("wf", "inst",
+        new WorkflowInstLifeCycleFilter(null, null, null, null));
 
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getId()).isEqualTo("id1");
@@ -107,10 +109,11 @@ class ActivityCmdaApiQueryRepositoryTest {
     when(objectConverter.convertCollection(anyList(), eq(ActivityInstanceDomain.class))).thenReturn(
         List.of(domain1, domain2));
 
-    List<ActivityInstanceDomain> result = queryRepository.findAllByWorkflowInstanceId("inst");
+    List<ActivityInstanceDomain> result = queryRepository.findAllByWorkflowInstanceId("wf", "inst",
+        new WorkflowInstLifeCycleFilter(null, null, null, null));
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getId()).isEqualTo("id1");
     assertThat(result.get(0).getName()).isEqualTo("instance1");
-    assertThat(result.get(0).getVariables().getOutputs()).hasSize(0);
+    assertThat(result.get(0).getVariables().getOutputs()).isEmpty();
   }
 }
