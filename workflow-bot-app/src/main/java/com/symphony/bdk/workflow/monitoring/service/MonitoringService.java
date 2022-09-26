@@ -52,7 +52,7 @@ public class MonitoringService {
     if (status != null) {
       allById = workflowInstQueryRepository.findAllById(workflowId, StatusEnum.toInstanceStatusEnum(status));
     } else {
-      allById = workflowInstQueryRepository.findAllById(workflowId, null);
+      allById = workflowInstQueryRepository.findAllById(workflowId);
     }
 
     return objectConverter.convertCollection(allById, WorkflowInstView.class);

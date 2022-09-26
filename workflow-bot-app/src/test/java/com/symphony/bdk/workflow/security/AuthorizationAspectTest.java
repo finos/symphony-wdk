@@ -19,7 +19,6 @@ import java.lang.annotation.Annotation;
 class AuthorizationAspectTest {
 
   private static final String UNAUTHORIZED_EXCEPTION_BAD_TOKEN_MESSAGE = "Request token is not valid";
-  private static final String UNAUTHORIZED_EXCEPTION_MISSING_HEADER_MESSAGE = "Request header %s is missing";
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
   private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
 
@@ -73,8 +72,7 @@ class AuthorizationAspectTest {
     assertThatExceptionOfType(UnauthorizedException.class)
         .as("The header is not set in the request")
         .isThrownBy(() -> authorizationAspect.authorizationCheck(authorizedInstance))
-        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
-            String.format(UNAUTHORIZED_EXCEPTION_MISSING_HEADER_MESSAGE, X_MONITORING_TOKEN_HEADER_KEY)));
+        .satisfies(e -> assertThat(e.getMessage()).isEqualTo(UNAUTHORIZED_EXCEPTION_BAD_TOKEN_MESSAGE));
   }
 
   @Test

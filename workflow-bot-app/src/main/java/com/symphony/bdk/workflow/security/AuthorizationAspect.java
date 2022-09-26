@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthorizationAspect {
 
   private static final String UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE = "Request token is not valid";
-  private static final String UNAUTHORIZED_EXCEPTION_MISSING_TOKEN_MESSAGE = "Request header %s is missing";
 
   private final WorkflowBotConfiguration workflowBotConfiguration;
 
@@ -31,7 +30,7 @@ public class AuthorizationAspect {
     HttpServletRequest httpServletRequest = getHttpServletRequest();
 
     if (headerKey != null && httpServletRequest.getHeader(headerKey) == null) {
-      throw new UnauthorizedException(String.format(UNAUTHORIZED_EXCEPTION_MISSING_TOKEN_MESSAGE, headerKey));
+      throw new UnauthorizedException(UNAUTHORIZED_EXCEPTION_INVALID_TOKEN_MESSAGE);
     }
 
     if (headerKey == null || monitoringToken == null || monitoringToken.isEmpty() || !monitoringToken.equals(

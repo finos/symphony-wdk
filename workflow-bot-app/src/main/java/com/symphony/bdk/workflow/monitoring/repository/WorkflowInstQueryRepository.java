@@ -6,5 +6,7 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDo
 import java.util.List;
 
 public interface WorkflowInstQueryRepository extends QueryRepository<WorkflowInstanceDomain, String> {
+  List<WorkflowInstanceDomain> findAllById(String id);
+
   List<WorkflowInstanceDomain> findAllById(String id, StatusEnum status);
 }

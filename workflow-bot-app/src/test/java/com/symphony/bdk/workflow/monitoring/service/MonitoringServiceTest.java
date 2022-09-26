@@ -79,7 +79,7 @@ class MonitoringServiceTest {
 
   @Test
   void listWorkflowInstances() {
-    when(workflowInstQueryRepository.findAllById(anyString(), eq(null))).thenReturn(Collections.emptyList());
+    when(workflowInstQueryRepository.findAllById(anyString())).thenReturn(Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
     // when
     List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", null);
@@ -132,7 +132,7 @@ class MonitoringServiceTest {
 
     WorkflowInstanceDomain workflowInstanceDomain = WorkflowInstanceDomain.builder().instanceId("instance").build();
     WorkflowInstView workflowInstView = WorkflowInstView.builder().id("workflow").instanceId("instance").build();
-    when(workflowInstQueryRepository.findAllById("workflow", null)).thenReturn(
+    when(workflowInstQueryRepository.findAllById("workflow")).thenReturn(
         Collections.singletonList(workflowInstanceDomain));
     when(activityQueryRepository.findAllByWorkflowInstanceId(anyString(), anyString(),
         any(WorkflowInstLifeCycleFilter.class))).thenReturn(Collections.singletonList(ActivityInstanceDomain.builder()
@@ -188,7 +188,7 @@ class MonitoringServiceTest {
   @Test
   void listWorkflowInstanceActivities_badInstanceId_illegalArgumentException() {
     // given
-    when(workflowInstQueryRepository.findAllById("workflow", null)).thenReturn(Collections.emptyList());
+    when(workflowInstQueryRepository.findAllById("workflow")).thenReturn(Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
 
     // when
@@ -244,7 +244,7 @@ class MonitoringServiceTest {
 
     WorkflowInstanceDomain workflowInstanceDomain = WorkflowInstanceDomain.builder().instanceId("instance").build();
     WorkflowInstView workflowInstView = WorkflowInstView.builder().id("workflow").instanceId("instance").build();
-    when(workflowInstQueryRepository.findAllById("workflow", null)).thenReturn(
+    when(workflowInstQueryRepository.findAllById("workflow")).thenReturn(
         Collections.singletonList(workflowInstanceDomain));
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(
         List.of(workflowInstView));

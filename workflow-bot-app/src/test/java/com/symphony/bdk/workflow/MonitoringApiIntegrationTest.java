@@ -53,8 +53,6 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
   private static final String X_MONITORING_TOKEN_HEADER_VALUE = "MONITORING_TOKEN_VALUE";
   private static final String INVALID_X_MONITORING_TOKEN_EXCEPTION_MESSAGE = "Request token is not valid";
-  private static final String MISSING_X_MONITORING_TOKEN_HEADER_EXCEPTION_MESSAGE =
-      "Request header X-Monitoring-Token is missing";
   private static final String BAD_WORKFLOW_INSTANCE_STATUS_EXCEPTION_MESSAGE =
       "Workflow instance status %s is not known. Allowed values [Completed, Pending, Failed]";
   private static final String UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE =
@@ -88,7 +86,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .then()
         .assertThat()
         .statusCode(HttpStatus.UNAUTHORIZED.value())
-        .body("message", equalTo(MISSING_X_MONITORING_TOKEN_HEADER_EXCEPTION_MESSAGE));
+        .body("message", equalTo(INVALID_X_MONITORING_TOKEN_EXCEPTION_MESSAGE));
   }
 
   @Test

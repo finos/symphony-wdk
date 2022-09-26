@@ -59,10 +59,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
     List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery
         .orderByHistoricActivityInstanceStartTime()
         .asc()
-        .list()
-        .stream()
-        .filter(actInstance -> workflowId.equals(actInstance.getProcessDefinitionKey()))
-        .collect(Collectors.toList()), ActivityInstanceDomain.class);
+        .list(), ActivityInstanceDomain.class);
 
     List<String> serviceTasks = result.stream()
         .filter(a -> a.getType().equals("serviceTask"))
@@ -82,13 +79,8 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         }));
 
     result.stream()
-        .filter(a -> a.getType().equals("serviceTask"))
-        .forEach(activity -> {
-          VariablesDomain variablesDomain = variablesDomainMap.get(activity.getName());
-          if (variablesDomain != null) {
-            activity.setVariables(variablesDomain);
-          }
-        });
+        .filter(a -> a.getType().equals("serviceTask") && variablesDomainMap.get(a.getName()) != null)
+        .forEach(activity -> activity.setVariables(variablesDomainMap.get(activity.getName())));
 
     return result;
   }
