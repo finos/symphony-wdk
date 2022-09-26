@@ -12,10 +12,11 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricActivityInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,19 +42,19 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .processInstanceId(instanceId);
 
     if (StringUtils.isNotBlank(lifeCycleFilter.getStartedBefore())) {
-      historicActivityInstanceQuery.startedBefore(new DateTime(lifeCycleFilter.getStartedBefore()).toDate());
+      historicActivityInstanceQuery.startedBefore(Date.from(Instant.parse(lifeCycleFilter.getStartedBefore())));
     }
 
     if (StringUtils.isNotBlank(lifeCycleFilter.getStartedAfter())) {
-      historicActivityInstanceQuery.startedAfter(new DateTime(lifeCycleFilter.getStartedAfter()).toDate());
+      historicActivityInstanceQuery.startedAfter(Date.from(Instant.parse(lifeCycleFilter.getStartedAfter())));
     }
 
     if (StringUtils.isNotBlank(lifeCycleFilter.getFinishedBefore())) {
-      historicActivityInstanceQuery.finishedBefore(new DateTime(lifeCycleFilter.getFinishedBefore()).toDate());
+      historicActivityInstanceQuery.finishedBefore(Date.from(Instant.parse(lifeCycleFilter.getFinishedBefore())));
     }
 
     if (StringUtils.isNotBlank(lifeCycleFilter.getFinishedAfter())) {
-      historicActivityInstanceQuery.finishedAfter(new DateTime(lifeCycleFilter.getFinishedAfter()).toDate());
+      historicActivityInstanceQuery.finishedAfter(Date.from(Instant.parse(lifeCycleFilter.getFinishedAfter())));
     }
 
     List<ActivityInstanceDomain> result = objectConverter.convertCollection(historicActivityInstanceQuery

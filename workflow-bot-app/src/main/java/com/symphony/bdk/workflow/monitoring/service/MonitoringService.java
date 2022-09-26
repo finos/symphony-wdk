@@ -131,12 +131,12 @@ public class MonitoringService {
     return builder.build();
   }
 
-  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, String occurredBefore,
-      String occurredAfter) {
+  public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, String updatedBefore,
+      String updatedAfter) {
     // check if the instance belongs to the provided workflow
     this.checkIsInstanceOfWorkflow(workflowId, instanceId);
 
-    return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId, occurredBefore, occurredAfter)
+    return variableQueryRepository.findGlobalVarsHistoryByWorkflowInstId(instanceId, updatedBefore, updatedAfter)
         .stream()
         .map(VariableView::new)
         .collect(Collectors.toList());
