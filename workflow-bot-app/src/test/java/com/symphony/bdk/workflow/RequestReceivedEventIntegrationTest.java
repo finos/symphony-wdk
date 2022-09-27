@@ -4,12 +4,14 @@ import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -21,7 +23,9 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 class RequestReceivedEventIntegrationTest extends IntegrationTest {
 
@@ -34,6 +38,42 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     engine.execute("request-received", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
 
     verify(messageService, timeout(5000).times(1)).send(eq("123"), content("Hello World!"));
+  }
+
+  @Test
+  void onRequestReceived_inOneOf() throws IOException, ProcessingException {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/event/request-received-in-one-of.swadl.yaml"));
+
+    engine.deploy(workflow);
+
+    engine.execute("request-received-in-one-of", new ExecutionParameters(Map.of("content", "Hello World!"), "myToken"));
+
+    verify(messageService, timeout(5000).times(1)).send(eq("123"), content("Hello World!"));
+
+    engine.onEvent(messageReceived("/request-received-in-one-of"));
+
+    verify(messageService, timeout(5000).times(1)).send(eq("123"), content("Hello World!"));
+  }
+
+  @Test
+  void onRequestReceived_inOneOf_formRepliedSubsequentActivity() throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/event/request-received-in-one-of-with-form-replied-activity.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    engine.execute("request-received-in-one-of-with-form-replied-activity",
+        new ExecutionParameters(Map.of(), "myToken"));
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "formActivity", Collections.singletonMap("action", "one")));
+      return true;
+    });
+
+    assertThat(workflow).executed("formActivity", "act");
   }
 
   @Test
