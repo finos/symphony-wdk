@@ -49,9 +49,9 @@ public class BpmnBuilderHelper {
   }
 
   public static boolean hasLoopAfterSubProcess(BuildProcessContext context,
-      WorkflowDirectGraph.NodeChildren currentNodeChildren) {
-    return context.hasEventSubProcess() && currentNodeChildren.getChildren()
-        .stream()
-        .anyMatch(context::isAlreadyBuilt);
+      WorkflowDirectGraph.NodeChildren currentNodeChildren,
+      WorkflowNodeType currentNodeType) {
+    return currentNodeType == WorkflowNodeType.ACTIVITY_COMPLETED_EVENT && context.hasEventSubProcess()
+        && currentNodeChildren.getChildren().stream().anyMatch(context::isAlreadyBuilt);
   }
 }

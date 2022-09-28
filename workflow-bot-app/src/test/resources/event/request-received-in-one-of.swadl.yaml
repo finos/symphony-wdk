@@ -1,0 +1,13 @@
+id: request-received-in-one-of
+activities:
+  - send-message:
+      id: sendmsg
+      to:
+        stream-id: "123"
+      content: ${event.args.content}
+      on:
+        one-of:
+          - message-received:
+              content: /request-received-in-one-of
+          - request-received:
+              token: myToken
