@@ -4,7 +4,6 @@ import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.en
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder.EXCLUSIVE_GATEWAY_SUFFIX;
 
 import com.symphony.bdk.workflow.engine.WorkflowNode;
-import com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

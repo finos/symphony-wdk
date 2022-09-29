@@ -41,7 +41,7 @@ import java.util.Optional;
 @Component
 public class CamundaBpmnBuilder {
   public static final String DEPLOYMENT_RESOURCE_TOKEN_KEY = "WORKFLOW_TOKEN";
-  public static final String EXCLUSIVE_GATEWAY_SUFFIX = "_exclusive_gateway";
+  public static final String EXCLUSIVE_GATEWAY_SUFFIX = "_ex_g";
   public static final String EVENT_GATEWAY_SUFFIX = "_event_gateway";
   public static final String FORK_GATEWAY = "_fork_gateway";
 
@@ -171,6 +171,13 @@ public class CamundaBpmnBuilder {
     if (currentNodeType == WorkflowNodeType.FORM_REPLIED_EVENT || hasFormRepliedEvent(context,
         currentNodeChildren)) {
       log.trace("the node [{}] itself or one of its children is a form replied event", currentNodeId);
+
+      boolean activities = hasActivitiesOnly(context, currentNodeChildren);
+      boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
+      log.trace("are the children of the node [{}]'s all activities ? [{}], is there any condition in children ? [{}]",
+          currentNodeId, activities, conditional);
+      builder = addGateway(currentNodeId, builder, activities, conditional);
+
       return builder;
     }
     // in case of conditional loop, add a default end event
@@ -200,8 +207,8 @@ public class CamundaBpmnBuilder {
     // determine the gateway type
     if (activities && conditional) {
       log.trace("an exclusive gateway is added follow the node [{}]", currentNodeId);
-      builder = builder.exclusiveGateway(currentNodeId + EXCLUSIVE_GATEWAY_SUFFIX);
-    } else if (!activities) {
+      builder = builder.exclusiveGateway((currentNodeId.replace("/", "") + EXCLUSIVE_GATEWAY_SUFFIX));
+    } else if (!activities && conditional) {
       log.trace("an event gateway is added follow the node [{}]", currentNodeId);
       builder = builder.eventBasedGateway().id(currentNodeId + EVENT_GATEWAY_SUFFIX);
     }
