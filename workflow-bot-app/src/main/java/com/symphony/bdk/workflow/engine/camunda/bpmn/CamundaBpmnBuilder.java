@@ -180,9 +180,11 @@ public class CamundaBpmnBuilder {
       builder.endEvent();
       return builder;
     }
-    if (hasLoopAfterSubProcess(context, currentNodeChildren)) {
+
+    if (hasLoopAfterSubProcess(context, currentNodeChildren, currentNodeType)) {
       builder = BpmnBuilderHelper.endEventSubProcess(context, builder);
     }
+
     boolean activities = hasActivitiesOnly(context, currentNodeChildren);
     // either child or current node is conditional, since the condition can be defined
     // at parent event or activity itself

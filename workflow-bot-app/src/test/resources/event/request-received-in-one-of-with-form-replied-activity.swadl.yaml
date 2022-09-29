@@ -1,0 +1,23 @@
+id: request-received-in-one-of-with-form-replied-activity
+activities:
+  - send-message:
+      id: formActivity
+      to:
+        stream-id: "123"
+      on:
+        one-of:
+          - message-received:
+              content: /request-received-in-one-of-with-form-replied-activity
+          - request-received:
+              token: myToken
+      content: |
+        <form id="formActivity"><button type="action" name="one">One</button></form>
+
+  - send-message:
+      id: act
+      content: <messageML>Hello!</messageML>
+      on:
+        form-replied:
+          form-id: formActivity
+      to:
+        stream-id: "123"
