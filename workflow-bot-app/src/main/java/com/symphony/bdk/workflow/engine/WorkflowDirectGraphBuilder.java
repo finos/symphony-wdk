@@ -116,7 +116,18 @@ public class WorkflowDirectGraphBuilder {
         Optional<String> signalName = eventMapper.toSignalName(event, workflow);
         if (signalName.isPresent()) {
           eventNodeId = signalName.get();
-          computeActivity(activityIndex, activities, eventNodeId, event, onEvents, directGraph);
+
+          if (activity.getActivity() != null && StringUtils.isNotBlank(activity.getActivity().getIfCondition())) {
+            directGraph.readWorkflowNode(activityId)
+                .addIfCondition(eventNodeId, activity.getActivity().getIfCondition());
+          }
+
+          if (activityIndex == 0 || !directGraph.getChildren(eventNodeId)
+              .getChildren()
+              .contains(activities.get(activityIndex - 1).getActivity().getId())) {
+            computeActivity(activityIndex, activities, eventNodeId, event, onEvents, directGraph);
+          }
+
           computeSignal(directGraph, event, eventNodeId, activityIndex, activities);
         } else if (event.getActivityExpired() != null) {
           eventNodeId = computeExpiredActivity(event, activity.getActivity().getId(), directGraph);
