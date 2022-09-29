@@ -104,7 +104,8 @@ public class CamundaExecutor implements JavaDelegate {
     Type type =
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
 
-    String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
+    // escape break line and new lin characters
+    String activityAsJsonString = ((String) execution.getVariable(ACTIVITY)).replaceAll("(\\r|\\n|\\r\\n)+", "\\\\n");
     Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
     EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);

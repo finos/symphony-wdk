@@ -20,6 +20,7 @@ import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -41,10 +42,37 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // reply to form
     await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
       engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
-      // bot should send my reply back
+      // bot should send back my reply
       verify(messageService, atLeast(1)).send(eq("123"), contains("My message"));
       return true;
     });
+  }
+
+  @Test
+  void sendFormSendMultiLinesReply() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-multi-lines.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+
+
+    ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+    // reply to form
+    await().atMost(50, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("content", "A\\nB\\nC\\rD")));
+      // bot should send back my reply
+      verify(messageService, atLeast(1)).send(eq("1234"), captor.capture());
+      return true;
+    });
+
+    assertThat(captor.getValue().getContent()).isEqualTo("<messageML>\n  A\nB\nC\rD\n</messageML>\n");
+    assertThat(workflow).executed("sendForm", "reply");
   }
 
   @Test
@@ -64,7 +92,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
       // user 2 replies to form
       engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
-      // bot should send my reply back
+      // bot should send back my reply
       verify(messageService, atLeast(2)).send(eq("123"), contains("My message"));
       return true;
     });
