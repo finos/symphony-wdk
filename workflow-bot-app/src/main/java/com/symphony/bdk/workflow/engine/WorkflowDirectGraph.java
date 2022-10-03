@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +44,9 @@ public class WorkflowDirectGraph {
    */
   @Getter
   private final List<String> startEvents = new ArrayList<>();
+
+  @Getter
+  private final Map<String, Object> variables = new HashMap<>();
 
   public void addParent(String id, String parent) {
     parents.computeIfAbsent(id, k -> new HashSet<>()).add(parent);

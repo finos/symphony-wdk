@@ -5,6 +5,8 @@ import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,7 +15,10 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 class ErrorIntegrationTest extends IntegrationTest {
 
@@ -136,6 +141,24 @@ class ErrorIntegrationTest extends IntegrationTest {
 
     verify(messageService, timeout(5000)).send(eq("STREAM"), content("On failure"));
     assertThat(workflow).executed("fallback", "failing");
+  }
+
+  @Test
+  void sendMessageOnMessage_withException_errorVarNotEmpty() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-on-message.swadl.yaml"));
+
+    RuntimeException toBeThrown = mock(RuntimeException.class);
+    when(toBeThrown.getMessage()).thenReturn("Exception");
+    doThrow(toBeThrown).when(messageService).send(anyString(), any(Message.class));
+
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/message"));
+
+    sleepToTimeout(500);
+    Map<String, Object> errors = getVariable(lastProcess().get(), "error");
+    Assertions.assertThat(errors.get("message")).isEqualTo("Exception");
+    Assertions.assertThat(errors.get("activityId")).isEqualTo("sendMessage1");
   }
 
 }

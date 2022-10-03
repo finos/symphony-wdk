@@ -17,6 +17,7 @@ public class SendMessage extends OboActivity {
   @Nullable private String content;
   @Nullable private To to;
   @Nullable private List<Attachment> attachments;
+  @Nullable private String data;
 
   @SuppressWarnings("unchecked")
   public void setContent(Object content) {

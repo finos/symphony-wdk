@@ -39,7 +39,7 @@ class VariableCmdaApiQueryRepositoryTest {
     when(variables.getRevision()).thenReturn(1);
     when(variables.getCreateTime()).thenReturn(new Date());
     // when
-    VariablesDomain global = queryRepository.findGlobalVarsByWorkflowInstanceId("id");
+    VariablesDomain global = queryRepository.findVarsByWorkflowInstanceIdAndVarName("id", "variables");
     // then
     assertThat(global.getOutputs()).hasSize(1);
     assertThat(global.getOutputs().get("key")).isEqualTo("value");

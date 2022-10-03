@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.MAP;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -11,6 +12,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
@@ -401,6 +403,51 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listInstanceActivities_withError() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenThrow(new RuntimeException("Unauthorized"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/testingWorkflow1"));
+
+    // Wait for the workflow to get executed
+    Thread.sleep(2000);
+
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflow1");
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "testingWorkflow1", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+
+        .body("activities[0].workflowId", equalTo("testingWorkflow1"))
+        .body("activities[0].instanceId", not(empty()))
+        .body("activities[0].activityId", equalTo("testingWorkflow1SendMsg1"))
+        .body("activities[0].type", equalTo("SEND_MESSAGE_ACTIVITY"))
+        .body("activities[0].startDate", not(empty()))
+        .body("activities[0].endDate", not(empty()))
+        .body("activities[0].duration", not(empty()))
+        .body("activities[0].outputs.message", not(empty()))
+        .body("activities[0].outputs.msgId", not(empty()))
+
+        .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
+        .body("globalVariables.revision", equalTo(0))
+        .body("globalVariables.updateTime", not(empty()))
+        .body("error.activityId",equalTo("testingWorkflow1SendMsg1"))
+        .body("error.message",equalTo("Unauthorized"))
+        .body("error.activityInstId",not(empty()));
 
     engine.undeploy(workflow.getId());
   }
@@ -842,7 +889,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("testingWorkflow1");
-    assertThat(response.body().jsonPath().getList("variables")).isEmpty();
+    assertThat(response.body().jsonPath().getMap("variables")).isEmpty();
 
     assertThat(taskDefinitionViews)
         .hasSameSizeAs(expectedTaskDefinitions)
