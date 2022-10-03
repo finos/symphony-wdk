@@ -88,7 +88,13 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 
   public WorkflowAssert executed(String... activities) {
     isNotNull();
-    assertExecuted(activities);
+    assertExecuted(Optional.empty(), activities);
+    return this;
+  }
+
+  public WorkflowAssert executed(Workflow workflow, String... activities) {
+    isNotNull();
+    assertExecuted(Optional.of(workflow), activities);
     return this;
   }
 
@@ -150,7 +156,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
         .map(Activity::getActivity)
         .map(BaseActivity::getId)
         .toArray(String[]::new);
-    assertExecuted(activityIds);
+    assertExecuted(Optional.empty(), activityIds);
   }
 
   public static void assertExecuted(Optional<String> process, List<String> activities) {
@@ -171,12 +177,14 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   }
 
   // activityIds represent all successfully executed activities and not only a subset
-  private static void assertExecuted(String... activityIds) {
-    Assertions.assertThat(listExecutedActivities()).containsExactly(activityIds);
+  private static void assertExecuted(Optional<Workflow> optionalWorkflow, String... activityIds) {
+    Assertions.assertThat(listExecutedActivities(optionalWorkflow)).containsExactly(activityIds);
   }
 
-  private static List<String> listExecutedActivities() {
-    String process = lastProcess().orElseThrow();
+  private static List<String> listExecutedActivities(Optional<Workflow> optionalWorkflow) {
+    final String process = optionalWorkflow.map(workflow -> lastProcess(workflow).orElseThrow())
+        .orElseGet(() -> lastProcess().orElseThrow());
+
     await().atMost(20, SECONDS).until(() -> processIsCompleted(process));
 
     List<HistoricActivityInstance> processes =
@@ -199,7 +207,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   private static void assertNotExecuted(String... activityIds) {
 
     Assertions.assertThat(Arrays.stream(activityIds)
-            .anyMatch(listExecutedActivities()::contains))
+            .anyMatch(listExecutedActivities(Optional.empty())::contains))
         .isFalse();
   }
 

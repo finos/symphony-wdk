@@ -156,9 +156,7 @@ public class WorkflowEventToCamundaEvent {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> void dispatch(RealTimeEvent<T> event)
-      throws PresentationMLParserException {
-
+  public <T> void dispatch(RealTimeEvent<T> event) throws PresentationMLParserException {
     Map<String, Object> processVariables = new HashMap<>();
     processVariables.put(ActivityExecutorContext.EVENT,
         new EventHolder<>(event.getInitiator(), event.getSource(), new HashMap<>()));
@@ -283,6 +281,7 @@ public class WorkflowEventToCamundaEvent {
     // Event's message cannot be null, this if statement is only added to fix Sonar warnings
     if (event.getSource().getMessage() != null) {
       log.debug("receive message [{}]", event.getSource().getMessage().getMessageId());
+      log.trace("receive message [{}]", event.getSource().getMessage().getMessage());
       String presentationMl = event.getSource().getMessage().getMessage();
       String receivedContent = PresentationMLParser.getTextContent(presentationMl);
 

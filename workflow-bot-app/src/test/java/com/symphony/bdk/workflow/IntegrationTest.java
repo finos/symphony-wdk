@@ -221,6 +221,7 @@ public abstract class IntegrationTest {
 
     V4MessageSent messageSent = new V4MessageSent();
     V4Message message = new V4Message();
+    message.setMessageId("msgId");
     message.setMessage("<presentationML>" + content + "</presentationML>");
     messageSent.setMessage(message);
     V4Stream stream = new V4Stream();

@@ -45,11 +45,12 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
 
   @Override
   public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {
+    log.debug("Sending message...");
     SendMessage activity = execution.getActivity();
     List<String> streamIds = resolveStreamId(execution, activity, execution.bdk().streams());
     log.debug("Sending message to rooms {}", streamIds);
-
     Message messageToSend = this.buildMessage(execution);
+    log.trace("message content \n {}", messageToSend.getContent());
 
     V4Message message;
     if (streamIds.isEmpty()) {

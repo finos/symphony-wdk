@@ -121,13 +121,7 @@ public class WorkflowDirectGraphBuilder {
             directGraph.readWorkflowNode(activityId)
                 .addIfCondition(eventNodeId, activity.getActivity().getIfCondition());
           }
-
-          if (activityIndex == 0 || !directGraph.getChildren(eventNodeId)
-              .getChildren()
-              .contains(activities.get(activityIndex - 1).getActivity().getId())) {
-            computeActivity(activityIndex, activities, eventNodeId, event, onEvents, directGraph);
-          }
-
+          computeActivity(activityIndex, activities, eventNodeId, event, onEvents, directGraph);
           computeSignal(directGraph, event, eventNodeId, activityIndex, activities);
         } else if (event.getActivityExpired() != null) {
           eventNodeId = computeExpiredActivity(event, activity.getActivity().getId(), directGraph);
@@ -224,7 +218,8 @@ public class WorkflowDirectGraphBuilder {
     if (activityIndex == 0) {
       validateFirstActivity(activities.get(0).getActivity(), event, workflow.getId());
       directGraph.addStartEvent(nodeId);
-    } else {
+    } else if (!directGraph.getParents(activities.get(activityIndex - 1).getActivity().getId())
+        .contains(nodeId)) { // the current event node is not a parent of previous activity
       boolean isParallel = onEvents.isParallel();
       String allOfEventParentId = onEvents.getParentId();
       String parentId = isParallel && StringUtils.isNotEmpty(allOfEventParentId) ? allOfEventParentId
