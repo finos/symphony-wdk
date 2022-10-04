@@ -19,6 +19,7 @@ import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -65,13 +66,14 @@ class FormReplyIntegrationTest extends IntegrationTest {
     ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
     // reply to form
     await().atMost(50, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
-      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("content", "A\\nB\\nC\\rD")));
+      engine.onEvent(form("msgId", "sendForm",
+          Collections.singletonMap("content", StringEscapeUtils.unescapeJava("A\nB\nC\rD"))));
       // bot should send back my reply
       verify(messageService, atLeast(1)).send(eq("1234"), captor.capture());
       return true;
     });
 
-    assertThat(captor.getValue().getContent()).isEqualTo("<messageML>\n  A\nB\nC\rD\n</messageML>\n");
+    assertThat(captor.getValue().getContent()).isEqualTo("<messageML>\n  A\nB\nC\nD\n</messageML>\n");
     assertThat(workflow).executed("sendForm", "reply");
   }
 
