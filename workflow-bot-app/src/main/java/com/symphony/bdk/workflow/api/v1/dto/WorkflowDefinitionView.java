@@ -10,6 +10,6 @@ import java.util.Map;
 @Builder
 public class WorkflowDefinitionView {
   private String workflowId;
-  private List<Map<String, String>> variables;
+  private Map<String, Object> variables;
   private List<TaskDefinitionView> flowNodes;
 }

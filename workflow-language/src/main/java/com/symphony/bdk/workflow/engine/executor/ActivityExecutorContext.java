@@ -13,6 +13,8 @@ public interface ActivityExecutorContext<T> {
    */
   String OUTPUTS = "outputs";
 
+  String ERROR = "error";
+
   /**
    * ${variables.myVariable}
    */

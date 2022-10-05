@@ -21,6 +21,7 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -141,6 +142,9 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
 
   private Message buildMessage(ActivityExecutorContext<SendMessage> execution) throws IOException {
     Message.MessageBuilder builder = Message.builder().content(extractContent(execution));
+    if (StringUtils.isNotBlank(execution.getActivity().getData())) {
+      builder.data(execution.getActivity().getData());
+    }
     if (execution.getActivity().getAttachments() != null) {
       for (SendMessage.Attachment attachment : execution.getActivity().getAttachments()) {
         this.handleFileAttachment(builder, attachment, execution);

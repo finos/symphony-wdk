@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow.monitoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,11 +31,11 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDo
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import org.assertj.core.util.Maps;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -63,10 +62,6 @@ class MonitoringServiceTest {
   @InjectMocks
   MonitoringService service;
 
-  @BeforeEach
-  void setUp() {
-  }
-
   @Test
   void listAllWorkflows() {
     when(workflowQueryRepository.findAll()).thenReturn(Collections.emptyList());
@@ -74,7 +69,7 @@ class MonitoringServiceTest {
     // when
     List<WorkflowView> workflowViews = service.listAllWorkflows();
     //then
-    then(workflowViews).isEmpty();
+    assertThat(workflowViews).isEmpty();
   }
 
   @Test
@@ -84,7 +79,7 @@ class MonitoringServiceTest {
     // when
     List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", null);
     //then
-    then(workflowViews).isEmpty();
+    assertThat(workflowViews).isEmpty();
   }
 
   @ParameterizedTest
@@ -96,7 +91,7 @@ class MonitoringServiceTest {
     // when
     List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", status);
     //then
-    then(workflowViews).isEmpty();
+    assertThat(workflowViews).isEmpty();
   }
 
   @Test
@@ -108,8 +103,9 @@ class MonitoringServiceTest {
             "Workflow instance status bad_status is not known. Allowed values [Completed, Pending, Failed]"));
   }
 
-  @Test
-  void listWorkflowInstanceActivities() {
+  @ParameterizedTest
+  @ValueSource(strings = {"", "errors"})
+  void listWorkflowInstanceActivities(String errors) {
     // given
     ActivityInstanceView view1 = ActivityInstanceView.builder()
         .instanceId("instance")
@@ -167,22 +163,37 @@ class MonitoringServiceTest {
     vars.setRevision(2);
     vars.setUpdateTime(Instant.now());
     vars.setOutputs(Maps.newHashMap("key", "value"));
-    when(variableQueryRepository.findGlobalVarsByWorkflowInstanceId(anyString())).thenReturn(vars);
+    when(variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(anyString(), eq("variables"))).thenReturn(vars);
+    if ("errors".equals(errors)) {
+      VariablesDomain err = new VariablesDomain();
+      err.setRevision(0);
+      err.setUpdateTime(Instant.now());
+      err.setOutputs(Maps.newHashMap("error", "exception"));
+      when(variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(anyString(), eq("error"))).thenReturn(err);
+    } else {
+      when(variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(anyString(), eq("error"))).thenReturn(
+          new VariablesDomain());
+    }
 
     // when
     WorkflowActivitiesView workflowInstanceActivities = service.listWorkflowInstanceActivities("workflow", "instance",
         new WorkflowInstLifeCycleFilter(null, null, null, null));
 
     // then
-    then(workflowInstanceActivities.getActivities()).hasSize(2);
-    then(workflowInstanceActivities.getActivities().get(0).getOutputs()).hasSize(1);
-    then(workflowInstanceActivities.getActivities().get(0).getWorkflowId()).isEqualTo("workflow");
-    then(workflowInstanceActivities.getActivities().get(0).getInstanceId()).isEqualTo("instance");
-    then(workflowInstanceActivities.getActivities().get(0).getActivityId()).isEqualTo("activity1");
-    then(workflowInstanceActivities.getActivities().get(0).getStartDate()).isNotNull();
-    then(workflowInstanceActivities.getActivities().get(0).getEndDate()).isNotNull();
-    then(workflowInstanceActivities.getGlobalVariables().getRevision()).isEqualTo(2);
-    then(workflowInstanceActivities.getGlobalVariables().getUpdateTime()).isNotNull();
+    assertThat(workflowInstanceActivities.getActivities()).hasSize(2);
+    assertThat(workflowInstanceActivities.getActivities().get(0).getOutputs()).hasSize(1);
+    assertThat(workflowInstanceActivities.getActivities().get(0).getWorkflowId()).isEqualTo("workflow");
+    assertThat(workflowInstanceActivities.getActivities().get(0).getInstanceId()).isEqualTo("instance");
+    assertThat(workflowInstanceActivities.getActivities().get(0).getActivityId()).isEqualTo("activity1");
+    assertThat(workflowInstanceActivities.getActivities().get(0).getStartDate()).isNotNull();
+    assertThat(workflowInstanceActivities.getActivities().get(0).getEndDate()).isNotNull();
+    assertThat(workflowInstanceActivities.getGlobalVariables().getRevision()).isEqualTo(2);
+    assertThat(workflowInstanceActivities.getGlobalVariables().getUpdateTime()).isNotNull();
+    if ("errors".equals(errors)) {
+      assertThat(workflowInstanceActivities.getError()).hasSize(1);
+    } else {
+      assertThat(workflowInstanceActivities.getError()).isNull();
+    }
   }
 
   @Test
@@ -220,6 +231,7 @@ class MonitoringServiceTest {
     directGraph.registerToDictionary("activity2", activity2);
     directGraph.addParent("activity2", "activity1");
     directGraph.getChildren("activity1").addChild("activity2");
+    directGraph.getVariables().put("variable", "value");
 
     when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(directGraph);
 
@@ -227,11 +239,13 @@ class MonitoringServiceTest {
     WorkflowDefinitionView definitionView = service.getWorkflowDefinition("workflow");
 
     // then
-    then(definitionView.getWorkflowId()).isEqualTo("workflow");
-    then(definitionView.getFlowNodes()).hasSize(2);
-    then(definitionView.getFlowNodes().get(0).getChildren()).hasSize(1);
-    then(definitionView.getFlowNodes().get(1).getParents()).hasSize(1);
-    then(definitionView.getFlowNodes().get(0).getType()).isEqualTo(TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
+    assertThat(definitionView.getWorkflowId()).isEqualTo("workflow");
+    assertThat(definitionView.getVariables()).hasSize(1);
+    assertThat(definitionView.getVariables()).containsKey("variable");
+    assertThat(definitionView.getFlowNodes()).hasSize(2);
+    assertThat(definitionView.getFlowNodes().get(0).getChildren()).hasSize(1);
+    assertThat(definitionView.getFlowNodes().get(1).getParents()).hasSize(1);
+    assertThat(definitionView.getFlowNodes().get(0).getType()).isEqualTo(TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
   }
 
   @Test
@@ -255,9 +269,9 @@ class MonitoringServiceTest {
     List<VariableView> variableViews = service.listWorkflowInstanceGlobalVars("workflow", "instance", null, null);
 
     // then
-    then(variableViews).hasSize(1);
-    then(variableViews.get(0).getUpdateTime()).isNotNull();
-    then(variableViews.get(0).getRevision()).isEqualTo(1);
-    then(variableViews.get(0).getOutputs()).hasSize(1);
+    assertThat(variableViews).hasSize(1);
+    assertThat(variableViews.get(0).getUpdateTime()).isNotNull();
+    assertThat(variableViews.get(0).getRevision()).isEqualTo(1);
+    assertThat(variableViews.get(0).getOutputs()).hasSize(1);
   }
 }

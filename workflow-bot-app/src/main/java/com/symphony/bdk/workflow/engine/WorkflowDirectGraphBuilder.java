@@ -55,6 +55,7 @@ public class WorkflowDirectGraphBuilder {
       String activityId = computeParallelJoinGateway(directGraph, activity);
       computeEvents(i, activityId, activities, directGraph);
     }
+    directGraph.getVariables().putAll(workflow.getVariables());
     return directGraph;
   }
 

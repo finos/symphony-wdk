@@ -14,6 +14,7 @@ import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
+import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,19 +86,20 @@ public class MonitoringService {
           activity -> activity.setType(TaskTypeEnum.findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
     }
 
-    VariablesDomain globalVariables = this.variableQueryRepository.findGlobalVarsByWorkflowInstanceId(instanceId);
+    VariablesDomain globalVariables = this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId,
+        ActivityExecutorContext.VARIABLES);
+    VariablesDomain error =
+        this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId, ActivityExecutorContext.ERROR);
     WorkflowActivitiesView result = new WorkflowActivitiesView();
     result.setActivities(activities);
     result.setGlobalVariables(new VariableView(globalVariables));
+    if (!error.getOutputs().isEmpty()) {
+      result.setError(error.getOutputs());
+    }
     return result;
   }
 
   public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
-    WorkflowDefinitionView.WorkflowDefinitionViewBuilder builder = WorkflowDefinitionView.builder()
-        .workflowId(workflowId)
-        .flowNodes(new ArrayList<>())
-        .variables(Collections.emptyList());
-
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
     ArrayList<TaskDefinitionView> activities = new ArrayList<>();
 
@@ -127,9 +128,10 @@ public class MonitoringService {
 
       activities.add(taskDefinitionViewBuilder.build());
     });
-
-    builder.flowNodes(activities);
-    return builder.build();
+    return WorkflowDefinitionView.builder()
+        .workflowId(workflowId)
+        .flowNodes(activities)
+        .variables(directGraph.getVariables()).build();
   }
 
   public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, Instant updatedBefore,

@@ -54,7 +54,10 @@ class SendMessageIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/message"));
 
-    verify(messageService, timeout(5000)).send(anyString(), any(Message.class));
+    ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+    verify(messageService, timeout(5000)).send(anyString(), captor.capture());
+    Message sent = captor.getValue();
+    assertThat(sent.getData()).contains("id", "123456");
 
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessage1"), message)

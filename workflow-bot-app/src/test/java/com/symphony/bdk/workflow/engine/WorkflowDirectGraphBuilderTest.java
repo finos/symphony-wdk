@@ -55,6 +55,8 @@ class WorkflowDirectGraphBuilderTest {
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
     assertThat(directGraph.getDictionary()).hasSize(8);
     assertThat(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getVariables()).hasSize(1);
+    assertThat(directGraph.getVariables()).containsKey("administrator");
   }
 
   @Test
@@ -66,5 +68,6 @@ class WorkflowDirectGraphBuilderTest {
     assertThat(directGraph.getDictionary()).hasSize(8);
     assertThat(directGraph.readChildren("scriptTrue").getGateway()).isEqualTo(WorkflowDirectGraph.Gateway.PARALLEL);
     assertThat(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getVariables()).containsKey("allOf");
   }
 }

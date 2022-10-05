@@ -718,6 +718,7 @@ Key | Type | Required |
 [to](#to) | Map | No |
 [content](#send-message-content) | String/Object | Yes |
 [attachments](#attachments) | List | No |
+[data](#data) | String | No |
 
 Output | Type |
 ----|----|
@@ -870,6 +871,87 @@ encoded urls are accepted.
 ##### content-path
 
 Path to the file to be attached to the message. The path is relative to the workflows folder.
+
+#### data
+
+A [structured object](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/entities/structured-objects) 
+can be sent as part of a message in this field. It must be a json string.
+
+
+Example:
+
+```yaml
+activities:
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /echo
+      content:
+        ${text(event.source.message.message)}
+      data: "{
+                  \"object001\":
+                  {
+                    \"type\":     \"org.symphonyoss.fin.security\",
+                    \"version\":  \"1.0\",
+                    \"id\":
+                      [
+                        {
+                          \"type\":     \"org.symphonyoss.fin.security.id.ticker\",
+                          \"value\":    \"IBM\"
+                        },
+                        {
+                          \"type\":     \"org.symphonyoss.fin.security.id.isin\",
+                          \"value\":    \"US0378331005\"
+                        },
+                        {
+                          \"type\":     \"org.symphonyoss.fin.security.id.cusip\",
+                          \"value\":    \"037833100\"
+                        }
+                      ]
+                  }
+              }"
+```
+
+One could also use [Utility function](#utility-functions) to escape the data json string, the same example 
+above can be done like
+
+Example
+
+```yaml
+variables:
+  data: {
+          "object001":
+            {
+              "type":     "org.symphonyoss.fin.security",
+              "version":  "1.0",
+              "id":
+                [
+                  {
+                    "type":     "org.symphonyoss.fin.security.id.ticker",
+                    "value":    "IBM"
+                  },
+                  {
+                    "type":     "org.symphonyoss.fin.security.id.isin",
+                    "value":    "US0378331005"
+                  },
+                  {
+                    "type":     "org.symphonyoss.fin.security.id.cusip",
+                    "value":    "037833100"
+                  }
+                ]
+            }
+        }
+activities:
+  - send-message:
+      id: echo
+      on:
+        message-received:
+          content: /echo
+      content:
+        ${text(event.source.message.message)}
+      data: ${escape(variables.data)}
+```
 
 ### update-message
 

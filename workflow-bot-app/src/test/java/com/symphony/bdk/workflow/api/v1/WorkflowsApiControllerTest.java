@@ -278,7 +278,7 @@ class WorkflowsApiControllerTest {
 
     WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
-        .variables(Collections.emptyList())
+        .variables(Collections.emptyMap())
         .flowNodes(Arrays.asList(activity0, event, activity1))
         .build();
 
