@@ -1,0 +1,38 @@
+id: form-reply-conditional-message
+activities:
+  - send-message:
+      id: testForm
+      on:
+        message-received:
+          content: /test
+      content: |
+        <messageML>
+          <p><b>Test</b></p>
+          <form id="testForm">
+            Hi, what can I do for you?
+            <button name="create" type="action">Create</button>
+            <button name="menu" type="action">Menu</button>
+          </form>
+        </messageML>
+  - send-message:
+      id: resCreate
+      if: ${testForm.action=='create'}
+      on:
+        form-replied:
+          form-id: testForm
+          exclusive: true
+      content:  Create
+  - send-message:
+      id: resMenu
+      else: {}
+      on:
+        form-replied:
+          form-id: testForm
+          exclusive: true
+      content: Menu
+  - send-message:
+      id: finish
+      on:
+        message-received:
+          content: /continue
+      content: DONE

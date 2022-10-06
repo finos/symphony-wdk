@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,9 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -306,8 +310,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
       return true;
     });
 
-    assertThat(workflow)
-        .executed("init", "check");
+    assertThat(workflow).executed("init", "check");
   }
 
   @Test
@@ -352,5 +355,81 @@ class FormReplyIntegrationTest extends IntegrationTest {
       engine.onEvent(messageReceived("/hey"));
       assertThat(workflow).executed("init", "message-received_/hey", "update");
     });
+  }
+
+  @Test
+  void formRepliedSendMessageOnConditionIf() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-conditional.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/test"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "testForm", Collections.singletonMap("action", "create")));
+      return true;
+    });
+    verify(messageService, timeout(5000)).send(anyString(), contains("Create"));
+
+    Thread.sleep(1000);
+    assertThat(workflow).executed(workflow, "testForm", "resCreate");
+  }
+
+  @Test
+  void formRepliedSendMessageOnConditionElse() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-conditional.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/test"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "testForm", Collections.singletonMap("action", "menu")));
+      return true;
+    });
+    verify(messageService, timeout(5000)).send(anyString(), contains("Menu"));
+    clearInvocations(messageService);
+
+    sleepToTimeout(1000);
+    engine.onEvent(messageReceived("/continue"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("DONE"));
+
+    assertThat(workflow).executed(workflow, "testForm", "resMenu", "finish");
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"GOOG,response0", "GOOGLE,response1"})
+  void formReplied_fork_condition_join_activity(String tickerValue, String expectedActivity) throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-join-activity.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/go"));
+    verify(messageService, timeout(2000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("ticker", tickerValue)));
+      return true;
+    });
+    verify(messageService, timeout(2000)).send(anyString(), contains("END"));
+
+    assertThat(workflow).executed(workflow, "sendForm", expectedActivity, "response2");
   }
 }

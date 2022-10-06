@@ -145,7 +145,7 @@ public class CamundaBpmnBuilder {
       BuildProcessContext context) throws JsonProcessingException {
     String currentNodeId = currentNode.getId();
     NodeChildren currentNodeChildren = context.readChildren(currentNodeId);
-    if (currentNodeChildren != null) {
+    if (currentNodeChildren != null && !currentNodeChildren.isEmpty()) {
       if (currentNodeChildren.getGateway() == WorkflowDirectGraph.Gateway.PARALLEL) {
         builder = builder.parallelGateway(currentNodeId + FORK_GATEWAY);
       } else {
@@ -168,9 +168,17 @@ public class CamundaBpmnBuilder {
 
   private AbstractFlowNodeBuilder<?, ?> exclusiveSubTreeNodes(String currentNodeId, WorkflowNodeType currentNodeType,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren) {
-    if (currentNodeType == WorkflowNodeType.FORM_REPLIED_EVENT || hasFormRepliedEvent(context,
-        currentNodeChildren)) {
-      log.trace("the node [{}] itself or one of its children is a form replied event", currentNodeId);
+    if (currentNodeType == WorkflowNodeType.FORM_REPLIED_EVENT) {
+      log.trace("the node [{}] itself is a form replied event", currentNodeId);
+      boolean activities = hasActivitiesOnly(context, currentNodeChildren);
+      boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
+      log.trace("are the children of the node [{}]'s all activities ? [{}], is there any condition in children ? [{}]",
+          currentNodeId, activities, conditional);
+      builder = addGateway(currentNodeId, builder, activities, conditional, currentNodeChildren.getChildren().size());
+      return builder;
+    }
+    if (hasFormRepliedEvent(context, currentNodeChildren)) {
+      log.trace("one of [{}] children is a form replied event", currentNodeId);
       return builder;
     }
     // in case of conditional loop, add a default end event
@@ -191,28 +199,42 @@ public class CamundaBpmnBuilder {
     boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
     log.trace("are the children of the node [{}]'s all activities ? [{}], is there any condition in children ? [{}]",
         currentNodeId, activities, conditional);
-    builder = addGateway(currentNodeId, builder, activities, conditional);
+    builder = addGateway(currentNodeId, builder, activities, conditional, currentNodeChildren.getChildren().size());
     return builder;
   }
 
   private AbstractFlowNodeBuilder<?, ?> addGateway(String currentNodeId, AbstractFlowNodeBuilder<?, ?> builder,
-      boolean activities, boolean conditional) {
+      boolean activities, boolean conditional, int childrenSize) {
     // determine the gateway type
     if (activities && conditional) {
       log.trace("an exclusive gateway is added follow the node [{}]", currentNodeId);
-      builder = builder.exclusiveGateway(currentNodeId + EXCLUSIVE_GATEWAY_SUFFIX);
-    } else if (!activities) {
+      builder = builder.exclusiveGateway((currentNodeId.replace("/", "") + EXCLUSIVE_GATEWAY_SUFFIX));
+    } else if (!activities && (conditional || childrenSize > 1)) {
       log.trace("an event gateway is added follow the node [{}]", currentNodeId);
       builder = builder.eventBasedGateway().id(currentNodeId + EVENT_GATEWAY_SUFFIX);
     }
     return builder;
   }
 
+  @SuppressWarnings("checkstyle:JavadocTagContinuationIndentation")
   private void leafNode(String currentNodeId, AbstractFlowNodeBuilder<?, ?> camundaBuilder,
       BuildProcessContext context) {
-    camundaBuilder = camundaBuilder.endEvent();
-    context.addNodeBuilder(currentNodeId, camundaBuilder);
-    context.addLastNodeBuilder(camundaBuilder);
+    // if builder is an instance of sub process builder, the node should be already ended {@see SignalNodeBuilder#31},
+    // skip the ending
+    /*
+     * on:
+     *   one-of:
+     *     - form-replied:
+     *         form-id: init
+     *         exclusive: true
+     *     - message-received:
+     *         content: hey
+     */
+    if (!(camundaBuilder instanceof SubProcessBuilder)) {
+      camundaBuilder = camundaBuilder.endEvent();
+      context.addNodeBuilder(currentNodeId, camundaBuilder);
+      context.addLastNodeBuilder(camundaBuilder);
+    }
   }
 
   private boolean hasFormRepliedEvent(BuildProcessContext context, NodeChildren currentNodeChildren) {

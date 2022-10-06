@@ -33,7 +33,7 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
       builder = ((AbstractCatchEventBuilder<?, ?>) builder).camundaAsyncBefore()
           .signal(element.getId())
           .name(element.getId());
-    } else if (builder instanceof AbstractGatewayBuilder) {
+    } else {
       builder = builder.intermediateCatchEvent().camundaAsyncBefore().signal(element.getId()).name(element.getId());
     }
     return builder;
