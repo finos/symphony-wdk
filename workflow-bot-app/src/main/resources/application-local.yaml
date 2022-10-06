@@ -7,15 +7,11 @@ wdk:
 
 # BDK configuration for local development
 bdk:
-  host: develop.symphony.com
-  app:
-    appId: appsoufiane
-    privateKey:
-      path: /Users/yinan.liu/Projects/certs/appSoufianneprivatekey.pem
+  host: xxx
   bot:
-    username: wdkbot
+    username: xxx
     privateKey:
-      path: /Users/yinan.liu/Projects/certs/privatekey.pem
+      path: xxx
 
 logging:
   level:
