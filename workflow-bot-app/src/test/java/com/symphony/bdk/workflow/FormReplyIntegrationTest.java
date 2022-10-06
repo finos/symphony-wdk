@@ -23,6 +23,9 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -404,5 +407,29 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(anyString(), contains("DONE"));
 
     assertThat(workflow).executed(workflow, "testForm", "resMenu", "finish");
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"GOOG,response0", "GOOGLE,response1"})
+  void formReplied_fork_condition_join_activity(String tickerValue, String expectedActivity) throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-join-activity.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/go"));
+    verify(messageService, timeout(2000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("ticker", tickerValue)));
+      return true;
+    });
+    verify(messageService, timeout(2000)).send(anyString(), contains("END"));
+
+    assertThat(workflow).executed(workflow, "sendForm", expectedActivity, "response2");
   }
 }

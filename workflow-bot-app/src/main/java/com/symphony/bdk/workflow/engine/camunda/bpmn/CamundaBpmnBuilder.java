@@ -216,11 +216,25 @@ public class CamundaBpmnBuilder {
     return builder;
   }
 
+  @SuppressWarnings("checkstyle:JavadocTagContinuationIndentation")
   private void leafNode(String currentNodeId, AbstractFlowNodeBuilder<?, ?> camundaBuilder,
       BuildProcessContext context) {
-    camundaBuilder = camundaBuilder.endEvent();
-    context.addNodeBuilder(currentNodeId, camundaBuilder);
-    context.addLastNodeBuilder(camundaBuilder);
+    // if builder is an instance of sub process builder, the node should be already ended {@see SignalNodeBuilder#31},
+    // skip the ending
+    /*
+     * on:
+     *   one-of:
+     *     - form-replied:
+     *         form-id: init
+     *         exclusive: true
+     *     - message-received:
+     *         content: hey
+     */
+    if (!(camundaBuilder instanceof SubProcessBuilder)) {
+      camundaBuilder = camundaBuilder.endEvent();
+      context.addNodeBuilder(currentNodeId, camundaBuilder);
+      context.addLastNodeBuilder(camundaBuilder);
+    }
   }
 
   private boolean hasFormRepliedEvent(BuildProcessContext context, NodeChildren currentNodeChildren) {

@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 
+import lombok.experimental.UtilityClass;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
@@ -10,6 +11,7 @@ import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 /**
  * Helper class on checks or common actions
  */
+@UtilityClass
 public class BpmnBuilderHelper {
 
   public static AbstractFlowNodeBuilder<?, ?> endEventSubProcess(BuildProcessContext context,
