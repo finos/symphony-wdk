@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 
 import lombok.experimental.UtilityClass;
@@ -26,7 +27,11 @@ public class BpmnBuilderHelper {
       WorkflowDirectGraph.NodeChildren currentNodeChildren) {
     return currentNodeChildren.getChildren()
         .stream()
-        .noneMatch(s -> context.readWorkflowNode(s).getElementType() == WorkflowNodeType.SIGNAL_EVENT);
+        .noneMatch(s -> {
+          WorkflowNode workflowNode = context.readWorkflowNode(s);
+          return workflowNode.getElementType() == WorkflowNodeType.SIGNAL_EVENT
+              || workflowNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT;
+        });
   }
 
   public static boolean hasAllConditionalChildren(BuildProcessContext context,

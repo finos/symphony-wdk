@@ -445,9 +445,9 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()))
-        .body("error.activityId",equalTo("testingWorkflow1SendMsg1"))
-        .body("error.message",equalTo("Unauthorized"))
-        .body("error.activityInstId",not(empty()));
+        .body("error.activityId", equalTo("testingWorkflow1SendMsg1"))
+        .body("error.message", equalTo("Unauthorized"))
+        .body("error.activityInstId", not(empty()));
 
     engine.undeploy(workflow.getId());
   }

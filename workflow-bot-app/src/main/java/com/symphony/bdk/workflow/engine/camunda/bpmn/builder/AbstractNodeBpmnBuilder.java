@@ -9,6 +9,7 @@ import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
+import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,11 +36,6 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
       // then connect the activity
       if (context.hasEventSubProcess() && context.getParents(element.getId()).size() > 1) {
         builder = endEventSubProcess(context, builder);
-        // since the sub process is ended here, and the child node is going to be connected by this ended sub process,
-        // therefore, all other branches remove their same child and are going to be ended inside the sub process.
-        List<String> parents =
-            context.getParents(element.getId()).stream().filter(k -> !k.equals(parentId)).collect(Collectors.toList());
-        parents.forEach(parent -> context.getChildren(parent).removeChild(element.getId()));
       }
       return build(element, parentId, builder, context);
     }
@@ -64,7 +60,9 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
   }
 
   protected void connectToExistingNode(String nodeId, AbstractFlowNodeBuilder<?, ?> builder) {
-    builder.connectTo(nodeId);
+    if(!(builder instanceof SubProcessBuilder)){
+      builder.connectTo(nodeId);
+    }
   }
 
   protected abstract AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,

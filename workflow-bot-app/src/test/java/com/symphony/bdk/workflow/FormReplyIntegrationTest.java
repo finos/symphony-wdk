@@ -22,10 +22,9 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -329,6 +328,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // trigger workflow execution
     engine.onEvent(messageReceived("/init"));
     verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
       engine.onEvent(form("msgId", "init", Collections.singletonMap("action", "x")));
       assertThat(workflow).executed("init", "update");
@@ -353,7 +353,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(anyString(), contains("form"));
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
       engine.onEvent(messageReceived("/hey"));
-      assertThat(workflow).executed("init", "message-received_/hey", "update");
+      assertThat(workflow).executed("init", "update");
     });
   }
 
