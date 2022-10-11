@@ -60,4 +60,8 @@ public class WorkflowNode {
   public String getIfCondition(String parentId) {
     return this.ifConditions.get(parentId);
   }
+
+  public boolean isNotExclusiveFormReply() {
+    return getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT && !getEvent().getFormReplied().getExclusive();
+  }
 }

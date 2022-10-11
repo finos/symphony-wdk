@@ -116,13 +116,12 @@ public class WorkflowDirectGraphBuilder {
         Optional<String> signalName = eventMapper.toSignalName(event, workflow);
         if (signalName.isPresent()) {
           eventNodeId = signalName.get();
-
           if (activity.getActivity() != null && StringUtils.isNotBlank(activity.getActivity().getIfCondition())) {
             directGraph.readWorkflowNode(activityId)
                 .addIfCondition(eventNodeId, activity.getActivity().getIfCondition());
           }
           computeActivity(activityIndex, activities, eventNodeId, event, onEvents, directGraph);
-          computeSignal(directGraph, event, eventNodeId, activityIndex, activities);
+          computeSignal(activityIndex, activities, eventNodeId, event, onEvents, directGraph);
         } else if (event.getActivityExpired() != null) {
           eventNodeId = computeExpiredActivity(event, activity.getActivity().getId(), directGraph);
         } else if (event.getActivityFailed() != null) {
@@ -153,11 +152,12 @@ public class WorkflowDirectGraphBuilder {
         : Optional.ofNullable(activity.getIfCondition());
   }
 
-  private void computeSignal(WorkflowDirectGraph directGraph, Event event, String eventNodeId, int activityIndex,
-      List<Activity> activities) {
+  private void computeSignal(int activityIndex, List<Activity> activities, String eventNodeId, Event event,
+      RelationalEvents onEvents, WorkflowDirectGraph directGraph) {
     WorkflowNode signalEvent = new WorkflowNode().id(eventNodeId).event(event);
     String activityId = activities.get(activityIndex).getActivity().getId();
-    if (isFormRepliedEvent(event)) {
+
+    if (isFormRepliedEvent(event) && !event.getFormReplied().getExclusive()) {
       validateExistingNodeId(eventNodeId.substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()), activityId,
           workflow.getId(), directGraph);
       if (event instanceof EventWithTimeout && StringUtils.isEmpty(((EventWithTimeout) event).getTimeout())) {
@@ -167,6 +167,18 @@ public class WorkflowDirectGraphBuilder {
     } else {
       Activity activity = activities.get(activityIndex);
       String timeout = activity.getActivity().getOn().getTimeout(); // timeout value from on event, never nullable
+      signalEvent.elementType(WorkflowNodeType.SIGNAL_EVENT);
+
+      if (isFormRepliedEvent(event)) {
+        validateExistingNodeId(eventNodeId.substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()),
+            activityId,
+            workflow.getId(), directGraph);
+        signalEvent.elementType(WorkflowNodeType.FORM_REPLIED_EVENT);
+
+        if (!onEvents.isParallel() && StringUtils.isEmpty(timeout)) {
+          timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+        }
+      }
       if ((event instanceof EventWithTimeout && StringUtils.isNotEmpty(((EventWithTimeout) event).getTimeout()))
           // timeout value from activity itself
           || StringUtils.isNotEmpty(timeout)) {
@@ -177,7 +189,7 @@ public class WorkflowDirectGraphBuilder {
         String parentId = directGraph.getParents(eventNodeId).get(0);
         registerTimeoutEvent(directGraph, newTimeoutEventId, parentId, timeout);
       }
-      directGraph.registerToDictionary(eventNodeId, signalEvent.elementType(WorkflowNodeType.SIGNAL_EVENT));
+      directGraph.registerToDictionary(eventNodeId, signalEvent);
     }
   }
 
@@ -188,7 +200,7 @@ public class WorkflowDirectGraphBuilder {
     String grandParentId = directGraph.getParents(parentActivity).get(0);
 
     WorkflowNode parentNode = directGraph.readWorkflowNode(parentActivity);
-    if (parentNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT) {
+    if (parentNode.isNotExclusiveFormReply()) {
       directGraph.readWorkflowNode(activityId).setElementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT);
       return parentActivity;
     } else {
@@ -228,7 +240,6 @@ public class WorkflowDirectGraphBuilder {
       directGraph.addParent(nodeId, parentId);
     }
   }
-
 
   private boolean isTimerFiredEvent(Event event) {
     return event.getTimerFired() != null;

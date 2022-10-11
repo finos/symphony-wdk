@@ -168,16 +168,7 @@ public class CamundaBpmnBuilder {
 
   private AbstractFlowNodeBuilder<?, ?> exclusiveSubTreeNodes(String currentNodeId, WorkflowNodeType currentNodeType,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context, NodeChildren currentNodeChildren) {
-    if (currentNodeType == WorkflowNodeType.FORM_REPLIED_EVENT) {
-      log.trace("the node [{}] itself is a form replied event", currentNodeId);
-      boolean activities = hasActivitiesOnly(context, currentNodeChildren);
-      boolean conditional = hasConditionalString(context, currentNodeChildren, currentNodeId);
-      log.trace("are the children of the node [{}]'s all activities ? [{}], is there any condition in children ? [{}]",
-          currentNodeId, activities, conditional);
-      builder = addGateway(currentNodeId, builder, activities, conditional, currentNodeChildren.getChildren().size());
-      return builder;
-    }
-    if (hasFormRepliedEvent(context, currentNodeChildren)) {
+    if (hasNoExclusiveFormReplyChildren(context, currentNodeChildren)) {
       log.trace("one of [{}] children is a form replied event", currentNodeId);
       return builder;
     }
@@ -237,9 +228,10 @@ public class CamundaBpmnBuilder {
     }
   }
 
-  private boolean hasFormRepliedEvent(BuildProcessContext context, NodeChildren currentNodeChildren) {
+  private boolean hasNoExclusiveFormReplyChildren(BuildProcessContext context, NodeChildren currentNodeChildren) {
     return currentNodeChildren.getChildren()
         .stream()
-        .anyMatch(s -> context.readWorkflowNode(s).getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT);
+        .map(context::readWorkflowNode)
+        .anyMatch(WorkflowNode::isNotExclusiveFormReply);
   }
 }

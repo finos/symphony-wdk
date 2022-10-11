@@ -28,8 +28,9 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
   @Override
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
-    if (builder instanceof ParallelGatewayBuilder) {
+    if (builder instanceof ParallelGatewayBuilder || element.getEvent().getFormReplied().getExclusive()) {
       return builder.intermediateCatchEvent()
+          .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
           .camundaAsyncBefore()
           .name(element.getId())
           .message(element.getId());
@@ -50,7 +51,7 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
           .camundaAsyncBefore()
           // run multiple instances of the sub process (i.e. multiple replies) if it's true,
           // otherwise execute only once, as exclusive
-          .interrupting(element.getEvent().getFormReplied().getExclusive())
+          .interrupting(false)
           .message(element.getId())
           .name(element.getId());
     }
