@@ -76,7 +76,24 @@ public enum TaskTypeEnum {
 
   private final String text;
 
+  private final static String EVENT = "EVENT";
+  private final static String ACTIVITY = "ACTIVITY";
+
   public static TaskTypeEnum findByAbbr(final String abbr) {
     return Arrays.stream(values()).filter(value -> value.text.equals(abbr)).findFirst().orElse(null);
+  }
+
+  public String toType() {
+    if (name().endsWith("_EVENT")) {
+      return name().substring(0, name().length() - 6);
+    }
+    return name().substring(0, name().length() - 9);
+  }
+
+  public String toGroup() {
+    if (name().endsWith("_EVENT")) {
+      return EVENT;
+    }
+    return ACTIVITY;
   }
 }

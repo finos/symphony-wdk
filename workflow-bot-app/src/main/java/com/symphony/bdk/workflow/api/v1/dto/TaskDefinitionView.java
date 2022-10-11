@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class TaskDefinitionView {
   private String nodeId;
-  private TaskTypeEnum type;
+  private String type;
+  private String group;
   private List<String> parents;
   private List<String> children;
 }
