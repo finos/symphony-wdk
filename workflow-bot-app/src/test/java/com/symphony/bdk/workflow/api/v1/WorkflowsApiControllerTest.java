@@ -265,15 +265,18 @@ class WorkflowsApiControllerTest {
     final String workflowId = "testWorkflowId";
 
     TaskDefinitionView activity0 =
-        new TaskDefinitionView("activity0", TaskTypeEnum.SEND_MESSAGE_ACTIVITY, Collections.emptyList(),
+        new TaskDefinitionView("activity0", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
+            TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup(), Collections.emptyList(),
             Collections.singletonList("event0"));
 
     TaskDefinitionView event =
-        new TaskDefinitionView("event0", TaskTypeEnum.ROOM_UPDATED_EVENT, Collections.singletonList("activity0"),
+        new TaskDefinitionView("event0", TaskTypeEnum.ROOM_UPDATED_EVENT.toType(),
+            TaskTypeEnum.ROOM_UPDATED_EVENT.toGroup(), Collections.singletonList("activity0"),
             Collections.singletonList("activity1"));
 
     TaskDefinitionView activity1 =
-        new TaskDefinitionView("activity1", TaskTypeEnum.SEND_MESSAGE_ACTIVITY, Collections.singletonList("event0"),
+        new TaskDefinitionView("activity1", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
+            TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup(), Collections.singletonList("event0"),
             Collections.emptyList());
 
     WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
@@ -293,17 +296,20 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("$.variables").isEmpty())
 
         .andExpect(jsonPath("$.flowNodes[0].nodeId").value("activity0"))
-        .andExpect(jsonPath("$.flowNodes[0].type").value("SEND_MESSAGE_ACTIVITY"))
+        .andExpect(jsonPath("$.flowNodes[0].type").value("SEND_MESSAGE"))
+        .andExpect(jsonPath("$.flowNodes[0].group").value("ACTIVITY"))
         .andExpect(jsonPath("$.flowNodes[0].parents").isEmpty())
         .andExpect(jsonPath("$.flowNodes[0].children[0]").value("event0"))
 
         .andExpect(jsonPath("$.flowNodes[1].nodeId").value("event0"))
-        .andExpect(jsonPath("$.flowNodes[1].type").value("ROOM_UPDATED_EVENT"))
+        .andExpect(jsonPath("$.flowNodes[1].type").value("ROOM_UPDATED"))
+        .andExpect(jsonPath("$.flowNodes[1].group").value("EVENT"))
         .andExpect(jsonPath("$.flowNodes[1].parents[0]").value("activity0"))
         .andExpect(jsonPath("$.flowNodes[1].children[0]").value("activity1"))
 
         .andExpect(jsonPath("$.flowNodes[2].nodeId").value("activity1"))
-        .andExpect(jsonPath("$.flowNodes[2].type").value("SEND_MESSAGE_ACTIVITY"))
+        .andExpect(jsonPath("$.flowNodes[2].type").value("SEND_MESSAGE"))
+        .andExpect(jsonPath("$.flowNodes[2].group").value("ACTIVITY"))
         .andExpect(jsonPath("$.flowNodes[2].parents[0]").value("event0"))
         .andExpect(jsonPath("$.flowNodes[2].children").isEmpty());
   }

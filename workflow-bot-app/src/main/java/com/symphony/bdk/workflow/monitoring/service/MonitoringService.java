@@ -119,11 +119,13 @@ public class MonitoringService {
               .children(directGraph.getChildren(workflowNode.getId()).getChildren());
 
       if (workflowNode.getActivity() != null) {
-        taskDefinitionViewBuilder.type(
-            TaskTypeEnum.findByAbbr(workflowNode.getActivity().getClass().getSimpleName()));
+        TaskTypeEnum taskTypeEnum = TaskTypeEnum.findByAbbr(workflowNode.getActivity().getClass().getSimpleName());
+        taskDefinitionViewBuilder.type(taskTypeEnum.toType());
+        taskDefinitionViewBuilder.group(taskTypeEnum.toGroup());
       } else if (workflowNode.getEvent() != null) {
-        taskDefinitionViewBuilder.type(
-            TaskTypeEnum.findByAbbr(workflowNode.getEvent().getEventType()));
+        TaskTypeEnum taskTypeEnum = TaskTypeEnum.findByAbbr(workflowNode.getEvent().getEventType());
+        taskDefinitionViewBuilder.type(taskTypeEnum.toType());
+        taskDefinitionViewBuilder.group(taskTypeEnum.toGroup());
       }
 
       activities.add(taskDefinitionViewBuilder.build());

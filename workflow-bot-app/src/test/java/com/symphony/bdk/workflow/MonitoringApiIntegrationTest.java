@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.MAP;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -12,7 +11,6 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
@@ -865,21 +863,24 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     // expected flow nodes
     TaskDefinitionView expectedSendMessageActivity1 = TaskDefinitionView.builder()
         .nodeId("testingWorkflow1SendMsg1")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY)
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
         .parents(Collections.singletonList("message-received_/testingWorkflow1"))
         .children(Collections.singletonList("testingWorkflow1SendMsg2"))
         .build();
 
     TaskDefinitionView expectedSendMessageActivity2 = TaskDefinitionView.builder()
         .nodeId("testingWorkflow1SendMsg2")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY)
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
         .parents(Collections.singletonList("testingWorkflow1SendMsg1"))
         .children(Collections.emptyList())
         .build();
 
     TaskDefinitionView expectedMessageReceivedEventTask = TaskDefinitionView.builder()
         .nodeId("message-received_/testingWorkflow1")
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
+        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
         .parents(Collections.emptyList())
         .children(Collections.singletonList("testingWorkflow1SendMsg1"))
         .build();

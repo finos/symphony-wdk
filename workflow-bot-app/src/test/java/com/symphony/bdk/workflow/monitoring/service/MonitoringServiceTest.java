@@ -245,7 +245,8 @@ class MonitoringServiceTest {
     assertThat(definitionView.getFlowNodes()).hasSize(2);
     assertThat(definitionView.getFlowNodes().get(0).getChildren()).hasSize(1);
     assertThat(definitionView.getFlowNodes().get(1).getParents()).hasSize(1);
-    assertThat(definitionView.getFlowNodes().get(0).getType()).isEqualTo(TaskTypeEnum.SEND_MESSAGE_ACTIVITY);
+    assertThat(definitionView.getFlowNodes().get(0).getType()).isEqualTo("SEND_MESSAGE");
+    assertThat(definitionView.getFlowNodes().get(0).getGroup()).isEqualTo("ACTIVITY");
   }
 
   @Test
