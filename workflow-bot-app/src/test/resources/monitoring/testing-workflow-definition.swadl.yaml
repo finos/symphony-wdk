@@ -1,0 +1,23 @@
+id: testingWorkflow1
+activities:
+  - send-message:
+      id: testingWorkflow1SendMsg1
+      on:
+        message-received:
+          content: "/testingWorkflow1"
+      to:
+        stream-id: "123"
+      content: <messageML>Hello!</messageML>
+
+  - send-message:
+      id: sendForm
+      to:
+        stream-id: "123"
+      content: <form id="sendForm"><button type="action" name="x">Hi</button></form>
+
+  - send-message:
+      id: receiveForm
+      on:
+        form-replied:
+          form-id: sendForm
+      content: Hi Again

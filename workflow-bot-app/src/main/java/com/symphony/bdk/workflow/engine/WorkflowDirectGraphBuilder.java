@@ -16,6 +16,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.RelationalEvents;
 import com.symphony.bdk.workflow.swadl.v1.event.ActivityCompletedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ActivityExpiredEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -217,6 +218,7 @@ public class WorkflowDirectGraphBuilder {
     if (!directGraph.isRegistered(timeoutEventId)) {
       EventWithTimeout timeoutEvent = new EventWithTimeout();
       timeoutEvent.setTimeout(timeoutValue);
+      timeoutEvent.setActivityExpired(new ActivityExpiredEvent());
       directGraph.registerToDictionary(timeoutEventId, new WorkflowNode().id(timeoutEventId)
           .event(timeoutEvent)
           .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT));
