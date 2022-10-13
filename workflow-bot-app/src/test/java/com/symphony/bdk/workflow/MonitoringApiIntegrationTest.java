@@ -830,7 +830,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   @Test
   void listWorkflowActivitiesDefinitions() throws Exception {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-definition.swadl.yaml"));
 
     engine.undeploy(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
@@ -866,15 +866,15 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
         .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
         .parents(Collections.singletonList("message-received_/testingWorkflow1"))
-        .children(Collections.singletonList("testingWorkflow1SendMsg2"))
+        .children(Collections.singletonList("sendForm"))
         .build();
 
     TaskDefinitionView expectedSendMessageActivity2 = TaskDefinitionView.builder()
-        .nodeId("testingWorkflow1SendMsg2")
+        .nodeId("sendForm")
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
         .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
         .parents(Collections.singletonList("testingWorkflow1SendMsg1"))
-        .children(Collections.emptyList())
+        .children(List.of("form-reply_sendForm", "form-reply_sendForm_timeout"))
         .build();
 
     TaskDefinitionView expectedMessageReceivedEventTask = TaskDefinitionView.builder()
@@ -885,8 +885,33 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList("testingWorkflow1SendMsg1"))
         .build();
 
+    TaskDefinitionView expectedFormRepliedEventTask = TaskDefinitionView.builder()
+        .nodeId("form-reply_sendForm")
+        .type(TaskTypeEnum.FORM_REPLIED_EVENT.toType())
+        .group(TaskTypeEnum.FORM_REPLIED_EVENT.toGroup())
+        .parents(Collections.singletonList("sendForm"))
+        .children(Collections.singletonList("receiveForm"))
+        .build();
+
+    TaskDefinitionView expectedFormRepliedTimeoutEventTask = TaskDefinitionView.builder()
+        .nodeId("form-reply_sendForm_timeout")
+        .type(TaskTypeEnum.ACTIVITY_EXPIRED_EVENT.toType())
+        .group(TaskTypeEnum.ACTIVITY_EXPIRED_EVENT.toGroup())
+        .parents(Collections.singletonList("sendForm"))
+        .children(Collections.emptyList())
+        .build();
+
+    TaskDefinitionView expectedReceiveFormTask = TaskDefinitionView.builder()
+        .nodeId("receiveForm")
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .parents(List.of("form-reply_sendForm"))
+        .children(Collections.emptyList())
+        .build();
+
     List<TaskDefinitionView> expectedTaskDefinitions =
-        Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2, expectedMessageReceivedEventTask);
+        Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2, expectedMessageReceivedEventTask,
+            expectedFormRepliedEventTask, expectedFormRepliedTimeoutEventTask, expectedReceiveFormTask);
 
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("testingWorkflow1");
