@@ -76,8 +76,16 @@ public enum TaskTypeEnum {
 
   private final String text;
 
-  private final static String EVENT = "EVENT";
-  private final static String ACTIVITY = "ACTIVITY";
+  private static final String EVENT = "EVENT";
+  private static final String ACTIVITY = "ACTIVITY";
+
+  public static final String GATEWAY_ONE_OF = "ONE-OF";
+
+  public static final String GATEWAY_ALL_OF = "ALL-OF";
+
+  public static final String GATEWAY_JOIN = "JOIN";
+
+  public static final String GATEWAY = "GATEWAY";
 
   public static TaskTypeEnum findByAbbr(final String abbr) {
     return Arrays.stream(values()).filter(value -> value.text.equals(abbr)).findFirst().orElse(null);

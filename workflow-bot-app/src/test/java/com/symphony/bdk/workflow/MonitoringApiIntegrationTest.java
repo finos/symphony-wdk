@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.builder;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -15,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -847,13 +849,13 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     // actual flow nodes
     ObjectMapper objectMapper = new ObjectMapper();
-    List<TaskDefinitionView> taskDefinitionViews = new ArrayList<>();
+    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
     List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
 
     flowNodes.forEach(flowNode -> {
       try {
-        taskDefinitionViews.add(
-            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), TaskDefinitionView.class));
+        nodeDefinitionViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
       } catch (JsonProcessingException e) {
         e.printStackTrace();
         fail("Unexpected error when converting api response to TaskDefinitionView class");
@@ -861,47 +863,55 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     });
 
     // expected flow nodes
-    TaskDefinitionView expectedSendMessageActivity1 = TaskDefinitionView.builder()
+    NodeDefinitionView expectedSendMessageActivity1 = builder()
         .nodeId("testingWorkflow1SendMsg1")
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
         .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
         .parents(Collections.singletonList("message-received_/testingWorkflow1"))
-        .children(Collections.singletonList("sendForm"))
+        .children(Collections.singletonList(ChildView.of("sendForm")))
         .build();
 
-    TaskDefinitionView expectedSendMessageActivity2 = TaskDefinitionView.builder()
+    NodeDefinitionView expectedSendMessageActivity2 = builder()
         .nodeId("sendForm")
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
         .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
         .parents(Collections.singletonList("testingWorkflow1SendMsg1"))
-        .children(List.of("form-reply_sendForm", "form-reply_sendForm_timeout"))
+        .children(List.of(ChildView.of("sendForm_gateway")))
         .build();
 
-    TaskDefinitionView expectedMessageReceivedEventTask = TaskDefinitionView.builder()
+    NodeDefinitionView expectedGateway = builder()
+        .nodeId("sendForm_gateway")
+        .type(TaskTypeEnum.GATEWAY_ONE_OF)
+        .group(TaskTypeEnum.GATEWAY)
+        .parents(Collections.singletonList("sendForm"))
+        .children(List.of(ChildView.of("form-reply_sendForm"), ChildView.of("form-reply_sendForm_timeout", "expired")))
+        .build();
+
+    NodeDefinitionView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/testingWorkflow1")
         .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
         .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
         .parents(Collections.emptyList())
-        .children(Collections.singletonList("testingWorkflow1SendMsg1"))
+        .children(Collections.singletonList(ChildView.of("testingWorkflow1SendMsg1")))
         .build();
 
-    TaskDefinitionView expectedFormRepliedEventTask = TaskDefinitionView.builder()
+    NodeDefinitionView expectedFormRepliedEventTask = NodeDefinitionView.builder()
         .nodeId("form-reply_sendForm")
         .type(TaskTypeEnum.FORM_REPLIED_EVENT.toType())
         .group(TaskTypeEnum.FORM_REPLIED_EVENT.toGroup())
-        .parents(Collections.singletonList("sendForm"))
-        .children(Collections.singletonList("receiveForm"))
+        .parents(Collections.singletonList("sendForm_gateway"))
+        .children(Collections.singletonList(ChildView.of("receiveForm")))
         .build();
 
-    TaskDefinitionView expectedFormRepliedTimeoutEventTask = TaskDefinitionView.builder()
+    NodeDefinitionView expectedFormRepliedTimeoutEventTask = NodeDefinitionView.builder()
         .nodeId("form-reply_sendForm_timeout")
         .type(TaskTypeEnum.ACTIVITY_EXPIRED_EVENT.toType())
         .group(TaskTypeEnum.ACTIVITY_EXPIRED_EVENT.toGroup())
-        .parents(Collections.singletonList("sendForm"))
+        .parents(Collections.singletonList("sendForm_gateway"))
         .children(Collections.emptyList())
         .build();
 
-    TaskDefinitionView expectedReceiveFormTask = TaskDefinitionView.builder()
+    NodeDefinitionView expectedReceiveFormTask = NodeDefinitionView.builder()
         .nodeId("receiveForm")
         .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
         .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
@@ -909,15 +919,237 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    List<TaskDefinitionView> expectedTaskDefinitions =
-        Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2, expectedMessageReceivedEventTask,
-            expectedFormRepliedEventTask, expectedFormRepliedTimeoutEventTask, expectedReceiveFormTask);
+    List<NodeDefinitionView> expectedTaskDefinitions =
+        Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2, expectedGateway,
+            expectedMessageReceivedEventTask, expectedFormRepliedEventTask, expectedFormRepliedTimeoutEventTask,
+            expectedReceiveFormTask);
 
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("testingWorkflow1");
     assertThat(response.body().jsonPath().getMap("variables")).isEmpty();
 
-    assertThat(taskDefinitionViews)
+    assertThat(nodeDefinitionViews)
+        .hasSameSizeAs(expectedTaskDefinitions)
+        .hasSameElementsAs(expectedTaskDefinitions);
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflow_oneOf_activityFailedEvent_Definitions() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/oneof-activityfailed-definition.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+
+    // Wait for the workflow to get executed
+    Thread.sleep(1000);
+
+    Response response = given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "on-activity-failed-one-of"))
+        .thenReturn();
+
+    // actual flow nodes
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
+    List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
+
+    flowNodes.forEach(flowNode -> {
+      try {
+        nodeDefinitionViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+        fail("Unexpected error when converting api response to TaskDefinitionView class");
+      }
+    });
+
+    // expected flow nodes
+    NodeDefinitionView expectedSendMessageActivity1 = builder()
+        .nodeId("first")
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .parents(Collections.singletonList("message-received_/failure"))
+        .children(List.of(ChildView.of("first_gateway")))
+        .build();
+
+    NodeDefinitionView expectedGateway = builder()
+        .nodeId("first_gateway")
+        .type(TaskTypeEnum.GATEWAY_ONE_OF)
+        .group(TaskTypeEnum.GATEWAY)
+        .parents(Collections.singletonList("first"))
+        .children(List.of(ChildView.of("second"), ChildView.of("fallback", "failed")))
+        .build();
+
+    NodeDefinitionView expectedSendMessageActivity2 = builder()
+        .nodeId("second")
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .parents(Collections.singletonList("first_gateway"))
+        .children(List.of(ChildView.of("fallback", "failed")))
+        .build();
+
+    NodeDefinitionView expectedSendMessageFallback = builder()
+        .nodeId("fallback")
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .parents(List.of("first_gateway", "second"))
+        .children(Collections.emptyList())
+        .build();
+
+    NodeDefinitionView expectedMessageReceivedEventTask = builder()
+        .nodeId("message-received_/failure")
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
+        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .parents(Collections.emptyList())
+        .children(Collections.singletonList(ChildView.of("first")))
+        .build();
+
+    List<NodeDefinitionView> expectedTaskDefinitions =
+        Arrays.asList(expectedSendMessageActivity1, expectedGateway, expectedSendMessageActivity2,
+            expectedSendMessageFallback,
+            expectedMessageReceivedEventTask);
+
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("on-activity-failed-one-of");
+    assertThat(response.body().jsonPath().getMap("variables")).isEmpty();
+
+    assertThat(nodeDefinitionViews)
+        .hasSameSizeAs(expectedTaskDefinitions)
+        .hasSameElementsAs(expectedTaskDefinitions);
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
+  void listWorkflow_oneOf_allOf_gateway_definitions() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/oneof-allof-gateway-definition.swadl.yaml"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+
+    // Wait for the workflow to get executed
+    Thread.sleep(1000);
+
+    Response response = given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "all-of-messages-received"))
+        .thenReturn();
+
+    // actual flow nodes
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
+    List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
+
+    flowNodes.forEach(flowNode -> {
+      try {
+        nodeDefinitionViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+        fail("Unexpected error when converting api response to TaskDefinitionView class");
+      }
+    });
+
+    // expected flow nodes
+    NodeDefinitionView expectedSendMessageStart = builder()
+        .nodeId("start")
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .parents(Collections.singletonList("message-received_/start"))
+        .children(List.of(ChildView.of("start_gateway")))
+        .build();
+
+    NodeDefinitionView expectedGateway = builder()
+        .nodeId("start_gateway")
+        .type(TaskTypeEnum.GATEWAY_ONE_OF)
+        .group(TaskTypeEnum.GATEWAY)
+        .parents(Collections.singletonList("start"))
+        .children(List.of(ChildView.of("scriptTrue", "${variables.allOf == true}"), ChildView.of("scriptFalse")))
+        .build();
+
+    NodeDefinitionView expectedScriptTrue = builder()
+        .nodeId("scriptTrue")
+        .type(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toType())
+        .group(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toGroup())
+        .parents(Collections.singletonList("start_gateway"))
+        .children(List.of(ChildView.of("scriptTrue_gateway")))
+        .build();
+
+    NodeDefinitionView expectedScriptFalse = builder()
+        .nodeId("scriptFalse")
+        .type(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toType())
+        .group(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toGroup())
+        .parents(List.of("start_gateway"))
+        .children(Collections.emptyList())
+        .build();
+
+    NodeDefinitionView expectedMessageReceivedEventTask = builder()
+        .nodeId("message-received_/start")
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
+        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .parents(Collections.emptyList())
+        .children(Collections.singletonList(ChildView.of("start")))
+        .build();
+
+    NodeDefinitionView expectedForkGateway = builder()
+        .nodeId("scriptTrue_gateway")
+        .type(TaskTypeEnum.GATEWAY_ALL_OF)
+        .group(TaskTypeEnum.GATEWAY)
+        .parents(Collections.singletonList("scriptTrue"))
+        .children(List.of(ChildView.of("message-received_/message"), ChildView.of("user-joined-room")))
+        .build();
+
+    NodeDefinitionView expectedReceiveMessageEnd = builder()
+        .nodeId("message-received_/message")
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
+        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .parents(List.of("scriptTrue_gateway"))
+        .children(List.of(ChildView.of("endMessage_join_gateway")))
+        .build();
+
+    NodeDefinitionView expectedUserJoinedGateway = builder()
+        .nodeId("user-joined-room")
+        .type(TaskTypeEnum.USER_JOINED_ROOM_EVENT.toType())
+        .group(TaskTypeEnum.USER_JOINED_ROOM_EVENT.toGroup())
+        .parents(Collections.singletonList("scriptTrue_gateway"))
+        .children(List.of(ChildView.of("endMessage_join_gateway")))
+        .build();
+
+    NodeDefinitionView expectedJoinGateway = builder()
+        .nodeId("endMessage_join_gateway")
+        .type(TaskTypeEnum.GATEWAY_JOIN)
+        .group(TaskTypeEnum.GATEWAY)
+        .parents(List.of("message-received_/message", "user-joined-room"))
+        .children(List.of(ChildView.of("endMessage")))
+        .build();
+
+    NodeDefinitionView expectedSendMessageEnd = builder()
+        .nodeId("endMessage")
+        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
+        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .parents(List.of("endMessage_join_gateway"))
+        .children(Collections.emptyList())
+        .build();
+
+    List<NodeDefinitionView> expectedTaskDefinitions =
+        Arrays.asList(expectedMessageReceivedEventTask, expectedSendMessageStart, expectedGateway, expectedScriptTrue,
+            expectedScriptFalse,
+            expectedForkGateway, expectedReceiveMessageEnd, expectedUserJoinedGateway, expectedJoinGateway,
+            expectedSendMessageEnd);
+
+    assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("all-of-messages-received");
+    assertThat(response.body().jsonPath().getMap("variables")).hasSize(1);
+
+    assertThat(nodeDefinitionViews)
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 

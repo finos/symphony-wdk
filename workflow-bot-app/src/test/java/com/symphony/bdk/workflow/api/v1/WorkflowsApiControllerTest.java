@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.api.v1;
 
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -11,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
-import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
@@ -264,18 +265,18 @@ class WorkflowsApiControllerTest {
   void getWorkflowDefinitions() throws Exception {
     final String workflowId = "testWorkflowId";
 
-    TaskDefinitionView activity0 =
-        new TaskDefinitionView("activity0", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
+    NodeDefinitionView activity0 =
+        new NodeDefinitionView("activity0", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
             TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup(), Collections.emptyList(),
-            Collections.singletonList("event0"));
+            Collections.singletonList(ChildView.of("event0")));
 
-    TaskDefinitionView event =
-        new TaskDefinitionView("event0", TaskTypeEnum.ROOM_UPDATED_EVENT.toType(),
+    NodeDefinitionView event =
+        new NodeDefinitionView("event0", TaskTypeEnum.ROOM_UPDATED_EVENT.toType(),
             TaskTypeEnum.ROOM_UPDATED_EVENT.toGroup(), Collections.singletonList("activity0"),
-            Collections.singletonList("activity1"));
+            Collections.singletonList(ChildView.of("activity1")));
 
-    TaskDefinitionView activity1 =
-        new TaskDefinitionView("activity1", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
+    NodeDefinitionView activity1 =
+        new NodeDefinitionView("activity1", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
             TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup(), Collections.singletonList("event0"),
             Collections.emptyList());
 
@@ -299,13 +300,13 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("$.flowNodes[0].type").value("SEND_MESSAGE"))
         .andExpect(jsonPath("$.flowNodes[0].group").value("ACTIVITY"))
         .andExpect(jsonPath("$.flowNodes[0].parents").isEmpty())
-        .andExpect(jsonPath("$.flowNodes[0].children[0]").value("event0"))
+        .andExpect(jsonPath("$.flowNodes[0].children[0].nodeId").value("event0"))
 
         .andExpect(jsonPath("$.flowNodes[1].nodeId").value("event0"))
         .andExpect(jsonPath("$.flowNodes[1].type").value("ROOM_UPDATED"))
         .andExpect(jsonPath("$.flowNodes[1].group").value("EVENT"))
         .andExpect(jsonPath("$.flowNodes[1].parents[0]").value("activity0"))
-        .andExpect(jsonPath("$.flowNodes[1].children[0]").value("activity1"))
+        .andExpect(jsonPath("$.flowNodes[1].children[0].nodeId").value("activity1"))
 
         .andExpect(jsonPath("$.flowNodes[2].nodeId").value("activity1"))
         .andExpect(jsonPath("$.flowNodes[2].type").value("SEND_MESSAGE"))
