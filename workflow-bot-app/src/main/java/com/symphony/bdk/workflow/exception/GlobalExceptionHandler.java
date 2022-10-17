@@ -20,18 +20,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler
   public ResponseEntity<ErrorResponse> handle(Throwable exception) {
     log.error("Internal server error: [{}]", exception.getMessage());
+    log.debug("", exception);
     return handle(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ExceptionHandler(UnauthorizedException.class)
   public ResponseEntity<ErrorResponse> handle(UnauthorizedException exception) {
     log.error("Unauthorized exception: [{}]", exception.getMessage());
+    log.debug("", exception);
     return handle(exception.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handle(IllegalArgumentException exception) {
     log.error("Illegal argument exception: [{}]", exception.getMessage());
+    log.debug("", exception);
     return handle(exception.getMessage(), HttpStatus.NOT_FOUND);
   }
 

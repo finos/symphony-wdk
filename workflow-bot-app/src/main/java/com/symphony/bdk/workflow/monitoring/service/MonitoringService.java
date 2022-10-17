@@ -1,8 +1,15 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
+import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY;
+import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_ALL_OF;
+import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_JOIN;
+import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_ONE_OF;
+import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.findByAbbr;
+import static com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
+
 import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
-import com.symphony.bdk.workflow.api.v1.dto.TaskDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
@@ -12,7 +19,9 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.Gateway;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
+import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
@@ -28,10 +37,12 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 @RequiredArgsConstructor
 @Component
@@ -42,6 +53,8 @@ public class MonitoringService {
   private final ActivityQueryRepository activityQueryRepository;
   private final VariableQueryRepository variableQueryRepository;
   private final ObjectConverter objectConverter;
+
+  private static final String GATEWAY_SUFFIX = "_gateway";
 
   public List<WorkflowView> listAllWorkflows() {
     return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);
@@ -83,7 +96,7 @@ public class MonitoringService {
 
       // set activity type
       activities.forEach(
-          activity -> activity.setType(TaskTypeEnum.findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
+          activity -> activity.setType(findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
     }
 
     VariablesDomain globalVariables = this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId,
@@ -100,40 +113,92 @@ public class MonitoringService {
   }
 
   public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
-    WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
-    ArrayList<TaskDefinitionView> activities = new ArrayList<>();
-
-    if (directGraph == null) {
-      throw new IllegalArgumentException(
-          String.format("No workflow deployed with id '%s' is found", workflowId));
-    }
-
+    WorkflowDirectGraph directGraph = readWorkflowDirectedGraph(workflowId);
+    List<NodeDefinitionView> activities = new ArrayList<>();
     Map<String, WorkflowNode> dictionary = directGraph.getDictionary();
     dictionary.forEach((key, value) -> {
       WorkflowNode workflowNode = dictionary.get(key);
-
-      TaskDefinitionView.TaskDefinitionViewBuilder taskDefinitionViewBuilder =
-          TaskDefinitionView.builder()
-              .nodeId(workflowNode.getId())
-              .parents(directGraph.getParents(workflowNode.getId()))
-              .children(directGraph.getChildren(workflowNode.getId()).getChildren());
-
-      if (workflowNode.getActivity() != null) {
-        TaskTypeEnum taskTypeEnum = TaskTypeEnum.findByAbbr(workflowNode.getActivity().getClass().getSimpleName());
-        taskDefinitionViewBuilder.type(taskTypeEnum.toType());
-        taskDefinitionViewBuilder.group(taskTypeEnum.toGroup());
-      } else if (workflowNode.getEvent() != null) {
-        TaskTypeEnum taskTypeEnum = TaskTypeEnum.findByAbbr(workflowNode.getEvent().getEventType());
-        taskDefinitionViewBuilder.type(taskTypeEnum.toType());
-        taskDefinitionViewBuilder.group(taskTypeEnum.toGroup());
-      }
-
-      activities.add(taskDefinitionViewBuilder.build());
+      NodeChildren children = directGraph.getChildren(key);
+      List<String> parents = directGraph.getParents(key);
+      NodeDefinitionView node = buildNode(directGraph, activities, dictionary, key, workflowNode, children, parents);
+      activities.add(node);
     });
     return WorkflowDefinitionView.builder()
         .workflowId(workflowId)
         .flowNodes(activities)
         .variables(directGraph.getVariables()).build();
+  }
+
+  private WorkflowDirectGraph readWorkflowDirectedGraph(String workflowId) {
+    WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
+    if (directGraph == null) {
+      throw new IllegalArgumentException(
+          String.format("No workflow deployed with id '%s' is found", workflowId));
+    }
+    return directGraph;
+  }
+
+  private static NodeDefinitionView buildNode(WorkflowDirectGraph directGraph, List<NodeDefinitionView> activities,
+      Map<String, WorkflowNode> dictionary, String key, WorkflowNode workflowNode, NodeChildren children,
+      List<String> parents) {
+    NodeDefinitionView.NodeDefinitionViewBuilder nodeBuilder = NodeDefinitionView.builder();
+    // check if the current node is part of the gateway
+    List<String> realParents = new ArrayList<>();
+    for (String parent : parents) {
+      if (directGraph.getChildren(parent).getChildren().size() > 1) {
+        realParents.add(parent + GATEWAY_SUFFIX);
+      } else {
+        realParents.add(parent);
+      }
+    }
+
+    if (children.isEmpty()) {
+      nodeBuilder.nodeId(key).parents(realParents).children(Collections.emptyList());
+    } else if (children.isChildUnique()) {
+      nodeBuilder.nodeId(key)
+          .parents(realParents)
+          .children(List.of(NodeDefinitionView.ChildView.of(children.getUniqueChild(),
+              determineCondition(dictionary.get(children.getUniqueChild()), key))));
+    } else {
+      NodeDefinitionView gateway = NodeDefinitionView.builder()
+          .nodeId(key + GATEWAY_SUFFIX)
+          .parents(List.of(key))
+          .group(GATEWAY)
+          .type(children.getGateway() == Gateway.PARALLEL ? GATEWAY_ALL_OF : GATEWAY_ONE_OF)
+          .children(children.getChildren().stream().map(node -> {
+            String condition = determineCondition(dictionary.get(node), key);
+            return NodeDefinitionView.ChildView.of(node, condition);
+          }).collect(Collectors.toList()))
+          .build();
+      activities.add(gateway);
+      nodeBuilder.nodeId(key)
+          .parents(realParents)
+          .children(List.of(NodeDefinitionView.ChildView.of(gateway.getNodeId())));
+    }
+
+    if (workflowNode.getActivity() != null) {
+      TaskTypeEnum taskTypeEnum = findByAbbr(workflowNode.getActivity().getClass().getSimpleName());
+      nodeBuilder.type(taskTypeEnum.toType());
+      nodeBuilder.group(taskTypeEnum.toGroup());
+    } else if (workflowNode.getEvent() != null) {
+      TaskTypeEnum taskTypeEnum = findByAbbr(workflowNode.getEvent().getEventType());
+      nodeBuilder.type(taskTypeEnum.toType());
+      nodeBuilder.group(taskTypeEnum.toGroup());
+    } else if (workflowNode.getElementType() == WorkflowNodeType.JOIN_ACTIVITY) {
+      nodeBuilder.type(GATEWAY_JOIN);
+      nodeBuilder.group(GATEWAY);
+    }
+    return nodeBuilder.build();
+  }
+
+  @Nullable
+  private static String determineCondition(WorkflowNode child, String key) {
+    String condition = child.getIfCondition(key);
+    if (condition == null) {
+      condition = child.getElementType() == WorkflowNodeType.ACTIVITY_EXPIRED_EVENT ? "expired"
+          : child.getElementType() == WorkflowNodeType.ACTIVITY_FAILED_EVENT ? "failed" : null;
+    }
+    return condition;
   }
 
   public List<VariableView> listWorkflowInstanceGlobalVars(String workflowId, String instanceId, Instant updatedBefore,

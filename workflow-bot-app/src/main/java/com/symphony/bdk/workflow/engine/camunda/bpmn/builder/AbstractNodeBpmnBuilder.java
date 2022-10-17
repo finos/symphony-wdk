@@ -11,9 +11,6 @@ import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder {
 
   @Override
@@ -60,7 +57,7 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
   }
 
   protected void connectToExistingNode(String nodeId, AbstractFlowNodeBuilder<?, ?> builder) {
-    if(!(builder instanceof SubProcessBuilder)){
+    if (!(builder instanceof SubProcessBuilder)) {
       builder.connectTo(nodeId);
     }
   }
