@@ -1,11 +1,14 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 public class JoinIntegrationTest extends IntegrationTest {
 
@@ -61,9 +65,13 @@ public class JoinIntegrationTest extends IntegrationTest {
     engine.onEvent(messageReceived("/done"));
     Thread.sleep(1000);
     verify(messageService, never()).send(anyString(), content("end join"));
-    engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("action", "approve")));
-    Thread.sleep(1000);
-    verify(messageService).send(anyString(), content("end join"));
+
+    await().atMost(3, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("action", "approve")));
+      // bot should send my form back because reject was selected
+      verify(messageService).send(anyString(), content("end join"));
+      return true;
+    });
     assertThat(workflow).executed("sendForm", "sendForm_fork_gateway", "endMessage_join_gateway",
         "endMessage_join_gateway", "endMessage");
   }

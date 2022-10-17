@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +20,11 @@ import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -41,10 +46,38 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // reply to form
     await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
       engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
-      // bot should send my reply back
+      // bot should send back my reply
       verify(messageService, atLeast(1)).send(eq("123"), contains("My message"));
       return true;
     });
+  }
+
+  @Test
+  void sendFormSendMultiLinesReply() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-multi-lines.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/message"));
+    verify(messageService, timeout(5000)).send(eq("123"), contains("form"));
+
+
+    ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+    // reply to form
+    await().atMost(50, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm",
+          Collections.singletonMap("content", StringEscapeUtils.unescapeJava("A\nB\nC\rD"))));
+      // bot should send back my reply
+      verify(messageService, atLeast(1)).send(eq("1234"), captor.capture());
+      return true;
+    });
+
+    assertThat(captor.getValue().getContent()).isEqualTo("<messageML>\n  A\nB\nC\nD\n</messageML>\n");
+    assertThat(workflow).executed("sendForm", "reply");
   }
 
   @Test
@@ -64,7 +97,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
       // user 2 replies to form
       engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("aField", "My message")));
 
-      // bot should send my reply back
+      // bot should send back my reply
       verify(messageService, atLeast(2)).send(eq("123"), contains("My message"));
       return true;
     });
@@ -276,8 +309,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
       return true;
     });
 
-    assertThat(workflow)
-        .executed("init", "check");
+    assertThat(workflow).executed("init", "check");
   }
 
   @Test
@@ -296,6 +328,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     // trigger workflow execution
     engine.onEvent(messageReceived("/init"));
     verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
       engine.onEvent(form("msgId", "init", Collections.singletonMap("action", "x")));
       assertThat(workflow).executed("init", "update");
@@ -320,7 +353,83 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000)).send(anyString(), contains("form"));
     await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> {
       engine.onEvent(messageReceived("/hey"));
-      assertThat(workflow).executed("init", "message-received_/hey", "update");
+      assertThat(workflow).executed("init", "update");
     });
+  }
+
+  @Test
+  void formRepliedSendMessageOnConditionIf() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-conditional.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/test"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "testForm", Collections.singletonMap("action", "create")));
+      return true;
+    });
+    verify(messageService, timeout(5000)).send(anyString(), contains("Create"));
+
+    Thread.sleep(1000);
+    assertThat(workflow).executed(workflow, "testForm", "resCreate");
+  }
+
+  @Test
+  void formRepliedSendMessageOnConditionElse() throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-conditional.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/test"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "testForm", Collections.singletonMap("action", "menu")));
+      return true;
+    });
+    verify(messageService, timeout(5000)).send(anyString(), contains("Menu"));
+    clearInvocations(messageService);
+
+    sleepToTimeout(1000);
+    engine.onEvent(messageReceived("/continue"));
+    verify(messageService, timeout(5000)).send(anyString(), contains("DONE"));
+
+    assertThat(workflow).executed(workflow, "testForm", "resMenu", "finish");
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {"GOOG,response0", "GOOGLE,response1"})
+  void formReplied_fork_condition_join_activity(String tickerValue, String expectedActivity) throws Exception {
+    Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-join-activity.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("/go"));
+    verify(messageService, timeout(2000)).send(anyString(), contains("form"));
+    clearInvocations(messageService);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "sendForm", Collections.singletonMap("ticker", tickerValue)));
+      return true;
+    });
+    verify(messageService, timeout(2000)).send(anyString(), contains("END"));
+
+    assertThat(workflow).executed(workflow, "sendForm", expectedActivity, "response2");
   }
 }

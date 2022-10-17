@@ -1,0 +1,47 @@
+id: condition-form-reply-join
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        message-received:
+          content: /go
+      content: |
+        <messageML>
+          <form id="sendForm">
+            <text-field name="ticker" placeholder="Please enter the Stock Ticker here"></text-field>
+            <textarea name="content" placeholder="Please enter your Research Content here and then Submit form."></textarea>
+            <button name="send-answers" type="action">Send</button>
+          </form>
+        </messageML>
+  - send-message:
+      id: response0
+      on:
+        form-replied:
+          form-id: sendForm
+      if: ${sendForm.ticker == 'GOOG'}
+      content: |
+        <messageML>
+          First reply (if): ${sendForm.content}
+        </messageML>
+  - send-message:
+      id: response1
+      on:
+        form-replied:
+          form-id: sendForm
+      else: {}
+      content: |
+        <messageML>
+          First reply (else): ${sendForm.content}
+        </messageML>
+  - send-message:
+      id: response2
+      on:
+        one-of:
+          - activity-completed:
+              activity-id: response0
+          - activity-completed:
+              activity-id: response1
+      content: |
+        <messageML>
+          END
+        </messageML>

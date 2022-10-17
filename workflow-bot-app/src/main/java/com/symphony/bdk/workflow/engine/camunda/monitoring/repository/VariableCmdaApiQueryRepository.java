@@ -28,11 +28,11 @@ public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   }
 
   @Override
-  public VariablesDomain findGlobalVarsByWorkflowInstanceId(String id) {
+  public VariablesDomain findVarsByWorkflowInstanceIdAndVarName(String id, String name) {
     HistoricVariableInstanceEntity variables =
         (HistoricVariableInstanceEntity) historyService.createHistoricVariableInstanceQuery()
             .processInstanceId(id)
-            .variableName("variables")
+            .variableName(name)
             .singleResult();
     VariablesDomain variablesDomain = new VariablesDomain();
 

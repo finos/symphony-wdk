@@ -18,7 +18,7 @@ public class ActivityExpiredNodeBuilder extends ActivityNodeBuilder {
   @Override
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
-    if (hasFormReplyParent(element, context)) {
+    if (hasNoExclusiveFormReplyParent(element, context)) {
       if (context.hasTimeoutSubProcess()) {
         builder = context.removeLastSubProcessTimeoutBuilder();
       } else {
@@ -37,11 +37,11 @@ public class ActivityExpiredNodeBuilder extends ActivityNodeBuilder {
     return builder;
   }
 
-  private boolean hasFormReplyParent(WorkflowNode element, BuildProcessContext context) {
+  private boolean hasNoExclusiveFormReplyParent(WorkflowNode element, BuildProcessContext context) {
     return context.getParents(element.getId())
         .stream()
         .map(context::readWorkflowNode)
-        .anyMatch(node -> node.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT);
+        .anyMatch(WorkflowNode::isNotExclusiveFormReply);
   }
 
   @Override

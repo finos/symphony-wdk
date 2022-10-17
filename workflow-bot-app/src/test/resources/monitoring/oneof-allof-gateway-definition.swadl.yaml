@@ -1,0 +1,36 @@
+id: all-of-messages-received
+variables:
+  allOf: true
+activities:
+  - send-message:
+      id: start
+      on:
+        message-received:
+          content: /start
+          # should be 1-1 only
+      content: start fork
+
+  - execute-script:
+      id: scriptTrue
+      if: ${variables.allOf == true}
+      script:
+        println("script allOf true is done")
+
+  - execute-script:
+      id: scriptFalse
+      on:
+        activity-completed:
+          activity-id: start
+      script:
+        println("script allOf false is done")
+
+  - send-message:
+      id: endMessage
+      on:
+        all-of:
+          - message-received:
+              content: /message
+          - user-joined-room: {}
+          - activity-completed:
+              activity-id: scriptTrue
+      content: end join

@@ -7,7 +7,6 @@ import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,7 +32,7 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
       builder = ((AbstractCatchEventBuilder<?, ?>) builder).camundaAsyncBefore()
           .signal(element.getId())
           .name(element.getId());
-    } else if (builder instanceof AbstractGatewayBuilder) {
+    } else {
       builder = builder.intermediateCatchEvent().camundaAsyncBefore().signal(element.getId()).name(element.getId());
     }
     return builder;
@@ -53,10 +52,10 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
    */
   private boolean hasFormRepliedEventBrother(BuildProcessContext context, String parentId) {
     return context.readChildren(parentId) != null
-        && context.readChildren(parentId).getGateway() != WorkflowDirectGraph.Gateway.PARALLEL && context.readChildren(
-            parentId).getChildren()
-        .stream()
-        .anyMatch(s -> context.readWorkflowNode(s).getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT);
+        && context.readChildren(parentId).getGateway() != WorkflowDirectGraph.Gateway.PARALLEL
+        && context.readChildren(parentId).getChildren()
+          .stream().map(context::readWorkflowNode)
+          .anyMatch(WorkflowNode::isNotExclusiveFormReply);
   }
 
   @Override

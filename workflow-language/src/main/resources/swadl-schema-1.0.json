@@ -1701,6 +1701,10 @@
                 "content": {
                     "$ref": "#/definitions/content-inner"
                 },
+                "data": {
+                    "description": "Message data, which is a Json string and sent along with message.",
+                    "type": "string"
+                },
                 "attachments": {
                     "description": "One or more attachments to be sent along with the message.",
                     "type": "array",

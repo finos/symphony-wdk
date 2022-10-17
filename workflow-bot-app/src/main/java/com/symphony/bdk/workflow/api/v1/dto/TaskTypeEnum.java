@@ -76,7 +76,32 @@ public enum TaskTypeEnum {
 
   private final String text;
 
+  private static final String EVENT = "EVENT";
+  private static final String ACTIVITY = "ACTIVITY";
+
+  public static final String GATEWAY_ONE_OF = "ONE-OF";
+
+  public static final String GATEWAY_ALL_OF = "ALL-OF";
+
+  public static final String GATEWAY_JOIN = "JOIN";
+
+  public static final String GATEWAY = "GATEWAY";
+
   public static TaskTypeEnum findByAbbr(final String abbr) {
     return Arrays.stream(values()).filter(value -> value.text.equals(abbr)).findFirst().orElse(null);
+  }
+
+  public String toType() {
+    if (name().endsWith("_EVENT")) {
+      return name().substring(0, name().length() - 6);
+    }
+    return name().substring(0, name().length() - 9);
+  }
+
+  public String toGroup() {
+    if (name().endsWith("_EVENT")) {
+      return EVENT;
+    }
+    return ACTIVITY;
   }
 }

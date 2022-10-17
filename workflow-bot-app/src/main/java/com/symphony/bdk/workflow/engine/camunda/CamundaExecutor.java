@@ -104,8 +104,10 @@ public class CamundaExecutor implements JavaDelegate {
     Type type =
         ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
 
-    String activityAsJsonString = (String) execution.getVariable(ACTIVITY);
-    Object activity = OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
+    // escape break line and new lin characters
+    String activityAsJsonString = ((String) execution.getVariable(ACTIVITY)).replaceAll("(\\r|\\n|\\r\\n)+", "\\\\n");
+    BaseActivity activity =
+        (BaseActivity) OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
     EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);
 
@@ -113,14 +115,27 @@ public class CamundaExecutor implements JavaDelegate {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(
-          new CamundaActivityExecutorContext(execution, (BaseActivity) activity, event, resourceLoader, bdk));
+          new CamundaActivityExecutorContext(execution, activity, event, resourceLoader, bdk));
     } catch (Exception e) {
-      log.error(String.format("Activity %s from workflow %s failed",
-          execution.getActivityInstanceId(), execution.getProcessInstanceId()), e);
+      log.error(String.format("Activity from workflow %s failed", execution.getProcessDefinitionId()), e);
+      logErrorVariables(execution, activity, e);
       throw new BpmnError("FAILURE", e);
     } finally {
       clearMdc();
     }
+  }
+
+  private static void logErrorVariables(DelegateExecution execution, BaseActivity activity, Exception e) {
+    Map<String, Object> innerMap = new HashMap<>();
+    innerMap.put("message", e.getCause() == null ? e.getMessage() : e.getCause().getMessage());
+    innerMap.put("activityInstId", execution.getActivityInstanceId());
+    innerMap.put("activityId", activity.getId());
+    ObjectValue objectValue = Variables.objectValue(innerMap)
+        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
+        .create();
+    execution.getProcessEngineServices()
+        .getRuntimeService()
+        .setVariable(execution.getId(), ActivityExecutorContext.ERROR, objectValue);
   }
 
   private void setMdc(DelegateExecution execution) {

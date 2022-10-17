@@ -45,6 +45,7 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -219,6 +221,7 @@ public abstract class IntegrationTest {
 
     V4MessageSent messageSent = new V4MessageSent();
     V4Message message = new V4Message();
+    message.setMessageId("msgId");
     message.setMessage("<presentationML>" + content + "</presentationML>");
     messageSent.setMessage(message);
     V4Stream stream = new V4Stream();
@@ -263,6 +266,18 @@ public abstract class IntegrationTest {
       return processInstance.getState().equals("COMPLETED");
     }
     return false;
+  }
+
+  public static Map<String, Object> getVariable(String processId, String name) {
+    HistoricVariableInstance var = historyService.createHistoricVariableInstanceQuery()
+        .processInstanceId(processId)
+        .variableName(name)
+        .singleResult();
+    if (var == null) {
+      return Collections.emptyMap();
+    } else {
+      return new HashMap<>((Map<String, Object>) var.getValue());
+    }
   }
 
   public static Optional<String> lastProcess() {

@@ -4,7 +4,6 @@ import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.en
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder.EXCLUSIVE_GATEWAY_SUFFIX;
 
 import com.symphony.bdk.workflow.engine.WorkflowNode;
-import com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,16 +57,6 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
   }
 
   protected void connectToExistingNode(String nodeId, AbstractFlowNodeBuilder<?, ?> builder) {
-    // if builder is an instance of sub process builder, the node should be already connected, skip the connection
-    /*
-     * on:
-     *   one-of:
-     *     - form-replied:
-     *         form-id: init
-     *         exclusive: true
-     *     - message-received:
-     *         content: hey
-     */
     if (!(builder instanceof SubProcessBuilder)) {
       builder.connectTo(nodeId);
     }
@@ -75,5 +64,4 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
 
   protected abstract AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException;
-
 }

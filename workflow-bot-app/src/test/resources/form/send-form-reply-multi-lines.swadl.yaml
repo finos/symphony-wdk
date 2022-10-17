@@ -1,0 +1,28 @@
+id: send-form-reply-multi-lines
+activities:
+  - send-message:
+      id: sendForm
+      on:
+        message-received:
+          content: "/message"
+      to:
+        stream-id: "123"
+      content: |
+        <messageML>
+          <form id="sendForm">
+            <textarea name="content" placeholder="Some placeholder text"></textarea>
+            <button name="send-answers" type="action">Send</button>
+          </form>
+        </messageML>
+
+  - send-message:
+      id: reply
+      on:
+        form-replied:
+          form-id: sendForm
+      to:
+        stream-id: "1234"
+      content: |
+        <messageML>
+          ${sendForm.content}
+        </messageML>

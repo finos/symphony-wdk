@@ -32,7 +32,7 @@ class WorkflowDirectGraphBuilderTest {
     Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/approval.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    assertThat(directGraph.getDictionary()).hasSize(8);
+    assertThat(directGraph.getDictionary()).hasSize(9);
     assertThat(directGraph.getStartEvents()).hasSize(1);
   }
 
@@ -53,8 +53,10 @@ class WorkflowDirectGraphBuilderTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/graph/connection-admin-approval.swadl.yaml"));
     workflowDirectGraphBuilder = new WorkflowDirectGraphBuilder(workflow, eventMapper);
     WorkflowDirectGraph directGraph = workflowDirectGraphBuilder.build();
-    assertThat(directGraph.getDictionary()).hasSize(8);
+    assertThat(directGraph.getDictionary()).hasSize(9);
     assertThat(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getVariables()).hasSize(1);
+    assertThat(directGraph.getVariables()).containsKey("administrator");
   }
 
   @Test
@@ -66,5 +68,6 @@ class WorkflowDirectGraphBuilderTest {
     assertThat(directGraph.getDictionary()).hasSize(8);
     assertThat(directGraph.readChildren("scriptTrue").getGateway()).isEqualTo(WorkflowDirectGraph.Gateway.PARALLEL);
     assertThat(directGraph.getStartEvents()).hasSize(1);
+    assertThat(directGraph.getVariables()).containsKey("allOf");
   }
 }

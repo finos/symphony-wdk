@@ -1,8 +1,10 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 
+import lombok.experimental.UtilityClass;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
@@ -10,6 +12,7 @@ import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 /**
  * Helper class on checks or common actions
  */
+@UtilityClass
 public class BpmnBuilderHelper {
 
   public static AbstractFlowNodeBuilder<?, ?> endEventSubProcess(BuildProcessContext context,
@@ -24,7 +27,11 @@ public class BpmnBuilderHelper {
       WorkflowDirectGraph.NodeChildren currentNodeChildren) {
     return currentNodeChildren.getChildren()
         .stream()
-        .noneMatch(s -> context.readWorkflowNode(s).getElementType() == WorkflowNodeType.SIGNAL_EVENT);
+        .noneMatch(s -> {
+          WorkflowNode workflowNode = context.readWorkflowNode(s);
+          return workflowNode.getElementType() == WorkflowNodeType.SIGNAL_EVENT
+              || workflowNode.getElementType() == WorkflowNodeType.FORM_REPLIED_EVENT;
+        });
   }
 
   public static boolean hasAllConditionalChildren(BuildProcessContext context,
