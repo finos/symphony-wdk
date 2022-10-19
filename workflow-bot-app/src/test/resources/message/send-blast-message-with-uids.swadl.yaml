@@ -1,7 +1,7 @@
-id: send-message-with-userids
+id: send-blast-message-with-userids
 activities:
   - send-message:
-      id: sendMessageWithUserIds
+      id: sendBlastMessageWithUserIds
       content: "<messageML>hello</messageML>"
       on:
         message-received:

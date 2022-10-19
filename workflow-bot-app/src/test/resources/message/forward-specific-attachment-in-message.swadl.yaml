@@ -1,7 +1,7 @@
 id: forward-provided-attachment-in-message
 activities:
   - send-message:
-      id: forwardprovidedattachmentinmessageid
+      id: forwardProvidedAttachmentInMessageId
       on:
         message-received:
           content: /forward-specific

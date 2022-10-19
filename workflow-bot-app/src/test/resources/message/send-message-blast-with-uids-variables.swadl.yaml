@@ -1,9 +1,9 @@
-id: send-message-with-userids-variables
+id: send-message-blast-with-userids-variables
 variables:
   foo: 123
 activities:
   - send-message:
-      id: sendMessageWithUserIds
+      id: sendBlastMessageWithUserIds
       content: "<messageML>hello</messageML>"
       on:
         message-received:

@@ -1,0 +1,18 @@
+id: send-blast-message-with-userids-all-failing
+activities:
+  - send-message:
+      id: sendBlastMessageWithUserIdsAllFailing
+      content: "<messageML>hello</messageML>"
+      on:
+        message-received:
+          content: "/send"
+      to:
+        user-ids:
+          - 123
+          - 456
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

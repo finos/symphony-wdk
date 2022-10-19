@@ -740,7 +740,7 @@ activities:
 
 #### to
 
-The recipient (conversation, IM, MIM or chatroom) in which the message should be posted.
+The recipient (conversation, IM or chatroom) in which the message should be posted.
 
 If not set, the stream associated with the latest received event is used. This makes replying to a command sent by a
 user easy.
@@ -776,7 +776,7 @@ Stream ids to send the blast message to. Both url safe and base64 encoded urls a
 
 ##### user-ids
 
-Users to send the message to. An IM or MIM stream will be created or reused.
+Users to send the message to. An IM will be created or reused.
 
 #### <a name="send-message-content"></a>content
 
