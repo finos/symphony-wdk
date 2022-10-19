@@ -1,0 +1,30 @@
+id: diagram-test
+activities:
+  - send-message:
+      id: init
+      on:
+        message-received:
+          content: diagram
+      content: hello
+  - execute-script:
+      id: abc
+      on:
+        activity-completed:
+          activity-id: init
+      script: variables.abc = 'abc'
+  - execute-script:
+      id: def
+      on:
+        activity-completed:
+          activity-id: init
+      script: variables.def = 'def'
+
+  - send-message:
+      id: completed
+      on:
+        all-of:
+          - activity-completed:
+              activity-id: abc
+          - activity-completed:
+              activity-id: def
+      content: Done!
