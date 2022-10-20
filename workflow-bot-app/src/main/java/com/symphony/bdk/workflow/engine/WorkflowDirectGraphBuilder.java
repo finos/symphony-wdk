@@ -140,11 +140,8 @@ public class WorkflowDirectGraphBuilder {
           condition.ifPresent(c -> directGraph.readWorkflowNode(activityId).addIfCondition(finalNodeId, c));
         }
       }
-      if (!(onEvents.isParallel() && (event.getActivityCompleted() != null || event.getActivityFailed() != null
-          || event.getActivityExpired() != null))) {
-        directGraph.getChildren(eventNodeId).addChild(activityId);
-        directGraph.addParent(activityId, eventNodeId);
-      }
+      directGraph.getChildren(eventNodeId).addChild(activityId);
+      directGraph.addParent(activityId, eventNodeId);
     }
   }
 
@@ -171,13 +168,15 @@ public class WorkflowDirectGraphBuilder {
       signalEvent.elementType(WorkflowNodeType.SIGNAL_EVENT);
 
       if (isFormRepliedEvent(event)) {
-        validateExistingNodeId(eventNodeId.substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()),
-            activityId,
-            workflow.getId(), directGraph);
         signalEvent.elementType(WorkflowNodeType.FORM_REPLIED_EVENT);
 
-        if (!onEvents.isParallel() && StringUtils.isEmpty(timeout)) {
-          timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+        if (activityIndex > 0) {
+          validateExistingNodeId(eventNodeId.substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()),
+              activityId,
+              workflow.getId(), directGraph);
+          if (!onEvents.isParallel() && StringUtils.isEmpty(timeout)) {
+            timeout = DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
+          }
         }
       }
       if ((event instanceof EventWithTimeout && StringUtils.isNotEmpty(((EventWithTimeout) event).getTimeout()))

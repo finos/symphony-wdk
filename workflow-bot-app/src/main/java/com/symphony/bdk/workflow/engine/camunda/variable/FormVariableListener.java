@@ -31,7 +31,9 @@ public class FormVariableListener implements ExecutionListener {
       // there should be only one form.FORM_ID entry
       for (Map.Entry<String, Map<String, Object>> entry : form.entrySet()) {
         Object activityVariable = execution.getVariable(entry.getKey());
-        if (activityVariable instanceof Map) {
+        if (activityVariable == null) {
+          execution.setVariable(entry.getKey(), entry.getValue());
+        } else if (activityVariable instanceof Map) {
           // merge form.FORM_ID.FORM_REPLY_DATA into ACTIVITY_ID...
           // FORM_ID = ACTIVITY_ID
           // in the end we have ACTIVITY_ID.outputs... and ACTIVITY_ID.FORM_REPLY_DATA in the same variable

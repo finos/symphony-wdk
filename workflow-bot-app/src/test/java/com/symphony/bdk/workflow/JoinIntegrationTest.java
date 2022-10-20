@@ -1,14 +1,12 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +46,7 @@ public class JoinIntegrationTest extends IntegrationTest {
     Thread.sleep(1000);
     verify(messageService).send(eq(streamId), content("end join"));
     assertThat(workflow).executed("start", "scriptTrue", "scriptTrue_fork_gateway", "endMessage_join_gateway",
-        "endMessage_join_gateway", "endMessage");
+        "endMessage_join_gateway", "endMessage_join_gateway", "endMessage");
   }
 
   @SneakyThrows

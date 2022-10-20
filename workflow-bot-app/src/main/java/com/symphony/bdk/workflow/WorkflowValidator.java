@@ -21,8 +21,7 @@ public class WorkflowValidator {
     }
     if (event instanceof EventWithTimeout && StringUtils.isNotEmpty(((EventWithTimeout) event).getTimeout())) {
       throw new InvalidActivityException(workflowId,
-          String.format("Workflow's starting activity %s must not have timeout",
-              activity.getId()));
+          String.format("Workflow's starting activity %s must not have timeout", activity.getId()));
     }
     // the given event might be a event from oneOf list, if so the following checked activities are acceptable.
     // here we want to forbidden having these activities from "on" section only
@@ -50,9 +49,4 @@ public class WorkflowValidator {
       throw new ActivityNotFoundException(workflowId, currentNodeId, activityId);
     }
   }
-
-  public Void returnVoid() {
-    return null;
-  }
-
 }
