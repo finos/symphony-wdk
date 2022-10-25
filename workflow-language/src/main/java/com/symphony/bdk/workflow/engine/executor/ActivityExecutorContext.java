@@ -55,9 +55,9 @@ public interface ActivityExecutorContext<T> {
   T getActivity();
 
   /**
-   * @return Last event captured by the workflow.
+   * @return List of all events captured by the workflow.
    */
-  EventHolder<Object> getEvent();
+  Map<String, EventHolder<Object>> getEvents();
 
   /**
    * @return Current execution process instance id.

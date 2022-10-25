@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -109,13 +110,22 @@ public class CamundaExecutor implements JavaDelegate {
     BaseActivity activity =
         (BaseActivity) OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
-    EventHolder event = (EventHolder) execution.getVariable(ActivityExecutorContext.EVENT);
+    Map<String, EventHolder> eventsMaps = new HashMap<>();
+    final Map<String, Object> variables = execution.getVariables();
+
+    List<String> eventsKeySet = variables.keySet()
+        .stream()
+        .filter(a -> a.startsWith(ActivityExecutorContext.EVENT))
+        .collect(Collectors.toList());
+    for (String event : eventsKeySet) {
+      eventsMaps.put(event, (EventHolder<Object>) variables.get(event));
+    }
 
     try {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(
-          new CamundaActivityExecutorContext(execution, activity, event, resourceLoader, bdk));
+          new CamundaActivityExecutorContext(execution, activity, eventsMaps, resourceLoader, bdk));
     } catch (Exception e) {
       log.error(String.format("Activity from workflow %s failed", execution.getProcessDefinitionId()), e);
       logErrorVariables(execution, activity, e);
@@ -151,15 +161,15 @@ public class CamundaExecutor implements JavaDelegate {
   private static class CamundaActivityExecutorContext<T extends BaseActivity> implements ActivityExecutorContext<T> {
     private final DelegateExecution execution;
     private final T activity;
-    private final EventHolder<Object> event;
+    private final Map<String, EventHolder<Object>> events;
     private final ResourceProvider resourceLoader;
     private final BdkGateway bdk;
 
-    public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event,
-        ResourceProvider resourceLoader, BdkGateway bdk) {
+    public CamundaActivityExecutorContext(DelegateExecution execution, T activity,
+        Map<String, EventHolder<Object>> events, ResourceProvider resourceLoader, BdkGateway bdk) {
       this.execution = execution;
       this.activity = activity;
-      this.event = event;
+      this.events = events;
       this.resourceLoader = resourceLoader;
       this.bdk = bdk;
     }
@@ -217,8 +227,8 @@ public class CamundaExecutor implements JavaDelegate {
     }
 
     @Override
-    public EventHolder<Object> getEvent() {
-      return event;
+    public Map<String, EventHolder<Object>> getEvents() {
+      return events;
     }
 
     @Override

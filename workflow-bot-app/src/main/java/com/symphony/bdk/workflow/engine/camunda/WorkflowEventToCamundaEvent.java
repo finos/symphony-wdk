@@ -74,6 +74,7 @@ public class WorkflowEventToCamundaEvent {
   private static final String TIMER_FIRED_DATE = "timerFired_date";
   private static final String TIMER_FIRED_CYCLE = "timerFired_cycle";
 
+  private static final String EVENT_UNIQUE_NAME_FORMAT = ActivityExecutorContext.EVENT + "_%s";
 
   private static final AntPathMatcher MESSAGE_RECEIVED_CONTENT_MATCHER = new AntPathMatcher();
 
@@ -155,10 +156,78 @@ public class WorkflowEventToCamundaEvent {
     return Optional.empty();
   }
 
+  private String getUniqueName(RealTimeEvent event) throws PresentationMLParserException {
+    return getUniqueName(event.getSource());
+  }
+
+  public static String getUniqueName(Object event) throws PresentationMLParserException {
+    if (event instanceof V4MessageSent) {
+      V4MessageSent v4MessageSent = ((V4MessageSent) event);
+      if (v4MessageSent.getMessage().getMessage().contains("data-format=\"PresentationML\"")) {
+        return String.format(EVENT_UNIQUE_NAME_FORMAT,
+            PresentationMLParser.getTextContent(v4MessageSent.getMessage().getMessage()).replace("/", ""));
+      } else {
+        return String.format(EVENT_UNIQUE_NAME_FORMAT, v4MessageSent.getMessage().getMessage());
+      }
+
+    } else if (event instanceof V4SymphonyElementsAction) {
+      V4SymphonyElementsAction v4SymphonyElementsAction = (V4SymphonyElementsAction) event;
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, v4SymphonyElementsAction.getFormId());
+
+    } else if (event instanceof V4RoomCreated) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "roomCreated");
+
+    } else if (event instanceof V4RoomUpdated) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "roomUpdated");
+
+    } else if (event instanceof V4RoomDeactivated) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "roomDeactivated");
+
+    } else if (event instanceof V4RoomReactivated) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "roomReactivated");
+
+    } else if (event instanceof V4UserJoinedRoom) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "userJoinedRoom");
+
+    } else if (event instanceof V4UserLeftRoom) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "userLeftRoom");
+
+    } else if (event instanceof V4RoomMemberPromotedToOwner) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "roomMemberPromotedToOwner");
+
+    } else if (event instanceof V4RoomMemberDemotedFromOwner) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "roomMemberDemotedFromOwner");
+
+    } else if (event instanceof V4MessageSuppressed) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "messageSuppressed");
+
+    } else if (event instanceof V4SharedPost) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "sharedPost");
+
+    } else if (event instanceof  V4InstantMessageCreated) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "instantMessageCreated");
+
+    } else if (event instanceof V4UserRequestedToJoinRoom) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "userRequestedToJoinRoom");
+
+    } else if (event instanceof V4ConnectionRequested) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "connectionRequested");
+
+    } else if (event instanceof  V4ConnectionAccepted) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "connectionAccepted");
+
+    } else if (event instanceof RequestReceivedEvent) {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "requestReceived");
+
+    } else {
+      return String.format(EVENT_UNIQUE_NAME_FORMAT, "");
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public <T> void dispatch(RealTimeEvent<T> event) throws PresentationMLParserException {
     Map<String, Object> processVariables = new HashMap<>();
-    processVariables.put(ActivityExecutorContext.EVENT,
+    processVariables.put(getUniqueName(event),
         new EventHolder<>(event.getInitiator(), event.getSource(), new HashMap<>()));
 
     if (event.getInitiator() != null
@@ -172,7 +241,6 @@ public class WorkflowEventToCamundaEvent {
 
     if (event.getSource() instanceof V4SymphonyElementsAction) {
       formReplyToMessage(event, processVariables);
-
     } else if (event.getSource() instanceof V4MessageSent) {
       messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
 
@@ -267,9 +335,10 @@ public class WorkflowEventToCamundaEvent {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private void requestReceivedToRequest(RequestReceivedEvent eventSource, Map<String, Object> processVariables) {
+  private void requestReceivedToRequest(RequestReceivedEvent eventSource, Map<String, Object> processVariables)
+      throws PresentationMLParserException {
     Map<String, Object> args = eventSource.getArguments();
-    ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+    ((EventHolder) processVariables.get(getUniqueName(eventSource))).setArgs(args);
     runtimeService.createSignalEvent(requestReceivedWorkflowEvent(eventSource.getWorkflowId()))
         .setVariables(processVariables).send();
   }
@@ -303,7 +372,7 @@ public class WorkflowEventToCamundaEvent {
             // match the arguments and add them to the event holder
             Map<String, String> args =
                 MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
-            ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
+            ((EventHolder) processVariables.get(getUniqueName(event))).setArgs(args);
 
             runtimeService.createSignalEvent(signal.getEventName())
                 .setVariables(processVariables)
