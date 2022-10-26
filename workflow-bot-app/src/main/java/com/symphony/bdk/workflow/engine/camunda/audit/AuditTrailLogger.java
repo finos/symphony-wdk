@@ -1,8 +1,13 @@
 package com.symphony.bdk.workflow.engine.camunda.audit;
 
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.executor.EventHolder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.history.event.HistoricActivityInstanceEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoricJobLogEvent;
@@ -16,6 +21,7 @@ import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -24,6 +30,14 @@ import java.util.List;
 @Slf4j(topic = "audit-trail")
 @Component
 public class AuditTrailLogger implements HistoryEventHandler {
+
+  public static final String TEMPORARY_EVENT_KEY = "tempevent_";
+
+  private RuntimeService runtimeService;
+
+  public void setRuntimeService(RuntimeService runtimeService) {
+    this.runtimeService = runtimeService;
+  }
 
   @Override
   public void handleEvent(HistoryEvent historyEvent) {
@@ -93,6 +107,16 @@ public class AuditTrailLogger implements HistoryEventHandler {
       log.info("initiator={}, process={}, process_key={}",
           event.getLongValue(),
           event.getProcessInstanceId(), event.getProcessDefinitionKey());
+    } else if (ActivityExecutorContext.EVENT.equals(event.getVariableName()) && event.getByteValue() != null) {
+      try {
+        EventHolder eventHolder =
+            new ObjectMapper().readValue(new String(event.getByteValue(), StandardCharsets.UTF_8), EventHolder.class);
+        this.runtimeService.setVariable(event.getExecutionId(),
+            TEMPORARY_EVENT_KEY + eventHolder.getSource().getClass().getSimpleName() + "_" + RandomUtils.nextInt(),
+            eventHolder);
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
     }
   }
 

@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.GetUsers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,10 @@ public class GetUsersExecutor extends OboExecutor<GetUsers, List<UserV2>>
     implements ActivityExecutor<GetUsers> {
 
   private static final String OUTPUT_USERS_KEY = "users";
+
+  protected GetUsersExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<GetUsers> context) {

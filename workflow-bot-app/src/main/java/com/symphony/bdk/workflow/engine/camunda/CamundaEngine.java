@@ -14,11 +14,11 @@ import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.xml.ModelValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -32,17 +32,29 @@ import java.util.stream.Collectors;
 @Component
 public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
-  @Autowired
-  private RepositoryService repositoryService;
+  //@Autowired
+  private final RepositoryService repositoryService;
 
-  @Autowired
-  private CamundaBpmnBuilder bpmnBuilder;
+  //@Autowired
+  private final CamundaBpmnBuilder bpmnBuilder;
 
-  @Autowired
-  private WorkflowEventToCamundaEvent events;
+  //@Autowired
+  private final WorkflowEventToCamundaEvent events;
 
-  @Autowired
-  private AuditTrailLogger auditTrailLogger;
+//  @Autowired
+  private final AuditTrailLogger auditTrailLogger;
+
+  private final RuntimeService runtimeService;
+
+  public CamundaEngine(RepositoryService repositoryService, RuntimeService runtimeService, CamundaBpmnBuilder bpmnBuilder,
+      WorkflowEventToCamundaEvent events, AuditTrailLogger auditTrailLogger) {
+    this.repositoryService = repositoryService;
+    this.runtimeService  = runtimeService;
+    this.bpmnBuilder = bpmnBuilder;
+    this.events = events;
+    this.auditTrailLogger = auditTrailLogger;
+    this.auditTrailLogger.setRuntimeService(runtimeService);
+  }
 
   @Override
   public void deploy(Workflow workflow) throws IOException {

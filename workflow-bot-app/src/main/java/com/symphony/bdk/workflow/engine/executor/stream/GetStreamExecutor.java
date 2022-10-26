@@ -8,12 +8,17 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.stream.GetStream;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class GetStreamExecutor extends OboExecutor<GetStream, V2StreamAttributes>
     implements ActivityExecutor<GetStream> {
 
   private static final String OUTPUTS_STREAM_KEY = "stream";
+
+  protected GetStreamExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<GetStream> execution) {

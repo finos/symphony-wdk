@@ -99,7 +99,6 @@ public class EventResolver {
               .map(Event::getMessageReceived)
               .collect(Collectors.toList()));
         }
-
         break;
 
       case "FormRepliedEvent":
@@ -122,7 +121,28 @@ public class EventResolver {
               .map(Event::getFormReplied)
               .collect(Collectors.toList()));
         }
+        break;
 
+      case "MessageSuppressedEvent":
+        if (this.event.getMessageSuppressed() != null) {
+          events.add(this.event.getMessageSuppressed());
+        }
+
+        if (this.event.getOneOf() != null) {
+          events.addAll(this.event.getOneOf()
+              .stream()
+              .filter(e -> e.getEventType().equals("MessageSuppressedEvent"))
+              .map(Event::getMessageSuppressed)
+              .collect(Collectors.toList()));
+        }
+
+        if (this.event.getAllOf() != null) {
+          events.addAll(this.event.getAllOf()
+              .stream()
+              .filter(e -> e.getEventType().equals("MessageSuppressedEvent"))
+              .map(Event::getMessageSuppressed)
+              .collect(Collectors.toList()));
+        }
         break;
 
       default:

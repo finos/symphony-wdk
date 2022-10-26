@@ -7,10 +7,15 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.RemoveRoomMember;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class RemoveRoomMemberExecutor extends OboExecutor<RemoveRoomMember, Void>
     implements ActivityExecutor<RemoveRoomMember> {
+
+  protected RemoveRoomMemberExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<RemoveRoomMember> execution) {

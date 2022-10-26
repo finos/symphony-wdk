@@ -8,12 +8,17 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.GetRoom;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class GetRoomExecutor extends OboExecutor<GetRoom, V3RoomDetail>
     implements ActivityExecutor<GetRoom> {
 
   private static final String OUTPUTS_ROOM_KEY = "room";
+
+  protected GetRoomExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<GetRoom> execution) {

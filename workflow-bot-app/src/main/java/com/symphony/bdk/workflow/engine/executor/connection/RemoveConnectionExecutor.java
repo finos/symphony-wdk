@@ -7,10 +7,15 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.RemoveConnection;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class RemoveConnectionExecutor extends OboExecutor<RemoveConnection, Void>
     implements ActivityExecutor<RemoveConnection> {
+
+  protected RemoveConnectionExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<RemoveConnection> context) {

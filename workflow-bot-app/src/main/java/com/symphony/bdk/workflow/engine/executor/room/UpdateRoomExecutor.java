@@ -10,6 +10,7 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.UpdateRoom;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,10 @@ import java.util.stream.Collectors;
 public class UpdateRoomExecutor extends OboExecutor<UpdateRoom, V3RoomDetail> implements ActivityExecutor<UpdateRoom> {
 
   private static final String OUTPUT_ROOM_KEY = "room";
+
+  protected UpdateRoomExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<UpdateRoom> execution) {

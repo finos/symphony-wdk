@@ -7,10 +7,15 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.PromoteRoomOwner;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class PromoteRoomOwnerExecutor extends OboExecutor<PromoteRoomOwner, Void>
     implements ActivityExecutor<PromoteRoomOwner> {
+
+  protected PromoteRoomOwnerExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<PromoteRoomOwner> execution) {

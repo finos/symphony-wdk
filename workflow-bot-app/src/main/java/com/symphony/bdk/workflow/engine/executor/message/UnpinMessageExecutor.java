@@ -13,12 +13,17 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UnpinMessage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 import java.io.IOException;
 
 @Slf4j
 public class UnpinMessageExecutor extends OboExecutor<UnpinMessage, Void>
     implements ActivityExecutor<UnpinMessage> {
+
+  protected UnpinMessageExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<UnpinMessage> execution) throws IOException {

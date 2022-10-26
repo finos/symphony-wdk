@@ -8,12 +8,17 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.CreateConnection;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class CreateConnectionExecutor extends OboExecutor<CreateConnection, UserConnection>
     implements ActivityExecutor<CreateConnection> {
 
   private static final String OUTPUT_CONNECTION_KEY = "connection";
+
+  protected CreateConnectionExecutor(RuntimeService runtimeService) {
+    super(runtimeService);
+  }
 
   @Override
   public void execute(ActivityExecutorContext<CreateConnection> context) {
