@@ -1,9 +1,7 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
 import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY;
-import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_ALL_OF;
 import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_JOIN;
-import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_ONE_OF;
 import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.findByAbbr;
 import static com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
 
@@ -19,7 +17,6 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.Gateway;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
@@ -37,7 +34,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -141,40 +137,13 @@ public class MonitoringService {
   private static NodeDefinitionView buildNode(WorkflowDirectGraph directGraph, List<NodeDefinitionView> activities,
       Map<String, WorkflowNode> dictionary, String key, WorkflowNode workflowNode, NodeChildren children,
       List<String> parents) {
-    NodeDefinitionView.NodeDefinitionViewBuilder nodeBuilder = NodeDefinitionView.builder();
-    // check if the current node is part of the gateway
-    List<String> realParents = new ArrayList<>();
-    for (String parent : parents) {
-      if (directGraph.getChildren(parent).getChildren().size() > 1) {
-        realParents.add(parent + GATEWAY_SUFFIX);
-      } else {
-        realParents.add(parent);
-      }
-    }
-
-    if (children.isEmpty()) {
-      nodeBuilder.nodeId(key).parents(realParents).children(Collections.emptyList());
-    } else if (children.isChildUnique()) {
-      nodeBuilder.nodeId(key)
-          .parents(realParents)
-          .children(List.of(NodeDefinitionView.ChildView.of(children.getUniqueChild(),
-              determineCondition(dictionary.get(children.getUniqueChild()), key))));
-    } else {
-      NodeDefinitionView gateway = NodeDefinitionView.builder()
-          .nodeId(key + GATEWAY_SUFFIX)
-          .parents(List.of(key))
-          .group(GATEWAY)
-          .type(children.getGateway() == Gateway.PARALLEL ? GATEWAY_ALL_OF : GATEWAY_ONE_OF)
-          .children(children.getChildren().stream().map(node -> {
-            String condition = determineCondition(dictionary.get(node), key);
-            return NodeDefinitionView.ChildView.of(node, condition);
-          }).collect(Collectors.toList()))
-          .build();
-      activities.add(gateway);
-      nodeBuilder.nodeId(key)
-          .parents(realParents)
-          .children(List.of(NodeDefinitionView.ChildView.of(gateway.getNodeId())));
-    }
+    NodeDefinitionView.NodeDefinitionViewBuilder nodeBuilder = NodeDefinitionView.builder()
+        .nodeId(key)
+        .parents(parents)
+        .children(children.getChildren()
+            .stream()
+            .map(c -> NodeDefinitionView.ChildView.of(c, determineCondition(dictionary.get(c), key)))
+            .collect(Collectors.toList()));
 
     if (workflowNode.getActivity() != null) {
       TaskTypeEnum taskTypeEnum = findByAbbr(workflowNode.getActivity().getClass().getSimpleName());

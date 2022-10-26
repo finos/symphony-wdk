@@ -13,6 +13,7 @@ import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EventSubProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
+import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,13 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
       AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
     if (builder instanceof ParallelGatewayBuilder || element.getEvent().getFormReplied().getExclusive()) {
+      if (builder instanceof StartEventBuilder) {
+        return ((StartEventBuilder) builder).camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START,
+                FormVariableListener.class)
+            .camundaAsyncBefore()
+            .name(element.getId())
+            .message(element.getId());
+      }
       return builder.intermediateCatchEvent()
           .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
           .camundaAsyncBefore()
