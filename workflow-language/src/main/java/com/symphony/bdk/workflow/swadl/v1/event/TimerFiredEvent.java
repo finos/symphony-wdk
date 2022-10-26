@@ -6,7 +6,7 @@ import lombok.Data;
 import javax.annotation.Nullable;
 
 @Data
-public class TimerFiredEvent {
+public class TimerFiredEvent extends InnerEvent {
   @JsonProperty
   @Nullable
   private String at;

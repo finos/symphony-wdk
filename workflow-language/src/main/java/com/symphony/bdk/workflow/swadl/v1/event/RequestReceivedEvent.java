@@ -9,7 +9,7 @@ import java.util.Map;
  * Not a Datafeed event. Manually created when API calls are made to the bot directly.
  */
 @Data
-public class RequestReceivedEvent {
+public class RequestReceivedEvent extends InnerEvent {
   @JsonProperty
   private String token;
 

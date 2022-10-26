@@ -1217,6 +1217,11 @@
                     "description": "If true, the event is only triggered if the bot is mentioned.",
                     "type": "boolean",
                     "default": false
+                },
+                "id": {
+                    "description": "Event's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
                 }
             }
         },
@@ -1272,6 +1277,11 @@
         "room-member-promoted-to-owner-event-inner": {
             "type": "object",
             "properties": {
+                "id": {
+                    "description": "Event's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
+                }
             }
         },
         "room-member-demoted-from-owner-event-inner": {
@@ -1282,11 +1292,21 @@
         "user-joined-room-event-inner": {
             "type": "object",
             "properties": {
+                "id": {
+                    "description": "Event's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
+                }
             }
         },
         "user-left-room-event-inner": {
             "type": "object",
             "properties": {
+                "id": {
+                    "description": "Event's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
+                }
             }
         },
         "user-requested-join-room-event-inner": {
@@ -1334,6 +1354,11 @@
                 "activity-id": {
                     "description": "The completed (without errors) activity triggering this event.",
                     "$ref": "#/definitions/id"
+                },
+                "id": {
+                    "description": "Event's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
                 }
             },
             "required": [
