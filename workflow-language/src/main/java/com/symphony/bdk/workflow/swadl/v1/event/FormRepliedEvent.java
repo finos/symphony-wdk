@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class FormRepliedEvent {
+public class FormRepliedEvent extends InnerEvent {
   @JsonProperty
   private String formId;
 
