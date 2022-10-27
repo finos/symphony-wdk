@@ -2,51 +2,46 @@ package com.symphony.bdk.workflow.engine;
 
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
-import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
-import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
+/**
+ * Handles workflow events to persist them in database.
+ */
 @Component
-public class WorkflowEventHandler implements HistoryEventHandler {
+@Primary
+@Slf4j
+public class WorkflowEventHandler implements EventHandler {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
-  private final AuditTrailLogger auditTrailLogger;
   private final RuntimeService runtimeService;
 
-  public WorkflowEventHandler(@Lazy RuntimeService runtimeService, @Lazy AuditTrailLogger auditTrailLogger,
+  public WorkflowEventHandler(@Lazy RuntimeService runtimeService,
       WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
-    this.auditTrailLogger = auditTrailLogger;
     this.runtimeService = runtimeService;
     this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
   }
 
   @Override
   public void handleEvent(HistoryEvent historyEvent) {
-    this.auditTrailLogger.handleEvent(historyEvent);
-
     if (historyEvent instanceof HistoricVariableUpdateEventEntity) {
       this.storeEventHolderVariable((HistoricVariableUpdateEventEntity) historyEvent);
     }
-  }
-
-  @Override
-  public void handleEvents(List<HistoryEvent> historyEvents) {
-    historyEvents.forEach(this::handleEvent);
   }
 
   /**
@@ -78,7 +73,7 @@ public class WorkflowEventHandler implements HistoryEventHandler {
           this.runtimeService.setVariable(event.getExecutionId(), eventId, eventHolder);
         }
       } catch (JsonProcessingException e) {
-        e.printStackTrace();
+        log.error("Failed to store event in variable {}", event.getVariableName(), e);
       }
     }
   }

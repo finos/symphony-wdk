@@ -179,119 +179,70 @@ public class WorkflowEventToCamundaEvent {
       messageSentToMessage((RealTimeEvent<V4MessageSent>) event, processVariables);
 
     } else if (event.getSource() instanceof V4RoomCreated) {
-      log.debug("receive a room created event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.ROOM_CREATED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_CREATED)
-          .setVariables(processVariables).send();
+      log.debug("received a room created event");
+      this.createSignalEvent(processVariables, ROOM_CREATED);
 
     } else if (event.getSource() instanceof V4RoomUpdated) {
-      log.debug("receive a room updated event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.ROOM_UPDATED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_UPDATED)
-          .setVariables(processVariables).send();
+      log.debug("received a room updated event");
+      this.createSignalEvent(processVariables, ROOM_UPDATED);
 
     } else if (event.getSource() instanceof V4RoomDeactivated) {
-      log.debug("receive a room reactivated event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.ROOM_DEACTIVATED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_DEACTIVATED)
-          .setVariables(processVariables).send();
+      log.debug("received a room reactivated event");
+      this.createSignalEvent(processVariables, ROOM_DEACTIVATED);
 
     } else if (event.getSource() instanceof V4RoomReactivated) {
-      log.debug("receive a room reactivated event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.ROOM_REACTIVATED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_REACTIVATED)
-          .setVariables(processVariables).send();
+      log.debug("received a room reactivated event");
+      this.createSignalEvent(processVariables, ROOM_REACTIVATED);
 
     } else if (event.getSource() instanceof V4UserJoinedRoom) {
-      log.debug("receive an user joined room event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.USER_JOINED_ROOM);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_JOINED_ROOM)
-          .setVariables(processVariables).send();
+      log.debug("received an user joined room event");
+      this.createSignalEvent(processVariables, USER_JOINED_ROOM);
 
     } else if (event.getSource() instanceof V4UserLeftRoom) {
-      log.debug("receive an user left room event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.USER_LEFT_ROOM);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_LEFT_ROOM)
-          .setVariables(processVariables).send();
+      log.debug("received an user left room event");
+      this.createSignalEvent(processVariables, USER_LEFT_ROOM);
 
     } else if (event.getSource() instanceof V4RoomMemberDemotedFromOwner) {
-      log.debug("receive a member demoted from owner event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.ROOM_MEMBER_DEMOTED_FROM_OWNER);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_MEMBER_DEMOTED_FROM_OWNER)
-          .setVariables(processVariables).send();
+      log.debug("received a member demoted from owner event");
+      this.createSignalEvent(processVariables, ROOM_MEMBER_DEMOTED_FROM_OWNER);
 
     } else if (event.getSource() instanceof V4RoomMemberPromotedToOwner) {
-      log.debug("receive a room member promoted to owner event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.ROOM_MEMBER_PROMOTED_TO_OWNER);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.ROOM_MEMBER_PROMOTED_TO_OWNER)
-          .setVariables(processVariables).send();
+      log.debug("received a room member promoted to owner event");
+      this.createSignalEvent(processVariables, ROOM_MEMBER_PROMOTED_TO_OWNER);
 
     } else if (event.getSource() instanceof V4MessageSuppressed) {
-      log.debug("receive a message suppressed event");
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.MESSAGE_SUPPRESSED);
-
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.MESSAGE_SUPPRESSED)
-          .setVariables(processVariables).send();
+      log.debug("received a message suppressed event");
+      this.createSignalEvent(processVariables, MESSAGE_SUPPRESSED);
 
     } else if (event.getSource() instanceof V4SharedPost) {
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.POST_SHARED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.POST_SHARED)
-          .setVariables(processVariables).send();
+      log.debug("received a message suppressed event");
+      this.createSignalEvent(processVariables, POST_SHARED);
 
     } else if (event.getSource() instanceof V4InstantMessageCreated) {
-      log.debug("receive a IM created event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.IM_CREATED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.IM_CREATED)
-          .setVariables(processVariables).send();
+      log.debug("received a IM created event");
+      this.createSignalEvent(processVariables, IM_CREATED);
 
     } else if (event.getSource() instanceof V4UserRequestedToJoinRoom) {
-      log.debug("receive a user join room request event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.USER_REQUESTED_JOIN_ROOM);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.USER_REQUESTED_JOIN_ROOM)
-          .setVariables(processVariables).send();
+      log.debug("received a user join room request event");
+      this.createSignalEvent(processVariables, USER_REQUESTED_JOIN_ROOM);
 
     } else if (event.getSource() instanceof V4ConnectionRequested) {
-      log.debug("receive a connection requested event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.CONNECTION_REQUESTED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_REQUESTED)
-          .setVariables(processVariables).send();
+      log.debug("received a connection requested event");
+      this.createSignalEvent(processVariables, CONNECTION_REQUESTED);
 
     } else if (event.getSource() instanceof V4ConnectionAccepted) {
-      log.debug("receive a connection accepted event");
-
-      ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).getArgs()
-          .put(EVENT_NAME, WorkflowEventToCamundaEvent.CONNECTION_ACCEPTED);
-      runtimeService.createSignalEvent(WorkflowEventToCamundaEvent.CONNECTION_ACCEPTED)
-          .setVariables(processVariables).send();
+      log.debug("received a connection accepted event");
+      this.createSignalEvent(processVariables, CONNECTION_ACCEPTED);
 
     } else if (event.getSource() instanceof RequestReceivedEvent) {
+      log.debug("received a request received event");
       requestReceivedToRequest((RequestReceivedEvent) event.getSource(), processVariables);
     }
+  }
+
+  private void createSignalEvent(Map<String, Object> variables, String eventName) {
+    ((EventHolder) variables.get(ActivityExecutorContext.EVENT)).getArgs().put(EVENT_NAME, eventName);
+    runtimeService.createSignalEvent(eventName).setVariables(variables).send();
   }
 
   @SuppressWarnings("unchecked")
@@ -317,12 +268,12 @@ public class WorkflowEventToCamundaEvent {
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void requestReceivedToRequest(RequestReceivedEvent eventSource, Map<String, Object> processVariables) {
+    String eventName = requestReceivedWorkflowEvent(eventSource.getWorkflowId());
     Map<String, Object> args = eventSource.getArguments();
-    args.put(EVENT_NAME, REQUEST_RECEIVED + "_" + eventSource.getWorkflowId());
+    args.put(EVENT_NAME, eventName);
     ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
 
-    runtimeService.createSignalEvent(requestReceivedWorkflowEvent(eventSource.getWorkflowId()))
-        .setVariables(processVariables).send();
+    runtimeService.createSignalEvent(eventName).setVariables(processVariables).send();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -331,8 +282,8 @@ public class WorkflowEventToCamundaEvent {
 
     // Event's message cannot be null, this if statement is only added to fix Sonar warnings
     if (event.getSource().getMessage() != null) {
-      log.debug("receive message [{}]", event.getSource().getMessage().getMessageId());
-      log.trace("receive message [{}]", event.getSource().getMessage().getMessage());
+      log.debug("received message [{}]", event.getSource().getMessage().getMessageId());
+      log.trace("received message [{}]", event.getSource().getMessage().getMessage());
       String presentationMl = event.getSource().getMessage().getMessage();
       String receivedContent = PresentationMLParser.getTextContent(presentationMl);
 

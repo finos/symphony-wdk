@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.audit;
 
+import com.symphony.bdk.workflow.engine.EventHandler;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +23,9 @@ import java.util.List;
  */
 @Slf4j(topic = "audit-trail")
 @Component
-public class AuditTrailLogger {
+public class AuditTrailLogger implements EventHandler {
 
+  @Override
   public void handleEvent(HistoryEvent historyEvent) {
     if (historyEvent instanceof HistoricJobLogEvent) {
       logJobEvent((HistoricJobLogEvent) historyEvent);
