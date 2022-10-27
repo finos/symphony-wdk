@@ -19,7 +19,7 @@ dependencies {
 
     // a third party library used by the custom activity
     // it will be packaged along with this project
-    implementation 'org.apache.commons:commons-text:1.9'
+    implementation 'org.apache.commons:commons-text:1.10.0'
 }
 
 // package the activity and its dependencies so it can be added to a workflow-bot application
