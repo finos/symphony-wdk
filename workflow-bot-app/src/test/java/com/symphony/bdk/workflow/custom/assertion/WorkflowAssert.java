@@ -21,6 +21,7 @@ import org.camunda.bpm.engine.history.HistoricDetail;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentMatchers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -83,6 +84,12 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   public WorkflowAssert isExecuted() {
     isNotNull();
     assertExecuted(actual);
+    return this;
+  }
+
+  public WorkflowAssert executedContains(String... activities) {
+    isNotNull();
+    assertExecutedContains(Optional.empty(), activities);
     return this;
   }
 
@@ -179,6 +186,10 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
   // activityIds represent all successfully executed activities and not only a subset
   private static void assertExecuted(Optional<Workflow> optionalWorkflow, String... activityIds) {
     Assertions.assertThat(listExecutedActivities(optionalWorkflow)).containsExactly(activityIds);
+  }
+
+  private static void assertExecutedContains(Optional<Workflow> optionalWorkflow, String... activityIds) {
+    Assertions.assertThat(listExecutedActivities(optionalWorkflow)).contains(activityIds);
   }
 
   private static List<String> listExecutedActivities(Optional<Workflow> optionalWorkflow) {

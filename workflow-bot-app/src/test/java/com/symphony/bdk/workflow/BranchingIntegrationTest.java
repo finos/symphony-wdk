@@ -40,13 +40,8 @@ class BranchingIntegrationTest extends IntegrationTest {
   @SuppressWarnings("checkstyle:LineLength")
   static Stream<Arguments> expectedErrors() {
     return Stream.of(
-        arguments("/branching/invalid/swadl/if-starting-activity.swadl.yaml", InvalidActivityException.class,
-            "Invalid activity in the workflow if-in-starting-activity: Workflow's starting activity startingActivity must not have a conditional branching"),
         arguments("/branching/invalid/swadl/else-without-if.swadl.yaml", InvalidActivityException.class,
             "Invalid activity in the workflow else-without-if: Expecting \"if\" keyword to open a new conditional branching, got \"else\""),
-        //arguments("/branching/invalid/swadl/else-on-activity-completed-with-branching.swadl.yaml",
-        //InvalidActivityException.class,
-        //"Invalid activity in the workflow else-on-activity-completed-with-branching: Expecting activity ac2 not to have a parent activity with conditional branching, got ac1"),
         arguments("/branching/invalid/swadl/else-without-on-activity-completed.swadl.yaml",
             InvalidActivityException.class,
             "Invalid activity in the workflow else-without-on-activity-completed: Expecting \"if\" keyword to open a new conditional branching, got \"else\""),

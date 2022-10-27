@@ -11,11 +11,12 @@ import java.util.Map;
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ActivityInstanceView {
+public class NodeView {
   private String workflowId;
   private String instanceId;
-  private String activityId;
-  private TaskTypeEnum type;
+  private String nodeId;
+  private String type;
+  private String group;
   private Instant startDate;
   private Instant endDate;
   private Duration duration;

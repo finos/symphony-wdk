@@ -41,7 +41,6 @@ class WorkflowValidatorTest {
     BaseActivity mockActivity2 = mock(BaseActivity.class);
 
     return Stream.of(
-        arguments(mockActivity1, null, "workflow"),
         arguments(mockActivity2, mockEvent1, "workflow"),
         arguments(mockActivity3, mockEvent2, "workflow")
     );

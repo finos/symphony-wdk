@@ -49,7 +49,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows/";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "wdk/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
-      "wdk/v1/workflows/%s/instances/%s/activities";
+      "wdk/v1/workflows/%s/instances/%s/states";
   private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/wdk/v1/workflows/%s/definitions";
   private static final String LIST_WORKFLOW_GLOBAL_VARIABLES = "/wdk/v1/workflows/%s/instances/%s/variables";
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
@@ -354,7 +354,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities() throws Exception {
+  void listInstanceStates() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
 
@@ -380,25 +380,27 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities[0].workflowId", equalTo("testingWorkflow1"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("testingWorkflow1SendMsg1"))
-        .body("activities[0].type", equalTo("SEND_MESSAGE_ACTIVITY"))
-        .body("activities[0].startDate", not(empty()))
-        .body("activities[0].endDate", not(empty()))
-        .body("activities[0].duration", not(empty()))
-        .body("activities[0].outputs.message", not(empty()))
-        .body("activities[0].outputs.msgId", not(empty()))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow1"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow1"))
+        .body("nodes[0].type", equalTo("MESSAGE_RECEIVED"))
+        .body("nodes[0].group", equalTo("EVENT"))
+        .body("nodes[0].startDate", not(empty()))
+        .body("nodes[0].endDate", not(empty()))
+        .body("nodes[0].duration", not(empty()))
+        .body("nodes[0].outputs.message", not(empty()))
+        .body("nodes[0].outputs.msgId", not(empty()))
 
-        .body("activities[1].workflowId", equalTo("testingWorkflow1"))
-        .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("testingWorkflow1SendMsg2"))
-        .body("activities[1].type", equalTo("SEND_MESSAGE_ACTIVITY"))
-        .body("activities[1].startDate", not(empty()))
-        .body("activities[1].endDate", not(empty()))
-        .body("activities[1].duration", not(empty()))
-        .body("activities[1].outputs.message", not(empty()))
-        .body("activities[1].outputs.msgId", not(empty()))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow1"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[1].nodeId", equalTo("testingWorkflow1SendMsg1"))
+        .body("nodes[1].type", equalTo("SEND_MESSAGE"))
+        .body("nodes[1].group", equalTo("ACTIVITY"))
+        .body("nodes[1].startDate", not(empty()))
+        .body("nodes[1].endDate", not(empty()))
+        .body("nodes[1].duration", not(empty()))
+        .body("nodes[1].outputs.message", not(empty()))
+        .body("nodes[1].outputs.msgId", not(empty()))
 
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
@@ -408,7 +410,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities_withError() throws Exception {
+  void listInstanceStates_withError() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
 
@@ -432,15 +434,16 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities[0].workflowId", equalTo("testingWorkflow1"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("testingWorkflow1SendMsg1"))
-        .body("activities[0].type", equalTo("SEND_MESSAGE_ACTIVITY"))
-        .body("activities[0].startDate", not(empty()))
-        .body("activities[0].endDate", not(empty()))
-        .body("activities[0].duration", not(empty()))
-        .body("activities[0].outputs.message", not(empty()))
-        .body("activities[0].outputs.msgId", not(empty()))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow1"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow1"))
+        .body("nodes[0].type", equalTo("MESSAGE_RECEIVED"))
+        .body("nodes[0].group", equalTo("EVENT"))
+        .body("nodes[0].startDate", not(empty()))
+        .body("nodes[0].endDate", not(empty()))
+        .body("nodes[0].duration", not(empty()))
+        .body("nodes[0].outputs.message", not(empty()))
+        .body("nodes[0].outputs.msgId", not(empty()))
 
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
@@ -453,7 +456,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities_startedBeforeFilter() throws Exception {
+  void listInstanceStates_startedBeforeFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
@@ -488,7 +491,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
-        .body("activities", hasSize(0))
+        .body("nodes", hasSize(0))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -504,10 +507,16 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
+        .body("nodes", hasSize(3))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow4"))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[1].nodeId", equalTo("script1TestingWorkflow4"))
+        .body("nodes[2].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[2].instanceId", not(empty()))
+        .body("nodes[2].nodeId", equalTo("message-received_/continueTestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -523,13 +532,21 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
+        .body("nodes", hasSize(4))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].nodeId", equalTo("script1TestingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[2].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[2].nodeId", equalTo("message-received_/continueTestingWorkflow4"))
+        .body("nodes[2].instanceId", not(empty()))
+        .body("nodes[3].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[3].instanceId", not(empty()))
+        .body("nodes[3].nodeId", equalTo("script2TestingWorkflow4"))
+        .body("nodes[3].type", equalTo("EXECUTE_SCRIPT"))
+        .body("nodes[3].group", equalTo("ACTIVITY"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -538,7 +555,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities_startedAfterFilter() throws Exception {
+  void listInstanceStates_startedAfterFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
@@ -574,13 +591,19 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
+        .body("nodes", hasSize(4))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[1].nodeId", equalTo("script1TestingWorkflow4"))
+        .body("nodes[2].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[2].instanceId", not(empty()))
+        .body("nodes[2].nodeId", equalTo("message-received_/continueTestingWorkflow4"))
+        .body("nodes[3].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[3].instanceId", not(empty()))
+        .body("nodes[3].nodeId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -596,10 +619,10 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script2TestingWorkflow4"))
+        .body("nodes", hasSize(1))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -615,7 +638,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(0))
+        .body("nodes", hasSize(0))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -624,7 +647,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities_finishedBeforeFilter() throws Exception {
+  void listInstanceStates_finishedBeforeFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
@@ -660,7 +683,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(0))
+        .body("nodes", hasSize(0))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -676,10 +699,13 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
+        .body("nodes", hasSize(2))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow4"))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[1].nodeId", equalTo("script1TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -695,13 +721,21 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
+        .body("nodes", hasSize(4))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].nodeId", equalTo("script1TestingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[2].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[2].nodeId", equalTo("message-received_/continueTestingWorkflow4"))
+        .body("nodes[2].type", equalTo("MESSAGE_RECEIVED"))
+        .body("nodes[2].group", equalTo("EVENT"))
+        .body("nodes[2].instanceId", not(empty()))
+        .body("nodes[3].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[3].instanceId", not(empty()))
+        .body("nodes[3].nodeId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -710,7 +744,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities_finishedAfterFilter() throws Exception {
+  void listInstanceStates_finishedAfterFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
@@ -746,13 +780,19 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(2))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].activityId", equalTo("script1TestingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[1].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[1].instanceId", not(empty()))
-        .body("activities[1].activityId", equalTo("script2TestingWorkflow4"))
+        .body("nodes", hasSize(4))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].nodeId", equalTo("message-received_/testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].nodeId", equalTo("script1TestingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[2].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[2].instanceId", not(empty()))
+        .body("nodes[2].nodeId", equalTo("message-received_/continueTestingWorkflow4"))
+        .body("nodes[3].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[3].instanceId", not(empty()))
+        .body("nodes[3].nodeId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -768,10 +808,13 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(1))
-        .body("activities[0].workflowId", equalTo("testingWorkflow4"))
-        .body("activities[0].instanceId", not(empty()))
-        .body("activities[0].activityId", equalTo("script2TestingWorkflow4"))
+        .body("nodes", hasSize(2))
+        .body("nodes[0].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("message-received_/continueTestingWorkflow4"))
+        .body("nodes[1].workflowId", equalTo("testingWorkflow4"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[1].nodeId", equalTo("script2TestingWorkflow4"))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -787,7 +830,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
 
-        .body("activities", hasSize(0))
+        .body("nodes", hasSize(0))
         .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
@@ -810,7 +853,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listInstanceActivities_unknownWorkflowId_unknownInstanceId() {
+  void listInstanceStates_unknownWorkflowId_unknownInstanceId() {
     final String unknownWorkflowId = "unknownWorkflowId";
     final String unknownInstanceId = "unknownInstanceId";
     final String expectedErrorMsg =
@@ -830,7 +873,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listWorkflowActivitiesDefinitions() throws Exception {
+  void listWorkflowStatesDefinitions() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-definition.swadl.yaml"));
 
@@ -1094,8 +1137,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     NodeDefinitionView expectedJoinGateway = builder()
         .nodeId("endMessage_join_gateway")
-        .type(TaskTypeEnum.GATEWAY_JOIN)
-        .group(TaskTypeEnum.GATEWAY)
+        .type(TaskTypeEnum.JOIN_GATEWAY.toType())
+        .group(TaskTypeEnum.JOIN_GATEWAY.toGroup())
         .parents(List.of("message-received_/message", "user-joined-room", "scriptTrue"))
         .children(List.of(ChildView.of("endMessage")))
         .build();
@@ -1192,8 +1235,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     NodeDefinitionView gateway = builder()
         .nodeId("completed_join_gateway")
-        .type(TaskTypeEnum.GATEWAY_JOIN)
-        .group(TaskTypeEnum.GATEWAY)
+        .type(TaskTypeEnum.JOIN_GATEWAY.toType())
+        .group(TaskTypeEnum.JOIN_GATEWAY.toGroup())
         .parents(List.of("abc", "def"))
         .children(Collections.singletonList(ChildView.of("completed")))
         .build();
