@@ -9,7 +9,6 @@ import org.camunda.bpm.engine.impl.history.event.HistoricJobLogEvent;
 import org.camunda.bpm.engine.impl.history.event.HistoricProcessInstanceEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
-import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
 import org.camunda.bpm.engine.impl.persistence.entity.DeploymentEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
@@ -23,9 +22,8 @@ import java.util.List;
  */
 @Slf4j(topic = "audit-trail")
 @Component
-public class AuditTrailLogger implements HistoryEventHandler {
+public class AuditTrailLogger {
 
-  @Override
   public void handleEvent(HistoryEvent historyEvent) {
     if (historyEvent instanceof HistoricJobLogEvent) {
       logJobEvent((HistoricJobLogEvent) historyEvent);
@@ -41,13 +39,6 @@ public class AuditTrailLogger implements HistoryEventHandler {
 
     } else {
       log.trace("Event {}", historyEvent);
-    }
-  }
-
-  @Override
-  public void handleEvents(List<HistoryEvent> historyEvents) {
-    for (HistoryEvent historyEvent : historyEvents) {
-      handleEvent(historyEvent);
     }
   }
 

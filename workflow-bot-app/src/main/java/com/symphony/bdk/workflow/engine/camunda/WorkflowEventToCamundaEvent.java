@@ -54,6 +54,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class WorkflowEventToCamundaEvent {
 
+  public static final String EVENT_NAME = "eventName";
+
   private static final String MESSAGE_PREFIX = "message-received_";
   private static final String MESSAGE_SUPPRESSED = "message-suppressed";
   private static final String POST_SHARED = "post-shared";
@@ -303,6 +305,7 @@ public class WorkflowEventToCamundaEvent {
             // match the arguments and add them to the event holder
             Map<String, String> args =
                 MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
+            args.put(EVENT_NAME, signal.getEventName());
             ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
 
             runtimeService.createSignalEvent(signal.getEventName())
