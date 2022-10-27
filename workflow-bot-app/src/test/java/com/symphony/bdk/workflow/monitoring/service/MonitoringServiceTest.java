@@ -8,14 +8,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
@@ -29,6 +29,7 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDo
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
+import com.symphony.bdk.workflow.swadl.v1.event.MessageReceivedEvent;
 
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;
@@ -107,23 +108,25 @@ class MonitoringServiceTest {
   @ValueSource(strings = {"", "errors"})
   void listWorkflowInstanceActivities(String errors) {
     // given
-    ActivityInstanceView view1 = ActivityInstanceView.builder()
+    NodeView view1 = NodeView.builder()
         .instanceId("instance")
-        .activityId("activity1")
+        .nodeId("activity1")
         .workflowId("workflow")
         .endDate(Instant.now())
         .startDate(Instant.now())
         .duration(Duration.ofMillis(2000))
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
+        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
         .outputs(Maps.newHashMap("key", "value1")).build();
-    ActivityInstanceView view2 = ActivityInstanceView.builder()
+    NodeView view2 = NodeView.builder()
         .instanceId("instance")
-        .activityId("activity2")
+        .nodeId("activity2")
         .workflowId("workflow")
         .endDate(Instant.now())
         .startDate(Instant.now())
         .duration(Duration.ofMillis(2000))
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT)
+        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
+        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
         .outputs(Maps.newHashMap("key", "value2")).build();
 
     WorkflowInstanceDomain workflowInstanceDomain = WorkflowInstanceDomain.builder().instanceId("instance").build();
@@ -133,7 +136,7 @@ class MonitoringServiceTest {
     when(activityQueryRepository.findAllByWorkflowInstanceId(anyString(), anyString(),
         any(WorkflowInstLifeCycleFilter.class))).thenReturn(Collections.singletonList(ActivityInstanceDomain.builder()
         .build())); // returns at least one item, otherwise an IllegalArgumentException will be thrown
-    when(objectConverter.convertCollection(anyList(), eq(ActivityInstanceView.class))).thenReturn(
+    when(objectConverter.convertCollection(anyList(), eq(NodeView.class))).thenReturn(
         List.of(view1, view2));
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(
         List.of(workflowInstView));
@@ -145,12 +148,16 @@ class MonitoringServiceTest {
     sendMessage.setId("activity1");
     activity1.activity(sendMessage);
     activity1.id("activity1");
+    activity1.eventId("activity1");
+    activity1.setWrappedType(MessageReceivedEvent.class);
 
     WorkflowNode activity2 = new WorkflowNode();
     sendMessage.setContent("content");
     sendMessage.setId("activity1");
     activity2.activity(sendMessage);
     activity2.id("activity2");
+    activity2.eventId("activity2");
+    activity2.setWrappedType(MessageReceivedEvent.class);
 
     WorkflowDirectGraph directGraph = new WorkflowDirectGraph();
     directGraph.registerToDictionary("activity1", activity1);
@@ -176,17 +183,17 @@ class MonitoringServiceTest {
     }
 
     // when
-    WorkflowActivitiesView workflowInstanceActivities = service.listWorkflowInstanceActivities("workflow", "instance",
+    WorkflowNodesView workflowInstanceActivities = service.listWorkflowInstanceActivities("workflow", "instance",
         new WorkflowInstLifeCycleFilter(null, null, null, null));
 
     // then
-    assertThat(workflowInstanceActivities.getActivities()).hasSize(2);
-    assertThat(workflowInstanceActivities.getActivities().get(0).getOutputs()).hasSize(1);
-    assertThat(workflowInstanceActivities.getActivities().get(0).getWorkflowId()).isEqualTo("workflow");
-    assertThat(workflowInstanceActivities.getActivities().get(0).getInstanceId()).isEqualTo("instance");
-    assertThat(workflowInstanceActivities.getActivities().get(0).getActivityId()).isEqualTo("activity1");
-    assertThat(workflowInstanceActivities.getActivities().get(0).getStartDate()).isNotNull();
-    assertThat(workflowInstanceActivities.getActivities().get(0).getEndDate()).isNotNull();
+    assertThat(workflowInstanceActivities.getNodes()).hasSize(2);
+    assertThat(workflowInstanceActivities.getNodes().get(0).getOutputs()).hasSize(1);
+    assertThat(workflowInstanceActivities.getNodes().get(0).getWorkflowId()).isEqualTo("workflow");
+    assertThat(workflowInstanceActivities.getNodes().get(0).getInstanceId()).isEqualTo("instance");
+    assertThat(workflowInstanceActivities.getNodes().get(0).getNodeId()).isEqualTo("activity1");
+    assertThat(workflowInstanceActivities.getNodes().get(0).getStartDate()).isNotNull();
+    assertThat(workflowInstanceActivities.getNodes().get(0).getEndDate()).isNotNull();
     assertThat(workflowInstanceActivities.getGlobalVariables().getRevision()).isEqualTo(2);
     assertThat(workflowInstanceActivities.getGlobalVariables().getUpdateTime()).isNotNull();
     if ("errors".equals(errors)) {

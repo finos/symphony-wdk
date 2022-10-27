@@ -32,7 +32,7 @@ public class ActivityExpiredNodeBuilder extends ActivityNodeBuilder {
     if (builder instanceof AbstractCatchEventBuilder) {
       builder = ((AbstractCatchEventBuilder<?, ?>) builder).timerWithDuration(timeout);
     } else if (builder instanceof AbstractGatewayBuilder) {
-      builder = builder.intermediateCatchEvent().timerWithDuration(timeout);
+      builder = builder.intermediateCatchEvent().name(element.getId()).timerWithDuration(timeout);
     }
     return builder;
   }

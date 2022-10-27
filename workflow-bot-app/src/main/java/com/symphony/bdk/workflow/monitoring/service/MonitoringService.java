@@ -1,19 +1,17 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
-import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY;
-import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.GATEWAY_JOIN;
 import static com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum.findByAbbr;
 import static com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
 
-import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
@@ -68,7 +66,7 @@ public class MonitoringService {
     return objectConverter.convertCollection(allById, WorkflowInstView.class);
   }
 
-  public WorkflowActivitiesView listWorkflowInstanceActivities(String workflowId, String instanceId,
+  public WorkflowNodesView listWorkflowInstanceActivities(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter) {
 
     // check if the instance belongs to the provided workflow
@@ -76,31 +74,36 @@ public class MonitoringService {
 
     List<ActivityInstanceDomain> activityInstances =
         activityQueryRepository.findAllByWorkflowInstanceId(workflowId, instanceId, lifeCycleFilter);
-    List<ActivityInstanceView> activities =
-        objectConverter.convertCollection(activityInstances, ActivityInstanceView.class);
+    List<NodeView> activities =
+        objectConverter.convertCollection(activityInstances, NodeView.class);
 
     // set activity type
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
 
     if (directGraph != null) {
-      Map<String, String> activityIdToTypeMap = directGraph.getDictionary().entrySet()
-          .stream().filter(e -> directGraph.getDictionary().get(e.getKey()).getActivity() != null)
-          .collect(Collectors.toMap(
-              Map.Entry::getKey,
-              e -> directGraph.getDictionary().get(e.getKey()).getActivity().getClass().getSimpleName())
-          );
-
-      // set activity type
-      activities.forEach(
-          activity -> activity.setType(findByAbbr(activityIdToTypeMap.get(activity.getActivityId()))));
+      activities.stream()
+          .filter(activity -> directGraph.isRegistered(activity.getNodeId()))
+          .forEach(
+              activity -> {
+                WorkflowNode workflowNode = directGraph.getDictionary().get(activity.getNodeId());
+                if (workflowNode.getElementType() == WorkflowNodeType.JOIN_ACTIVITY) {
+                  activity.setType(TaskTypeEnum.JOIN_GATEWAY.toType());
+                  activity.setGroup(TaskTypeEnum.JOIN_GATEWAY.toGroup());
+                } else {
+                  String simpleName = workflowNode.getWrappedType().getSimpleName();
+                  TaskTypeEnum typeEnum = findByAbbr(simpleName);
+                  activity.setType(typeEnum.toType());
+                  activity.setGroup(typeEnum.toGroup());
+                }
+              });
     }
 
     VariablesDomain globalVariables = this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId,
         ActivityExecutorContext.VARIABLES);
     VariablesDomain error =
         this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId, ActivityExecutorContext.ERROR);
-    WorkflowActivitiesView result = new WorkflowActivitiesView();
-    result.setActivities(activities);
+    WorkflowNodesView result = new WorkflowNodesView();
+    result.setNodes(activities.stream().filter(a -> a.getType() != null).collect(Collectors.toList()));
     result.setGlobalVariables(new VariableView(globalVariables));
     if (!error.getOutputs().isEmpty()) {
       result.setError(error.getOutputs());
@@ -154,8 +157,8 @@ public class MonitoringService {
       nodeBuilder.type(taskTypeEnum.toType());
       nodeBuilder.group(taskTypeEnum.toGroup());
     } else if (workflowNode.getElementType() == WorkflowNodeType.JOIN_ACTIVITY) {
-      nodeBuilder.type(GATEWAY_JOIN);
-      nodeBuilder.group(GATEWAY);
+      nodeBuilder.type(TaskTypeEnum.JOIN_GATEWAY.toType());
+      nodeBuilder.group(TaskTypeEnum.JOIN_GATEWAY.toGroup());
     }
     return nodeBuilder.build();
   }

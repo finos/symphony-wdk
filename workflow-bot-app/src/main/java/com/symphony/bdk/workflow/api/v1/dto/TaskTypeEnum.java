@@ -72,18 +72,12 @@ public enum TaskTypeEnum {
   REMOVE_USER_ROLE_ACTIVITY("RemoveUserRole"),
   UPDATE_SYSTEM_USER_ACTIVITY("UpdateSystemUser"),
   UPDATE_USER_ACTIVITY("UpdateUser"),
-  EXECUTE_SCRIPT_ACTIVITY("ExecuteScript");
-
+  EXECUTE_SCRIPT_ACTIVITY("ExecuteScript"),
+  JOIN_GATEWAY("JoinGateway");
   private final String text;
 
   private static final String EVENT = "EVENT";
   private static final String ACTIVITY = "ACTIVITY";
-
-  public static final String GATEWAY_ONE_OF = "ONE-OF";
-
-  public static final String GATEWAY_ALL_OF = "ALL-OF";
-
-  public static final String GATEWAY_JOIN = "JOIN";
 
   public static final String GATEWAY = "GATEWAY";
 
@@ -94,6 +88,8 @@ public enum TaskTypeEnum {
   public String toType() {
     if (name().endsWith("_EVENT")) {
       return name().substring(0, name().length() - 6);
+    } else if (name().endsWith("_GATEWAY")) {
+      return name().substring(0, name().length() - 8);
     }
     return name().substring(0, name().length() - 9);
   }
@@ -101,6 +97,8 @@ public enum TaskTypeEnum {
   public String toGroup() {
     if (name().endsWith("_EVENT")) {
       return EVENT;
+    } else if (name().endsWith("_GATEWAY")) {
+      return GATEWAY;
     }
     return ACTIVITY;
   }

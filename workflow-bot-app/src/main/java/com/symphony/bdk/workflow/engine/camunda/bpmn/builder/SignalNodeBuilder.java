@@ -26,14 +26,17 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
           .camundaAsyncBefore()
           .interrupting(true)
           .message(element.getId())
-          .name(element.getId())
+          .name(element.getEventId())
           .endEvent().subProcessDone();
     } else if (builder instanceof AbstractCatchEventBuilder) {
       builder = ((AbstractCatchEventBuilder<?, ?>) builder).camundaAsyncBefore()
           .signal(element.getId())
-          .name(element.getId());
+          .name(element.getEventId());
     } else {
-      builder = builder.intermediateCatchEvent().camundaAsyncBefore().signal(element.getId()).name(element.getId());
+      builder = builder.intermediateCatchEvent()
+          .camundaAsyncBefore()
+          .signal(element.getId())
+          .name(element.getEventId());
     }
     return builder;
   }
@@ -54,8 +57,8 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
     return context.readChildren(parentId) != null
         && context.readChildren(parentId).getGateway() != WorkflowDirectGraph.Gateway.PARALLEL
         && context.readChildren(parentId).getChildren()
-          .stream().map(context::readWorkflowNode)
-          .anyMatch(WorkflowNode::isNotExclusiveFormReply);
+        .stream().map(context::readWorkflowNode)
+        .anyMatch(WorkflowNode::isNotExclusiveFormReply);
   }
 
   @Override

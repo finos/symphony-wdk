@@ -19,6 +19,10 @@ import java.util.Map;
 @NoArgsConstructor
 public class WorkflowNode {
   private String id;
+
+  private String eventId;
+
+  private Class<?> wrappedType;
   private Event event;
   private BaseActivity activity;
   private WorkflowNodeType elementType;
@@ -26,6 +30,16 @@ public class WorkflowNode {
 
   public WorkflowNode id(String id) {
     this.id = id;
+    return this;
+  }
+
+  public WorkflowNode eventId(String eventId) {
+    this.eventId = eventId;
+    return this;
+  }
+
+  public WorkflowNode wrappedType(Class<?> clz) {
+    this.wrappedType = clz;
     return this;
   }
 

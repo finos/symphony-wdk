@@ -130,7 +130,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
     verify(messageService, never()).send(anyString(), any(Message.class));
     assertThat(workflow).as("sendMessageIfNotTimeout activity should not be executed as it times out")
-        .executed("startWorkflow")
+        .executedContains("startWorkflow")
         .notExecuted("sendMessageIfNotTimeout");
   }
 
@@ -152,7 +152,7 @@ class EventTypesIntegrationTest extends IntegrationTest {
         .isEqualTo("<messageML>Expired</messageML>");
     assertThat(workflow).as(
             "sendMessageIfNotTimeout activity times out, expirationActivity is executed on its expiration")
-        .executed("startWorkflow", "expirationActivity")
+        .executed("startWorkflow", "message-received_/continue_timeout", "expirationActivity")
         .notExecuted("script", "sendMessageIfNotTimeout");
   }
 
@@ -176,7 +176,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
     verify(messageService, times(2)).send(anyString(), any(Message.class));
     assertThat(workflow).as(
             "sendMessageIfNotTimeout activity times out, expirationActivity is executed on its expiration")
-        .executed("startWorkflow", "sendMessageIfNotTimeoutFirst", "expirationActivity")
+        .executed("startWorkflow", "sendMessageIfNotTimeoutFirst", "message-received_/continue2_timeout",
+            "expirationActivity")
         .notExecuted("script", "sendMessageIfNotTimeoutSecond");
   }
 
@@ -196,7 +197,8 @@ class EventTypesIntegrationTest extends IntegrationTest {
         .untilAsserted(() -> verify(messageService, times(1)).send(anyString(), messageArgumentCaptor.capture()));
 
     assertThat(messageArgumentCaptor.getValue().getContent()).isEqualTo("<messageML>Expired</messageML>");
-    assertThat(workflow).executed("firstActivity", "expirationActivity", "scriptActivityToBeExecuted")
+    assertThat(workflow).executed("firstActivity", "message-received_/continue_timeout", "expirationActivity",
+            "scriptActivityToBeExecuted")
         .notExecuted("sendMessageWithTimeout", "scriptActivityNotToBeExecuted1", "scriptActivityNotToBeExecuted2");
   }
 
