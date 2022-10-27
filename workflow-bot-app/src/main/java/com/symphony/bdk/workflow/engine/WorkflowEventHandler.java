@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
@@ -61,11 +62,15 @@ public class WorkflowEventHandler implements HistoryEventHandler {
             OBJECT_MAPPER.readValue(new String(event.getByteValue(), StandardCharsets.UTF_8), EventHolder.class);
 
         Object eventName = eventHolder.getArgs().get(WorkflowEventToCamundaEvent.EVENT_NAME);
-        String eventId = workflowDirectGraphCachingService.getDirectGraph(event.getProcessDefinitionKey())
-            .readWorkflowNode((String) eventName)
-            .getEventId();
+        String eventId = "";
 
-        if (eventId != null) {
+        if (eventName != null) {
+          eventId = workflowDirectGraphCachingService.getDirectGraph(event.getProcessDefinitionKey())
+              .readWorkflowNode((String) eventName)
+              .getEventId();
+        }
+
+        if (StringUtils.isNotBlank(eventId)) {
           // remove event name from args
           eventHolder.getArgs().remove(WorkflowEventToCamundaEvent.EVENT_NAME);
 
