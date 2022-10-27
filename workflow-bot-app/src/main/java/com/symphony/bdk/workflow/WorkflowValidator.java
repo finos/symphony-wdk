@@ -15,10 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 public class WorkflowValidator {
 
   public static void validateFirstActivity(BaseActivity activity, Event event, String workflowId) {
-    if (activity.getIfCondition() != null) {
-      throw new InvalidActivityException(workflowId,
-          String.format("Workflow's starting activity %s must not have a conditional branching", activity.getId()));
-    }
     if (event instanceof EventWithTimeout && StringUtils.isNotEmpty(((EventWithTimeout) event).getTimeout())) {
       throw new InvalidActivityException(workflowId,
           String.format("Workflow's starting activity %s must not have timeout", activity.getId()));

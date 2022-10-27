@@ -60,16 +60,14 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
         .asc()
         .list(), ActivityInstanceDomain.class);
 
-    List<String> serviceTasks = result.stream()
-        .filter(a -> a.getType().equals("serviceTask"))
-        .map(ActivityInstanceDomain::getName)
-        .collect(Collectors.toList());
-
-    List<HistoricVariableInstance> historicVariableInstances =
-        getHistoricVariableInstances(instanceId, serviceTasks);
+    List<HistoricVariableInstance> historicVariableInstances = getHistoricVariableInstances(instanceId,
+        result.stream()
+            .filter(a -> a.getType().equals("serviceTask"))
+            .map(ActivityInstanceDomain::getName)
+            .collect(Collectors.toList()));
 
     Map<String, VariablesDomain> variablesDomainMap =
-        historicVariableInstances.stream().collect(Collectors.toMap(e -> e.getName(), e -> {
+        historicVariableInstances.stream().collect(Collectors.toMap(HistoricVariableInstance::getName, e -> {
           Map<String, Object> objectMap = (Map<String, Object>) e.getValue();
           VariablesDomain domain = new VariablesDomain();
           domain.setOutputs((Map<String, Object>) objectMap.get("outputs"));

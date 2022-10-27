@@ -28,12 +28,29 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.event.ConnectionAcceptedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ConnectionRequestedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.FormRepliedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.ImCreatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.MessageReceivedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.MessageSuppressedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.PostSharedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomCreatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomDeactivatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomMemberDemotedFromOwnerEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomMemberPromotedToOwnerEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomReactivatedEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.RoomUpdatedEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.TimerFiredEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.UserLeftRoomEvent;
+import com.symphony.bdk.workflow.swadl.v1.event.UserRequestedToJoinRoomEvent;
 
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Triple;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.event.EventType;
 import org.camunda.bpm.engine.runtime.EventSubscription;
@@ -54,27 +71,27 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class WorkflowEventToCamundaEvent {
 
-  public static final String EVENT_NAME = "eventName";
 
-  private static final String MESSAGE_PREFIX = "message-received_";
-  private static final String MESSAGE_SUPPRESSED = "message-suppressed";
-  private static final String POST_SHARED = "post-shared";
+  public static final String EVENT_NAME = "eventName";
+  public static final String MESSAGE_PREFIX = "message-received_";
+  public static final String MESSAGE_SUPPRESSED = "message-suppressed";
+  public static final String POST_SHARED = "post-shared";
   private static final String IM_CREATED = "im-created";
   public static final String FORM_REPLY_PREFIX = "form-reply_";
-  private static final String ROOM_CREATED = "room-created";
-  private static final String ROOM_UPDATED = "room-updated";
-  private static final String ROOM_DEACTIVATED = "room-deactivated";
-  private static final String ROOM_REACTIVATED = "room-reactivated";
-  private static final String ROOM_MEMBER_PROMOTED_TO_OWNER = "room-member-promoted-to-owner-event";
-  private static final String ROOM_MEMBER_DEMOTED_FROM_OWNER = "room-member-demoted-from-owner-event";
-  private static final String USER_REQUESTED_JOIN_ROOM = "user-requested-join-room";
-  private static final String USER_JOINED_ROOM = "user-joined-room";
-  private static final String USER_LEFT_ROOM = "user-left-room";
-  private static final String CONNECTION_REQUESTED = "connection-requested";
-  private static final String CONNECTION_ACCEPTED = "connection-accepted";
-  private static final String REQUEST_RECEIVED = "request-received";
-  private static final String TIMER_FIRED_DATE = "timerFired_date";
-  private static final String TIMER_FIRED_CYCLE = "timerFired_cycle";
+  public static final String ROOM_CREATED = "room-created";
+  public static final String ROOM_UPDATED = "room-updated";
+  public static final String ROOM_DEACTIVATED = "room-deactivated";
+  public static final String ROOM_REACTIVATED = "room-reactivated";
+  public static final String ROOM_MEMBER_PROMOTED_TO_OWNER = "room-member-promoted-to-owner-event";
+  public static final String ROOM_MEMBER_DEMOTED_FROM_OWNER = "room-member-demoted-from-owner-event";
+  public static final String USER_REQUESTED_JOIN_ROOM = "user-requested-join-room";
+  public static final String USER_JOINED_ROOM = "user-joined-room";
+  public static final String USER_LEFT_ROOM = "user-left-room";
+  public static final String CONNECTION_REQUESTED = "connection-requested";
+  public static final String CONNECTION_ACCEPTED = "connection-accepted";
+  public static final String REQUEST_RECEIVED = "request-received";
+  public static final String TIMER_FIRED_DATE = "timerFired_date";
+  public static final String TIMER_FIRED_CYCLE = "timerFired_cycle";
 
 
   private static final AntPathMatcher MESSAGE_RECEIVED_CONTENT_MATCHER = new AntPathMatcher();
@@ -90,68 +107,86 @@ public class WorkflowEventToCamundaEvent {
     return TIMER_FIRED_DATE;
   }
 
-  public Optional<String> toSignalName(Event event, Workflow workflow) {
+  /**
+   * Find the event identifers
+   *
+   * @param event    the wrapper event
+   * @param workflow swadl workflow model
+   * @return triple contains from left to right = eventId, id, the type of the event or activity
+   */
+  public Optional<Triple<String, String, Class<?>>> toSignalName(Event event, Workflow workflow) {
     if (event.getMessageReceived() != null) {
       if (event.getMessageReceived().isRequiresBotMention()) {
         // this is super fragile, extra spaces, bot changing names are not handled
         // SlashCommand in the BDK does it this way though
         String displayName = sessionService.getSession().getDisplayName();
-        return Optional.of(
-            String.format("%s@%s %s", MESSAGE_PREFIX, displayName, event.getMessageReceived().getContent()));
+        return Optional.of(Triple.of(event.getMessageReceived().getId(),
+            String.format("%s@%s %s", MESSAGE_PREFIX, displayName, event.getMessageReceived().getContent()),
+            MessageReceivedEvent.class));
       } else {
-        return Optional.of(MESSAGE_PREFIX + event.getMessageReceived().getContent());
+        return Optional.of(
+            Triple.of(event.getMessageReceived().getId(), MESSAGE_PREFIX + event.getMessageReceived().getContent(),
+                MessageReceivedEvent.class));
       }
 
     } else if (event.getMessageSuppressed() != null) {
-      return Optional.of(MESSAGE_SUPPRESSED);
+      return Optional.of(
+          Triple.of(event.getMessageSuppressed().getId(), MESSAGE_SUPPRESSED, MessageSuppressedEvent.class));
 
     } else if (event.getImCreated() != null) {
-      return Optional.of(IM_CREATED);
+      return Optional.of(Triple.of(event.getImCreated().getId(), IM_CREATED, ImCreatedEvent.class));
 
     } else if (event.getPostShared() != null) {
-      return Optional.of(POST_SHARED);
+      return Optional.of(Triple.of(event.getPostShared().getId(), POST_SHARED, PostSharedEvent.class));
 
     } else if (event.getRoomCreated() != null) {
-      return Optional.of(ROOM_CREATED);
+      return Optional.of(Triple.of(event.getRoomCreated().getId(), ROOM_CREATED, RoomCreatedEvent.class));
 
     } else if (event.getRoomUpdated() != null) {
-      return Optional.of(ROOM_UPDATED);
+      return Optional.of(Triple.of(event.getRoomUpdated().getId(), ROOM_UPDATED, RoomUpdatedEvent.class));
 
     } else if (event.getRoomDeactivated() != null) {
-      return Optional.of(ROOM_DEACTIVATED);
+      return Optional.of(Triple.of(event.getRoomDeactivated().getId(), ROOM_DEACTIVATED, RoomDeactivatedEvent.class));
 
     } else if (event.getRoomReactivated() != null) {
-      return Optional.of(ROOM_REACTIVATED);
+      return Optional.of(Triple.of(event.getRoomReactivated().getId(), ROOM_REACTIVATED, RoomReactivatedEvent.class));
 
     } else if (event.getRoomMemberPromotedToOwner() != null) {
-      return Optional.of(ROOM_MEMBER_PROMOTED_TO_OWNER);
+      return Optional.of(Triple.of(event.getRoomMemberPromotedToOwner().getId(), ROOM_MEMBER_PROMOTED_TO_OWNER,
+          RoomMemberPromotedToOwnerEvent.class));
 
     } else if (event.getRoomMemberDemotedFromOwner() != null) {
-      return Optional.of(ROOM_MEMBER_DEMOTED_FROM_OWNER);
+      return Optional.of(Triple.of(event.getRoomMemberDemotedFromOwner().getId(), ROOM_MEMBER_DEMOTED_FROM_OWNER,
+          RoomMemberDemotedFromOwnerEvent.class));
 
     } else if (event.getUserRequestedJoinRoom() != null) {
-      return Optional.of(USER_REQUESTED_JOIN_ROOM);
+      return Optional.of(Triple.of(event.getUserRequestedJoinRoom().getId(), USER_REQUESTED_JOIN_ROOM,
+          UserRequestedToJoinRoomEvent.class));
 
     } else if (event.getUserJoinedRoom() != null) {
-      return Optional.of(USER_JOINED_ROOM);
+      return Optional.of(Triple.of(event.getUserJoinedRoom().getId(), USER_JOINED_ROOM, UserJoinedRoomEvent.class));
 
     } else if (event.getUserLeftRoom() != null) {
-      return Optional.of(USER_LEFT_ROOM);
+      return Optional.of(Triple.of(event.getUserLeftRoom().getId(), USER_LEFT_ROOM, UserLeftRoomEvent.class));
 
     } else if (event.getConnectionRequested() != null) {
-      return Optional.of(CONNECTION_REQUESTED);
+      return Optional.of(
+          Triple.of(event.getConnectionRequested().getId(), CONNECTION_REQUESTED, ConnectionRequestedEvent.class));
 
     } else if (event.getConnectionAccepted() != null) {
-      return Optional.of(CONNECTION_ACCEPTED);
+      return Optional.of(
+          Triple.of(event.getConnectionAccepted().getId(), CONNECTION_ACCEPTED, ConnectionAcceptedEvent.class));
 
     } else if (event.getFormReplied() != null) {
-      return Optional.of(String.format("%s%s", FORM_REPLY_PREFIX, event.getFormReplied().getFormId()));
+      return Optional.of(Triple.of(event.getFormReplied().getId(),
+          String.format("%s%s", FORM_REPLY_PREFIX, event.getFormReplied().getFormId()), FormRepliedEvent.class));
 
     } else if (event.getOneOf() != null && !event.getOneOf().isEmpty()) {
       return toSignalName(event.getOneOf().get(0), workflow);
 
     } else if (event.getRequestReceived() != null) {
-      return Optional.of(requestReceivedWorkflowEvent(workflow.getId()));
+      return Optional.of(Triple.of(event.getRequestReceived().getId(), requestReceivedWorkflowEvent(workflow.getId()),
+          RequestReceivedEvent.class));
     }
 
     return Optional.empty();

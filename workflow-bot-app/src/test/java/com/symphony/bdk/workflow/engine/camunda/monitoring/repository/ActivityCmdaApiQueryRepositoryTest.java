@@ -61,11 +61,11 @@ class ActivityCmdaApiQueryRepositoryTest {
     when(objectConverter.convertCollection(anyList(), eq(ActivityInstanceDomain.class))).thenReturn(
         List.of(domain1, domain2));
 
-    NativeHistoricVariableInstanceQuery query = mock(NativeHistoricVariableInstanceQuery.class);
-    when(query.sql(contains("instance1"))).thenReturn(query);
 
+    NativeHistoricVariableInstanceQuery query = mock(NativeHistoricVariableInstanceQuery.class);
     HistoricVariableInstance inst1 = mock(HistoricVariableInstance.class);
     HistoricVariableInstance inst2 = mock(HistoricVariableInstance.class);
+    when(query.sql(contains("instance1"))).thenReturn(query);
     when(query.list()).thenReturn(List.of(inst1, inst2));
     when(historyService.createNativeHistoricVariableInstanceQuery()).thenReturn(query);
     when(inst1.getName()).thenReturn("instance1");
