@@ -16,10 +16,6 @@ public class GetStreamExecutor extends OboExecutor<GetStream, V2StreamAttributes
 
   private static final String OUTPUTS_STREAM_KEY = "stream";
 
-  protected GetStreamExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
-
   @Override
   public void execute(ActivityExecutorContext<GetStream> execution) {
     String streamId = execution.getActivity().getStreamId();

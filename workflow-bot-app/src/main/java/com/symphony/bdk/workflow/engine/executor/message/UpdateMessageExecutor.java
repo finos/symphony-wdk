@@ -5,6 +5,7 @@ import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecu
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
@@ -18,7 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
+public class UpdateMessageExecutor extends AbstractActivityExecutor<UpdateMessage>
+    implements ActivityExecutor<UpdateMessage> {
 
   @Override
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {

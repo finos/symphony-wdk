@@ -8,6 +8,7 @@ import com.symphony.bdk.ext.group.gen.api.model.GroupVisibilityRestriction;
 import com.symphony.bdk.ext.group.gen.api.model.Member;
 import com.symphony.bdk.ext.group.gen.api.model.Owner;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.group.CreateGroup;
@@ -18,7 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CreateGroupExecutor implements ActivityExecutor<CreateGroup> {
+public class CreateGroupExecutor extends AbstractActivityExecutor<CreateGroup>
+    implements ActivityExecutor<CreateGroup> {
 
   private static final String OUTPUTS_GROUP_KEY = "group";
 

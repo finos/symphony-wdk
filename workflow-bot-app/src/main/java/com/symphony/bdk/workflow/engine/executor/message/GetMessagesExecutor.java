@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.GetMessages;
@@ -10,7 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 
 @Slf4j
-public class GetMessagesExecutor implements ActivityExecutor<GetMessages> {
+public class GetMessagesExecutor extends AbstractActivityExecutor<GetMessages>
+    implements ActivityExecutor<GetMessages> {
 
   private static final String OUTPUT_MESSAGES_KEY = "messages";
 

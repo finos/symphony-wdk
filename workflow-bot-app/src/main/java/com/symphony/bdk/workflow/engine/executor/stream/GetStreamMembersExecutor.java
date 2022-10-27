@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.executor.stream;
 
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.stream.GetStreamMembers;
@@ -9,7 +10,8 @@ import com.symphony.bdk.workflow.swadl.v1.activity.stream.GetStreamMembers;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GetStreamMembersExecutor implements ActivityExecutor<GetStreamMembers> {
+public class GetStreamMembersExecutor extends AbstractActivityExecutor<GetStreamMembers>
+    implements ActivityExecutor<GetStreamMembers> {
 
   private static final String OUTPUTS_MEMBERS_KEY = "members";
 

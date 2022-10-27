@@ -7,17 +7,12 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.AddRoomMember;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class AddRoomMemberExecutor extends OboExecutor<AddRoomMember, Void>
     implements ActivityExecutor<AddRoomMember> {
-
-  protected AddRoomMemberExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   @Override
   public void execute(ActivityExecutorContext<AddRoomMember> execution) {

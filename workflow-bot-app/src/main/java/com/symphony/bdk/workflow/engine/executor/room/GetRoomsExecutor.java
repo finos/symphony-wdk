@@ -12,17 +12,12 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.room.GetRooms;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RuntimeService;
 
 @Slf4j
 public class GetRoomsExecutor extends OboExecutor<GetRooms, V3RoomSearchResults>
     implements ActivityExecutor<GetRooms> {
 
   private static final String OUTPUTS_ROOMS_KEY = "rooms";
-
-  protected GetRoomsExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   @Override
   public void execute(ActivityExecutorContext<GetRooms> execution) {

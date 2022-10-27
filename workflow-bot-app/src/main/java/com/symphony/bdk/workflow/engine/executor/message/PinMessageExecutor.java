@@ -11,7 +11,6 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.PinMessage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RuntimeService;
 
 import java.io.IOException;
 
@@ -21,10 +20,6 @@ public class PinMessageExecutor extends OboExecutor<PinMessage, Void>
 
   public static final String IM = StreamType.TypeEnum.IM.getValue();
   public static final String ROOM = StreamType.TypeEnum.ROOM.getValue();
-
-  protected PinMessageExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   @Override
   public void execute(ActivityExecutorContext<PinMessage> execution) throws IOException {

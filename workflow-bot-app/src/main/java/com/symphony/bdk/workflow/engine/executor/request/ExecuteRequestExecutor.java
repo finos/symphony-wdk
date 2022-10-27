@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.executor.request;
 
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
@@ -17,7 +18,8 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> {
+public class ExecuteRequestExecutor extends AbstractActivityExecutor<ExecuteRequest>
+    implements ActivityExecutor<ExecuteRequest> {
 
   private static final String OUTPUT_STATUS_KEY = "status";
   private static final String OUTPUT_BODY_KEY = "body";

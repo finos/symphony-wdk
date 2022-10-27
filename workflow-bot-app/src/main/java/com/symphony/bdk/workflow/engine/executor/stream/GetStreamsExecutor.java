@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2AdminStreamType;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.DateTimeUtils;
@@ -14,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class GetStreamsExecutor implements ActivityExecutor<GetStreams> {
+public class GetStreamsExecutor extends AbstractActivityExecutor<GetStreams> implements ActivityExecutor<GetStreams> {
 
   private static final String OUTPUTS_STREAMS_KEY = "streams";
 

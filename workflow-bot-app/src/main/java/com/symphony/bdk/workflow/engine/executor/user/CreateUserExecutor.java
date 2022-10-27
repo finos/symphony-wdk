@@ -8,6 +8,7 @@ import com.symphony.bdk.gen.api.model.V2UserAttributes;
 import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserKeyRequest;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.DateTimeUtils;
@@ -20,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CreateUserExecutor implements ActivityExecutor<CreateUser> {
+public class CreateUserExecutor extends AbstractActivityExecutor<CreateUser> implements ActivityExecutor<CreateUser> {
 
   private static final String OUTPUT_USER_KEY = "user";
 

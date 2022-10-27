@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.group;
 
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.group.AddGroupMember;
@@ -9,7 +10,8 @@ import com.symphony.bdk.workflow.swadl.v1.activity.group.CreateGroup;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AddGroupMemberExecutor implements ActivityExecutor<AddGroupMember> {
+public class AddGroupMemberExecutor extends AbstractActivityExecutor<AddGroupMember>
+    implements ActivityExecutor<AddGroupMember> {
 
   private static final String OUTPUTS_GROUP_KEY = "group";
 

@@ -21,10 +21,6 @@ import java.io.IOException;
 public class UnpinMessageExecutor extends OboExecutor<UnpinMessage, Void>
     implements ActivityExecutor<UnpinMessage> {
 
-  protected UnpinMessageExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
-
   @Override
   public void execute(ActivityExecutorContext<UnpinMessage> execution) throws IOException {
     UnpinMessage activity = execution.getActivity();

@@ -22,7 +22,6 @@ import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.camunda.bpm.engine.RuntimeService;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -46,13 +45,6 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
   public static final String OUTPUT_MESSAGE_KEY = "message";
   public static final String OUTPUT_MESSAGES_KEY = "messages";
   public static final String OUTPUT_FAILED_MESSAGES_KEY = "failedStreamIds";
-
-  private final RuntimeService runtimeService;
-
-  public SendMessageExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-    this.runtimeService = runtimeService;
-  }
 
   @Override
   public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {

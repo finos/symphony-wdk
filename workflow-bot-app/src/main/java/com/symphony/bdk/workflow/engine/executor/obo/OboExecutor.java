@@ -5,13 +5,8 @@ import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.OboActivity;
 
-import org.camunda.bpm.engine.RuntimeService;
-
 public abstract class OboExecutor<T extends OboActivity, R> extends AbstractActivityExecutor<T> {
 
-  protected OboExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   protected boolean isObo(T activity) {
     return activity.getObo() != null && (activity.getObo().getUsername() != null

@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.user;
 
 import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.GetUser;
@@ -8,7 +9,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.user.GetUser;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GetUserExecutor implements ActivityExecutor<GetUser> {
+public class GetUserExecutor extends AbstractActivityExecutor<GetUser> implements ActivityExecutor<GetUser> {
 
   private static final String OUTPUT_USER_KEY = "user";
 

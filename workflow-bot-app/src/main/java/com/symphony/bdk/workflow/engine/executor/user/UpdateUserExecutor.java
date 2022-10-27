@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.executor.user;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.user.CreateUser;
@@ -11,7 +12,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.user.UpdateUser;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class UpdateUserExecutor implements ActivityExecutor<UpdateUser> {
+public class UpdateUserExecutor extends AbstractActivityExecutor<UpdateUser> implements ActivityExecutor<UpdateUser> {
 
   private static final String OUTPUT_USER_KEY = "user";
 

@@ -16,10 +16,6 @@ public class GetRoomExecutor extends OboExecutor<GetRoom, V3RoomDetail>
 
   private static final String OUTPUTS_ROOM_KEY = "room";
 
-  protected GetRoomExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
-
   @Override
   public void execute(ActivityExecutorContext<GetRoom> execution) {
     String streamId = execution.getActivity().getStreamId();

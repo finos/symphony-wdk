@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.GetMessage;
@@ -8,7 +9,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.message.GetMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GetMessageExecutor implements ActivityExecutor<GetMessage> {
+public class GetMessageExecutor extends AbstractActivityExecutor<GetMessage> implements ActivityExecutor<GetMessage> {
 
   private static final String OUTPUT_MESSAGE_KEY = "message";
 

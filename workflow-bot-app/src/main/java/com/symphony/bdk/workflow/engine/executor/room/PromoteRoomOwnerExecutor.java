@@ -13,10 +13,6 @@ import org.camunda.bpm.engine.RuntimeService;
 public class PromoteRoomOwnerExecutor extends OboExecutor<PromoteRoomOwner, Void>
     implements ActivityExecutor<PromoteRoomOwner> {
 
-  protected PromoteRoomOwnerExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
-
   @Override
   public void execute(ActivityExecutorContext<PromoteRoomOwner> execution) {
     PromoteRoomOwner promoteRoomOwner = execution.getActivity();

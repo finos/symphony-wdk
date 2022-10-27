@@ -12,7 +12,6 @@ import com.symphony.bdk.workflow.swadl.v1.activity.room.CreateRoom;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.camunda.bpm.engine.RuntimeService;
 
 import java.util.List;
 import java.util.Map;
@@ -22,10 +21,6 @@ public class CreateRoomExecutor extends OboExecutor<CreateRoom, String>
     implements ActivityExecutor<CreateRoom> {
 
   private static final String OUTPUT_ROOM_ID_KEY = "roomId";
-
-  protected CreateRoomExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   @Override
   public void execute(ActivityExecutorContext<CreateRoom> execution) {

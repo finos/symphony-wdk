@@ -3,6 +3,7 @@ package com.symphony.bdk.workflow.engine.executor.group;
 import com.symphony.bdk.ext.group.gen.api.model.GroupList;
 import com.symphony.bdk.ext.group.gen.api.model.SortOrder;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.group.GetGroups;
@@ -10,7 +11,7 @@ import com.symphony.bdk.workflow.swadl.v1.activity.group.GetGroups;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GetGroupsExecutor implements ActivityExecutor<GetGroups> {
+public class GetGroupsExecutor extends AbstractActivityExecutor<GetGroups> implements ActivityExecutor<GetGroups> {
 
   private static final String OUTPUTS_GROUP_KEY = "groups";
 

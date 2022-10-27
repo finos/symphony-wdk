@@ -20,10 +20,6 @@ public class UpdateRoomExecutor extends OboExecutor<UpdateRoom, V3RoomDetail> im
 
   private static final String OUTPUT_ROOM_KEY = "room";
 
-  protected UpdateRoomExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
-
   @Override
   public void execute(ActivityExecutorContext<UpdateRoom> execution) {
     UpdateRoom updateRoom = execution.getActivity();

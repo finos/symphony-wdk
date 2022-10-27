@@ -9,7 +9,6 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.connection.GetConnections;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RuntimeService;
 
 import java.util.List;
 
@@ -18,10 +17,6 @@ public class GetConnectionsExecutor extends OboExecutor<GetConnections, List<Use
     implements ActivityExecutor<GetConnections> {
 
   private static final String OUTPUT_CONNECTIONS_KEY = "connections";
-
-  protected GetConnectionsExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   @Override
   public void execute(ActivityExecutorContext<GetConnections> context) {

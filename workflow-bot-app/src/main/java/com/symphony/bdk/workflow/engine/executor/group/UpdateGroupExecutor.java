@@ -9,6 +9,7 @@ import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecuto
 import com.symphony.bdk.ext.group.gen.api.model.Owner;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.group.CreateGroup;
@@ -22,7 +23,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 @Slf4j
-public class UpdateGroupExecutor implements ActivityExecutor<UpdateGroup> {
+public class UpdateGroupExecutor extends AbstractActivityExecutor<UpdateGroup>
+    implements ActivityExecutor<UpdateGroup> {
 
   private static final String OUTPUTS_GROUP_KEY = "group";
 

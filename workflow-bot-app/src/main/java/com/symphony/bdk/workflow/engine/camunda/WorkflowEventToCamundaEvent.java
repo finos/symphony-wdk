@@ -303,6 +303,7 @@ public class WorkflowEventToCamundaEvent {
             // match the arguments and add them to the event holder
             Map<String, String> args =
                 MESSAGE_RECEIVED_CONTENT_MATCHER.extractUriTemplateVariables(content, receivedContent);
+            args.put("eventName", signal.getEventName());
             ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
 
             runtimeService.createSignalEvent(signal.getEventName())

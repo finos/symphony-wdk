@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.executor.attachment;
 
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.workflow.engine.executor.AbstractActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.attachment.GetAttachment;
@@ -13,7 +14,8 @@ import java.nio.file.Path;
 import java.util.Base64;
 
 @Slf4j
-public class GetAttachmentExecutor implements ActivityExecutor<GetAttachment> {
+public class GetAttachmentExecutor extends AbstractActivityExecutor<GetAttachment>
+    implements ActivityExecutor<GetAttachment> {
 
   private static final String OUTPUT_ATTACHMENT_PATH_KEY = "attachmentPath";
 

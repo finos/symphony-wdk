@@ -12,7 +12,6 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.stream.GetUserStreams;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RuntimeService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,10 +21,6 @@ public class GetUserStreamsExecutor extends OboExecutor<GetUserStreams, List<Str
     implements ActivityExecutor<GetUserStreams> {
 
   private static final String OUTPUTS_STREAMS_KEY = "streams";
-
-  protected GetUserStreamsExecutor(RuntimeService runtimeService) {
-    super(runtimeService);
-  }
 
   @Override
   public void execute(ActivityExecutorContext<GetUserStreams> execution) {
