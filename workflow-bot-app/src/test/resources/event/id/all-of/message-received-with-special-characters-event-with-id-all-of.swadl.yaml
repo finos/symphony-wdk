@@ -1,0 +1,27 @@
+id: message-received-special-characters-event-with-id-in-all-of
+activities:
+  # all-of cannot be in the starting activity
+  - execute-script:
+      id: startActvity
+      on:
+        message-received:
+          content: /start
+      script: |
+
+  - execute-script:
+      id: scriptActivity
+      on:
+        all-of:
+          - message-received:
+              id: messageReceivedWithIdIn
+              content: /execute {arg1} @{user} \#{hash} \${cash}
+          - message-received:
+              id: eventId
+              content: /alwaysCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert messageReceivedWithIdIn.source != null
+        assert eventId.source != null

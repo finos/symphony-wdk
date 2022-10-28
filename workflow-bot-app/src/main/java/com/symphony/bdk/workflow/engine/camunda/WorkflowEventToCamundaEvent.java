@@ -304,15 +304,14 @@ public class WorkflowEventToCamundaEvent {
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void requestReceivedToRequest(RequestReceivedEvent eventSource, Map<String, Object> processVariables) {
     String eventName = requestReceivedWorkflowEvent(eventSource.getWorkflowId());
-    Map<String, Object> args;
+    Map<String, Object> args = new HashMap<>();
 
-    if (eventSource.getArguments() == null) {
-      args = new HashMap<>();
-    } else {
-      args = new HashMap<>(eventSource.getArguments());
+    if (eventSource.getArguments() != null) {
+      args.putAll(eventSource.getArguments());
     }
 
     args.put(EVENT_NAME, eventName);
+
     ((EventHolder) processVariables.get(ActivityExecutorContext.EVENT)).setArgs(args);
 
     runtimeService.createSignalEvent(eventName).setVariables(processVariables).send();

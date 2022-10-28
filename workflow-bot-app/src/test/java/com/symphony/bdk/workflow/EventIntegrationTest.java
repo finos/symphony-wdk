@@ -388,8 +388,10 @@ class EventIntegrationTest extends IntegrationTest {
 
   static Stream<Arguments> swadlUnderTest_on() {
     return Stream.of(
-        Arguments.arguments(
-            "/event/id/on/message-received-event-with-id-on.swadl.yaml", messageReceived("123", "/execute")),
+        Arguments.arguments("/event/id/on/message-received-event-with-id-on.swadl.yaml",
+            messageReceived("123", "/execute")),
+        Arguments.arguments("/event/id/on/message-received-with-special-characters-event-with-id-on.swadl.yaml",
+            messageReceived("123", "/execute stringArg @user #hashtag $cashtag")),
         Arguments.arguments("/event/id/on/message-suppressed-event-with-id-on.swadl.yaml", messageSuppressed()),
         Arguments.arguments("/event/id/on/im-created-event-with-id-on.swadl.yaml", imCreated()),
         Arguments.arguments("/event/id/on/room-created-event-with-id-on.swadl.yaml", roomCreated()),
@@ -410,6 +412,8 @@ class EventIntegrationTest extends IntegrationTest {
     return Stream.of(
         Arguments.arguments("/event/id/one-of/message-received-event-with-id-one-of.swadl.yaml",
             messageReceived("123", "/execute")),
+        Arguments.arguments("/event/id/one-of/message-received-special-characters-event-with-id-one-of.swadl.yaml",
+            messageReceived("123", "/execute stringArg @user #hashtag $cashtag")),
         Arguments.arguments("/event/id/one-of/message-suppressed-event-with-id-one-of.swadl.yaml", messageSuppressed()),
         Arguments.arguments("/event/id/one-of/im-created-event-with-id-one-of.swadl.yaml", imCreated()),
         Arguments.arguments("/event/id/one-of/room-created-event-with-id-one-of.swadl.yaml", roomCreated()),
@@ -434,7 +438,8 @@ class EventIntegrationTest extends IntegrationTest {
         Arguments.arguments("/event/id/all-of/message-suppressed-event-with-id-all-of.swadl.yaml", messageSuppressed()),
         Arguments.arguments("/event/id/all-of/message-received-event-with-id-all-of.swadl.yaml",
             messageReceived("123", "/execute")),
-
+        Arguments.arguments("/event/id/all-of/message-received-with-special-characters-event-with-id-all-of.swadl.yaml",
+            messageReceived("123", "/execute stringArg @user #hashtag $cashtag")),
         Arguments.arguments("/event/id/all-of/im-created-event-with-id-all-of.swadl.yaml", imCreated()),
         Arguments.arguments("/event/id/all-of/room-created-event-with-id-all-of.swadl.yaml", roomCreated()),
         Arguments.arguments("/event/id/all-of/room-updated-event-with-id-all-of.swadl.yaml", roomUpdated()),
