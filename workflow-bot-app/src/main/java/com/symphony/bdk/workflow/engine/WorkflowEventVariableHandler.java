@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEntity;
@@ -60,8 +61,9 @@ public class WorkflowEventVariableHandler implements EventHandler {
         String eventId = "";
 
         if (eventName != null) {
+          String escapedEventName = RegExUtils.replaceAll((String) eventName, "[\\$\\#]", "\\\\$0");
           eventId = workflowDirectGraphCachingService.getDirectGraph(event.getProcessDefinitionKey())
-              .readWorkflowNode((String) eventName)
+              .readWorkflowNode(escapedEventName)
               .getEventId();
         }
 
