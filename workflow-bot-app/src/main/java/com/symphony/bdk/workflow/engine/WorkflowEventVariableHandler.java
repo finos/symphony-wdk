@@ -24,14 +24,14 @@ import java.nio.charset.StandardCharsets;
 @Component
 @Primary
 @Slf4j
-public class WorkflowEventHandler implements EventHandler {
+public class WorkflowEventVariableHandler implements EventHandler {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
   private final RuntimeService runtimeService;
 
-  public WorkflowEventHandler(@Lazy RuntimeService runtimeService,
+  public WorkflowEventVariableHandler(@Lazy RuntimeService runtimeService,
       WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
     this.runtimeService = runtimeService;
     this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;

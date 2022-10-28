@@ -19,9 +19,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class WorkflowNode {
   private String id;
-
-  private String eventId;
-
   private Class<?> wrappedType;
   private Event event;
   private String eventId;
