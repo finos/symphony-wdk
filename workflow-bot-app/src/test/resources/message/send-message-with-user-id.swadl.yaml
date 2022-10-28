@@ -1,0 +1,11 @@
+id: send-message-with-user-id
+activities:
+  - send-message:
+      id: sendMessageWithUserId
+      content: "<messageML>hello</messageML>"
+      on:
+        message-received:
+          content: "/send-msg-with-userid"
+      to:
+        user-ids:
+          - 123
