@@ -1,0 +1,16 @@
+id: user-joined-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - user-joined-room:
+              id: userJoinedWithIdIn
+          - message-received:
+              content: /neverCalledv
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert userJoinedWithIdIn.source != null

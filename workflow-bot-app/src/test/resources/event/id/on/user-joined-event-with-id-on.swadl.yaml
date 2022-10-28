@@ -1,0 +1,13 @@
+id: user-joined-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        user-joined-room:
+          id: userJoinedWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert userJoinedWithIdIn.source != null

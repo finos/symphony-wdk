@@ -47,9 +47,10 @@ public class WorkflowEventVariableHandler implements EventHandler {
 
   /**
    * This method stores the event holder in the runtime service variables in order to be accessible by SWADL.
-   * The incoming event name is {@link ActivityExecutorContext#EVENT} but the new event name is passed in {@link EventHolder#getArgs()}.
+   * The incoming event name is {@link ActivityExecutorContext#EVENT} but the new event name is passed in
+   * {@link EventHolder#getArgs()}.
    *
-   * @param event: event updating the variables.
+   * @param event event updating the variables.
    */
   private void storeEventHolderVariable(HistoricVariableUpdateEventEntity event) {
     if (ActivityExecutorContext.EVENT.equals(event.getVariableName()) && event.getByteValue() != null) {

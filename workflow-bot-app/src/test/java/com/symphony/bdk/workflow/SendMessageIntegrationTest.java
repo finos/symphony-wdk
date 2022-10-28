@@ -543,8 +543,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
   @Test
   void sendBlastMessageWithUidsAllFailing() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-blast-message-with-uids-all-failing.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/message/send-blast-message-with-uids-all-failing.swadl.yaml"));
 
     final String streamId1 = "STREAM_ID_1";
     final String streamId2 = "STREAM_ID_2";
@@ -575,8 +575,8 @@ class SendMessageIntegrationTest extends IntegrationTest {
 
   @Test
   void sendBlastMessageWithUidsVariables() throws Exception {
-    final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-blast-with-uids-variables.swadl.yaml"));
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/message/send-message-blast-with-uids-variables.swadl.yaml"));
 
     final List<Long> uids = List.of(123L);
     final String streamId = "STREAM_ID";

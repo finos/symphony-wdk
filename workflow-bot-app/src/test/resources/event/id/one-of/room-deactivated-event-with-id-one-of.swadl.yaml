@@ -1,0 +1,16 @@
+id: room-deactivated-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - room-deactivated:
+              id: roomDeactivatedWithIdIn
+          - message-received:
+              content: /neverCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert roomDeactivatedWithIdIn.source != null

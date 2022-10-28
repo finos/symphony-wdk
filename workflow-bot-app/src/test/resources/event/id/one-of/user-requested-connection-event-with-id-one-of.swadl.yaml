@@ -1,0 +1,16 @@
+id: user-requested-connection-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - user-requested-join-room:
+              id: userRequestedConnectionWithIdIn
+          - message-received:
+              content: /neverCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert userRequestedConnectionWithIdIn.source != null

@@ -1,0 +1,14 @@
+id: form-replied-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        form-replied:
+          id: formRepliedWithIdIn
+          form-id: formId
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert formRepliedWithIdIn.source != null

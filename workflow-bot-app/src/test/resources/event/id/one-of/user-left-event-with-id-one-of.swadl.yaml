@@ -1,0 +1,16 @@
+id: user-left-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - user-left-room:
+              id: userLeftWithIdIn
+          - message-received:
+              content: /neverCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert userLeftWithIdIn.source != null

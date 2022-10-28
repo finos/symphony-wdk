@@ -36,6 +36,7 @@ import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
+import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -44,14 +45,16 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-class EventTypesIntegrationTest extends IntegrationTest {
+class EventIntegrationTest extends IntegrationTest {
 
   @Test
   void onMessageReceived_streamIdFromEvent() throws IOException, ProcessingException {
@@ -381,6 +384,204 @@ class EventTypesIntegrationTest extends IntegrationTest {
 
     assertThat(lastProcess()).hasValueSatisfying(
         processId -> await().atMost(5, SECONDS).until(() -> processIsCompleted(processId)));
+  }
+
+  static Stream<Arguments> swadlUnderTest_on() {
+    return Stream.of(
+        Arguments.arguments(
+            "/event/id/on/message-received-event-with-id-on.swadl.yaml", messageReceived("123", "/execute")),
+        Arguments.arguments("/event/id/on/message-suppressed-event-with-id-on.swadl.yaml", messageSuppressed()),
+        Arguments.arguments("/event/id/on/im-created-event-with-id-on.swadl.yaml", imCreated()),
+        Arguments.arguments("/event/id/on/room-created-event-with-id-on.swadl.yaml", roomCreated()),
+        Arguments.arguments("/event/id/on/room-updated-event-with-id-on.swadl.yaml", roomUpdated()),
+        Arguments.arguments("/event/id/on/room-deactivated-event-with-id-on.swadl.yaml", roomDeactivated()),
+        Arguments.arguments("/event/id/on/room-reactivated-event-with-id-on.swadl.yaml", roomReactivated()),
+        Arguments.arguments("/event/id/on/room-member-promoted-event-with-id-on.swadl.yaml", roomMemberPromoted()),
+        Arguments.arguments("/event/id/on/room-owner-demoted-event-with-id-on.swadl.yaml", roomOwnerDemoted()),
+        Arguments.arguments("/event/id/on/post-shared-event-with-id-on.swadl.yaml", postShared()),
+        Arguments.arguments("/event/id/on/connection-accepted-event-with-id-on.swadl.yaml", connectionAccepted()),
+        Arguments.arguments("/event/id/on/user-joined-event-with-id-on.swadl.yaml", userJoined()),
+        Arguments.arguments("/event/id/on/user-left-event-with-id-on.swadl.yaml", userLeft()),
+        Arguments.arguments("/event/id/on/user-requested-connection-event-with-id-on.swadl.yaml", connectionRequested())
+    );
+  }
+
+  static Stream<Arguments> swadlUnderTest_oneOf() {
+    return Stream.of(
+        Arguments.arguments("/event/id/one-of/message-received-event-with-id-one-of.swadl.yaml",
+            messageReceived("123", "/execute")),
+        Arguments.arguments("/event/id/one-of/message-suppressed-event-with-id-one-of.swadl.yaml", messageSuppressed()),
+        Arguments.arguments("/event/id/one-of/im-created-event-with-id-one-of.swadl.yaml", imCreated()),
+        Arguments.arguments("/event/id/one-of/room-created-event-with-id-one-of.swadl.yaml", roomCreated()),
+        Arguments.arguments("/event/id/one-of/room-updated-event-with-id-one-of.swadl.yaml", roomUpdated()),
+        Arguments.arguments("/event/id/one-of/room-deactivated-event-with-id-one-of.swadl.yaml", roomDeactivated()),
+        Arguments.arguments("/event/id/one-of/room-reactivated-event-with-id-one-of.swadl.yaml", roomReactivated()),
+        Arguments.arguments("/event/id/one-of/room-member-promoted-event-with-id-one-of.swadl.yaml",
+            roomMemberPromoted()),
+        Arguments.arguments("/event/id/one-of/room-owner-demoted-event-with-id-one-of.swadl.yaml", roomOwnerDemoted()),
+        Arguments.arguments("/event/id/one-of/post-shared-event-with-id-one-of.swadl.yaml", postShared()),
+        Arguments.arguments("/event/id/one-of/connection-accepted-event-with-id-one-of.swadl.yaml",
+            connectionAccepted()),
+        Arguments.arguments("/event/id/one-of/user-joined-event-with-id-one-of.swadl.yaml", userJoined()),
+        Arguments.arguments("/event/id/one-of/user-left-event-with-id-one-of.swadl.yaml", userLeft()),
+        Arguments.arguments("/event/id/one-of/user-requested-connection-event-with-id-one-of.swadl.yaml",
+            connectionRequested())
+    );
+  }
+
+  static Stream<Arguments> swadlUnderTest_allOf() {
+    return Stream.of(
+        Arguments.arguments("/event/id/all-of/message-suppressed-event-with-id-all-of.swadl.yaml", messageSuppressed()),
+        Arguments.arguments("/event/id/all-of/message-received-event-with-id-all-of.swadl.yaml",
+            messageReceived("123", "/execute")),
+
+        Arguments.arguments("/event/id/all-of/im-created-event-with-id-all-of.swadl.yaml", imCreated()),
+        Arguments.arguments("/event/id/all-of/room-created-event-with-id-all-of.swadl.yaml", roomCreated()),
+        Arguments.arguments("/event/id/all-of/room-updated-event-with-id-all-of.swadl.yaml", roomUpdated()),
+        Arguments.arguments("/event/id/all-of/room-deactivated-event-with-id-all-of.swadl.yaml", roomDeactivated()),
+        Arguments.arguments("/event/id/all-of/room-reactivated-event-with-id-all-of.swadl.yaml", roomReactivated()),
+        Arguments.arguments("/event/id/all-of/room-member-promoted-event-with-id-all-of.swadl.yaml",
+            roomMemberPromoted()),
+        Arguments.arguments("/event/id/all-of/room-owner-demoted-event-with-id-all-of.swadl.yaml", roomOwnerDemoted()),
+        Arguments.arguments("/event/id/all-of/post-shared-event-with-id-all-of.swadl.yaml", postShared()),
+        Arguments.arguments("/event/id/all-of/connection-accepted-event-with-id-all-of.swadl.yaml",
+            connectionAccepted()),
+        Arguments.arguments("/event/id/all-of/user-joined-event-with-id-all-of.swadl.yaml", userJoined()),
+        Arguments.arguments("/event/id/all-of/user-left-event-with-id-all-of.swadl.yaml", userLeft()),
+        Arguments.arguments("/event/id/all-of/user-requested-connection-event-with-id-all-of.swadl.yaml",
+            connectionRequested())
+    );
+  }
+
+  @ParameterizedTest()
+  @MethodSource("swadlUnderTest_on")
+  void eventWithId_on(String workflowFile, RealTimeEvent event) throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    engine.deploy(workflow);
+    engine.onEvent(event);
+
+    assertThat(workflow).executed("scriptActivity", "scriptAssertion");
+  }
+
+  @ParameterizedTest()
+  @MethodSource("swadlUnderTest_oneOf")
+  void eventWithId_oneOf(String workflowFile, RealTimeEvent event) throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    engine.deploy(workflow);
+    engine.onEvent(event);
+
+    assertThat(workflow).executed("scriptActivity", "scriptAssertion");
+  }
+
+  @ParameterizedTest()
+  @MethodSource("swadlUnderTest_allOf")
+  void eventWithId_allOf(String workflowFile, RealTimeEvent event)
+      throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    engine.deploy(workflow);
+
+    // all-of cannot be in the starting activity, so we need to start the workflow with a dummy activity
+    // start workflow
+    engine.onEvent(messageReceived("/start"));
+
+    // Wait for the activity to finish
+    Thread.sleep(2000);
+
+    // firsts event of allOf
+    engine.onEvent(messageReceived("/alwaysCalled"));
+
+    // Wait for the event to finish
+    Thread.sleep(2000);
+
+    // second event of allOf
+    engine.onEvent(event);
+
+    assertThat(workflow).executedContains("scriptActivity", "scriptAssertion");
+  }
+
+  @ParameterizedTest
+  @CsvSource({"/event/id/on/form-replied-event-with-id-on.swadl.yaml",
+      "/event/id/one-of/form-replied-event-with-id-one-of.swadl.yaml"})
+  void formRepliedEventWithId(String workflowFile) throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    engine.deploy(workflow);
+    engine.onEvent(form("", "formId", Collections.emptyMap()));
+
+    assertThat(workflow).executed("formRepliedWithIdIn", "scriptActivity", "scriptAssertion");
+  }
+
+  @Test
+  void formRepliedEventWithId_allOf() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/event/id/all-of/form-replied-event-with-id-all-of.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.deploy(workflow);
+
+    // all-of cannot be in the starting activity, so we need to start the workflow with a dummy activity
+    // start workflow
+    engine.onEvent(messageReceived("/start"));
+
+    // Wait for the activity to finish
+    Thread.sleep(2000);
+
+    // firsts event of allOf
+    engine.onEvent(messageReceived("/alwaysCalled"));
+
+    // Wait for the event to finish
+    Thread.sleep(2000);
+
+    // second event of allOf
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("msgId", "formId", Collections.emptyMap()));
+      return true;
+    });
+
+    assertThat(workflow).executedContains("formRepliedWithIdIn", "scriptActivity", "scriptAssertion");
+  }
+
+
+  @ParameterizedTest
+  @CsvSource({"/event/id/on/request-received-event-with-id-on.swadl.yaml",
+      "/event/id/one-of/request-received-event-with-id-one-of.swadl.yaml"})
+  void requestReceivedEventWithId(String workflowFile) throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
+
+    engine.deploy(workflow);
+    engine.execute(workflow.getId(), new ExecutionParameters(Collections.emptyMap(), "token"));
+
+    assertThat(workflow).executed("scriptActivity", "scriptAssertion");
+  }
+
+  @Test
+  void requestReceivedEventWithId_allOf() throws IOException, ProcessingException, InterruptedException {
+    final Workflow workflow = SwadlParser.fromYaml(
+        getClass().getResourceAsStream("/event/id/one-of/request-received-event-with-id-one-of.swadl.yaml"));
+
+    engine.deploy(workflow);
+
+    // all-of cannot be in the starting activity, so we need to start the workflow with a dummy activity
+    // start workflow
+    engine.onEvent(messageReceived("/start"));
+
+    // Wait for the activity to finish
+    Thread.sleep(2000);
+
+    // firsts event of allOf
+    engine.onEvent(messageReceived("/alwaysCalled"));
+
+    // Wait for the event to finish
+    Thread.sleep(2000);
+
+    // second event of allOf
+    engine.execute(workflow.getId(), new ExecutionParameters(Collections.emptyMap(), "token"));
+
+    assertThat(workflow).executedContains("scriptActivity", "scriptAssertion");
   }
 
   private RealTimeEvent<V4RoomCreated> roomCreatedEvent(String roomId) {
