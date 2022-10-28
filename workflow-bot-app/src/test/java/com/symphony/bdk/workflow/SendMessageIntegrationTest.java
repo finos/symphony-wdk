@@ -68,7 +68,9 @@ class SendMessageIntegrationTest extends IntegrationTest {
   void sendMessageToCreatedRoomOnMessage() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/room/create-room-and-send-message.swadl.yaml"));
-    final List<Long> uids = Arrays.asList(1235L, 5678L);
+    final List<Long> uids = Arrays.asList(1234L, 5678L);
+    
+    
     
     
     
