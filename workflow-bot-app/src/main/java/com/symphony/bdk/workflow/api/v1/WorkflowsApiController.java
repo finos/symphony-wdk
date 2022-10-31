@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow.api.v1;
 
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -55,7 +55,7 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  public ResponseEntity<WorkflowActivitiesView> listInstanceActivities(String workflowId, String instanceId,
+  public ResponseEntity<WorkflowNodesView> getInstanceState(String workflowId, String instanceId,
       String token, Instant startedBefore, Instant startedAfter, Instant finishedBefore, Instant finishedAfter) {
     WorkflowInstLifeCycleFilter lifeCycleFilter =
         new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);

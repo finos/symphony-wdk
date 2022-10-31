@@ -17,11 +17,11 @@ class ActivityDomainConverterTest {
     // given
     Date start = new Date();
     HistoricActivityInstanceEntity entity = new HistoricActivityInstanceEntity();
-    entity.setActivityId("activity");
+    entity.setActivityId("id");
     entity.setActivityInstanceId("activity-instance-id");
     entity.setActivityName("activity");
     entity.setActivityType("scriptTask");
-    entity.setId("id");
+    entity.setActivityName("activity");
     entity.setProcessDefinitionKey("workflow");
     entity.setProcessInstanceId("process-instance-id");
     entity.setStartTime(start);

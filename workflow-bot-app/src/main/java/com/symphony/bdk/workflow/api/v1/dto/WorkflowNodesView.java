@@ -8,8 +8,8 @@ import java.util.Map;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class WorkflowActivitiesView {
-  private List<ActivityInstanceView> activities;
+public class WorkflowNodesView {
+  private List<NodeView> nodes;
   private VariableView globalVariables;
   private Map<String, Object> error;
 }

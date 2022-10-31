@@ -14,8 +14,8 @@ public class ActivityDomainConverter implements Converter<HistoricActivityInstan
   @Override
   public ActivityInstanceDomain apply(HistoricActivityInstanceEntity historicActivityInstance) {
     return ActivityInstanceDomain.builder()
-        .id(historicActivityInstance.getId())
-        .name(historicActivityInstance.getActivityId())
+        .id(historicActivityInstance.getActivityId())
+        .name(historicActivityInstance.getActivityName())
         .procInstId(historicActivityInstance.getProcessInstanceId())
         .workflowId(historicActivityInstance.getProcessDefinitionKey())
         .type(historicActivityInstance.getActivityType())

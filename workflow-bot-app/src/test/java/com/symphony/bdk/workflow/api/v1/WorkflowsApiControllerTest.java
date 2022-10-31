@@ -11,15 +11,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.symphony.bdk.workflow.api.v1.dto.ActivityInstanceView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowActivitiesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -50,7 +50,7 @@ class WorkflowsApiControllerTest {
   private static final String LIST_WORKFLOWS_PATH = "/v1/workflows/";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
-      "/v1/workflows/%s/instances/%s/activities";
+      "/v1/workflows/%s/instances/%s/states";
   private static final String GET_WORKFLOW_DEFINITIONS_PATH = "/v1/workflows/%s/definitions";
   private static final String LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH = "/v1/workflows/%s/instances/%s/variables";
 
@@ -174,7 +174,7 @@ class WorkflowsApiControllerTest {
   }
 
   @Test
-  void listWorkflowInstanceActivities() throws Exception {
+  void listWorkflowInstanceStates() throws Exception {
     final String workflowId = "testWorkflowId";
     final String instanceId = "testInstanceId";
 
@@ -188,20 +188,20 @@ class WorkflowsApiControllerTest {
     globalVariables.setRevision(0);
     globalVariables.setUpdateTime(Instant.ofEpochMilli(333L));
 
-    ActivityInstanceView activityInstanceView1 =
+    NodeView nodeView1 =
         activityInstanceView(workflowId, "activity0", instanceId, TaskTypeEnum.SEND_MESSAGE_ACTIVITY,
             new VariableView(activityOutputs), 222L, 666L);
 
-    ActivityInstanceView activityInstanceView2 =
+    NodeView nodeView2 =
         activityInstanceView(workflowId, "activity1", instanceId, TaskTypeEnum.CREATE_ROOM_ACTIVITY,
             new VariableView(activityOutputs), 333L, 777L);
 
-    WorkflowActivitiesView workflowActivitiesView = new WorkflowActivitiesView();
-    workflowActivitiesView.setActivities(Arrays.asList(activityInstanceView1, activityInstanceView2));
-    workflowActivitiesView.setGlobalVariables(new VariableView(globalVariables));
+    WorkflowNodesView workflowNodesView = new WorkflowNodesView();
+    workflowNodesView.setNodes(Arrays.asList(nodeView1, nodeView2));
+    workflowNodesView.setGlobalVariables(new VariableView(globalVariables));
 
     when(monitoringService.listWorkflowInstanceActivities(eq(workflowId), eq(instanceId),
-        any(WorkflowInstLifeCycleFilter.class))).thenReturn(workflowActivitiesView);
+        any(WorkflowInstLifeCycleFilter.class))).thenReturn(workflowNodesView);
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId))
@@ -212,24 +212,26 @@ class WorkflowsApiControllerTest {
         .andExpect(jsonPath("globalVariables.outputs[\"globalTwo\"]").value("valueTwo"))
         .andExpect(jsonPath("globalVariables.revision").value(0))
 
-        .andExpect(jsonPath("activities[0].workflowId").value(workflowId))
-        .andExpect(jsonPath("activities[0].instanceId").value(instanceId))
-        .andExpect(jsonPath("activities[0].activityId").value("activity0"))
-        .andExpect(jsonPath("activities[0].type").value("SEND_MESSAGE_ACTIVITY"))
-        .andExpect(jsonPath("activities[0].startDate").isNotEmpty())
-        .andExpect(jsonPath("activities[0].endDate").isNotEmpty())
-        .andExpect(jsonPath("activities[0].outputs[\"a\"]").value("b"))
-        .andExpect(jsonPath("activities[0].outputs[\"c\"]").value("d"))
+        .andExpect(jsonPath("nodes[0].workflowId").value(workflowId))
+        .andExpect(jsonPath("nodes[0].instanceId").value(instanceId))
+        .andExpect(jsonPath("nodes[0].nodeId").value("activity0"))
+        .andExpect(jsonPath("nodes[0].type").value("SEND_MESSAGE"))
+        .andExpect(jsonPath("nodes[0].group").value("ACTIVITY"))
+        .andExpect(jsonPath("nodes[0].startDate").isNotEmpty())
+        .andExpect(jsonPath("nodes[0].endDate").isNotEmpty())
+        .andExpect(jsonPath("nodes[0].outputs[\"a\"]").value("b"))
+        .andExpect(jsonPath("nodes[0].outputs[\"c\"]").value("d"))
 
-        .andExpect(jsonPath("activities[1].workflowId").value(workflowId))
-        .andExpect(jsonPath("activities[1].instanceId").value(instanceId))
-        .andExpect(jsonPath("activities[1].activityId").value("activity1"))
-        .andExpect(jsonPath("activities[1].type").value("CREATE_ROOM_ACTIVITY"))
-        .andExpect(jsonPath("activities[1].startDate").isNotEmpty())
-        .andExpect(jsonPath("activities[1].endDate").isNotEmpty())
+        .andExpect(jsonPath("nodes[1].workflowId").value(workflowId))
+        .andExpect(jsonPath("nodes[1].instanceId").value(instanceId))
+        .andExpect(jsonPath("nodes[1].nodeId").value("activity1"))
+        .andExpect(jsonPath("nodes[1].type").value("CREATE_ROOM"))
+        .andExpect(jsonPath("nodes[1].group").value("ACTIVITY"))
+        .andExpect(jsonPath("nodes[1].startDate").isNotEmpty())
+        .andExpect(jsonPath("nodes[1].endDate").isNotEmpty())
 
-        .andExpect(jsonPath("activities[0].outputs[\"a\"]").value("b"))
-        .andExpect(jsonPath("activities[0].outputs[\"c\"]").value("d"));
+        .andExpect(jsonPath("nodes[0].outputs[\"a\"]").value("b"))
+        .andExpect(jsonPath("nodes[0].outputs[\"c\"]").value("d"));
   }
 
   @ParameterizedTest
@@ -382,13 +384,14 @@ class WorkflowsApiControllerTest {
         .build();
   }
 
-  private ActivityInstanceView activityInstanceView(String workflowId, String activityId, String instanceId,
+  private NodeView activityInstanceView(String workflowId, String activityId, String instanceId,
       TaskTypeEnum type, VariableView variables, Long start, Long end) {
-    return ActivityInstanceView.builder()
+    return NodeView.builder()
         .workflowId(workflowId)
         .instanceId(instanceId)
-        .activityId(activityId)
-        .type(type)
+        .nodeId(activityId)
+        .type(type.toType())
+        .group(type.toGroup())
         .startDate(Instant.ofEpochMilli(start))
         .endDate(Instant.ofEpochMilli(end))
         .outputs(variables.getOutputs())

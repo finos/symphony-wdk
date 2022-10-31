@@ -34,13 +34,13 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
         return ((StartEventBuilder) builder).camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START,
                 FormVariableListener.class)
             .camundaAsyncBefore()
-            .name(element.getId())
+            .name(element.getEventId())
             .message(element.getId());
       }
       return builder.intermediateCatchEvent()
           .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
           .camundaAsyncBefore()
-          .name(element.getId())
+          .name(element.getEventId())
           .message(element.getId());
     } else {
       // cache the sub process builder, the form reply might have a brother event,
@@ -61,7 +61,7 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
           // otherwise execute only once, as exclusive
           .interrupting(false)
           .message(element.getId())
-          .name(element.getId());
+          .name(element.getEventId());
     }
   }
 
@@ -69,7 +69,11 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
     String timeout = readTimeout(element);
     subProcess.embeddedSubProcess()
         .startEvent()
-        .intermediateCatchEvent().timerWithDuration(timeout).serviceTask().camundaExpression("${true}")
+        .intermediateCatchEvent()
+        .name(element.getId())
+        .timerWithDuration(timeout)
+        .serviceTask()
+        .camundaExpression("${true}")
         .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ThrowTimeoutDelegate.class.getName())
         .endEvent();
   }
