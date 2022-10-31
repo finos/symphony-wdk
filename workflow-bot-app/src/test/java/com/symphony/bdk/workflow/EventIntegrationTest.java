@@ -209,7 +209,6 @@ class EventIntegrationTest extends IntegrationTest {
   void firstActivity_timeout() throws IOException, ProcessingException {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/event/first-activity-with-timeout.swadl.yaml"));
-
     assertThatExceptionOfType(InvalidActivityException.class)
         .isThrownBy(() -> engine.deploy(workflow))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
