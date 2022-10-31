@@ -42,7 +42,6 @@ import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -458,7 +457,6 @@ class EventIntegrationTest extends IntegrationTest {
     );
   }
 
-  @Disabled
   @ParameterizedTest()
   @MethodSource("swadlUnderTest_on")
   void eventWithId_on(String workflowFile, RealTimeEvent event) throws IOException, ProcessingException {
@@ -470,7 +468,6 @@ class EventIntegrationTest extends IntegrationTest {
     assertThat(workflow).executed("scriptActivity", "scriptAssertion");
   }
 
-  @Disabled
   @ParameterizedTest()
   @MethodSource("swadlUnderTest_oneOf")
   void eventWithId_oneOf(String workflowFile, RealTimeEvent event) throws IOException, ProcessingException {
@@ -482,7 +479,6 @@ class EventIntegrationTest extends IntegrationTest {
     assertThat(workflow).executed("scriptActivity", "scriptAssertion");
   }
 
-  @Disabled
   @ParameterizedTest()
   @MethodSource("swadlUnderTest_allOf")
   void eventWithId_allOf(String workflowFile, RealTimeEvent event)
@@ -510,7 +506,7 @@ class EventIntegrationTest extends IntegrationTest {
     assertThat(workflow).executedContains("scriptActivity", "scriptAssertion");
   }
 
-  @Disabled
+  @ParameterizedTest
   @CsvSource({"/event/id/on/form-replied-event-with-id-on.swadl.yaml",
       "/event/id/one-of/form-replied-event-with-id-one-of.swadl.yaml"})
   void formRepliedEventWithId(String workflowFile) throws IOException, ProcessingException {
@@ -522,7 +518,7 @@ class EventIntegrationTest extends IntegrationTest {
     assertThat(workflow).executed("formRepliedWithIdIn", "scriptActivity", "scriptAssertion");
   }
 
-  @Disabled
+  @Test
   void formRepliedEventWithId_allOf() throws IOException, ProcessingException, InterruptedException {
     final Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/event/id/all-of/form-replied-event-with-id-all-of.swadl.yaml"));
@@ -553,7 +549,7 @@ class EventIntegrationTest extends IntegrationTest {
     assertThat(workflow).executedContains("formRepliedWithIdIn", "scriptActivity", "scriptAssertion");
   }
 
-  @Disabled
+  @ParameterizedTest
   @CsvSource({"/event/id/on/request-received-event-with-id-on.swadl.yaml",
       "/event/id/one-of/request-received-event-with-id-one-of.swadl.yaml"})
   void requestReceivedEventWithId(String workflowFile) throws IOException, ProcessingException {
@@ -565,7 +561,7 @@ class EventIntegrationTest extends IntegrationTest {
     assertThat(workflow).executed("scriptActivity", "scriptAssertion");
   }
 
-  @Disabled
+  @Test
   void requestReceivedEventWithId_allOf() throws IOException, ProcessingException, InterruptedException {
     final Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/event/id/one-of/request-received-event-with-id-one-of.swadl.yaml"));
