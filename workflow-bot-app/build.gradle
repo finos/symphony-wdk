@@ -12,7 +12,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.10.0') {
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     implementation platform('com.fasterxml.jackson:jackson-bom:2.13.4')
