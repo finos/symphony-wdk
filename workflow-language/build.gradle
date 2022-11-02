@@ -8,7 +8,7 @@ javadoc {
 }
 
 dependencies {
-    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0')
+    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.10.0')
 
     api 'org.finos.symphony.bdk:symphony-bdk-core'
     api 'org.finos.symphony.bdk.ext:symphony-group-extension'

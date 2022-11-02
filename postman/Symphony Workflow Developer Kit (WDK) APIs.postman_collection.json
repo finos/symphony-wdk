@@ -19,7 +19,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"args\": {\n    \"content\": \"HELLO EVERYONE\",\n    \"streamId\": \"STREAM_ID\"\n  }\n}\n",
+					"raw": "{\n  \"args\": {\n    \"argKey1\": \"value\",\n    \"argkey2\": \"value\"\n  }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -62,7 +62,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances?status=completed",
+					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances?status=pending",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -78,7 +78,7 @@
 					"query": [
 						{
 							"key": "status",
-							"value": "completed"
+							"value": "pending"
 						}
 					],
 					"variable": [
@@ -129,7 +129,7 @@
 				"header": [
 					{
 						"key": "X-Monitoring-Token",
-						"value": "",
+						"value": "myBestToken",
 						"type": "text"
 					}
 				],
@@ -143,7 +143,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/activities?started_before=2022-09-21T15:47:00Z&started_after=2022-09-21T15:46:00.939Z&finished_before=2022-09-21T15:46:00.939Z&finished_after=2022-09-21T15:46:00.939Z",
+					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/states?started_before=2022-09-21T15:47:00Z&started_after=2022-09-26T16:29:57.512Z&finished_before=2022-09-21T15:46:00.939Z&finished_after=2022-09-21T15:46:00.939Z",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -156,7 +156,7 @@
 						":workflowId",
 						"instances",
 						":instanceId",
-						"activities"
+						"states"
 					],
 					"query": [
 						{
@@ -165,7 +165,7 @@
 						},
 						{
 							"key": "started_after",
-							"value": "2022-09-21T15:46:00.939Z"
+							"value": "2022-09-26T16:29:57.512Z"
 						},
 						{
 							"key": "finished_before",
@@ -237,7 +237,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/variables",
+					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/variables?updated_before=2022-09-26T16:31:13.505Z&updated_after=2022-09-26T16:30:01.303Z",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -255,13 +255,11 @@
 					"query": [
 						{
 							"key": "updated_before",
-							"value": "2022-09-21T15:43:24.969Z",
-							"disabled": true
+							"value": "2022-09-26T16:31:13.505Z"
 						},
 						{
 							"key": "updated_after",
-							"value": "2022-09-21T15:43:24.969Z",
-							"disabled": true
+							"value": "2022-09-26T16:30:01.303Z"
 						}
 					],
 					"variable": [

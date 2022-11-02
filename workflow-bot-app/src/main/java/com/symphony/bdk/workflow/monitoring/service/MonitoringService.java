@@ -48,7 +48,6 @@ public class MonitoringService {
   private final VariableQueryRepository variableQueryRepository;
   private final ObjectConverter objectConverter;
 
-  private static final String GATEWAY_SUFFIX = "_gateway";
 
   public List<WorkflowView> listAllWorkflows() {
     return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);

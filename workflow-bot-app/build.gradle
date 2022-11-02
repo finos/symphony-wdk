@@ -12,7 +12,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.9.0') {
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.10.0') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     implementation platform('com.fasterxml.jackson:jackson-bom:2.13.4')
@@ -30,7 +30,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
 
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-    runtimeOnly 'com.h2database:h2'
+    runtimeOnly ('com.h2database:h2') {
+        version {
+            strictly '1.4.200'
+        }
+    }
 
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'ch.qos.logback:logback-classic:1.2.11'

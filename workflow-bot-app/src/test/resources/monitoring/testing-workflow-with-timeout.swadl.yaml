@@ -1,0 +1,19 @@
+id: testingWorkflowWithTimeout
+activities:
+  - send-message:
+      id: formid
+      on:
+        message-received:
+          content: "/sendForm"
+      to:
+        stream-id: "123"
+      content: <form id="formid"><button type="action" name="one">One</button></form>
+
+  - execute-script:
+      id: script
+      on:
+        form-replied:
+          form-id: formid
+        timeout: PT0.2S
+      script: |
+        println "____________________EXPIRED____________________"
