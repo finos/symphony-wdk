@@ -16,4 +16,3 @@ activities:
           form-id: formid
         timeout: PT0.2S
       script: |
-        println "____________________EXPIRED____________________"
