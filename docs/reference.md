@@ -105,7 +105,7 @@ activities:
 Events that can trigger the activity execution. **The first activity of a workflow is expected to have an event**.
 
 `on` can contain either a specific event directly or a list of events as part of the `one-of` or `all-of` keys.
-**Only one key (specific event), `one-of` or `all-of` is allowed by activity.** 
+**Only one key (specific event), `one-of` or `all-of` is allowed by activity.**
 
 [List of real-time events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
 
@@ -205,7 +205,7 @@ activities:
 
 Below are all the supported events under the `on` or the `one-of` keys.
 
-An event can have an optional id in order to reference it in subsequent activities. 
+An event can have an optional id in order to reference it in subsequent activities.
 
 ### message-received
 
@@ -781,8 +781,10 @@ Key | Type | Required |
 
 Output | Type |
 ----|----|
-message | [V4Message](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4Message.html)
 msgId | String
+message | [V4Message](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4Message.html)
+messages| List
+failedStreamIds | List
 
 [API reference](https://developers.symphony.com/restapi/reference#create-message-v4)
 
@@ -933,7 +935,7 @@ Path to the file to be attached to the message. The path is relative to the work
 
 #### data
 
-A [structured object](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/entities/structured-objects) 
+A [structured object](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/entities/structured-objects)
 can be sent as part of a message in this field. It must be a json string.
 
 
@@ -972,7 +974,7 @@ activities:
               }"
 ```
 
-One could also use [Utility function](#utility-functions) to escape the data json string, the same example 
+One could also use [Utility function](#utility-functions) to escape the data json string, the same example
 above can be done like
 
 Example
