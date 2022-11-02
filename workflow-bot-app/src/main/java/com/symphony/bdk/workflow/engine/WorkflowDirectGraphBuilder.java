@@ -205,7 +205,7 @@ public class WorkflowDirectGraphBuilder {
       // every event in the onfOf list, check if it is already registered, avoid repeating multiple of them
       String newTimeoutEventId = signalEvent.getId() + TIMEOUT_SUFFIX;
       String parentId = directGraph.getParents(signalEvent.getId()).get(0);
-      registerTimeoutEvent(directGraph, newTimeoutEventId, parentId, timeout);
+      registerTimeoutEvent(directGraph, newTimeoutEventId, signalEvent.getWrappedType(), parentId, timeout);
     }
   }
 
@@ -233,21 +233,22 @@ public class WorkflowDirectGraphBuilder {
     } else {
       String newTimeoutEvent = parentActivity + TIMEOUT_SUFFIX;
       String timeout = ((EventWithTimeout) parentNode.getEvent()).getTimeout();
-      registerTimeoutEvent(directGraph, newTimeoutEvent, grandParentId,
+      registerTimeoutEvent(directGraph, newTimeoutEvent, null, grandParentId,
           Optional.ofNullable(timeout).orElse(DEFAULT_FORM_REPLIED_EVENT_TIMEOUT));
       return newTimeoutEvent;
     }
   }
 
-  private void registerTimeoutEvent(WorkflowDirectGraph directGraph, String timeoutEventId, String parentId,
-      String timeoutValue) {
+  private void registerTimeoutEvent(WorkflowDirectGraph directGraph, String timeoutEventId, Class<?> nodeWrappedType,
+      String parentId, String timeoutValue) {
     if (!directGraph.isRegistered(timeoutEventId)) {
       EventWithTimeout timeoutEvent = new EventWithTimeout();
       timeoutEvent.setTimeout(timeoutValue);
       timeoutEvent.setActivityExpired(new ActivityExpiredEvent());
       directGraph.registerToDictionary(timeoutEventId, new WorkflowNode().id(timeoutEventId).eventId(timeoutEventId)
           .event(timeoutEvent)
-          .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT));
+          .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT)
+          .wrappedType(nodeWrappedType));
       directGraph.addParent(timeoutEventId, parentId);
       directGraph.getChildren(parentId).gateway(Gateway.EVENT_BASED).addChild(timeoutEventId);
     }

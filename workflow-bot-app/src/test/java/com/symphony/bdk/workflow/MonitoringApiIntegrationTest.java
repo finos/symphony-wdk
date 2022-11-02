@@ -410,6 +410,73 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
+  void listInstanceStates_activityWithTimeout() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-with-timeout.swadl.yaml"));
+
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
+
+    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.deploy(workflow);
+    engine.onEvent(messageReceived("/sendForm"));
+
+    // Wait for the workflow to get executed
+    Thread.sleep(2000);
+
+    // No reply to the form in order to let the script activity expire
+
+    String processDefinition = this.getLastProcessInstanceId("testingWorkflowWithTimeout");
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "testingWorkflowWithTimeout", processDefinition))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+
+        .body("nodes[0].workflowId", equalTo("testingWorkflowWithTimeout"))
+        .body("nodes[0].instanceId", not(empty()))
+        .body("nodes[0].nodeId", equalTo("message-received_/sendForm"))
+        .body("nodes[0].type", equalTo("MESSAGE_RECEIVED"))
+        .body("nodes[0].group", equalTo("EVENT"))
+        .body("nodes[0].startDate", not(empty()))
+        .body("nodes[0].endDate", not(empty()))
+        .body("nodes[0].duration", not(empty()))
+        .body("nodes[0].outputs.message", not(empty()))
+        .body("nodes[0].outputs.msgId", not(empty()))
+
+        .body("nodes[1].workflowId", equalTo("testingWorkflowWithTimeout"))
+        .body("nodes[1].instanceId", not(empty()))
+        .body("nodes[1].nodeId", equalTo("formid"))
+        .body("nodes[1].type", equalTo("SEND_MESSAGE"))
+        .body("nodes[1].group", equalTo("ACTIVITY"))
+        .body("nodes[1].startDate", not(empty()))
+        .body("nodes[1].endDate", not(empty()))
+        .body("nodes[1].duration", not(empty()))
+        .body("nodes[1].outputs.message", not(empty()))
+        .body("nodes[1].outputs.msgId", not(empty()))
+
+        .body("nodes[2].workflowId", equalTo("testingWorkflowWithTimeout"))
+        .body("nodes[2].instanceId", not(empty()))
+        .body("nodes[2].nodeId", equalTo("form-reply_formid_timeout"))
+        .body("nodes[2].type", equalTo("FORM_REPLIED"))
+        .body("nodes[2].group", equalTo("EVENT"))
+        .body("nodes[2].startDate", not(empty()))
+        .body("nodes[2].endDate", not(empty()))
+        .body("nodes[2].duration", not(empty()))
+        .body("nodes[2].outputs.message", not(empty()))
+        .body("nodes[2].outputs.msgId", not(empty()))
+
+        .body("globalVariables.outputs", equalTo(Collections.EMPTY_MAP))
+        .body("globalVariables.revision", equalTo(0))
+        .body("globalVariables.updateTime", not(empty()));
+
+    engine.undeploy(workflow.getId());
+  }
+
+  @Test
   void listInstanceStates_withError() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
@@ -1507,4 +1574,3 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     return processDefinition.get();
   }
 }
-
