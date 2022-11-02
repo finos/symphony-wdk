@@ -1,0 +1,20 @@
+id: send-blast-message-with-userids-on-behalf-of-user-not-supported
+activities:
+  - send-message:
+      id: sendBlastMessageObo
+      on:
+        message-received:
+          content: "/message-not-supported"
+      to:
+        user-ids:
+          - 123
+          - 456
+      content: <messageML>Hello!</messageML>
+      obo:
+        user-id: 12345
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

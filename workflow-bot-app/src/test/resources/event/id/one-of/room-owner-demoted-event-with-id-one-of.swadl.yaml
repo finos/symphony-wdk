@@ -1,0 +1,16 @@
+id: roomowner-demoted-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - room-member-demoted-from-owner:
+              id: roomOwnerDemotedWithIdIn
+          - message-received:
+              content: /neverCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert roomOwnerDemotedWithIdIn.source != null

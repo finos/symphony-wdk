@@ -1,0 +1,13 @@
+id: im-created-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        im-created:
+          id: imCreatedWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert imCreatedWithIdIn.source != null

@@ -1,0 +1,20 @@
+id: send-blast-message-with-stream-ids-all-failing
+variables:
+  rooms:
+    - ABC
+    - DEF
+activities:
+  - send-message:
+      id: sendBlastMessageWithStreamIdsAllFailing
+      on:
+        message-received:
+          content: /send-blast
+      to:
+        stream-ids: ${variables.rooms}
+      content: "<messageML>hello</messageML>"
+
+  - execute-script:
+      id: scriptActivityNotToBeExecuted
+      # workflow should fail if this script is executed
+      script: |
+        assert false

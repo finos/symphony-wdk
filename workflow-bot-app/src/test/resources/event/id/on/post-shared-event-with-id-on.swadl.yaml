@@ -1,0 +1,13 @@
+id: post-shared-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        post-shared:
+          id: postSharedWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert postSharedWithIdIn.source != null

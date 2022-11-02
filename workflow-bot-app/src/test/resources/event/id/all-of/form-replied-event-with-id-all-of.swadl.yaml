@@ -1,0 +1,27 @@
+id: form-replied-event-with-id-in-all-of
+activities:
+  # all-of cannot be in the starting activity
+  - send-message:
+      id: formId
+      on:
+        message-received:
+          content: /start
+      content: <form id="formid"><button type="action" name="one">One</button></form>
+
+  - execute-script:
+      id: scriptActivity
+      on:
+        all-of:
+          - form-replied:
+              id: formRepliedWithIdIn
+              form-id: formId
+          - message-received:
+              id: eventId
+              content: /alwaysCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert formRepliedWithIdIn.source != null
+        assert eventId.source != null

@@ -23,13 +23,25 @@ import com.symphony.bdk.ext.group.SymphonyGroupService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
+import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.gen.api.model.V4MessageSuppressed;
+import com.symphony.bdk.gen.api.model.V4RoomCreated;
+import com.symphony.bdk.gen.api.model.V4RoomDeactivated;
+import com.symphony.bdk.gen.api.model.V4RoomMemberDemotedFromOwner;
+import com.symphony.bdk.gen.api.model.V4RoomMemberPromotedToOwner;
+import com.symphony.bdk.gen.api.model.V4RoomReactivated;
+import com.symphony.bdk.gen.api.model.V4RoomUpdated;
+import com.symphony.bdk.gen.api.model.V4SharedPost;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
+import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
+import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.configuration.WorkflowBotConfiguration;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
@@ -38,6 +50,7 @@ import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
+import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.restassured.RestAssured;
@@ -205,6 +218,61 @@ public abstract class IntegrationTest {
     }
   }
 
+  public static RealTimeEvent<V4MessageSuppressed> messageSuppressed() {
+    V4Initiator initiator = initiator();
+
+    V4MessageSuppressed messageSuppressed = new V4MessageSuppressed();
+    messageSuppressed.setMessageId("");
+    messageSuppressed.setStream(new V4Stream());
+
+    return new RealTimeEvent<>(initiator, messageSuppressed);
+  }
+
+  public static RealTimeEvent<V4InstantMessageCreated> imCreated() {
+    V4Initiator initiator = initiator();
+
+    V4InstantMessageCreated instantMessageCreated = new V4InstantMessageCreated();
+    instantMessageCreated.setStream(new V4Stream());
+
+    return new RealTimeEvent<>(initiator, instantMessageCreated);
+  }
+
+  public static RealTimeEvent<V4RoomCreated> roomCreated() {
+    return new RealTimeEvent<>(initiator(), new V4RoomCreated());
+  }
+
+  public static RealTimeEvent<V4RoomUpdated> roomUpdated() {
+    return new RealTimeEvent<>(initiator(), new V4RoomUpdated());
+  }
+
+  public static RealTimeEvent<V4RoomDeactivated> roomDeactivated() {
+    return new RealTimeEvent<>(initiator(), new V4RoomDeactivated());
+  }
+
+  public static RealTimeEvent<V4RoomReactivated> roomReactivated() {
+    return new RealTimeEvent<>(initiator(), new V4RoomReactivated());
+  }
+
+  public static RealTimeEvent<V4RoomMemberPromotedToOwner> roomMemberPromoted() {
+    return new RealTimeEvent<>(initiator(), new V4RoomMemberPromotedToOwner());
+  }
+
+  public static RealTimeEvent<V4RoomMemberDemotedFromOwner> roomOwnerDemoted() {
+    return new RealTimeEvent<>(initiator(), new V4RoomMemberDemotedFromOwner());
+  }
+
+  public static RealTimeEvent<V4ConnectionAccepted> connectionAccepted() {
+    return new RealTimeEvent<>(initiator(), new V4ConnectionAccepted());
+  }
+
+  public static RealTimeEvent<V4UserRequestedToJoinRoom> connectionRequested() {
+    return new RealTimeEvent<>(initiator(), new V4UserRequestedToJoinRoom());
+  }
+
+  public static RealTimeEvent<V4SharedPost> postShared() {
+    return new RealTimeEvent<>(initiator(), new V4SharedPost());
+  }
+
   public static RealTimeEvent<V4MessageSent> messageReceived(String streamId, String content) {
     RealTimeEvent<V4MessageSent> event = messageReceived(content);
     V4Stream stream = new V4Stream();
@@ -214,11 +282,6 @@ public abstract class IntegrationTest {
   }
 
   public static RealTimeEvent<V4MessageSent> messageReceived(String content) {
-    V4Initiator initiator = new V4Initiator();
-    V4User user = new V4User();
-    user.setUserId(123L);
-    initiator.setUser(user);
-
     V4MessageSent messageSent = new V4MessageSent();
     V4Message message = new V4Message();
     message.setMessageId("msgId");
@@ -228,7 +291,15 @@ public abstract class IntegrationTest {
     stream.setStreamId("123");
     message.setStream(stream);
 
-    return new RealTimeEvent<>(initiator, messageSent);
+    return new RealTimeEvent<>(initiator(), messageSent);
+  }
+
+  private static V4Initiator initiator() {
+    V4Initiator initiator = new V4Initiator();
+    V4User user = new V4User();
+    user.setUserId(123L);
+    initiator.setUser(user);
+    return initiator;
   }
 
   public static RealTimeEvent<V4UserJoinedRoom> userJoined() {
@@ -241,6 +312,18 @@ public abstract class IntegrationTest {
     joinedRoom.setStream(stream);
 
     return new RealTimeEvent<>(new V4Initiator(), joinedRoom);
+  }
+
+  public static RealTimeEvent<V4UserLeftRoom> userLeft() {
+    V4User user = new V4User();
+    user.setUserId(123L);
+    V4Stream stream = new V4Stream();
+    stream.setStreamId("123");
+    V4UserLeftRoom leftRoom = new V4UserLeftRoom();
+    leftRoom.affectedUser(user);
+    leftRoom.setStream(stream);
+
+    return new RealTimeEvent<>(new V4Initiator(), leftRoom);
   }
 
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId,
@@ -256,6 +339,12 @@ public abstract class IntegrationTest {
     elementsAction.setFormValues(formReplies);
     elementsAction.setStream(new V4Stream().streamId("123"));
     return new RealTimeEvent<>(initiator, elementsAction);
+  }
+
+  public static RealTimeEvent<RequestReceivedEvent> requestReceived(String token) {
+    RequestReceivedEvent event = new RequestReceivedEvent();
+    event.setToken(token);
+    return new RealTimeEvent<>(initiator(), event);
   }
 
   public static Boolean processIsCompleted(String processId) {

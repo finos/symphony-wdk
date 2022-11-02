@@ -1,0 +1,26 @@
+id: connection-accepted-event-with-id-in-all-of
+activities:
+  # all-of cannot be in the starting activity
+  - execute-script:
+      id: startActvity
+      on:
+        message-received:
+          content: /start
+      script: |
+
+  - execute-script:
+      id: scriptActivity
+      on:
+        all-of:
+          - connection-accepted:
+              id: ConnectionAcceptedWithIdIn
+          - message-received:
+              id: eventId
+              content: /alwaysCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert ConnectionAcceptedWithIdIn.source != null
+        assert eventId.source != null

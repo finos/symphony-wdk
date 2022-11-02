@@ -1,11 +1,11 @@
-id: send-blast-message
+id: send-blast-message-with-stream-ids
 variables:
   rooms:
     - ABC
     - DEF
 activities:
   - send-message:
-      id: sendMessageWithUserIds
+      id: sendBlastMessageWithStreamIds
       on:
         message-received:
           content: /send-blast

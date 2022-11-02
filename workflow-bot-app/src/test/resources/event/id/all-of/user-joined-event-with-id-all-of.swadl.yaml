@@ -1,0 +1,26 @@
+id: user-joined-event-with-id-in-all-of
+activities:
+  # all-of cannot be in the starting activity
+  - execute-script:
+      id: startActvity
+      on:
+        message-received:
+          content: /start
+      script: |
+
+  - execute-script:
+      id: scriptActivity
+      on:
+        all-of:
+          - user-joined-room:
+              id: userJoinedWithIdIn
+          - message-received:
+              id: eventId
+              content: /alwaysCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert userJoinedWithIdIn.source != null
+        assert eventId.source != null

@@ -1233,6 +1233,11 @@
                     "description": "Token to authorize incoming http requests.",
                     "type": "string",
                     "minLength": 1
+                },
+                "id": {
+                    "description": "Event's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                    "type": "string",
+                    "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
                 }
             },
             "required": [

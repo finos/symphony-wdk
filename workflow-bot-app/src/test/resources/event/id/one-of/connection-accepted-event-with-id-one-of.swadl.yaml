@@ -1,0 +1,16 @@
+id: connection-accepted-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - connection-accepted:
+              id: ConnectionAcceptedWithIdIn
+          - message-received:
+              content: /neverCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert ConnectionAcceptedWithIdIn.source != null

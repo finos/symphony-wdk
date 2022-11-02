@@ -1,0 +1,13 @@
+id: message-suppressed-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        message-suppressed:
+          id: messageSuppressedWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert messageSuppressedWithIdIn.source != null

@@ -1,0 +1,14 @@
+id: message-received-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        message-received:
+          id: messageReceivedWithIdIn
+          content: /execute {arg1} @{user} \#{hash} \${cash}
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert messageReceivedWithIdIn.source != null

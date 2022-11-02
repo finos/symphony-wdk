@@ -1,0 +1,14 @@
+id: request-received-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        request-received:
+          id: requestReceivedWithIdIn
+          token: "token"
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert requestReceivedWithIdIn != null
