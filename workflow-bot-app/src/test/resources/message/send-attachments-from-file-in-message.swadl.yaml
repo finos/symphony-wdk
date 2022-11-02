@@ -1,7 +1,7 @@
 id: send-attachment-from-file-in-message
 activities:
   - send-message:
-      id: sendattachmentfromfileinmessageid
+      id: sendAttachmentFromFileInMessageId
       on:
         message-received:
           content: /send-attachment-from-file

@@ -1,0 +1,13 @@
+id: room-updated-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        room-updated:
+          id: roomUpdatedWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert roomUpdatedWithIdIn.source != null

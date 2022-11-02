@@ -1,0 +1,13 @@
+id: room-created-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        room-created:
+          id: roomCreatedWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert roomCreatedWithIdIn.source != null

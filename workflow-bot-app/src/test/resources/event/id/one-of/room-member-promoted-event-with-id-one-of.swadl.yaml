@@ -1,0 +1,16 @@
+id: room-member-promoted-event-with-id-in-one-of
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        one-of:
+          - room-member-promoted-to-owner:
+              id: roomMemberPromotedWithIdIn
+          - message-received:
+              content: /neverCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert roomMemberPromotedWithIdIn.source != null

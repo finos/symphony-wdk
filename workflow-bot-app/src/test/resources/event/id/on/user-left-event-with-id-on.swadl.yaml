@@ -1,0 +1,13 @@
+id: user-left-event-with-id-in-on
+activities:
+  - execute-script:
+      id: scriptActivity
+      on:
+        user-left-room:
+          id: userLeftWithIdIn
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert userLeftWithIdIn.source != null

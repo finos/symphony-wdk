@@ -7,13 +7,13 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,8 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
   public static final String OUTPUT_MESSAGE_KEY = "message";
+  public static final String OUTPUT_MESSAGES_KEY = "messages";
+  public static final String OUTPUT_FAILED_MESSAGES_KEY = "failedStreamIds";
 
   @Override
   public void execute(ActivityExecutorContext<SendMessage> execution) throws IOException {
@@ -53,12 +56,14 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
     log.trace("message content \n {}", messageToSend.getContent());
 
     V4Message message;
+    List<V4Message> messages = new ArrayList<>();
+    List<String> failedStreamIds = new ArrayList<>();
+
     if (streamIds.isEmpty()) {
       throw new IllegalArgumentException(
-          String.format("No stream ids set to send a message in activity %s", activity.getId()));
+          String.format("No stream/user ids set to send a message in activity %s", activity.getId()));
 
     } else if (isObo(activity) && activity.getObo() != null && streamIds.size() == 1) {
-
       message = this.doOboWithCache(execution);
 
     } else if (isObo(activity) && streamIds.size() > 1) {
@@ -71,12 +76,24 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
 
     } else {
       V4MessageBlastResponse response = execution.bdk().messages().send(streamIds, messageToSend);
-      message = response.getMessages().get(0); // assume at least one message has been sent
+
+      if (response.getMessages() != null && !response.getMessages().isEmpty()) {
+        message = response.getMessages().get(0); // for backward compatibility, we keep storing the first message
+        messages.addAll(response.getMessages());
+      } else {
+        throw new RuntimeException(String.format("All messages have failed in activity %s", activity.getId()));
+      }
+
+      if (response.getErrors() != null) {
+        failedStreamIds.addAll(response.getErrors().keySet());
+      }
     }
 
     Map<String, Object> outputs = new HashMap<>();
     outputs.put(OUTPUT_MESSAGE_KEY, message);
-    outputs.put(OUTPUT_MESSAGE_ID_KEY, message.getMessageId());
+    outputs.put(OUTPUT_MESSAGE_ID_KEY, message != null ? message.getMessageId() : null);
+    outputs.put(OUTPUT_MESSAGES_KEY, messages);
+    outputs.put(OUTPUT_FAILED_MESSAGES_KEY, failedStreamIds);
     execution.setOutputVariables(outputs);
   }
 
@@ -110,10 +127,10 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
       return activity.getTo().getStreamIds();
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
-      return singletonList(this.createOrGetStreamId(activity.getTo().getUserIds(), streamService));
+      return this.createOrGetStreamId(activity.getTo().getUserIds(), streamService);
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4MessageSent) {
-      // or retrieved from the current even
+      // or retrieved from the current event
       V4MessageSent event = (V4MessageSent) execution.getEvent().getSource();
       return singletonList(event.getMessage().getStream().getStreamId());
     } else if (execution.getEvent() != null
@@ -122,13 +139,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
       return singletonList(event.getStream().getStreamId());
     } else if (execution.getEvent() != null
         && execution.getEvent().getSource() instanceof V4UserJoinedRoom) {
-      // or retrieved from the current even
       V4UserJoinedRoom event = (V4UserJoinedRoom) execution.getEvent().getSource();
-      return singletonList(event.getStream().getStreamId());
-    } else if (execution.getEvent() != null
-        && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
-      // or retrieved from the current even
-      V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
     } else {
       throw new IllegalArgumentException(
@@ -136,9 +147,22 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
     }
   }
 
-  private String createOrGetStreamId(List<Long> userIds, StreamService streamService) {
-    Stream stream = streamService.create(userIds);
-    return stream.getId();
+  private List<String> createOrGetStreamId(List<Long> userIds, StreamService streamService) {
+    List<String> streamIds = new ArrayList<>();
+
+    for (Long userId : userIds) {
+      // passing a singleton list of long instead of long to make the test mocking easy
+      try {
+        streamIds.add(streamService.create(List.of(userId)).getId());
+      } catch (ApiRuntimeException apiRuntimeException) {
+        // ignore error when user is not found
+        if (apiRuntimeException.getCode() != 403) {
+          throw apiRuntimeException;
+        }
+      }
+    }
+
+    return streamIds;
   }
 
   private Message buildMessage(ActivityExecutorContext<SendMessage> execution) throws IOException {

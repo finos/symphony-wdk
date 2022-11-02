@@ -104,7 +104,8 @@ activities:
 
 Events that can trigger the activity execution. **The first activity of a workflow is expected to have an event**.
 
-`on` can contain either a specific event directly or a list of events as part of the `one-of` key.
+`on` can contain either a specific event directly or a list of events as part of the `one-of` or `all-of` keys.
+**Only one key (specific event), `one-of` or `all-of` is allowed by activity.** 
 
 [List of real-time events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
 
@@ -112,6 +113,7 @@ Key     | Type    | Required |
 --------------|---------|----------|
 [Typed Event](#events)    | Map   | No     |
 [one-of](#one-of)     | List     | No     |
+[all-of](#all-of)     | List     | No     |
 [timeout](#timeout)  | String  | No    |
 
 Examples:
@@ -203,6 +205,8 @@ activities:
 
 Below are all the supported events under the `on` or the `one-of` keys.
 
+An event can have an optional id in order to reference it in subsequent activities. 
+
 ### message-received
 
 Generated when a message is sent in an IM, MIM, or chatroom of which the workflow bot is a member, including messages
@@ -212,6 +216,7 @@ Key | Type | Required |
 ------------ | -------| --- |
 [content](#content) | String | No |
 [requires-bot-mention](#requires-bot-mention) | Boolean | No |
+[id](#id) | String | Yes |
 
 [Payload reference](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4MessageSent.html)
 
@@ -222,9 +227,10 @@ Example:
 ```yaml
 activities:
   - send-message:
-      id: myActivity
+      id: myActivity 
       on:
         message-received:
+          id: msgReceivedEvent #optional
           content: /run
 ```
 
@@ -245,6 +251,8 @@ activities:
       id: myActivity
       on:
         message-received:
+          id: msgReceivedEvent #optional
+          
           # dash for the hashtag is escaped otherwise it is a comment in YAML
           # $ for the cash tag is escaped otherwise it is a variable handled as an expression by Camunda
           content: /go {arg1} @{user} \#{hash} \${cash}
@@ -272,6 +280,11 @@ Examples:
 
 If true, the event is only triggered if the bot is mentioned.
 
+#### id
+
+Unique id should start with a letter and should not contain empty spaces. It is optional. It allows to reference the
+event in subsequent activities.
+
 ### form-replied
 
 Generated when a user replies to a bot message that contains an interactive form with UX components such as text fields,
@@ -291,6 +304,7 @@ Key | Type | Required |
 ------------ | -------| --- |
 [form-id](#form-id) | String | Yes |
 [exclusive](#exclusive) | String | No |
+[id](#id) | String | Yes |
 
 [Payload reference](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/gen/api/model/V4SymphonyElementsAction.html)
 
@@ -304,6 +318,7 @@ activities:
       id: sendForm
       on:
         message-received:
+          id: msgReceivedEvent #optional
           content: "/message"
       content: |
         <messageML>
@@ -318,6 +333,7 @@ activities:
       id: pongReply
       on:
         form-replied:
+          id: formRepliedEvent #optional
           # form id is the same as the activity's id above and the same as the id in the original form's MessageML
           form-id: sendForm
       content: ${sendForm.aField}
@@ -332,6 +348,11 @@ The id should be the same as the activity's one that sent the form.
 #### exclusive
 
 Boolean specifying whether the form can be replied once or multiple replies are expected. It is `false` by default.
+
+#### id
+
+Unique id should start with a letter and should not contain empty spaces. It is optional. It allows to reference the
+event in subsequent activities.
 
 ### message-suppressed
 
@@ -667,6 +688,7 @@ a workflow.
 Key | Type | Required |
 ------------ | -------| --- |
 [token](#token) | String | Yes |
+[id](#id) | String | No |
 
 Example:
 
@@ -704,6 +726,43 @@ Token to authorize incoming HTTP requests. This token should be passed when call
 in the `X-Workflow-Token` header. This is a shared secret between the workflow writer and the users that can trigger the
 workflow via API.
 
+#### id
+
+Unique id should start with a letter and should not contain empty spaces. It is optional. It allows to reference the
+event in subsequent activities.
+
+## Access event payload
+If an event is defined with an id, you can access its payload by referencing its id in SWADL.
+
+The key _"event"_ allows to reference the latest happening event.
+
+Example:
+
+```yaml
+activities:
+  - send-message:
+      id: myFirstActivity
+      on: 
+        message-received:
+          id: messageReceivedEvent
+          content: /hello
+      content: Hello!
+
+  - send-message:
+      id: mySecondActivity
+      on:
+        message-suppressed:
+          id: messageSuppressedEvent
+      content: Message has been Suppressed!
+
+  - execute-script:
+      id: myScript
+      script: |
+        assert messageReceivedEvent.source.message.message == '/hello'
+        println messageSuppressedEvent.source.messageId
+        assert event.surce.messageId == messageSuppressedEvent.source.messageId
+```
+
 ## <a name="built-in-activities"></a>Built-in activities
 
 Below are all the supported activities that can be listed under the `activities`
@@ -740,7 +799,7 @@ activities:
 
 #### to
 
-The recipient (conversation, IM, MIM or chatroom) in which the message should be posted.
+The recipient (conversation, IM or chatroom) in which the message should be posted.
 
 If not set, the stream associated with the latest received event is used. This makes replying to a command sent by a
 user easy.
@@ -776,7 +835,7 @@ Stream ids to send the blast message to. Both url safe and base64 encoded urls a
 
 ##### user-ids
 
-Users to send the message to. An IM or MIM stream will be created or reused.
+Users to send the message to. An IM will be created or reused.
 
 #### <a name="send-message-content"></a>content
 

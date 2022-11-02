@@ -1,0 +1,26 @@
+id: room-updated-event-with-id-in-all-of
+activities:
+  # all-of cannot be in the starting activity
+  - execute-script:
+      id: startActvity
+      on:
+        message-received:
+          content: /start
+      script: |
+
+  - execute-script:
+      id: scriptActivity
+      on:
+        all-of:
+          - room-updated:
+              id: roomUpdatedWithIdIn
+          - message-received:
+              id: eventId
+              content: /alwaysCalled
+      script: |
+
+  - execute-script:
+      id: scriptAssertion
+      script: |
+        assert roomUpdatedWithIdIn.source != null
+        assert eventId.source != null
