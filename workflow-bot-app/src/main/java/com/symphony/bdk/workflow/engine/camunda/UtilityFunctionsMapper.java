@@ -44,6 +44,7 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "emojis", Object.class));
   }
 
+  @Override
   public Method resolveFunction(String prefix, String localName) {
     return FUNCTION_MAP.get(localName);
   }

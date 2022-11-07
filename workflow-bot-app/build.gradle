@@ -42,7 +42,7 @@ dependencies {
     implementation 'org.aspectj:aspectjrt:1.9.9.1'
     implementation 'org.aspectj:aspectjweaver:1.9.9.1'
 
-    implementation platform('org.camunda.bpm:camunda-bom:7.17.0')
+    implementation platform('org.camunda.bpm:camunda-bom:7.18.0')
     implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter'
     // used to serializable objects as variables
     implementation 'org.camunda.bpm:camunda-engine-plugin-spin'
