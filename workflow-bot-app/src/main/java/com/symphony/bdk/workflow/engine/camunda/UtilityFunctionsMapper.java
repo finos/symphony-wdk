@@ -28,7 +28,14 @@ public class UtilityFunctionsMapper extends FunctionMapper {
    * How to call those functions from script tasks or from Freemarker templates.
    * Usage: wdk.text(...) from a script or ${wdk.text(...)} from a template.
    */
-  public static final String NAME = "wdk";
+  public static final String WDK_PREFIX = "wdk";
+  public static final String TEXT = "text";
+  public static final String JSON = "json";
+  public static final String ESCAPE = "escape";
+  public static final String MENTIONS = "mentions";
+  public static final String HASHTAGS = "hashTags";
+  public static final String CASHTAGS = "cashTags";
+  public static final String EMOJIS =  "emojis";
 
   private static final Map<String, Method> FUNCTION_MAP;
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -44,6 +51,7 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put("emojis", ReflectUtil.getMethod(UtilityFunctionsMapper.class, "emojis", Object.class));
   }
 
+  @Override
   public Method resolveFunction(String prefix, String localName) {
     return FUNCTION_MAP.get(localName);
   }

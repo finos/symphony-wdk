@@ -6,8 +6,10 @@ import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
+import org.camunda.bpm.engine.impl.el.ExpressionManager;
 import org.camunda.bpm.engine.impl.scripting.ExecutableScript;
 import org.camunda.bpm.engine.impl.scripting.env.ScriptingEnvironment;
+import org.camunda.bpm.engine.impl.util.ReflectUtil;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +33,26 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    processEngineConfiguration.getExpressionManager().addFunctionMapper(new UtilityFunctionsMapper());
-
+    ExpressionManager expressionManager = processEngineConfiguration.getExpressionManager();
+    expressionManager.addFunction(UtilityFunctionsMapper.TEXT,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.TEXT, String.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.JSON,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.JSON, String.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.ESCAPE,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.ESCAPE, String.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.MENTIONS,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.MENTIONS, Object.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.HASHTAGS,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.HASHTAGS, Object.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.CASHTAGS,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.CASHTAGS, Object.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.EMOJIS,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.EMOJIS, Object.class));
   }
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    processEngineConfiguration.getBeans().put(UtilityFunctionsMapper.NAME, new UtilityFunctionsMapper());
+    processEngineConfiguration.getBeans().put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper());
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 
