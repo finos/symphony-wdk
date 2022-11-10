@@ -6,6 +6,7 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -21,7 +22,6 @@ import org.camunda.bpm.model.xml.ModelValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +45,13 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
   private AuditTrailLogger auditTrailLogger;
 
   @Override
-  public void deploy(Workflow workflow) throws IOException {
-    Object instance = parseAndValidate(workflow);
+  public void deploy(Workflow workflow) {
+    BpmnModelInstance instance = parseAndValidate(workflow);
     deploy(workflow, instance);
   }
 
   @Override
-  public void deploy(Workflow workflow, Object bpmnInstance) throws IOException {
+  public void deploy(Workflow workflow, BpmnModelInstance bpmnInstance) {
     Deployment deployment = bpmnBuilder.deployWorkflow(workflow, (BpmnModelInstance) bpmnInstance);
     log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);
@@ -79,7 +79,7 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
         .stream()
         .filter(process -> process.getName().equals(workflowId))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("No workflow found with id " + workflowId));
+        .orElseThrow(() -> new NotFoundException("No workflow found with id " + workflowId));
 
     // check token
     String workflowToken = repositoryService.getDeploymentResources(processDefinition.getDeploymentId())

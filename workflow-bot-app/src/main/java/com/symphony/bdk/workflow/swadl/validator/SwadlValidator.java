@@ -60,12 +60,11 @@ public class SwadlValidator {
   private SwadlValidator() {
   }
 
-  public static void validateYaml(String yaml) throws IOException, ProcessingException {
+  public static void validateYaml(String yaml) throws SwadlNotValidException, ProcessingException {
     validate(yaml);
   }
 
-  private static void validate(String yaml)
-      throws ProcessingException, IOException {
+  private static void validate(String yaml) throws ProcessingException, SwadlNotValidException {
 
     final JsonSchema schema = JSON_SCHEMA_FACTORY.getJsonSchema(jsonSchema);
     try {
@@ -98,7 +97,7 @@ public class SwadlValidator {
 
     // builtin activities are already in JSON Schema
     Iterable<String> iterable = () -> activityItems.get("properties").fieldNames();
-    Set<String> alreadyDefinedActivities =  StreamSupport
+    Set<String> alreadyDefinedActivities = StreamSupport
         .stream(iterable.spliterator(), false)
         .collect(Collectors.toSet());
 

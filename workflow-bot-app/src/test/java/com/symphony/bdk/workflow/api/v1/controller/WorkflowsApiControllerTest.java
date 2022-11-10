@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.api.v1;
+package com.symphony.bdk.workflow.api.v1.controller;
 
 import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,10 +23,13 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
+import com.symphony.bdk.workflow.management.WorkflowsMgtActionHolder;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -60,10 +63,13 @@ class WorkflowsApiControllerTest {
   protected MockMvc mockMvc;
 
   @MockBean
+  WorkflowsMgtActionHolder mgtActionHolder;
+
+  @MockBean
   protected MonitoringService monitoringService;
 
   @MockBean
-  protected WorkflowEngine workflowEngine;
+  protected WorkflowEngine<BpmnModelInstance> workflowEngine;
 
   @Test
   void executeWorkflowById_validRequestTest() throws Exception {
@@ -103,7 +109,7 @@ class WorkflowsApiControllerTest {
 
   @Test
   void executeWorkflowById_illegalArgumentExceptionTest() throws Exception {
-    doThrow(new IllegalArgumentException("No workflow found with id wfId")).when(workflowEngine)
+    doThrow(new NotFoundException("No workflow found with id wfId")).when(workflowEngine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
     mockMvc.perform(request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH)
@@ -253,7 +259,7 @@ class WorkflowsApiControllerTest {
             illegalWorkflowId, illegalInstanceId);
 
     when(monitoringService.listWorkflowInstanceActivities(eq(illegalInstanceId), eq(illegalInstanceId),
-        any(WorkflowInstLifeCycleFilter.class))).thenThrow(new IllegalArgumentException(errorMsg));
+        any(WorkflowInstLifeCycleFilter.class))).thenThrow(new NotFoundException(errorMsg));
 
     mockMvc.perform(
             request(HttpMethod.GET,
@@ -362,7 +368,7 @@ class WorkflowsApiControllerTest {
     final String illegalWorkflowId = "testWorkflowId";
     final String errorMsg = String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
 
-    when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new IllegalArgumentException(errorMsg));
+    when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new NotFoundException(errorMsg));
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId))

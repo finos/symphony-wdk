@@ -334,7 +334,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .get(String.format(path, "testingWorkflow4"))
         .then()
         .assertThat()
-        .statusCode(HttpStatus.NOT_FOUND.value())
+        .statusCode(HttpStatus.BAD_REQUEST.value())
         .body("message", equalTo(String.format(BAD_WORKFLOW_INSTANCE_STATUS_EXCEPTION_MESSAGE, "unknownStatus")));
   }
 

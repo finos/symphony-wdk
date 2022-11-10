@@ -4,13 +4,11 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
-import java.io.IOException;
-
 public interface WorkflowEngine<K> {
 
-  void deploy(Workflow workflow) throws IOException;
+  void deploy(Workflow workflow);
 
-  void deploy(Workflow workflow, Object instance) throws IOException;
+  void deploy(Workflow workflow, K instance);
 
   K parseAndValidate(Workflow workflow);
 

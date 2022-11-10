@@ -28,7 +28,27 @@ class GlobalExceptionHandlerTest {
     ResponseEntity<ErrorResponse> response =
         globalExceptionHandler.handle(new IllegalArgumentException("Illegal argument exception's message"));
 
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isEqualTo(expectedErrorResponse);
+  }
+
+  @Test
+  void testNotFoundException() {
+    ErrorResponse expectedErrorResponse = new ErrorResponse("NotFound exception's message");
+    ResponseEntity<ErrorResponse> response =
+        globalExceptionHandler.handle(new NotFoundException("NotFound exception's message"));
+
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody()).isEqualTo(expectedErrorResponse);
+  }
+
+  @Test
+  void testDuplicateException() {
+    ErrorResponse expectedErrorResponse = new ErrorResponse("Duplicate exception's message");
+    ResponseEntity<ErrorResponse> response =
+        globalExceptionHandler.handle(new DuplicateException("Duplicate exception's message"));
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isEqualTo(expectedErrorResponse);
   }
 

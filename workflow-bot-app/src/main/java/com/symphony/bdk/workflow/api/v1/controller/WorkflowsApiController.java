@@ -1,5 +1,6 @@
-package com.symphony.bdk.workflow.api.v1;
+package com.symphony.bdk.workflow.api.v1.controller;
 
+import com.symphony.bdk.workflow.api.v1.WorkflowsApi;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
@@ -13,6 +14,7 @@ import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.security.Authorized;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,14 +23,14 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping("v1/workflows")
+@RequestMapping("/v1/workflows")
 @Slf4j
 public class WorkflowsApiController implements WorkflowsApi {
 
   private final MonitoringService monitoringService;
-  private final WorkflowEngine workflowEngine;
+  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
 
-  public WorkflowsApiController(WorkflowEngine workflowEngine, MonitoringService monitoringService) {
+  public WorkflowsApiController(WorkflowEngine<BpmnModelInstance> workflowEngine, MonitoringService monitoringService) {
     this.workflowEngine = workflowEngine;
     this.monitoringService = monitoringService;
   }

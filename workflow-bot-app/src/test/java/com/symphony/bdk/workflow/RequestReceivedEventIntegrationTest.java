@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -112,7 +113,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
     engine.deploy(workflow);
 
     ExecutionParameters executionParameters = new ExecutionParameters(Map.of("content", "Hello World!"), "myToken");
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+    assertThatExceptionOfType(NotFoundException.class).isThrownBy(
             () -> engine.execute("unfoundWorkflowId", executionParameters))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo("No workflow found with id unfoundWorkflowId"));
     verify(messageService, never()).send(anyString(), any(Message.class));

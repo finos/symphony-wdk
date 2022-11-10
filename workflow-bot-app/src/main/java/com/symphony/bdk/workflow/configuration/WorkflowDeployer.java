@@ -7,6 +7,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,21 +19,24 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
 public class WorkflowDeployer {
 
-  private final WorkflowEngine<?> workflowEngine;
+  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
   private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
 
-  public WorkflowDeployer(@Autowired WorkflowEngine<?> workflowEngine) {
+  private final Map<String, Path> workflowIdPathMap = new HashMap<>();
+
+  public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine) {
     this.workflowEngine = workflowEngine;
   }
 
-  public void addAllWorkflowsFromFolder(String workflowsFolder, Path path) {
+  public void addAllWorkflowsFromFolder(Path path) {
     if (!Files.isDirectory(path)) {
-      throw new IllegalArgumentException("Could not find workflows folder to monitor with path: " + workflowsFolder);
+      throw new IllegalArgumentException("Could not find workflows folder to monitor with path: " + path);
     }
 
     log.info("Watching workflows from {}", path);
@@ -56,7 +60,7 @@ public class WorkflowDeployer {
     }
     log.debug("Adding a new workflow");
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
-    Object instance = workflowEngine.parseAndValidate(workflow);
+    BpmnModelInstance instance = workflowEngine.parseAndValidate(workflow);
     Pair<String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
     if (workflow.isToPublish()) {
       log.debug("Deploying this new workflow");
@@ -66,6 +70,7 @@ public class WorkflowDeployer {
       workflowEngine.undeploy(deployedWorkflow.getLeft());
     }
     deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
+    workflowIdPathMap.put(workflow.getId(), workflowFile);
   }
 
 
@@ -75,8 +80,10 @@ public class WorkflowDeployer {
         this.addWorkflow(changedFile);
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-        this.workflowEngine.undeploy(deployedWorkflows.get(changedFile).getLeft());
+        String workflowId = deployedWorkflows.get(changedFile).getLeft();
+        this.workflowEngine.undeploy(workflowId);
         this.deployedWorkflows.remove(changedFile);
+        this.workflowIdPathMap.remove(workflowId);
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
         this.addWorkflow(changedFile);
@@ -91,4 +98,15 @@ public class WorkflowDeployer {
     return changedFile.toString().endsWith(".yaml") || changedFile.toString().endsWith(".yml");
   }
 
+  public boolean workflowExist(String id) {
+    return workflowIdPathMap.containsKey(id);
+  }
+
+  public Path workflowSwadlPath(String id) {
+    return workflowIdPathMap.get(id);
+  }
+
+  public Set<Path> workflowSwadlPaths() {
+    return deployedWorkflows.keySet();
+  }
 }

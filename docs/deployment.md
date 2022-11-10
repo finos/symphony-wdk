@@ -25,6 +25,10 @@ to _./workflows_, relative to the working directory when starting the bot.
 String. It can be set as an environment variable in the run configuration. Not setting the monitoring-token and keeping
 its default value disables the monitoring api.
 
+`wdk.properties.management-token`: The token to authenticate requests to the [management api](#management). Defaults to an empty
+String. It can be set as an environment variable in the run configuration. Not setting the management-token and keeping
+its default value disables the management api.
+
 ### BDK specific configuration
 
 Symphony backend URL and credentials are configured as any bot. The BDK documentation applies here:
@@ -96,6 +100,17 @@ including:
 - workflow.process.running
 
 More metrics are exposed by the WDK public api under /wdk. See [http://localhost:8080/wdk/swagger-ui/](http://localhost:8080/wdk/swagger-ui/#)
+
+## Management
+
+Users can deploy, update and delete a workflow through WDK management API under `/manangement/workflows` path.
+
+Note: 
+
+- the API requests require the management token in the header [X-Management-Token](#workflow-bot-specific-configuration)
+- remember to use [publish property](./reference.md#properties) in order to create a workflow without deploying.
+
+For more details, see [http://localhost:8080/wdk/swagger-ui/](http://localhost:8080/wdk/swagger-ui/#)
 
 ## Logging
 

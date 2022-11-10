@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -46,7 +46,7 @@ class BranchingIntegrationTest extends IntegrationTest {
             InvalidActivityException.class,
             "Invalid activity in the workflow else-without-on-activity-completed: Expecting \"if\" keyword to open a new conditional branching, got \"else\""),
         arguments("/branching/invalid/swadl/else-with-unknown-on-activity-completed.swadl.yaml",
-            ActivityNotFoundException.class,
+            NotFoundException.class,
             "Invalid activity in the workflow else-with-unknown-on-activity-completed: No activity found with id unknown-id referenced in ac2")
     );
   }
