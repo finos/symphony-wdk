@@ -22,6 +22,9 @@ public class WorkflowBotConfiguration {
   @Value("${wdk.properties.monitoring-token:}")
   private String monitoringToken;
 
+  @Value("${wdk.properties.management-token:}")
+  private String managementToken;
+
   @Bean("workflowResourcesProvider")
   public ResourceProvider workflowResourcesProvider() {
     // the folder is used both to load workflows and local resources

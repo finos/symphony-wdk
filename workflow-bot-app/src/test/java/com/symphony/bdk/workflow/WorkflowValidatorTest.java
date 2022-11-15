@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
-import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Event;
@@ -64,7 +64,7 @@ class WorkflowValidatorTest {
     workflow.setActivities(Collections.singletonList(activity));
     Assertions.assertThatThrownBy(
         () -> WorkflowValidator.validateActivityCompletedNodeId("unknownId", "activity", workflow)).isInstanceOf(
-        ActivityNotFoundException.class);
+        NotFoundException.class);
   }
 
   @Test
@@ -73,6 +73,6 @@ class WorkflowValidatorTest {
     graph.addParent("activity", "parent");
     Assertions.assertThatThrownBy(
         () -> WorkflowValidator.validateExistingNodeId("unknownId", "activity", "workflowId", graph)).isInstanceOf(
-        ActivityNotFoundException.class);
+        NotFoundException.class);
   }
 }

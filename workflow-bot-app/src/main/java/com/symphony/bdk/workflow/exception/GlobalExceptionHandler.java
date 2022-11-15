@@ -31,11 +31,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return handle(exception.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
+  @ExceptionHandler(DuplicateException.class)
+  public ResponseEntity<ErrorResponse> handle(DuplicateException exception) {
+    log.error("Duplicated exception: [{}]", exception.getMessage());
+    log.debug("", exception);
+    return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(NotFoundException.class)
+  public ResponseEntity<ErrorResponse> handle(NotFoundException exception) {
+    log.error("NotFound exception: [{}]", exception.getMessage());
+    log.debug("", exception);
+    return handle(exception.getMessage(), HttpStatus.NOT_FOUND);
+  }
+
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handle(IllegalArgumentException exception) {
     log.error("Illegal argument exception: [{}]", exception.getMessage());
     log.debug("", exception);
-    return handle(exception.getMessage(), HttpStatus.NOT_FOUND);
+    return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
   private ResponseEntity<ErrorResponse> handle(String errorMessage, HttpStatus status) {

@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -243,7 +243,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/form/invalid/swadl/send-form-reply-unknown-activity-id.swadl.yaml"));
 
-    assertThatExceptionOfType(ActivityNotFoundException.class)
+    assertThatExceptionOfType(NotFoundException.class)
         .isThrownBy(() -> engine.deploy(workflow))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Invalid activity in the workflow send-form-reply-invalid-activity-id: No activity found with id unknownActivityId referenced in pongReply"));

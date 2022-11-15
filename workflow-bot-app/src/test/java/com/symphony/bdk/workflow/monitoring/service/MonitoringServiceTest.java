@@ -21,6 +21,7 @@ import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
@@ -211,7 +212,7 @@ class MonitoringServiceTest {
 
     // when
     WorkflowInstLifeCycleFilter lifeCycleFilter = new WorkflowInstLifeCycleFilter(null, null, null, null);
-    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+    assertThatExceptionOfType(NotFoundException.class).isThrownBy(
             () -> service.listWorkflowInstanceActivities("workflow", "instance", lifeCycleFilter))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Either no workflow deployed with id workflow, or instance is not an instance of it"));

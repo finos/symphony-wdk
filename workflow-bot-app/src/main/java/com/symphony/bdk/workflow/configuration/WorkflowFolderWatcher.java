@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.configuration;
 
 import lombok.Generated;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -29,7 +30,7 @@ import javax.annotation.PreDestroy;
 @ConditionalOnProperty(value = "wdk.workflows.path")
 public class WorkflowFolderWatcher {
 
-  private final String workflowsFolder;
+  private final Path workflowsFolder;
   private final WorkflowDeployer workflowDeployer;
 
   private WatchService watchService;
@@ -37,20 +38,19 @@ public class WorkflowFolderWatcher {
   public WorkflowFolderWatcher(@Autowired WorkflowDeployer workflowDeployer,
       @Autowired WorkflowBotConfiguration workflowBotConfiguration) {
     this.workflowDeployer = workflowDeployer;
-    this.workflowsFolder = workflowBotConfiguration.getWorkflowsFolderPath();
+    this.workflowsFolder = Paths.get(workflowBotConfiguration.getWorkflowsFolderPath());
   }
 
   @Scheduled(fixedDelay = Long.MAX_VALUE) // will run once after startup and wait for file events
   public void monitorWorkflowsFolder() throws IOException {
     this.watchService = FileSystems.getDefault().newWatchService();
-    Path path = Paths.get(workflowsFolder);
-    this.workflowDeployer.addAllWorkflowsFromFolder(this.workflowsFolder, path);
+    this.workflowDeployer.addAllWorkflowsFromFolder(this.workflowsFolder);
 
-    path.register(this.watchService,
+    workflowsFolder.register(this.watchService,
         StandardWatchEventKinds.ENTRY_DELETE,
         StandardWatchEventKinds.ENTRY_MODIFY,
         StandardWatchEventKinds.ENTRY_CREATE);
-    watchFileEvents(path);
+    watchFileEvents(workflowsFolder);
   }
 
   private void watchFileEvents(Path path) {

@@ -19,6 +19,7 @@ import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
@@ -130,7 +131,7 @@ public class MonitoringService {
   private WorkflowDirectGraph readWorkflowDirectedGraph(String workflowId) {
     WorkflowDirectGraph directGraph = this.workflowDirectGraphCachingService.getDirectGraph(workflowId);
     if (directGraph == null) {
-      throw new IllegalArgumentException(
+      throw new NotFoundException(
           String.format("No workflow deployed with id '%s' is found", workflowId));
     }
     return directGraph;
@@ -191,7 +192,7 @@ public class MonitoringService {
         .findAny();
 
     if (instance.isEmpty()) {
-      throw new IllegalArgumentException(
+      throw new NotFoundException(
           String.format("Either no workflow deployed with id %s, or %s is not an instance of it", workflowId,
               instanceId));
     }

@@ -1,11 +1,387 @@
 {
 	"info": {
-		"_postman_id": "beb319e6-ddd2-411c-b03c-7128d85315c4",
+		"_postman_id": "e07b90ef-8da4-451d-83ab-87556df514fa",
 		"name": "Symphony Workflow Developer Kit (WDK) APIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "8007074"
+		"_exporter_id": "10221895"
 	},
 	"item": [
+		{
+			"name": "Management API",
+			"item": [
+				{
+					"name": "Validate and deploy a SWADL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate and update a SWADL Copy",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a SWADL",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows",
+								":workflowId"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": null,
+									"description": "workflow id defined in the swadl file"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Monitoring API",
+			"item": [
+				{
+					"name": "List all instances for a workflow given by its Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Monitoring-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances?status=pending",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"workflows",
+								":workflowId",
+								"instances"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending"
+								}
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all deployed workflows",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Monitoring-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/workflows/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"workflows",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all activities for a workflow instance",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Monitoring-Token",
+								"value": "myBestToken",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/states?started_before=2022-09-21T15:47:00Z&started_after=2022-09-26T16:29:57.512Z&finished_before=2022-09-21T15:46:00.939Z&finished_after=2022-09-21T15:46:00.939Z",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"workflows",
+								":workflowId",
+								"instances",
+								":instanceId",
+								"states"
+							],
+							"query": [
+								{
+									"key": "started_before",
+									"value": "2022-09-21T15:47:00Z"
+								},
+								{
+									"key": "started_after",
+									"value": "2022-09-26T16:29:57.512Z"
+								},
+								{
+									"key": "finished_before",
+									"value": "2022-09-21T15:46:00.939Z"
+								},
+								{
+									"key": "finished_after",
+									"value": "2022-09-21T15:46:00.939Z"
+								}
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": ""
+								},
+								{
+									"key": "instanceId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List activities definitions for a workflow given by its Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Monitoring-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/definitions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"workflows",
+								":workflowId",
+								"definitions"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List workflow's global variables",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Monitoring-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/variables?updated_before=2022-09-26T16:31:13.505Z&updated_after=2022-09-26T16:30:01.303Z",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"workflows",
+								":workflowId",
+								"instances",
+								":instanceId",
+								"variables"
+							],
+							"query": [
+								{
+									"key": "updated_before",
+									"value": "2022-09-26T16:31:13.505Z"
+								},
+								{
+									"key": "updated_after",
+									"value": "2022-09-26T16:30:01.303Z"
+								}
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": ""
+								},
+								{
+									"key": "instanceId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Execute a workflow given by its Id",
 			"request": {
@@ -43,232 +419,6 @@
 					"variable": [
 						{
 							"key": "workflowId",
-							"value": ""
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "List all instances for a workflow given by its Id",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "X-Monitoring-Token",
-						"value": "",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances?status=pending",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"wdk",
-						"v1",
-						"workflows",
-						":workflowId",
-						"instances"
-					],
-					"query": [
-						{
-							"key": "status",
-							"value": "pending"
-						}
-					],
-					"variable": [
-						{
-							"key": "workflowId",
-							"value": ""
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "List all deployed workflows",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "X-Monitoring-Token",
-						"value": "",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"wdk",
-						"v1",
-						"workflows",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "List all activities for a workflow instance",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "X-Monitoring-Token",
-						"value": "myBestToken",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/states?started_before=2022-09-21T15:47:00Z&started_after=2022-09-26T16:29:57.512Z&finished_before=2022-09-21T15:46:00.939Z&finished_after=2022-09-21T15:46:00.939Z",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"wdk",
-						"v1",
-						"workflows",
-						":workflowId",
-						"instances",
-						":instanceId",
-						"states"
-					],
-					"query": [
-						{
-							"key": "started_before",
-							"value": "2022-09-21T15:47:00Z"
-						},
-						{
-							"key": "started_after",
-							"value": "2022-09-26T16:29:57.512Z"
-						},
-						{
-							"key": "finished_before",
-							"value": "2022-09-21T15:46:00.939Z"
-						},
-						{
-							"key": "finished_after",
-							"value": "2022-09-21T15:46:00.939Z"
-						}
-					],
-					"variable": [
-						{
-							"key": "workflowId",
-							"value": ""
-						},
-						{
-							"key": "instanceId",
-							"value": ""
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "List activities definitions for a workflow given by its Id",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "X-Monitoring-Token",
-						"value": "",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/definitions",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"wdk",
-						"v1",
-						"workflows",
-						":workflowId",
-						"definitions"
-					],
-					"variable": [
-						{
-							"key": "workflowId",
-							"value": ""
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "List workflow's global variables",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "X-Monitoring-Token",
-						"value": "",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/variables?updated_before=2022-09-26T16:31:13.505Z&updated_after=2022-09-26T16:30:01.303Z",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"wdk",
-						"v1",
-						"workflows",
-						":workflowId",
-						"instances",
-						":instanceId",
-						"variables"
-					],
-					"query": [
-						{
-							"key": "updated_before",
-							"value": "2022-09-26T16:31:13.505Z"
-						},
-						{
-							"key": "updated_after",
-							"value": "2022-09-26T16:30:01.303Z"
-						}
-					],
-					"variable": [
-						{
-							"key": "workflowId",
-							"value": ""
-						},
-						{
-							"key": "instanceId",
 							"value": ""
 						}
 					]

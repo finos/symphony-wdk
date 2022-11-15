@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow;
 
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
-import com.symphony.bdk.workflow.swadl.exception.ActivityNotFoundException;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Event;
 import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
@@ -35,14 +35,20 @@ public class WorkflowValidator {
     boolean activityUnknown = workflow.getActivities().stream()
         .noneMatch(a -> a.getActivity().getId().equals(currentNodeId));
     if (activityUnknown) {
-      throw new ActivityNotFoundException(workflow.getId(), currentNodeId, activityId);
+      throw new NotFoundException(
+          String.format("Invalid activity in the workflow %s: No activity found with id %s referenced in %s",
+              workflow.getId(),
+              currentNodeId, activityId));
     }
   }
 
   public static void validateExistingNodeId(String currentNodeId, String activityId, String workflowId,
       WorkflowDirectGraph graph) {
     if (!graph.hasSeenBefore(currentNodeId)) {
-      throw new ActivityNotFoundException(workflowId, currentNodeId, activityId);
+      throw new NotFoundException(
+          String.format("Invalid activity in the workflow %s: No activity found with id %s referenced in %s",
+              workflowId,
+              currentNodeId, activityId));
     }
   }
 }
