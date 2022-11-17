@@ -5,6 +5,7 @@ import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecu
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
@@ -38,16 +39,30 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   }
 
   private static String extractContent(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
-    if (execution.getActivity().getContent() != null) {
-      return execution.getActivity().getContent();
+    UpdateMessage activity = execution.getActivity();
+    if (activity.getContent() != null) {
+      return activity.getContent();
     } else {
-      String template = execution.getActivity().getTemplate();
-      File file = execution.getResourceFile(Path.of(template));
-      return execution.bdk()
-          .messages()
-          .templates()
-          .newTemplateFromFile(file.getPath())
-          .process(execution.getVariables());
+      Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
+      // also bind our utility functions so they can be used inside templates
+      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper());
+
+      if (activity.getTemplatePath() != null) {
+        String templateFile = activity.getTemplatePath();
+        File file = execution.getResourceFile(Path.of(templateFile));
+        return execution.bdk()
+            .messages()
+            .templates()
+            .newTemplateFromFile(file.getPath())
+            .process(templateVariables);
+      } else {
+        String templateStr = activity.getTemplate();
+        return execution.bdk()
+            .messages()
+            .templates()
+            .newTemplateFromString(templateStr)
+            .process(templateVariables);
+      }
     }
   }
 }

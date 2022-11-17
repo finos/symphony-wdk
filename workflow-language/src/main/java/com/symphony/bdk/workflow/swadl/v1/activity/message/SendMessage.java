@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 public class SendMessage extends OboActivity {
 
   @Nullable private String template;
+  @Nullable private String templatePath;
   @Nullable private String content;
   @Nullable private To to;
   @Nullable private List<Attachment> attachments;
@@ -22,7 +23,9 @@ public class SendMessage extends OboActivity {
   @SuppressWarnings("unchecked")
   public void setContent(Object content) {
     if (content instanceof Map) {
-      setTemplate(((Map<String, String>) content).get("template"));
+      Map<String, String> map = (Map<String, String>) content;
+      setTemplate(map.get("template"));
+      setTemplatePath(map.get("template-path"));
     } else if (content instanceof String) {
       this.content = (String) content;
     }
