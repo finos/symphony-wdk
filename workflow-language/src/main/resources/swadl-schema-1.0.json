@@ -3791,7 +3791,7 @@
         },
         "content-inner": {
             "description": "The content of the message in MessageML format. Must contain at least one space. In case the content is a form, this latter's id should be the same as the activity one.",
-            "anyOf": [
+            "oneOf": [
                 {
                     "enum": [
                         "${variables.VARIABLE_NAME}",
@@ -3806,10 +3806,19 @@
                     "properties": {
                         "template": {
                             "type": "string",
-                            "description": "External message template file.",
+                            "description": "Inline template message content in string.",
                             "minLength": 1
+                        },
+                        "template-path": {
+                          "type": "string",
+                          "description": "External message template file path.",
+                          "minLength": 1
                         }
-                    }
+                    },
+                    "oneOf": [
+                      {"required": ["template"]},
+                      {"required": ["template-path"]}
+                    ]
                 },
                 {
                     "type": "string",

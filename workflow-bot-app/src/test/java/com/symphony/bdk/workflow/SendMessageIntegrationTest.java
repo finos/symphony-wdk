@@ -30,6 +30,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.ByteArrayInputStream;
@@ -143,10 +144,12 @@ class SendMessageIntegrationTest extends IntegrationTest {
     verify(messageService, never()).send(anyString(), any(Message.class));
   }
 
-  @Test
-  void sendMessageWithTemplateSuccessful() throws IOException, ProcessingException {
+  @ParameterizedTest
+  @ValueSource(strings = {"/message/send-message-with-freemarker.swadl.yaml",
+      "/message/send-message-with-inline-template.swadl.yaml"})
+  void sendMessageWithTemplateSuccessful(String swadl) throws IOException, ProcessingException {
     final Workflow workflow =
-        SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-message-with-freemarker.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream(swadl));
 
     final V4Message message = message("MSG_ID");
     final TemplateEngine templateEngine = TemplateEngine.getDefaultImplementation();

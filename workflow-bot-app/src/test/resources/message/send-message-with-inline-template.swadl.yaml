@@ -5,7 +5,7 @@ activities:
   - send-message:
       id: sendMessageTemplateWithParams
       content:
-        template-path: /message/templates/message-freemarker.ftl
+        template: "Hello ${variables.val} ${text(variables.val)}!\n"
       to:
         stream-id: "123"
       on:
