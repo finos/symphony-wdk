@@ -1,11 +1,11 @@
 id: sendMessageWithTemplate
 variables:
-  val: <presentationML>world</presentationML>
+  val: world
 activities:
   - send-message:
       id: sendMessageTemplateWithParams
       content:
-        template-path: /message/templates/message-freemarker.ftl
+        template: /message/templates/message-freemarker.ftl
       to:
         stream-id: "123"
       on:

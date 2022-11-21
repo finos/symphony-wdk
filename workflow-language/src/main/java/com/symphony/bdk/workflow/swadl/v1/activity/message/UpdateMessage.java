@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 public class UpdateMessage extends BaseActivity {
   private String messageId;
   @Nullable private String template;
-  @Nullable private String templatePath;
   @Nullable private String content;
   private Boolean silent = Boolean.TRUE;
 
@@ -22,7 +21,6 @@ public class UpdateMessage extends BaseActivity {
     if (content instanceof Map) {
       Map<String, String> map = (Map<String, String>) content;
       setTemplate(map.get("template"));
-      setTemplatePath(map.get("template-path"));
     } else if (content instanceof String) {
       this.content = (String) content;
     }

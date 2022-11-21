@@ -7,4 +7,4 @@ activities:
           content: /update
       message-id: MSG_ID
       content:
-        template-path: /message/templates/message.mml.xml
+        template: /message/templates/message.mml.xml

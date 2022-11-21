@@ -164,7 +164,7 @@ class SendMessageIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000).times(1)).send(eq("123"), captor.capture());
 
     assertThat(captor.getValue().getContent())
-        .isEqualTo("<messageML>Hello <presentationML>world</presentationML> world!\n</messageML>");
+        .isEqualTo("<messageML>Hello world!\n</messageML>");
     assertThat(workflow).isExecuted()
         .hasOutput(String.format(OUTPUTS_MSG_KEY, "sendMessageTemplateWithParams"), message)
         .hasOutput(String.format(OUTPUTS_MSG_ID_KEY, "sendMessageTemplateWithParams"), message.getMessageId())

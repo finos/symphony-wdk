@@ -39,30 +39,19 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   }
 
   private static String extractContent(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
-    UpdateMessage activity = execution.getActivity();
-    if (activity.getContent() != null) {
-      return activity.getContent();
+    if (execution.getActivity().getContent() != null) {
+      return execution.getActivity().getContent();
     } else {
+      String template = execution.getActivity().getTemplate();
+      File file = execution.getResourceFile(Path.of(template));
       Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
       // also bind our utility functions so they can be used inside templates
       templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper());
-
-      if (activity.getTemplatePath() != null) {
-        String templateFile = activity.getTemplatePath();
-        File file = execution.getResourceFile(Path.of(templateFile));
-        return execution.bdk()
-            .messages()
-            .templates()
-            .newTemplateFromFile(file.getPath())
-            .process(templateVariables);
-      } else {
-        String templateStr = activity.getTemplate();
-        return execution.bdk()
-            .messages()
-            .templates()
-            .newTemplateFromString(templateStr)
-            .process(templateVariables);
-      }
+      return execution.bdk()
+          .messages()
+          .templates()
+          .newTemplateFromFile(file.getPath())
+          .process(templateVariables);
     }
   }
 }

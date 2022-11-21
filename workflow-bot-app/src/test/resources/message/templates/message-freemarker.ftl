@@ -1,1 +1,1 @@
-Hello ${variables.val} ${wdk.text(variables.val)}!
+Hello ${variables.val}!
