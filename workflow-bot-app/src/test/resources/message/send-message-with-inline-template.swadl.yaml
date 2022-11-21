@@ -1,11 +1,10 @@
 id: sendMessageWithTemplate
 variables:
-  val: <presentationML>world</presentationML>
+  val: world
 activities:
   - send-message:
       id: sendMessageTemplateWithParams
-      content:
-        template: "Hello ${variables.val} ${text(variables.val)}!\n"
+      content: "Hello ${variables.val}!\n"
       to:
         stream-id: "123"
       on:
