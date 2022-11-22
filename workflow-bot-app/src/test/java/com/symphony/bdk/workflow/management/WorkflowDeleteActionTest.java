@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.management;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,7 @@ class WorkflowDeleteActionTest {
   void doAction_delete_successful() {
     Path path = mock(Path.class);
     File file = mock(File.class);
+    when(deployer.workflowExist(eq("id"))).thenReturn(true);
     when(deployer.workflowSwadlPath(anyString())).thenReturn(path);
     when(path.toFile()).thenReturn(file);
     when(file.delete()).thenReturn(true);
@@ -45,9 +47,18 @@ class WorkflowDeleteActionTest {
   void doAction_delete_fileNotExist() {
     Path path = mock(Path.class);
     File file = mock(File.class);
+    when(deployer.workflowExist(eq("id"))).thenReturn(true);
     when(deployer.workflowSwadlPath(anyString())).thenReturn(path);
     when(path.toFile()).thenReturn(file);
     when(file.delete()).thenReturn(false);
+    Assertions.assertThatThrownBy(() -> action.doAction("id"), "Deletion on non-existing file must fail")
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("Workflow id does not exist");
+  }
+
+  @Test
+  void doAction_delete_fileNull() {
+    when(deployer.workflowExist(eq("id"))).thenReturn(false);
     Assertions.assertThatThrownBy(() -> action.doAction("id"), "Deletion on non-existing file must fail")
         .isInstanceOf(NotFoundException.class)
         .hasMessage("Workflow id does not exist");

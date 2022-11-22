@@ -27,21 +27,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(UnauthorizedException.class)
   public ResponseEntity<ErrorResponse> handle(UnauthorizedException exception) {
     log.error("Unauthorized exception: [{}]", exception.getMessage());
-    log.debug("", exception);
+    log.trace("", exception);
     return handle(exception.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(DuplicateException.class)
   public ResponseEntity<ErrorResponse> handle(DuplicateException exception) {
     log.error("Duplicated exception: [{}]", exception.getMessage());
-    log.debug("", exception);
+    log.trace("", exception);
     return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ErrorResponse> handle(NotFoundException exception) {
     log.error("NotFound exception: [{}]", exception.getMessage());
-    log.debug("", exception);
+    log.trace("", exception);
     return handle(exception.getMessage(), HttpStatus.NOT_FOUND);
   }
 

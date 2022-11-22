@@ -56,6 +56,9 @@ public abstract class WorkflowAbstractAction {
   }
 
   protected void deleteFile(String workflowId) {
+    if (!workflowExist(workflowId)) {
+      throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
+    }
     File file = deployer.workflowSwadlPath(workflowId).toFile();
     if (!file.delete()) {
       throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
