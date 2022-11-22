@@ -27,7 +27,7 @@ public interface WorkflowsMgtApi {
       @ApiResponse(code = 400, message = "Invalid workflow swadl", response = ErrorResponse.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PostMapping(value = "/", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
   ResponseEntity<Void> deploySwadl(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
@@ -39,7 +39,7 @@ public interface WorkflowsMgtApi {
       @ApiResponse(code = 404, message = "No workflow found with id {id}", response = ErrorResponse.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PutMapping(value = "/", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @PutMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
   ResponseEntity<Void> updateSwadl(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,

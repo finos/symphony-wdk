@@ -22,7 +22,7 @@ public class WorkflowDeployAction extends WorkflowAbstractAction implements Work
   private final String workflowFolder;
 
   public WorkflowDeployAction(WorkflowEngine<BpmnModelInstance> workflowEngine, WorkflowDeployer deployer,
-      @Value("wdk.workflows.path") String workflowFolder) {
+      @Value("${wdk.workflows.path}") String workflowFolder) {
     super(deployer);
     this.workflowEngine = workflowEngine;
     this.workflowFolder = workflowFolder;
