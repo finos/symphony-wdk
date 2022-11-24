@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
-import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
+import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -461,7 +461,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("nodes[2].workflowId", equalTo("testingWorkflowWithTimeout"))
         .body("nodes[2].instanceId", not(empty()))
         .body("nodes[2].nodeId", equalTo("form-reply_formid_timeout"))
-        .body("nodes[2].type", equalTo("FORM_REPLIED"))
+        .body("nodes[2].type", equalTo("ACTIVITY_EXPIRED"))
         .body("nodes[2].group", equalTo("EVENT"))
         .body("nodes[2].startDate", not(empty()))
         .body("nodes[2].endDate", not(empty()))
@@ -975,48 +975,48 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     // expected flow nodes
     NodeDefinitionView expectedSendMessageActivity1 = builder()
         .nodeId("testingWorkflow1SendMsg1")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(Collections.singletonList("message-received_/testingWorkflow1"))
         .children(Collections.singletonList(ChildView.of("sendForm")))
         .build();
 
     NodeDefinitionView expectedSendMessageActivity2 = builder()
         .nodeId("sendForm")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(Collections.singletonList("testingWorkflow1SendMsg1"))
         .children(List.of(ChildView.of("form-reply_sendForm"), ChildView.of("form-reply_sendForm_timeout", "expired")))
         .build();
 
     NodeDefinitionView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/testingWorkflow1")
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .parents(Collections.emptyList())
         .children(Collections.singletonList(ChildView.of("testingWorkflow1SendMsg1")))
         .build();
 
     NodeDefinitionView expectedFormRepliedEventTask = NodeDefinitionView.builder()
         .nodeId("form-reply_sendForm")
-        .type(TaskTypeEnum.FORM_REPLIED_EVENT.toType())
-        .group(TaskTypeEnum.FORM_REPLIED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("FORM_REPLIED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("FORM_REPLIED_EVENT"))
         .parents(Collections.singletonList("sendForm"))
         .children(Collections.singletonList(ChildView.of("receiveForm")))
         .build();
 
     NodeDefinitionView expectedFormRepliedTimeoutEventTask = NodeDefinitionView.builder()
         .nodeId("form-reply_sendForm_timeout")
-        .type(TaskTypeEnum.ACTIVITY_EXPIRED_EVENT.toType())
-        .group(TaskTypeEnum.ACTIVITY_EXPIRED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("ACTIVITY_EXPIRED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("ACTIVITY_EXPIRED_EVENT"))
         .parents(Collections.singletonList("sendForm"))
         .children(Collections.emptyList())
         .build();
 
     NodeDefinitionView expectedReceiveFormTask = NodeDefinitionView.builder()
         .nodeId("receiveForm")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(List.of("form-reply_sendForm"))
         .children(Collections.emptyList())
         .build();
@@ -1073,32 +1073,32 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     // expected flow nodes
     NodeDefinitionView expectedSendMessageActivity1 = builder()
         .nodeId("first")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(Collections.singletonList("message-received_/failure"))
         .children(List.of(ChildView.of("second"), ChildView.of("fallback", "failed")))
         .build();
 
     NodeDefinitionView expectedSendMessageActivity2 = builder()
         .nodeId("second")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(Collections.singletonList("first"))
         .children(List.of(ChildView.of("fallback", "failed")))
         .build();
 
     NodeDefinitionView expectedSendMessageFallback = builder()
         .nodeId("fallback")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(List.of("first", "second"))
         .children(Collections.emptyList())
         .build();
 
     NodeDefinitionView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/failure")
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .parents(Collections.emptyList())
         .children(Collections.singletonList(ChildView.of("first")))
         .build();
@@ -1155,16 +1155,16 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     // expected flow nodes
     NodeDefinitionView expectedSendMessageStart = builder()
         .nodeId("start")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(Collections.singletonList("message-received_/start"))
         .children(List.of(ChildView.of("scriptTrue", "${variables.allOf == true}"), ChildView.of("scriptFalse")))
         .build();
 
     NodeDefinitionView expectedScriptTrue = builder()
         .nodeId("scriptTrue")
-        .type(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toType())
-        .group(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
+        .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
         .parents(Collections.singletonList("start"))
         .children(List.of(ChildView.of("message-received_/message"), ChildView.of("user-joined-room"),
             ChildView.of("endMessage_join_gateway")))
@@ -1172,48 +1172,48 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     NodeDefinitionView expectedScriptFalse = builder()
         .nodeId("scriptFalse")
-        .type(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toType())
-        .group(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
+        .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
         .parents(List.of("start"))
         .children(Collections.emptyList())
         .build();
 
     NodeDefinitionView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/start")
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .parents(Collections.emptyList())
         .children(Collections.singletonList(ChildView.of("start")))
         .build();
 
     NodeDefinitionView expectedReceiveMessageEnd = builder()
         .nodeId("message-received_/message")
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .parents(List.of("scriptTrue"))
         .children(List.of(ChildView.of("endMessage_join_gateway")))
         .build();
 
     NodeDefinitionView expectedUserJoinedGateway = builder()
         .nodeId("user-joined-room")
-        .type(TaskTypeEnum.USER_JOINED_ROOM_EVENT.toType())
-        .group(TaskTypeEnum.USER_JOINED_ROOM_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("USER_JOINED_ROOM_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("USER_JOINED_ROOM_EVENT"))
         .parents(Collections.singletonList("scriptTrue"))
         .children(List.of(ChildView.of("endMessage_join_gateway")))
         .build();
 
     NodeDefinitionView expectedJoinGateway = builder()
         .nodeId("endMessage_join_gateway")
-        .type(TaskTypeEnum.JOIN_GATEWAY.toType())
-        .group(TaskTypeEnum.JOIN_GATEWAY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("JOIN_GATEWAY"))
+        .group(WorkflowNodeTypeHelper.toGroup("JOIN_GATEWAY"))
         .parents(List.of("message-received_/message", "user-joined-room", "scriptTrue"))
         .children(List.of(ChildView.of("endMessage")))
         .build();
 
     NodeDefinitionView expectedSendMessageEnd = builder()
         .nodeId("endMessage")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(List.of("endMessage_join_gateway"))
         .children(Collections.emptyList())
         .build();
@@ -1269,8 +1269,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     NodeDefinitionView messageReceived = builder()
         .nodeId("message-received_diagram")
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .parents(Collections.emptyList())
         .children(List.of(ChildView.of("init")))
         .build();
@@ -1278,40 +1278,40 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     // expected flow nodes
     NodeDefinitionView expectedSendMessageStart = builder()
         .nodeId("init")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(Collections.singletonList("message-received_diagram"))
         .children(List.of(ChildView.of("abc"), ChildView.of("def")))
         .build();
 
     NodeDefinitionView abc = builder()
         .nodeId("abc")
-        .type(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toType())
-        .group(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
+        .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
         .parents(Collections.singletonList("init"))
         .children(List.of(ChildView.of("completed_join_gateway")))
         .build();
 
     NodeDefinitionView def = builder()
         .nodeId("def")
-        .type(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toType())
-        .group(TaskTypeEnum.EXECUTE_SCRIPT_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
+        .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
         .parents(Collections.singletonList("init"))
         .children(List.of(ChildView.of("completed_join_gateway")))
         .build();
 
     NodeDefinitionView gateway = builder()
         .nodeId("completed_join_gateway")
-        .type(TaskTypeEnum.JOIN_GATEWAY.toType())
-        .group(TaskTypeEnum.JOIN_GATEWAY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("JOIN_GATEWAY"))
+        .group(WorkflowNodeTypeHelper.toGroup("JOIN_GATEWAY"))
         .parents(List.of("abc", "def"))
         .children(Collections.singletonList(ChildView.of("completed")))
         .build();
 
     NodeDefinitionView expectedSendMessageEnd = builder()
         .nodeId("completed")
-        .type(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType())
-        .group(TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
+        .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
         .parents(List.of("completed_join_gateway"))
         .children(Collections.emptyList())
         .build();

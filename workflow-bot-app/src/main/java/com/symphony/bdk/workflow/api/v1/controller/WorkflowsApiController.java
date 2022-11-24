@@ -62,7 +62,7 @@ public class WorkflowsApiController implements WorkflowsApi {
     WorkflowInstLifeCycleFilter lifeCycleFilter =
         new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);
 
-    return ResponseEntity.ok(monitoringService.listWorkflowInstanceActivities(workflowId, instanceId, lifeCycleFilter));
+    return ResponseEntity.ok(monitoringService.listWorkflowInstanceNodes(workflowId, instanceId, lifeCycleFilter));
   }
 
   @Override
