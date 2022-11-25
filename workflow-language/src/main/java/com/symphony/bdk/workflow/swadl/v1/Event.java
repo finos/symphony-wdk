@@ -77,7 +77,7 @@ public class Event {
   private RoomMemberPromotedToOwnerEvent roomMemberPromotedToOwner;
 
   @JsonProperty
-  private RoomMemberPromotedToOwnerEvent roomMemberDemotedFromOwner;
+  private RoomMemberDemotedFromOwnerEvent roomMemberDemotedFromOwner;
 
   @JsonProperty
   private UserJoinedRoomEvent userJoinedRoom;
@@ -100,92 +100,4 @@ public class Event {
   @JsonProperty
   private RequestReceivedEvent requestReceived;
 
-  public String getEventType() {
-
-    if (this.formReplied != null) {
-      return FormRepliedEvent.class.getSimpleName();
-    }
-
-    if (this.activityExpired != null) {
-      return ActivityExpiredEvent.class.getSimpleName();
-    }
-
-    if (this.activityCompleted != null) {
-      return ActivityCompletedEvent.class.getSimpleName();
-    }
-
-    if (this.activityFailed != null) {
-      return ActivityFailedEvent.class.getSimpleName();
-    }
-
-    if (this.messageReceived != null) {
-      return MessageReceivedEvent.class.getSimpleName();
-    }
-
-    if (this.messageSuppressed != null) {
-      return MessageSuppressedEvent.class.getSimpleName();
-    }
-
-    if (this.postShared != null) {
-      return PostSharedEvent.class.getSimpleName();
-    }
-
-    if (this.imCreated != null) {
-      return ImCreatedEvent.class.getSimpleName();
-    }
-
-    if (this.roomCreated != null) {
-      return RoomCreatedEvent.class.getSimpleName();
-    }
-
-    if (this.roomUpdated != null) {
-      return RoomUpdatedEvent.class.getSimpleName();
-    }
-
-    if (this.roomDeactivated != null) {
-      return RoomDeactivatedEvent.class.getSimpleName();
-    }
-
-    if (this.roomReactivated != null) {
-      return RoomReactivatedEvent.class.getSimpleName();
-    }
-
-    if (this.roomMemberPromotedToOwner != null) {
-      return RoomMemberPromotedToOwnerEvent.class.getSimpleName();
-    }
-
-    if (this.roomMemberDemotedFromOwner != null) {
-      return RoomMemberDemotedFromOwnerEvent.class.getSimpleName();
-    }
-
-    if (this.userJoinedRoom != null) {
-      return UserJoinedRoomEvent.class.getSimpleName();
-    }
-
-    if (this.userLeftRoom != null) {
-      return UserLeftRoomEvent.class.getSimpleName();
-    }
-
-    if (this.userRequestedJoinRoom != null) {
-      return UserRequestedToJoinRoomEvent.class.getSimpleName();
-    }
-
-    if (this.connectionRequested != null) {
-      return ConnectionRequestedEvent.class.getSimpleName();
-    }
-
-    if (this.connectionAccepted != null) {
-      return ConnectionAcceptedEvent.class.getSimpleName();
-    }
-
-    if (this.timerFired != null) {
-      return TimerFiredEvent.class.getSimpleName();
-    }
-
-    if (this.requestReceived != null) {
-      return RequestReceivedEvent.class.getSimpleName();
-    }
-
-    return "";
-  }
 }

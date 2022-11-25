@@ -71,7 +71,10 @@ public class WorkflowDirectGraphBuilder {
     if (activity.getEvents().isParallel()) {
       String joinActivityId = activityId + JOIN_GATEWAY;
       directGraph.registerToDictionary(joinActivityId,
-          new WorkflowNode().id(joinActivityId).eventId(joinActivityId).elementType(WorkflowNodeType.JOIN_ACTIVITY));
+          new WorkflowNode().id(joinActivityId)
+              .eventId(joinActivityId)
+              .wrappedType(JoinGateway.class)
+              .elementType(WorkflowNodeType.JOIN_ACTIVITY));
       directGraph.getChildren(joinActivityId).addChild(activityId);
       directGraph.addParent(activityId, joinActivityId);
       return joinActivityId;
@@ -205,15 +208,14 @@ public class WorkflowDirectGraphBuilder {
       // every event in the onfOf list, check if it is already registered, avoid repeating multiple of them
       String newTimeoutEventId = signalEvent.getId() + TIMEOUT_SUFFIX;
       String parentId = directGraph.getParents(signalEvent.getId()).get(0);
-      registerTimeoutEvent(directGraph, newTimeoutEventId, signalEvent.getWrappedType(), parentId, timeout);
+      registerTimeoutEvent(directGraph, newTimeoutEventId, parentId, timeout);
     }
   }
 
   private void computeNoExclusiveFormReplyEvent(Triple<String, String, Class<?>> eventNodeId, Event event,
       WorkflowDirectGraph directGraph, WorkflowNode signalEvent, String activityId) {
     validateExistingNodeId(eventNodeId.getMiddle().substring(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX.length()),
-        activityId,
-        workflow.getId(), directGraph);
+        activityId, workflow.getId(), directGraph);
     if (event instanceof EventWithTimeout && StringUtils.isEmpty(((EventWithTimeout) event).getTimeout())) {
       ((EventWithTimeout) event).setTimeout(DEFAULT_FORM_REPLIED_EVENT_TIMEOUT);
     }
@@ -229,18 +231,19 @@ public class WorkflowDirectGraphBuilder {
     WorkflowNode parentNode = directGraph.readWorkflowNode(parentActivity);
     if (parentNode.isNotExclusiveFormReply()) {
       directGraph.readWorkflowNode(activityId).setElementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT);
+      directGraph.readWorkflowNode(activityId).setWrappedType(ActivityExpiredEvent.class);
       return parentActivity;
     } else {
       String newTimeoutEvent = parentActivity + TIMEOUT_SUFFIX;
       String timeout = ((EventWithTimeout) parentNode.getEvent()).getTimeout();
-      registerTimeoutEvent(directGraph, newTimeoutEvent, null, grandParentId,
+      registerTimeoutEvent(directGraph, newTimeoutEvent, grandParentId,
           Optional.ofNullable(timeout).orElse(DEFAULT_FORM_REPLIED_EVENT_TIMEOUT));
       return newTimeoutEvent;
     }
   }
 
-  private void registerTimeoutEvent(WorkflowDirectGraph directGraph, String timeoutEventId, Class<?> nodeWrappedType,
-      String parentId, String timeoutValue) {
+  private void registerTimeoutEvent(WorkflowDirectGraph directGraph, String timeoutEventId, String parentId,
+      String timeoutValue) {
     if (!directGraph.isRegistered(timeoutEventId)) {
       EventWithTimeout timeoutEvent = new EventWithTimeout();
       timeoutEvent.setTimeout(timeoutValue);
@@ -248,7 +251,7 @@ public class WorkflowDirectGraphBuilder {
       directGraph.registerToDictionary(timeoutEventId, new WorkflowNode().id(timeoutEventId).eventId(timeoutEventId)
           .event(timeoutEvent)
           .elementType(WorkflowNodeType.ACTIVITY_EXPIRED_EVENT)
-          .wrappedType(nodeWrappedType));
+          .wrappedType(ActivityExpiredEvent.class));
       directGraph.addParent(timeoutEventId, parentId);
       directGraph.getChildren(parentId).gateway(Gateway.EVENT_BASED).addChild(timeoutEventId);
     }

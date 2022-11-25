@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
-import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
@@ -20,6 +19,7 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
+import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
@@ -116,8 +116,8 @@ class MonitoringServiceTest {
         .endDate(Instant.now())
         .startDate(Instant.now())
         .duration(Duration.ofMillis(2000))
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .outputs(Maps.newHashMap("key", "value1")).build();
     NodeView view2 = NodeView.builder()
         .instanceId("instance")
@@ -126,8 +126,8 @@ class MonitoringServiceTest {
         .endDate(Instant.now())
         .startDate(Instant.now())
         .duration(Duration.ofMillis(2000))
-        .type(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toType())
-        .group(TaskTypeEnum.MESSAGE_RECEIVED_EVENT.toGroup())
+        .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
+        .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .outputs(Maps.newHashMap("key", "value2")).build();
 
     WorkflowInstanceDomain workflowInstanceDomain = WorkflowInstanceDomain.builder().instanceId("instance").build();
@@ -184,7 +184,7 @@ class MonitoringServiceTest {
     }
 
     // when
-    WorkflowNodesView workflowInstanceActivities = service.listWorkflowInstanceActivities("workflow", "instance",
+    WorkflowNodesView workflowInstanceActivities = service.listWorkflowInstanceNodes("workflow", "instance",
         new WorkflowInstLifeCycleFilter(null, null, null, null));
 
     // then
@@ -213,7 +213,7 @@ class MonitoringServiceTest {
     // when
     WorkflowInstLifeCycleFilter lifeCycleFilter = new WorkflowInstLifeCycleFilter(null, null, null, null);
     assertThatExceptionOfType(NotFoundException.class).isThrownBy(
-            () -> service.listWorkflowInstanceActivities("workflow", "instance", lifeCycleFilter))
+            () -> service.listWorkflowInstanceNodes("workflow", "instance", lifeCycleFilter))
         .satisfies(e -> assertThat(e.getMessage()).isEqualTo(
             "Either no workflow deployed with id workflow, or instance is not an instance of it"));
   }
@@ -227,12 +227,14 @@ class MonitoringServiceTest {
     sendMessage.setId("activity1");
     activity1.activity(sendMessage);
     activity1.id("activity1");
+    activity1.wrappedType(SendMessage.class);
 
     WorkflowNode activity2 = new WorkflowNode();
     sendMessage.setContent("content");
     sendMessage.setId("activity1");
     activity2.activity(sendMessage);
     activity2.id("activity2");
+    activity2.wrappedType(SendMessage.class);
 
     WorkflowDirectGraph directGraph = new WorkflowDirectGraph();
     directGraph.registerToDictionary("activity1", activity1);

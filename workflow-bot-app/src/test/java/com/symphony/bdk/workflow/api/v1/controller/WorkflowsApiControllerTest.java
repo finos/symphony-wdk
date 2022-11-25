@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
-import com.symphony.bdk.workflow.api.v1.dto.TaskTypeEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
@@ -195,18 +194,18 @@ class WorkflowsApiControllerTest {
     globalVariables.setUpdateTime(Instant.ofEpochMilli(333L));
 
     NodeView nodeView1 =
-        activityInstanceView(workflowId, "activity0", instanceId, TaskTypeEnum.SEND_MESSAGE_ACTIVITY,
+        activityInstanceView(workflowId, "activity0", instanceId, "SEND_MESSAGE", "ACTIVITY",
             new VariableView(activityOutputs), 222L, 666L);
 
     NodeView nodeView2 =
-        activityInstanceView(workflowId, "activity1", instanceId, TaskTypeEnum.CREATE_ROOM_ACTIVITY,
+        activityInstanceView(workflowId, "activity1", instanceId, "CREATE_ROOM", "ACTIVITY",
             new VariableView(activityOutputs), 333L, 777L);
 
     WorkflowNodesView workflowNodesView = new WorkflowNodesView();
     workflowNodesView.setNodes(Arrays.asList(nodeView1, nodeView2));
     workflowNodesView.setGlobalVariables(new VariableView(globalVariables));
 
-    when(monitoringService.listWorkflowInstanceActivities(eq(workflowId), eq(instanceId),
+    when(monitoringService.listWorkflowInstanceNodes(eq(workflowId), eq(instanceId),
         any(WorkflowInstLifeCycleFilter.class))).thenReturn(workflowNodesView);
 
     mockMvc.perform(
@@ -258,7 +257,7 @@ class WorkflowsApiControllerTest {
         String.format("Either no workflow deployed with id '%s' is found or the instance id '%s' is not correct",
             illegalWorkflowId, illegalInstanceId);
 
-    when(monitoringService.listWorkflowInstanceActivities(eq(illegalInstanceId), eq(illegalInstanceId),
+    when(monitoringService.listWorkflowInstanceNodes(eq(illegalInstanceId), eq(illegalInstanceId),
         any(WorkflowInstLifeCycleFilter.class))).thenThrow(new NotFoundException(errorMsg));
 
     mockMvc.perform(
@@ -274,18 +273,18 @@ class WorkflowsApiControllerTest {
     final String workflowId = "testWorkflowId";
 
     NodeDefinitionView activity0 =
-        new NodeDefinitionView("activity0", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
-            TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup(), Collections.emptyList(),
+        new NodeDefinitionView("activity0", "SEND_MESSAGE",
+            "ACTIVITY", Collections.emptyList(),
             Collections.singletonList(ChildView.of("event0")));
 
     NodeDefinitionView event =
-        new NodeDefinitionView("event0", TaskTypeEnum.ROOM_UPDATED_EVENT.toType(),
-            TaskTypeEnum.ROOM_UPDATED_EVENT.toGroup(), Collections.singletonList("activity0"),
+        new NodeDefinitionView("event0", "ROOM_UPDATED",
+            "EVENT", Collections.singletonList("activity0"),
             Collections.singletonList(ChildView.of("activity1")));
 
     NodeDefinitionView activity1 =
-        new NodeDefinitionView("activity1", TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toType(),
-            TaskTypeEnum.SEND_MESSAGE_ACTIVITY.toGroup(), Collections.singletonList("event0"),
+        new NodeDefinitionView("activity1", "SEND_MESSAGE",
+            "ACTIVITY", Collections.singletonList("event0"),
             Collections.emptyList());
 
     WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
@@ -391,13 +390,13 @@ class WorkflowsApiControllerTest {
   }
 
   private NodeView activityInstanceView(String workflowId, String activityId, String instanceId,
-      TaskTypeEnum type, VariableView variables, Long start, Long end) {
+      String type, String group, VariableView variables, Long start, Long end) {
     return NodeView.builder()
         .workflowId(workflowId)
         .instanceId(instanceId)
         .nodeId(activityId)
-        .type(type.toType())
-        .group(type.toGroup())
+        .type(type)
+        .group(group)
         .startDate(Instant.ofEpochMilli(start))
         .endDate(Instant.ofEpochMilli(end))
         .outputs(variables.getOutputs())

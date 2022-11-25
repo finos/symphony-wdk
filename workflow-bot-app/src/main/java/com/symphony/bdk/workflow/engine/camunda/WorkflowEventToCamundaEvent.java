@@ -71,7 +71,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class WorkflowEventToCamundaEvent {
 
-
   public static final String EVENT_NAME = "eventName";
   public static final String MESSAGE_PREFIX = "message-received_";
   public static final String MESSAGE_SUPPRESSED = "message-suppressed";
@@ -93,7 +92,6 @@ public class WorkflowEventToCamundaEvent {
   public static final String TIMER_FIRED_DATE = "timerFired_date";
   public static final String TIMER_FIRED_CYCLE = "timerFired_cycle";
 
-
   private static final AntPathMatcher MESSAGE_RECEIVED_CONTENT_MATCHER = new AntPathMatcher();
 
   private final RuntimeService runtimeService;
@@ -108,7 +106,7 @@ public class WorkflowEventToCamundaEvent {
   }
 
   /**
-   * Find the event identifers
+   * Find the event identifiers
    *
    * @param event    the wrapper event
    * @param workflow swadl workflow model
