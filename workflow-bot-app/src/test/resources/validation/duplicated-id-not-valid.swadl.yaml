@@ -1,0 +1,16 @@
+id: validation
+properties:
+  publish: false
+activities:
+  - send-message:
+      id: act1
+      content: message1
+      on:
+        message-received:
+          content: /test
+  - send-message:
+      id: act1
+      content: message1
+      on:
+        message-received:
+          content: /test

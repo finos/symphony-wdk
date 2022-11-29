@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -16,6 +17,7 @@ import com.symphony.bdk.workflow.custom.assertion.Assertions;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
 import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
+import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -85,6 +87,13 @@ class EngineIntegrationTest extends IntegrationTest {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/validation/validate-only.swadl.yaml"));
     engine.parseAndValidate(workflow);
+  }
+
+  @Test
+  void nonValidateWorkflow() throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/validation/duplicated-id-not-valid.swadl.yaml"));
+    assertThatThrownBy(() -> engine.parseAndValidate(workflow)).isInstanceOf(UniqueIdViolationException.class);
   }
 
 }

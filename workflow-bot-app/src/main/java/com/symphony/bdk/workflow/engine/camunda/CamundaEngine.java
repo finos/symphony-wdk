@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
-import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder;
+import com.symphony.bdk.workflow.event.RealTimeEventProcessor;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
@@ -19,7 +19,6 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.xml.ModelValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -32,17 +31,22 @@ import java.util.stream.Collectors;
 @Component
 public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
-  @Autowired
-  private RepositoryService repositoryService;
+  private final RepositoryService repositoryService;
 
-  @Autowired
-  private CamundaBpmnBuilder bpmnBuilder;
+  private final CamundaBpmnBuilder bpmnBuilder;
 
-  @Autowired
-  private WorkflowEventToCamundaEvent events;
+  private final Map<String, RealTimeEventProcessor<?>> processorRegistry;
 
-  @Autowired
-  private AuditTrailLogger auditTrailLogger;
+  private final AuditTrailLogger auditTrailLogger;
+
+  public CamundaEngine(RepositoryService repositoryService, CamundaBpmnBuilder bpmnBuilder,
+      List<RealTimeEventProcessor<?>> processors, AuditTrailLogger auditTrailLogger) {
+    this.repositoryService = repositoryService;
+    this.bpmnBuilder = bpmnBuilder;
+    processorRegistry =
+        processors.stream().collect(Collectors.toMap(p -> p.sourceType().getSimpleName(), Function.identity()));
+    this.auditTrailLogger = auditTrailLogger;
+  }
 
   @Override
   public void deploy(Workflow workflow) {
@@ -70,6 +74,7 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void execute(String workflowId, ExecutionParameters parameters) {
 
     // check workflow id
@@ -95,8 +100,10 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
     // dispatch event
     try {
-      events.dispatch(toRealTimeEvent(parameters, processDefinition.getName()));
-    } catch (PresentationMLParserException e) {
+      RealTimeEvent<RequestReceivedEvent> event = toRealTimeEvent(parameters, processDefinition.getName());
+      ((RealTimeEventProcessor<RequestReceivedEvent>) processorRegistry.get(
+          event.getSource().getClass().getSimpleName())).process(event);
+    } catch (Exception e) {
       log.debug("Failed to parse MessageML, should not happen", e);
       throw new RuntimeException(e);
     }
@@ -123,10 +130,11 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> void onEvent(RealTimeEvent<T> event) {
     try {
-      events.dispatch(event);
-    } catch (PresentationMLParserException e) {
+      ((RealTimeEventProcessor<T>) processorRegistry.get(event.getSource().getClass().getSimpleName())).process(event);
+    } catch (Exception e) {
       log.error("This error happens when the incoming event has an invalid PresentationML message", e);
     }
   }
