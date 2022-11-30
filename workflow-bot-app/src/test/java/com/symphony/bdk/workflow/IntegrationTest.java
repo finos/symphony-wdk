@@ -22,6 +22,7 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.UserConnection;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4AttachmentInfo;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4Initiator;
@@ -197,6 +198,7 @@ public abstract class IntegrationTest {
     when(oboServices.streams()).thenReturn(this.oboStreamService);
     when(oboServices.users()).thenReturn(this.oboUserService);
     when(oboServices.connections()).thenReturn(this.oboConnectionService);
+    when(sessionService.getSession()).thenReturn(new UserV2().displayName("bot"));
 
     RestAssured.baseURI = "http://localhost";
     RestAssured.port = port;

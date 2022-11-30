@@ -1,9 +1,9 @@
 package com.symphony.bdk.workflow.engine;
 
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.event.RealTimeEventProcessor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,7 +58,7 @@ public class WorkflowEventVariableHandler implements EventHandler {
         EventHolder eventHolder =
             OBJECT_MAPPER.readValue(new String(event.getByteValue(), StandardCharsets.UTF_8), EventHolder.class);
 
-        Object eventName = eventHolder.getArgs().get(WorkflowEventToCamundaEvent.EVENT_NAME);
+        Object eventName = eventHolder.getArgs().get(RealTimeEventProcessor.EVENT_NAME_KEY);
         String eventId = "";
 
         if (eventName != null) {
@@ -70,7 +70,7 @@ public class WorkflowEventVariableHandler implements EventHandler {
 
         if (StringUtils.isNotBlank(eventId)) {
           // remove event name from args
-          eventHolder.getArgs().remove(WorkflowEventToCamundaEvent.EVENT_NAME);
+          eventHolder.getArgs().remove(RealTimeEventProcessor.EVENT_NAME_KEY);
 
           // store the event with the new key
           this.runtimeService.setVariable(event.getExecutionId(), eventId, eventHolder);

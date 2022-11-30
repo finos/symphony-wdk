@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.IntegrationTest;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
+import com.symphony.bdk.workflow.event.WorkflowEventType;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
@@ -21,7 +21,6 @@ import org.camunda.bpm.engine.history.HistoricDetail;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -209,7 +208,7 @@ public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
     return processes.stream()
         .filter(p -> !ACTIVITY_TYPES_TO_IGNORE.contains(p.getActivityType()) && !p.isCanceled())
         .filter(p -> p.getActivityName() != null
-            && !p.getActivityName().startsWith(WorkflowEventToCamundaEvent.FORM_REPLY_PREFIX))
+            && !p.getActivityName().startsWith(WorkflowEventType.FORM_REPLIED.getEventName()))
         .map(HistoricActivityInstance::getActivityName)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());

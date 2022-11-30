@@ -5,13 +5,13 @@ import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.ha
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasConditionalString;
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasLoopAfterSubProcess;
 
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraphBuilder;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowEventToCamundaEvent;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderFactory;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -46,18 +46,17 @@ public class CamundaBpmnBuilder {
   public static final String FORK_GATEWAY = "_fork_gateway";
 
   private final RepositoryService repositoryService;
-  private final WorkflowEventToCamundaEvent eventToMessage;
   private final WorkflowNodeBpmnBuilderFactory builderFactory;
+  private final SessionService sessionService;
 
   private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
 
   @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService, WorkflowEventToCamundaEvent eventToMessage,
-      WorkflowNodeBpmnBuilderFactory builderFactory,
-      WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
+  public CamundaBpmnBuilder(RepositoryService repositoryService, WorkflowNodeBpmnBuilderFactory builderFactory,
+      SessionService sessionService, WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
     this.repositoryService = repositoryService;
-    this.eventToMessage = eventToMessage;
     this.builderFactory = builderFactory;
+    this.sessionService = sessionService;
     this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
   }
 
@@ -102,7 +101,7 @@ public class CamundaBpmnBuilder {
     String processId = workflow.getId().replaceAll("\\s+", "");
     ProcessBuilder process = Bpmn.createExecutableProcess(processId).name(workflow.getId());
 
-    WorkflowDirectGraph workflowDirectGraph = new WorkflowDirectGraphBuilder(workflow, eventToMessage).build();
+    WorkflowDirectGraph workflowDirectGraph = new WorkflowDirectGraphBuilder(workflow, sessionService).build();
     BuildProcessContext context = new BuildProcessContext(workflowDirectGraph, process);
     this.workflowDirectGraphCachingService.putDirectGraph(workflow.getId(), workflowDirectGraph);
     buildWorkflowInDfs(new NodeChildren(context.getStartEvents()), "", context);
