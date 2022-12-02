@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'workflow-bot.java-conventions'
-    id 'org.springframework.boot' version '2.6.6'
+    id 'org.springframework.boot' version '2.7.6'
 }
 
 javadoc {
@@ -12,7 +12,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.11.0') {
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.11.1') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
 
@@ -25,6 +25,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'com.google.guava:guava:31.1-android'
 
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     runtimeOnly ('com.h2database:h2') {

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+        Dependency coming from spotbug gradle plugin only.
+        ]]></notes>
+        <gav>org.apache.bcel:bcel:6.5.0</gav>
+        <cve>CVE-2022-42920</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Dependency coming from checkstyle gradle plugin only.
+        ]]></notes>
+        <gav>com.google.guava:guava:29.0-jre</gav>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Already latest version, to fix later
+        ]]></notes>
+        <gav>com.h2database:h2:2.1.214</gav>
+        <cve>CVE-2022-45868</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Already latest version, to fix later
+        ]]></notes>
+        <gav>org.yaml:snakeyaml:1.31</gav>
+        <cve>CVE-2022-1471</cve>
+        <cve>CVE-2022-38751</cve>
+        <cve>CVE-2022-38752</cve>
+        <cve>CVE-2022-41854</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Testing false positives by suppressing a CVE
+        https://github.com/spring-projects/spring-framework/issues/24434 (Do not expose HttpInvoker)
+        ]]></notes>
+        <gav>org.springframework:spring-web:5.3.24</gav>
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Dependency not found in the dependency analyzer, no idea where it is found
+        ]]></notes>
+        <gav>org.testng:testng:7.5</gav>
+        <cve>CVE-2022-4065</cve>
+    </suppress>
+</suppressions>
