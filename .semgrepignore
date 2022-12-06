@@ -1,0 +1,20 @@
+#     java.lang.security.audit.unsafe-reflection.unsafe-reflection
+#        If an attacker can supply values that the application then uses to determine which class to
+#        instantiate or which method to invoke, the potential exists for the attacker to create
+#        control flow paths through the application that were not intended by the application
+#        developers. This attack vector may allow the attacker to bypass authentication or access
+#        control checks or otherwise cause the application to behave in an unexpected manner.
+#        Details: https://sg.run/R8X8
+
+#         90┆ Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
+#          ⋮┆----------------------------------------
+#        110┆ (BaseActivity) OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
+
+#  these class values is not supplied by user, they are predefined by the application, therefore ignore it (at least for now).
+
+workflow-bot-app/src/main/java/com/symphony/bdk/workflow/engine/camunda/CamundaExecutor.java
+
+#        62┆ return BaseActivity.class.isAssignableFrom(Class.forName(arg.getTypeName()));
+#         ⋮┆----------------------------------------
+#        69┆ return (Class<? extends BaseActivity>) Class.forName(activityType.getTypeName());
+workflow-bot-app/src/main/java/com/symphony/bdk/workflow/swadl/ActivityRegistry.java
