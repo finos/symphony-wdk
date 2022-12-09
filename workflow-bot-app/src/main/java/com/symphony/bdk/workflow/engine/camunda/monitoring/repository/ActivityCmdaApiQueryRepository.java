@@ -7,10 +7,15 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDo
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricActivityInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.camunda.bpm.engine.management.JobDefinition;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.EventSubscription;
+import org.camunda.bpm.engine.runtime.Execution;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -24,8 +29,36 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
 
   public ActivityCmdaApiQueryRepository(RepositoryService repositoryService,
       HistoryService historyService, RuntimeService runtimeService,
-      ObjectConverter objectConverter) {
-    super(repositoryService, historyService, runtimeService, objectConverter);
+      ObjectConverter objectConverter, ManagementService managementService) {
+    super(repositoryService, historyService, runtimeService, managementService, objectConverter);
+  }
+
+  @Override
+  public void test(String processDefinitionVersion, String startingEventName) {
+
+    List<ProcessDefinition> list =
+        repositoryService.createProcessDefinitionQuery().versionTag(processDefinitionVersion).list();
+    String processDefinitionId = list.get(0).getId();
+    List<JobDefinition> jobDefinitions =
+        this.managementService.createJobDefinitionQuery().processDefinitionId(processDefinitionId).list();
+
+    List<JobDefinition> startEvent =
+        jobDefinitions.stream().filter(jobDefinition -> jobDefinition.getActivityId().startsWith("startEvent")).collect(
+            Collectors.toList());
+
+    String startEventTaskId = startEvent.get(0).getActivityId();
+
+    List<EventSubscription> subscriptionList =
+        this.runtimeService.createEventSubscriptionQuery().eventName(startingEventName).list();
+
+    String subscriptionId = subscriptionList.get(0).getId();
+
+    String query =
+        String.format("UPDATE ACT_RU_EVENT_SUBSCR SET CONFIGURATION_ = '%s',ACTIVITY_ID_ = '%s' where ID_ = '%s'",
+            processDefinitionId, startEventTaskId, subscriptionId);
+    List<Execution> queryResult = runtimeService.createNativeExecutionQuery().sql(query).list();
+
+    System.out.println(queryResult);
   }
 
   /**

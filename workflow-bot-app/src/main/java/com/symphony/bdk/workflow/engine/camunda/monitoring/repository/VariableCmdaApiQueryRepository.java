@@ -5,6 +5,7 @@ import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricDetail;
@@ -21,10 +22,9 @@ import java.util.Map;
 
 @Component
 public class VariableCmdaApiQueryRepository extends CamundaAbstractQueryRepository implements VariableQueryRepository {
-  public VariableCmdaApiQueryRepository(RepositoryService repositoryService,
-      HistoryService historyService, RuntimeService runtimeService,
-      ObjectConverter objectConverter) {
-    super(repositoryService, historyService, runtimeService, objectConverter);
+  public VariableCmdaApiQueryRepository(RepositoryService repositoryService, HistoryService historyService,
+      RuntimeService runtimeService, ManagementService managementService, ObjectConverter objectConverter) {
+    super(repositoryService, historyService, runtimeService, managementService, objectConverter);
   }
 
   @Override

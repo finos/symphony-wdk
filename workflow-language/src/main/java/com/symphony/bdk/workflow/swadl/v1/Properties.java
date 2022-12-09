@@ -10,4 +10,7 @@ public class Properties {
 
   @JsonProperty
   private Boolean publish = true;
+
+  @JsonProperty
+  private String version = "";
 }

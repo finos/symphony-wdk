@@ -52,7 +52,7 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
   @Override
   public void deploy(Workflow workflow, BpmnModelInstance bpmnInstance) {
-    Deployment deployment = bpmnBuilder.deployWorkflow(workflow, (BpmnModelInstance) bpmnInstance);
+    Deployment deployment = bpmnBuilder.deployWorkflow(workflow, bpmnInstance);
     log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);
   }

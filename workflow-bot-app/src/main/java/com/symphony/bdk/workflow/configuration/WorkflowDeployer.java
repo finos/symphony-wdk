@@ -54,7 +54,7 @@ public class WorkflowDeployer {
     }
   }
 
-  public void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
+  private void addWorkflow(Path workflowFile) throws IOException, ProcessingException {
     if (workflowFile.toFile().length() == 0) {
       return;
     }
@@ -66,7 +66,7 @@ public class WorkflowDeployer {
       log.debug("Deploying this new workflow");
       workflowEngine.deploy(workflow, instance);
     } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
-      log.debug("Workflow is a draft version, undeloying the old version");
+      log.debug("Workflow is a draft version, undeploying the old version");
       workflowEngine.undeploy(deployedWorkflow.getLeft());
     }
     deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));

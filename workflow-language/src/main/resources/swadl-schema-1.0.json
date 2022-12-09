@@ -26,6 +26,10 @@
                     ],
                     "description": "Should the workflow be published or not, true publish, false otherwise",
                     "default": true
+                },
+                "version": {
+                    "type": "string",
+                    "description": "version of the workflow definition"
                 }
             }
         },

@@ -6,6 +6,7 @@ import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryReposito
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -20,9 +21,9 @@ import java.util.stream.Collectors;
 public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepository
     implements WorkflowInstQueryRepository {
   public WorkflowInstCmdaApiQueryRepository(RepositoryService repositoryService,
-      HistoryService historyService, RuntimeService runtimeService,
+      HistoryService historyService, RuntimeService runtimeService, ManagementService managementService,
       ObjectConverter objectConverter) {
-    super(repositoryService, historyService, runtimeService, objectConverter);
+    super(repositoryService, historyService, runtimeService, managementService, objectConverter);
   }
 
   /**

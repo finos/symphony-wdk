@@ -7,6 +7,7 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
+import com.symphony.bdk.workflow.security.Authorized;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +52,12 @@ public interface WorkflowsApi {
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
       @ApiParam("Workflows monitoring token to authenticate the request")
       @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token);
+
+  @ApiOperation("Rollback a workflow definition to a given version")
+  @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
+  @GetMapping("/rollback")
+  ResponseEntity<Object> rollback(@RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @ApiParam(value = "Workflow's definition version to roll back to", required = true) @RequestParam String version);
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(

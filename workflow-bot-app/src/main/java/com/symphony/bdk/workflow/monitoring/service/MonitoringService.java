@@ -48,6 +48,9 @@ public class MonitoringService {
   private final VariableQueryRepository variableQueryRepository;
   private final ObjectConverter objectConverter;
 
+  public void test(String versionToRollBack) {
+    this.activityQueryRepository.test(versionToRollBack, "message-received_/go1");
+  }
 
   public List<WorkflowView> listAllWorkflows() {
     return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);

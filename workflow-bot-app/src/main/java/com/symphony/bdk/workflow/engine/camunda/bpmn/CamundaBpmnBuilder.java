@@ -18,9 +18,12 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
@@ -31,6 +34,7 @@ import org.camunda.bpm.model.xml.ModelValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -46,16 +50,18 @@ public class CamundaBpmnBuilder {
   public static final String FORK_GATEWAY = "_fork_gateway";
 
   private final RepositoryService repositoryService;
+  private final RuntimeService runtimeService;
   private final WorkflowEventToCamundaEvent eventToMessage;
   private final WorkflowNodeBpmnBuilderFactory builderFactory;
 
   private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
 
   @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService, WorkflowEventToCamundaEvent eventToMessage,
-      WorkflowNodeBpmnBuilderFactory builderFactory,
+  public CamundaBpmnBuilder(RepositoryService repositoryService, RuntimeService runtimeService,
+      WorkflowEventToCamundaEvent eventToMessage, WorkflowNodeBpmnBuilderFactory builderFactory,
       WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
     this.repositoryService = repositoryService;
+    this.runtimeService = runtimeService;
     this.eventToMessage = eventToMessage;
     this.builderFactory = builderFactory;
     this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
@@ -80,7 +86,21 @@ public class CamundaBpmnBuilder {
     DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
         .name(workflow.getId())
         .addModelInstance(workflow.getId() + ".bpmn", instance);
-    return setWorkflowTokenIfExists(deploymentBuilder, workflow).deploy();
+    Deployment deployment = setWorkflowTokenIfExists(deploymentBuilder, workflow).deploy();
+    if (StringUtils.isNotBlank(workflow.getVersion())) {
+      setVersionTag(deployment.getId(), workflow.getVersion());
+    }
+
+    return deployment;
+  }
+
+  public void setVersionTag(String definitionId, String versionTag) {
+    List<ProcessDefinition> list =
+        repositoryService.createProcessDefinitionQuery().deploymentId(definitionId).list();
+    if (list.size() == 1) {
+      String query = String.format("update ACT_RE_PROCDEF set VERSION_TAG_ = '%s' where DEPLOYMENT_ID_ = '%s'", versionTag, definitionId);
+      this.runtimeService.createNativeExecutionQuery().sql(query).list();
+    }
   }
 
   private DeploymentBuilder setWorkflowTokenIfExists(DeploymentBuilder deploymentBuilder, Workflow workflow) {
