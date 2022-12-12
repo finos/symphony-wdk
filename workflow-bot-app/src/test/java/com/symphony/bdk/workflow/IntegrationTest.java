@@ -169,6 +169,7 @@ public abstract class IntegrationTest {
   protected static V4Message message(String msgId, String content) {
     return message(msgId).message(content);
   }
+
   protected static UserConnection connection(Long userId) {
     return connection(userId, null);
   }

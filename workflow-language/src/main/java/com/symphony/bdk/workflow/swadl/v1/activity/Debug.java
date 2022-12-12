@@ -12,11 +12,13 @@ import java.util.Random;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Debug extends BaseActivity {
+  private static final Random RANDOM = new Random();
+
   @JsonProperty
   private Object object;
 
   public Debug() {
-    this.setId(String.format("randomId-%s-%s", new Random().nextInt(100), System.currentTimeMillis() + ""));
+    this.setId(String.format("randomId-%s-%s", RANDOM.nextInt(100), System.currentTimeMillis() + ""));
   }
 }
 
