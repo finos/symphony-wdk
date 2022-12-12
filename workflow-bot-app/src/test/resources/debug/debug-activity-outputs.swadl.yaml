@@ -1,0 +1,19 @@
+id: debug-activity-outputs
+activities:
+  - send-message:
+      id: sendMessageDebugActivityOutputs
+      on:
+        message-received:
+          content: /debug-activity-outputs
+      content: Hello World!
+
+  - debug:
+      id: "debugActivityOutputs"
+      object: "${sendMessageDebugActivityOutputs.outputs.message}"
+
+  - execute-script:
+      id: assertScript
+      script: |
+        assert wdk.json(debugActivityOutputs.outputs.object).messageId == "msgId"
+        assert wdk.json(debugActivityOutputs.outputs.object).message == "Hello World!"
+        

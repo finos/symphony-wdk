@@ -20,12 +20,11 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 
-public class UpdateMessageIntegrationTest extends IntegrationTest {
+class UpdateMessageIntegrationTest extends IntegrationTest {
 
   private static final String OUTPUT_MESSAGE_ID_KEY = "%s.outputs.msgId";
   private static final String OUTPUT_MESSAGE_KEY = "%s.outputs.message";

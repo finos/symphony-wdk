@@ -91,6 +91,27 @@ dozen lines maybe a custom activity should be considered instead.
 
 You'll find various usages of it in the [examples](./examples) we provide.
 
+### Debug Activity
+
+The debug activity (`debug`) is a standard activity that allows to log an object in a pretty json format 
+for debugging purposes. 
+
+The `id` property is optional in SWADL. In case no `id` is provided, a random one is set by WDK.
+
+The debugged object is set as the activity outputs and can be accessed with `ACTIVITY_ID.outputs.object`.
+
+In order to access the debugged object properties, you can use the [Utility functions](#utility-functions) 
+to navigate in the json tree. Example:
+```yaml
+- debug:
+    id: debugExample
+    object: ${variables.globalVarable} 
+    
+- send-message:
+      id: example
+      content: ${json(debugExample.outputs.object).key1.nestedKey2}
+```
+
 ## Events
 
 A workflow requires at least one starting event, used to create a workflow instance from a deployed workflow and to
