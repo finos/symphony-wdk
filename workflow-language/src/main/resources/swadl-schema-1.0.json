@@ -636,7 +636,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|pin-message|unpin-message|debugexecute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|pin-message|unpin-message|debug|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }
