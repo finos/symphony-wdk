@@ -34,23 +34,22 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
   }
 
   @Override
-  public void test(String processDefinitionVersion, String startingEventName) {
-
-    List<ProcessDefinition> list =
-        repositoryService.createProcessDefinitionQuery().versionTag(processDefinitionVersion).list();
+  public void test(String workflowId, String processDefinitionVersion) {
+    List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery()
+        .processDefinitionKey(workflowId)
+        .versionTag(processDefinitionVersion)
+        .list();
     String processDefinitionId = list.get(0).getId();
+
     List<JobDefinition> jobDefinitions =
         this.managementService.createJobDefinitionQuery().processDefinitionId(processDefinitionId).list();
-
     List<JobDefinition> startEvent =
         jobDefinitions.stream().filter(jobDefinition -> jobDefinition.getActivityId().startsWith("startEvent")).collect(
             Collectors.toList());
-
     String startEventTaskId = startEvent.get(0).getActivityId();
 
-    List<EventSubscription> subscriptionList =
-        this.runtimeService.createEventSubscriptionQuery().eventName(startingEventName).list();
-
+    //TODO: this will work if there is only one workflow deployed. This lists all subscriptions for all deployed workflows, we need to select the one used for our workflow.
+    List<EventSubscription> subscriptionList = this.runtimeService.createEventSubscriptionQuery().list();
     String subscriptionId = subscriptionList.get(0).getId();
 
     String query =

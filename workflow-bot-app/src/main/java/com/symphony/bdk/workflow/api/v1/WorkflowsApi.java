@@ -55,9 +55,11 @@ public interface WorkflowsApi {
 
   @ApiOperation("Rollback a workflow definition to a given version")
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  @GetMapping("/rollback")
-  ResponseEntity<Object> rollback(@RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
-      @ApiParam(value = "Workflow's definition version to roll back to", required = true) @RequestParam String version);
+  @GetMapping("/{workflowId}/versions/{version}")
+  ResponseEntity<Object> rollback(@ApiParam(value = "Workflow's token to authenticate the request", required = true)
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
+      @ApiParam(value = "Workflow id roll back to", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Workflow's definition version to roll back to", required = true) @PathVariable String version);
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(

@@ -51,8 +51,8 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  public ResponseEntity<Object> rollback(String token, String version) {
-    monitoringService.test(version);
+  public ResponseEntity<Object> rollback(String token, String workflowId, String version) {
+    monitoringService.test(workflowId, version);
     return ResponseEntity.noContent().build();
   }
 
