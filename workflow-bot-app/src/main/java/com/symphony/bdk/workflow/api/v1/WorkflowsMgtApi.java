@@ -11,12 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Api("Api to manage workflow swadl lifecycle")
 public interface WorkflowsMgtApi {
@@ -55,4 +58,13 @@ public interface WorkflowsMgtApi {
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
       @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id);
+
+  @ApiOperation("Streaming logs in SSE.")
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "", response = ResponseBodyEmitter.class),
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(path = "/logs", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  SseEmitter streamingLogs(
+      @ApiParam(value = "Workflow's token to authenticate the request", required = true)
+      @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token);
 }

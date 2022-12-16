@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowMgtAction;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowsMgtAction;
 import com.symphony.bdk.workflow.management.WorkflowsMgtActionHolder;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
@@ -45,7 +46,10 @@ class WorkflowsMgtApiControllerTest {
   WorkflowEngine<BpmnModelInstance> engine;
 
   @MockBean
-  protected MonitoringService monitoringService;
+  MonitoringService monitoringService;
+
+  @MockBean
+  LogsStreamingService logsStreamingService;
 
   static Stream<Arguments> argumentsStream() {
     return Stream.of(
@@ -77,5 +81,20 @@ class WorkflowsMgtApiControllerTest {
             .contentType("text/plain")
             .content("content"))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void test_streamingLogs_missingToken_badRequest() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET, URL + "/logs")
+            .contentType("text/plain"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void test_streamingLogs_returnOk() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET, URL + "/logs")
+            .contentType("text/plain")
+            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
+        .andExpect(status().isOk());
   }
 }
