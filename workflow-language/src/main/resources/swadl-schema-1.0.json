@@ -174,6 +174,39 @@
                             }
                         ]
                     },
+                    "debug": {
+                        "description": "Standard debug activity.",
+                        "x-intellij-html-description": "<html><p>Standard debug activity.</p></html>",
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "description": "Activity's identifier, should be unique across workflow. As it can be used as a variable identifier only alphanumerical characters are allowed.",
+                                "type": "string",
+                                "$comment": "variables is forbidden to avoid conflict with variables.output... that would override the workflows variables",
+                                "pattern": "^(?!variables$)([a-zA-Z][a-zA-Z0-9_]+)$"
+                            },
+                            "on": {
+                                "$ref": "#/definitions/on"
+                            },
+                            "if": {
+                                "description": "Conditional execution of the activity based on a boolean expression.",
+                                "type": "string"
+                            },
+                            "else": {
+                                "description": "Default execution of the activity when if conditions are used for previous activities.",
+                                "type": "object"
+                            },
+                            "object": {
+                                "type": [
+                                    "object",
+                                    "string"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "object"
+                        ]
+                    },
                     "execute-script": {
                         "description": "Executes a Groovy script.",
                         "x-intellij-html-description": "<html><p>Executes a Groovy script.</p></html>",
@@ -603,7 +636,7 @@
                 "maxProperties": 1,
                 "minProperties": 1,
                 "patternProperties": {
-                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|pin-message|unpin-message|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
+                    "^(?!create-room|update-room|add-room-member|remove-room-member|promote-room-owner|demote-room-owner|send-message|update-message|pin-message|unpin-message|debug|execute-script|execute-request|create-user|create-system-user|create-connection|update-user|update-system-user|add-user-role|remove-user-role|remove-connection|reject-connection|accept-connection|get-user|get-users|get-stream|get-room|get-message|get-connection|get-stream-members|get-room-members|get-user-streams|get-streams|get-rooms|get-messages|get-connections)([a-z0-9-]+)$": {
                         "$comment": "Match everything that is not an already known activity to allow for custom activities to be used.",
                         "$ref": "#/definitions/basic-activity-inner"
                     }

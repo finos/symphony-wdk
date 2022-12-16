@@ -1,0 +1,17 @@
+id: debug-global-variables
+variables:
+  var: "Hello World"
+  var1:
+    key: "value"
+
+activities:
+  - debug:
+      id: "debugGlobalVariables1"
+      on:
+        message-received:
+          content: /debug-global-variables
+      object: "${variables.var}"
+
+  - debug:
+      id: "debugGlobalVariables2"
+      object: "${variables.var1.key}"
