@@ -164,8 +164,7 @@ defined to express an if/else structure. The default execution in case condition
 too (i.e. an else).
 
 #### Examples
-- [connection admin approval](./examples/connection-admin-approval.swadl.yaml)
-- 
+- [connection admin approval](./examples/connection-admin-approval.swadl.yaml) 
 
 #### Loops
 

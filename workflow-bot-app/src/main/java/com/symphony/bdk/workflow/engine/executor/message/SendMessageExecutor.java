@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
-import static java.util.Collections.singletonList;
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
@@ -34,6 +32,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 @Slf4j
 @Component
@@ -186,8 +186,8 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
       return activity.getContent();
     } else {
       Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
-      // also bind our utility functions so they can be used inside templates
-      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper());
+      // also bind our utility functions, so they can be used inside templates
+      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(execution.bdk().session()));
       String templateFile = activity.getTemplate();
       File file = execution.getResourceFile(Path.of(templateFile));
       return execution.bdk()

@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import com.symphony.bdk.workflow.engine.executor.BdkGateway;
+
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.delegate.BpmnError;
@@ -26,6 +28,12 @@ import javax.sql.DataSource;
 @Slf4j
 public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
+  private final BdkGateway bdkGateway;
+
+  public CamundaEngineConfiguration(BdkGateway bdkGateway) {
+    this.bdkGateway = bdkGateway;
+  }
+
   @Bean
   public PlatformTransactionManager transactionManager(DataSource dataSource) {
     return new DataSourceTransactionManager(dataSource);
@@ -48,11 +56,14 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
         ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.CASHTAGS, Object.class));
     expressionManager.addFunction(UtilityFunctionsMapper.EMOJIS,
         ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.EMOJIS, Object.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.SESSION,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.SESSION));
   }
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    processEngineConfiguration.getBeans().put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper());
+    processEngineConfiguration.getBeans().put(
+            UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(this.bdkGateway.session()));
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 

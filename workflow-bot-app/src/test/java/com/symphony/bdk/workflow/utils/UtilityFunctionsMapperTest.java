@@ -1,15 +1,22 @@
 package com.symphony.bdk.workflow.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.symphony.bdk.core.service.session.SessionService;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @SuppressWarnings("unchecked")
 class UtilityFunctionsMapperTest {
+
+  private static final String BOT_NAME = "BOT NAME";
+  private static final Long BOT_UID = 1234L;
+  private final SessionService sessionServiceMock = mock(SessionService.class);
 
   @Test
   void jsonStringTest() {
@@ -47,5 +54,17 @@ class UtilityFunctionsMapperTest {
   void jsonEmptyTest() {
     final Object json = UtilityFunctionsMapper.json("");
     assertThat(json.toString()).isEmpty();
+  }
+
+  @Test
+  void sessionTest() {
+    UtilityFunctionsMapper utilityFunctionsMapper = new UtilityFunctionsMapper(this.sessionServiceMock);
+    UserV2 userV2 = new UserV2().id(BOT_UID).displayName(BOT_NAME);
+    when(this.sessionServiceMock.getSession()).thenReturn(userV2);
+
+    UserV2 actual = utilityFunctionsMapper.session();
+
+    assertThat(actual.getDisplayName()).isEqualTo(BOT_NAME);
+    assertThat(actual.getId()).isEqualTo(BOT_UID);
   }
 }
