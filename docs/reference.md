@@ -2529,3 +2529,28 @@ activities:
       script: |
         println wdk.escape(variables.textToEscape)
 ````
+
+### Object session()
+This method will return session's bot information.
+
+Example:
+
+in [send-message](#send-message)
+
+```yaml
+activities:
+  - send-message:
+      id: sendBotDisplayName
+      content: ${session().displayName}
+```
+
+in [execute-script](#execute-script)
+
+```yaml
+activities:
+  - execute-script:
+      id: printBotInfo
+      script:
+        println wdk.session().id
+        println wdk.session().displayName
+```

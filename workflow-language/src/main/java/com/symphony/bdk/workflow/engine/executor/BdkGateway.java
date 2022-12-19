@@ -4,6 +4,7 @@ import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
@@ -31,6 +32,8 @@ public interface BdkGateway {
    * @return BDK service to manage connections.
    */
   ConnectionService connections();
+
+  SessionService session();
 
   OboServices obo(AuthSession oboSession);
 

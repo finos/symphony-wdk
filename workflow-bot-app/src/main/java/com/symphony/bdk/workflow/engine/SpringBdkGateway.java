@@ -8,6 +8,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
@@ -25,7 +26,7 @@ import javax.annotation.Nullable;
 
 @Slf4j
 @Component
-@CacheConfig(cacheNames = "oboAuthSesssions")
+@CacheConfig(cacheNames = "oboAuthSessions")
 public class SpringBdkGateway implements BdkGateway {
 
   private static final String OBO_NOT_CONFIGURED_ERROR_MSG = "At least OBO username or userid should be configured.";
@@ -34,6 +35,7 @@ public class SpringBdkGateway implements BdkGateway {
   private final StreamService streamService;
   private final UserService userService;
   private final ConnectionService connectionService;
+  private final SessionService sessionService;
   private final SymphonyGroupService groupService;
   private final BdkConfig config;
   private final AuthenticatorFactory authenticatorFactory;
@@ -42,7 +44,7 @@ public class SpringBdkGateway implements BdkGateway {
   public SpringBdkGateway(@Nonnull BdkConfig config, @Nullable AuthenticatorFactory authenticatorFactory,
       MessageService messageService,
       StreamService streamService, UserService userService,
-      ConnectionService connectionService, @Lazy SymphonyGroupService groupService) {
+      ConnectionService connectionService, @Lazy SymphonyGroupService groupService, SessionService sessionService) {
     this.messageService = messageService;
     this.streamService = streamService;
     this.userService = userService;
@@ -50,6 +52,7 @@ public class SpringBdkGateway implements BdkGateway {
     this.groupService = groupService;
     this.config = config;
     this.authenticatorFactory = authenticatorFactory;
+    this.sessionService = sessionService;
   }
 
   @Override
@@ -70,6 +73,11 @@ public class SpringBdkGateway implements BdkGateway {
   @Override
   public ConnectionService connections() {
     return connectionService;
+  }
+
+  @Override
+  public SessionService session() {
+    return sessionService;
   }
 
   @Override
