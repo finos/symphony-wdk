@@ -43,6 +43,14 @@ public interface WorkflowsApi {
       @ApiParam(value = "Arguments to be passed to the event triggering the workflow") @RequestBody
       WorkflowExecutionRequest arguments);
 
+  @ApiOperation("")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "", response = Object.class),
+      @ApiResponse(code = 404, message = "No workflow found with id {id}", response = ErrorResponse.class),
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PostMapping("/test")
+  ResponseEntity<Object> test();
+
   @ApiOperation("List all deployed workflows")
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowView.class, responseContainer = "List"),

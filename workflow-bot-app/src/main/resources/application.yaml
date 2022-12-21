@@ -1,3 +1,6 @@
+
+
+
 # WDK configuration
 wdk:
   workflows:
@@ -7,11 +10,11 @@ wdk:
 
 # BDK configuration
 bdk:
-  host:
+  host: eis-dev10.symphony.com
   bot:
-    username:
+    username: soufianeBot
     privateKey:
-      path:
+      path: /Users/soufiane/.symphony/rsa-eis-dev10/private-key.pem
   default-headers:
     User-Agent: "Symphony-WDK/@wdk.version@ Java/${java.version}"
 
@@ -37,9 +40,25 @@ camunda:
 spring:
   datasource:
     username: sa
-    password:
+    password: sa
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    jdbc-url: jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    #jdbc-url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+    #jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    #jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+  camundadatasource:
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+    jdbc-url: jdbc:h2:file:./data2/wdk_database2;OLD_INFORMATION_SCHEMA=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+    #jdbc-url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -82,3 +101,4 @@ management:
         include: "*"
   server:
     port: 8081
+

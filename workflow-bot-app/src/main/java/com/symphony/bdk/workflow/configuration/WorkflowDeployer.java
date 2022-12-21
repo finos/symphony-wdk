@@ -1,6 +1,9 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.jpamodel.VersionedWorkflow;
+import com.symphony.bdk.workflow.jparepo.CustomerRepository;
+import com.symphony.bdk.workflow.jparepo.VersionedWorkflowRepository;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -10,9 +13,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -23,15 +28,21 @@ import java.util.Set;
 
 @Component
 @Slf4j
+@Transactional
 public class WorkflowDeployer {
 
   private final WorkflowEngine<BpmnModelInstance> workflowEngine;
+  private final VersionedWorkflowRepository versionedWorkflowRepository;
+  private final CustomerRepository customerRepository;
   private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
 
   private final Map<String, Path> workflowIdPathMap = new HashMap<>();
 
-  public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine) {
+  public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine,
+      VersionedWorkflowRepository versionedWorkflowRepository, CustomerRepository customerRepository) {
     this.workflowEngine = workflowEngine;
+    this.versionedWorkflowRepository = versionedWorkflowRepository;
+    this.customerRepository = customerRepository;
   }
 
   public void addAllWorkflowsFromFolder(Path path) {
@@ -65,12 +76,30 @@ public class WorkflowDeployer {
     if (workflow.isToPublish()) {
       log.debug("Deploying this new workflow");
       workflowEngine.deploy(workflow, instance);
+
+      // persist swadl
+      if (!workflow.getVersion().isBlank()) {
+        String swadl = Files.readString(workflowFile.toFile().toPath(), StandardCharsets.UTF_8);
+        this.persistSwadl(workflow.getId(), workflow.getVersion(), swadl);
+      }
+
     } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
-      log.debug("Workflow is a draft version, undeloying the old version");
+      log.debug("Workflow is a draft version, undeploy the old version");
       workflowEngine.undeploy(deployedWorkflow.getLeft());
     }
     deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
     workflowIdPathMap.put(workflow.getId(), workflowFile);
+  }
+
+  private void persistSwadl(String workflowId, String version, String swadl) {
+    VersionedWorkflow versionedWorkflow = new VersionedWorkflow();
+    //versionedWorkflow.setWorkflowId(workflowId);
+    versionedWorkflow.setSwadl(swadl);
+
+    this.versionedWorkflowRepository.save(versionedWorkflow);
+    Iterable<VersionedWorkflow> byId = this.versionedWorkflowRepository.findAll();
+
+    System.out.println("debug");
   }
 
 
