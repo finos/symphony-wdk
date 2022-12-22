@@ -1,11 +1,9 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.jpamodel.VersionedWorkflow;
-import com.symphony.bdk.workflow.jparepo.CustomerRepository;
-import com.symphony.bdk.workflow.jparepo.VersionedWorkflowRepository;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.versioning.service.VersioningService;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,21 +25,18 @@ import java.util.Set;
 
 @Component
 @Slf4j
-@Transactional
 public class WorkflowDeployer {
 
   private final WorkflowEngine<BpmnModelInstance> workflowEngine;
-  private final VersionedWorkflowRepository versionedWorkflowRepository;
-  private final CustomerRepository customerRepository;
+  private final VersioningService versioningService;
   private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
 
   private final Map<String, Path> workflowIdPathMap = new HashMap<>();
 
   public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine,
-      VersionedWorkflowRepository versionedWorkflowRepository, CustomerRepository customerRepository) {
+      VersioningService versioningService) {
     this.workflowEngine = workflowEngine;
-    this.versionedWorkflowRepository = versionedWorkflowRepository;
-    this.customerRepository = customerRepository;
+    this.versioningService = versioningService;
   }
 
   public void addAllWorkflowsFromFolder(Path path) {
@@ -92,13 +86,7 @@ public class WorkflowDeployer {
   }
 
   private void persistSwadl(String workflowId, String version, String swadl) {
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow();
-    //versionedWorkflow.setWorkflowId(workflowId);
-    versionedWorkflow.setSwadl(swadl);
-
-    this.versionedWorkflowRepository.save(versionedWorkflow);
-    Iterable<VersionedWorkflow> byId = this.versionedWorkflowRepository.findAll();
-
+    this.versioningService.save(workflowId, version, swadl);
     System.out.println("debug");
   }
 

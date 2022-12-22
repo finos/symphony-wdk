@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.jpamodel;
+package com.symphony.bdk.workflow.versioning.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 @ToString
@@ -16,29 +17,30 @@ public class VersionedWorkflow {
   //@EmbeddedId private VersionedWorkflowId versionedWorkflowId;
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long workflowId;
+  private Long id;
+
+  private String workflowId;
+
+  @Lob
   private String swadl;
 
   public VersionedWorkflow() {
 
   }
-
-  public VersionedWorkflow(Long  workflowId, String swadl) {
-    this.workflowId = workflowId;
-    this.swadl = swadl;
-  }
-
-
   public void setSwadl(String swadl) {
     this.swadl = swadl;
   }
 
-  public void setWorkflowId(Long workflowId) {
+  public void setWorkflowId(String workflowId) {
     this.workflowId = workflowId;
   }
 
-  public Long getWorkflowId() {
+  public String getWorkflowId() {
     return workflowId;
+  }
+
+  public Long getId() {
+    return id;
   }
 
   public String getSwadl() {

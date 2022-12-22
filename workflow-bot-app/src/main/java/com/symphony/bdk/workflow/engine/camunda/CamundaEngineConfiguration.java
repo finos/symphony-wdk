@@ -18,9 +18,10 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.sql.DataSource;
@@ -31,15 +32,18 @@ import javax.sql.DataSource;
 public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   private final BdkGateway bdkGateway;
+  private final EntityManagerFactory entityManagerFactory;
 
-  public CamundaEngineConfiguration(BdkGateway bdkGateway) {
+
+  public CamundaEngineConfiguration(BdkGateway bdkGateway, EntityManagerFactory entityManagerFactory) {
     this.bdkGateway = bdkGateway;
+    this.entityManagerFactory = entityManagerFactory;
   }
 
   @Bean
   public PlatformTransactionManager transactionManager(DataSource dataSource) {
     DataSource camundaDataSource = camundaDataSource();
-    return new DataSourceTransactionManager(camundaDataSource);
+    return new JpaTransactionManager(entityManagerFactory);
   }
 
 

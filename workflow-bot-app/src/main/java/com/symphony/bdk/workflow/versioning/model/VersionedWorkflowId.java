@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.jpamodel;
+package com.symphony.bdk.workflow.versioning.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
