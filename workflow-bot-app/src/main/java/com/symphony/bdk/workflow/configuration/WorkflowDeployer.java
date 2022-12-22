@@ -87,7 +87,6 @@ public class WorkflowDeployer {
 
   private void persistSwadl(String workflowId, String version, String swadl) {
     this.versioningService.save(workflowId, version, swadl);
-    System.out.println("debug");
   }
 
 

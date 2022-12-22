@@ -15,14 +15,8 @@ public class VersioningService {
   }
 
   public VersionedWorkflow save(String workflowId, String version, String swadl) {
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow();
-    versionedWorkflow.setWorkflowId(workflowId);
-    versionedWorkflow.setSwadl(swadl);
-
-    VersionedWorkflow entity = this.versionedWorkflowRepository.save(versionedWorkflow);
-
-    System.out.println("debug");
-
-    return entity;
+    VersionedWorkflow versionedWorkflow =
+        new VersionedWorkflow().setVersionedWorkflowId(workflowId, version).setSwadl(swadl);
+    return this.versionedWorkflowRepository.save(versionedWorkflow);
   }
 }

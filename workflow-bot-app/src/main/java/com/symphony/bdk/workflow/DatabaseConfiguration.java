@@ -11,10 +11,4 @@ public class DatabaseConfiguration {
 
   }
 
-  /*@Bean(name = {"dataSource"})
-  @Primary
-  @ConfigurationProperties(prefix = "spring.datasource")
-  public DataSource dataSource() {
-    return DataSourceBuilder.create().build();
-  }*/
 }

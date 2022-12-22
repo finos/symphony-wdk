@@ -41,46 +41,9 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
   }
 
   @Bean
-  public PlatformTransactionManager transactionManager(DataSource dataSource) {
-    DataSource camundaDataSource = camundaDataSource();
+  public PlatformTransactionManager transactionManager() {
     return new JpaTransactionManager(entityManagerFactory);
   }
-
-
- /* @Bean
-  // @ConfigurationProperties(prefix="spring.camunda.bpm")
-  public SpringProcessEngineConfiguration processEngineConfiguration() throws IOException {
-    SpringProcessEngineConfiguration config = new SpringProcessEngineConfiguration();
-
-    config.setDataSource(camundaDataSource());
-    config.setDatabaseSchemaUpdate("true");
-
-    config.setTransactionManager(transactionManager());
-    //config.setHistory(historyLevel);
-
-    config.setJobExecutorActivate(false);
-    config.setMetricsEnabled(false);
-    config.setJdbcBatchProcessing(false);
-    // deploy all processes from folder 'processes'classpath:/process/*.bpmn
-
-    config.setDeploymentResources(resources);
-
-    return config;
-  }*/
-
-
-  /*@Bean
-  @Primary
-  @ConfigurationProperties(prefix="spring.datasource")
-  public DataSource primaryDataSource() {
-    return DataSourceBuilder.create().build();
-  }
-
-  @Bean
-  @ConfigurationProperties(prefix="spring.camundadatasource")
-  public DataSource secondaryDataSource() {
-    return DataSourceBuilder.create().build();
-  }*/
 
   @Bean(name="camundaBpmDataSource")
   @ConfigurationProperties(prefix="spring.camundadatasource")
