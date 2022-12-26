@@ -22,8 +22,6 @@ public class VersioningService {
     VersionedWorkflow versionedWorkflow =
         new VersionedWorkflow().setVersionedWorkflowId(workflowId, version).setSwadl(swadl);
     this.versionedWorkflowRepository.save(versionedWorkflow);
-    Iterable<VersionedWorkflow> all = this.versionedWorkflowRepository.findAll();
-    System.out.println(all);
   }
 
   public List<VersionedWorkflow> findAll() {
