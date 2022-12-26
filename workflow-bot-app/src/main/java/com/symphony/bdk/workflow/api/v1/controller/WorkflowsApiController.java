@@ -12,7 +12,6 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.security.Authorized;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 import com.symphony.bdk.workflow.versioning.service.VersioningService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +49,7 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<List<WorkflowView>> listAllWorkflows(String token) {
+
     return ResponseEntity.ok(monitoringService.listAllWorkflows());
   }
 
