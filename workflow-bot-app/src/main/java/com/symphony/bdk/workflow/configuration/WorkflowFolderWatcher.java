@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
@@ -43,7 +41,7 @@ public class WorkflowFolderWatcher {
   }
 
   @Scheduled(fixedDelay = Long.MAX_VALUE) // will run once after startup and wait for file events
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  //@Transactional(propagation = Propagation.REQUIRES_NEW)
   public void monitorWorkflowsFolder() throws IOException {
     this.watchService = FileSystems.getDefault().newWatchService();
     this.workflowDeployer.addAllWorkflowsFromFolder(this.workflowsFolder);

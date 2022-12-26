@@ -26,6 +26,7 @@ import com.symphony.bdk.workflow.monitoring.repository.WorkflowQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
+import com.symphony.bdk.workflow.versioning.service.VersioningService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,8 @@ public class MonitoringService {
   private final ActivityQueryRepository activityQueryRepository;
   private final VariableQueryRepository variableQueryRepository;
   private final ObjectConverter objectConverter;
+
+  private final VersioningService versioningService;
 
 
   public List<WorkflowView> listAllWorkflows() {

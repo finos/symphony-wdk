@@ -47,9 +47,9 @@ class WorkflowUpdateActionTest {
 
   @Test
   void doAction_update_successful() {
-    when(deployer.workflowExist(anyString())).thenReturn(true);
+    when(deployer.workflowExist(anyString(), null)).thenReturn(true);
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mock(BpmnModelInstance.class));
-    when(deployer.workflowSwadlPath(anyString())).thenReturn(Path.of("./workflows"));
+    when(deployer.workflowSwadlPath(anyString(), anyString())).thenReturn(Path.of("./workflows"));
     WorkflowUpdateAction spied = spy(action);
     doNothing().when(spied).writeFile(anyString(), any(Workflow.class), anyString());
     spied.doAction(swadl);
@@ -71,7 +71,7 @@ class WorkflowUpdateActionTest {
 
   @Test
   void doAction_updateNonExisting_exception() {
-    when(deployer.workflowExist(anyString())).thenReturn(false);
+    when(deployer.workflowExist(anyString(), null)).thenReturn(false);
     assertThatThrownBy(() -> action.doAction(swadl), "No existing swadl must fail").isInstanceOf(
         NotFoundException.class).hasMessage("Workflow test does not exist");
   }

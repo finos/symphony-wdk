@@ -13,13 +13,13 @@ import javax.persistence.Lob;
 public class VersionedWorkflow {
 
   @EmbeddedId
-  private VersionedWorkflowId versionedWorkflowId;
+  public VersionedWorkflowId versionedWorkflowId;
   /*@Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;*/
 
   @Lob
-  private String swadl;
+  public String swadl;
 
   public VersionedWorkflow() {
 
@@ -40,5 +40,9 @@ public class VersionedWorkflow {
 
   public String getSwadl() {
     return swadl;
+  }
+
+  public void setVersionedWorkflowId(VersionedWorkflowId versionedWorkflowId) {
+    this.versionedWorkflowId = versionedWorkflowId;
   }
 }

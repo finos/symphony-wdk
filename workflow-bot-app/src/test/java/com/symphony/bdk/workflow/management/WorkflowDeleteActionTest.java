@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Collections;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -34,8 +35,8 @@ class WorkflowDeleteActionTest {
   void doAction_delete_successful() {
     Path path = mock(Path.class);
     File file = mock(File.class);
-    when(deployer.workflowExist(eq("id"))).thenReturn(true);
-    when(deployer.workflowSwadlPath(anyString())).thenReturn(path);
+    when(deployer.workflowExist(eq("id"), null)).thenReturn(true);
+    when(deployer.workflowSwadlPath(anyString())).thenReturn(Collections.singletonList(path));
     when(path.toFile()).thenReturn(file);
     when(file.delete()).thenReturn(true);
     action.doAction("id");
@@ -47,8 +48,8 @@ class WorkflowDeleteActionTest {
   void doAction_delete_fileNotExist() {
     Path path = mock(Path.class);
     File file = mock(File.class);
-    when(deployer.workflowExist(eq("id"))).thenReturn(true);
-    when(deployer.workflowSwadlPath(anyString())).thenReturn(path);
+    when(deployer.workflowExist(eq("id"), null)).thenReturn(true);
+    when(deployer.workflowSwadlPath(anyString())).thenReturn(Collections.singletonList(path));
     when(path.toFile()).thenReturn(file);
     when(file.delete()).thenReturn(false);
     Assertions.assertThatThrownBy(() -> action.doAction("id"), "Deletion on non-existing file must fail")
@@ -58,7 +59,7 @@ class WorkflowDeleteActionTest {
 
   @Test
   void doAction_delete_fileNull() {
-    when(deployer.workflowExist(eq("id"))).thenReturn(false);
+    when(deployer.workflowExist(eq("id"), null)).thenReturn(false);
     Assertions.assertThatThrownBy(() -> action.doAction("id"), "Deletion on non-existing file must fail")
         .isInstanceOf(NotFoundException.class)
         .hasMessage("Workflow id does not exist");

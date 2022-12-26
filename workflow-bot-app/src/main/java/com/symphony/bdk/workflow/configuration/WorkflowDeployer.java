@@ -8,6 +8,7 @@ import com.symphony.bdk.workflow.versioning.service.VersioningService;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,8 +21,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -29,9 +32,9 @@ public class WorkflowDeployer {
 
   private final WorkflowEngine<BpmnModelInstance> workflowEngine;
   private final VersioningService versioningService;
-  private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
+  private final Map<Path, Triple<String, String, Boolean>> deployedWorkflows = new HashMap<>();
 
-  private final Map<String, Path> workflowIdPathMap = new HashMap<>();
+  private final Map<Pair<String, String>, Path> workflowIdPathMap = new HashMap<>();
 
   public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine,
       VersioningService versioningService) {
@@ -66,23 +69,22 @@ public class WorkflowDeployer {
     log.debug("Adding a new workflow");
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     BpmnModelInstance instance = workflowEngine.parseAndValidate(workflow);
-    Pair<String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
+
+    Triple<String, String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
     if (workflow.isToPublish()) {
       log.debug("Deploying this new workflow");
       workflowEngine.deploy(workflow, instance);
 
       // persist swadl
-      if (!workflow.getVersion().isBlank()) {
-        String swadl = Files.readString(workflowFile.toFile().toPath(), StandardCharsets.UTF_8);
-        this.persistSwadl(workflow.getId(), workflow.getVersion(), swadl);
-      }
+      String swadl = Files.readString(workflowFile.toFile().toPath(), StandardCharsets.UTF_8);
+      this.persistSwadl(workflow.getId(), workflow.getVersion(), swadl);
 
     } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
       log.debug("Workflow is a draft version, undeploy the old version");
       workflowEngine.undeploy(deployedWorkflow.getLeft());
     }
-    deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
-    workflowIdPathMap.put(workflow.getId(), workflowFile);
+    deployedWorkflows.put(workflowFile, Triple.of(workflow.getId(), workflow.getVersion(), workflow.isToPublish()));
+    workflowIdPathMap.put(Pair.of(workflow.getId(), workflow.getVersion()), workflowFile);
   }
 
   private void persistSwadl(String workflowId, String version, String swadl) {
@@ -97,9 +99,10 @@ public class WorkflowDeployer {
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
         String workflowId = deployedWorkflows.get(changedFile).getLeft();
+        String workflowVersion = deployedWorkflows.get(changedFile).getMiddle();
         this.workflowEngine.undeploy(workflowId);
         this.deployedWorkflows.remove(changedFile);
-        this.workflowIdPathMap.remove(workflowId);
+        this.workflowIdPathMap.remove(Pair.of(workflowId, workflowVersion));
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
         this.addWorkflow(changedFile);
@@ -114,12 +117,20 @@ public class WorkflowDeployer {
     return changedFile.toString().endsWith(".yaml") || changedFile.toString().endsWith(".yml");
   }
 
-  public boolean workflowExist(String id) {
-    return workflowIdPathMap.containsKey(id);
+  public boolean workflowExist(String id, String version) {
+    return workflowIdPathMap.containsKey(Pair.of(id, version));
   }
 
-  public Path workflowSwadlPath(String id) {
-    return workflowIdPathMap.get(id);
+  public Path workflowSwadlPath(String id, String version) {
+    return workflowIdPathMap.get(Pair.of(id, version));
+  }
+
+  public List<Path> workflowSwadlPath(String id) {
+    return workflowIdPathMap.keySet()
+        .stream()
+        .filter(key -> key.getLeft().equals(id))
+        .map(workflowIdPathMap::get)
+        .collect(Collectors.toList());
   }
 
   public Set<Path> workflowSwadlPaths() {

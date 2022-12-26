@@ -15,6 +15,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -36,12 +38,12 @@ public abstract class WorkflowAbstractAction {
     }
   }
 
-  protected Path getWorkflowFilePath(String id) {
-    return deployer.workflowSwadlPath(id);
+  protected Path getWorkflowFilePath(String id, String version) {
+    return deployer.workflowSwadlPath(id, version);
   }
 
-  protected boolean workflowExist(String id) {
-    return deployer.workflowExist(id);
+  protected boolean workflowExist(String id, String version) {
+    return deployer.workflowExist(id, version);
   }
 
   protected void writeFile(String content, Workflow workflow, String path) {
@@ -56,12 +58,18 @@ public abstract class WorkflowAbstractAction {
   }
 
   protected void deleteFile(String workflowId) {
-    if (!workflowExist(workflowId)) {
+    if (!workflowExist(workflowId, null)) {
       throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
     }
-    File file = deployer.workflowSwadlPath(workflowId).toFile();
-    if (!file.delete()) {
-      throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
-    }
+    List<File> filesToDelete =
+        deployer.workflowSwadlPath(workflowId)
+            .stream()
+            .map(Path::toFile)
+            .collect(Collectors.toList());
+    filesToDelete.forEach(file -> {
+      if (!file.delete()) {
+        throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
+      }
+    });
   }
 }
