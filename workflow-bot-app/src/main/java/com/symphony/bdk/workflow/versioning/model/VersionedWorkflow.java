@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.versioning.model;
 
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.EmbeddedId;
@@ -9,17 +8,16 @@ import javax.persistence.Lob;
 
 @Entity
 @ToString
-@EqualsAndHashCode
+//@EqualsAndHashCode
 public class VersionedWorkflow {
 
   @EmbeddedId
   public VersionedWorkflowId versionedWorkflowId;
-  /*@Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long id;*/
 
   @Lob
   public String swadl;
+  public String path;
+  public boolean isToPublish;
 
   public VersionedWorkflow() {
 
@@ -29,8 +27,26 @@ public class VersionedWorkflow {
     return this;
   }
 
-  public VersionedWorkflowId getVersionedWorkflowId() {
+  public VersionedWorkflow setPath(String path) {
+    this.path = path;
+    return this;
+  }
+
+  public VersionedWorkflow setIsToPublish(boolean isToPublish) {
+    this.isToPublish = isToPublish;
+    return this;
+  }
+
+  /*public VersionedWorkflowId getVersionedWorkflowId() {
     return versionedWorkflowId;
+  }*/
+
+  public String getId() {
+    return this.versionedWorkflowId.getId();
+  }
+
+  public String getVersion() {
+    return this.versionedWorkflowId.getVersion();
   }
 
   public VersionedWorkflow setVersionedWorkflowId(String id, String version) {
@@ -42,7 +58,15 @@ public class VersionedWorkflow {
     return swadl;
   }
 
-  public void setVersionedWorkflowId(VersionedWorkflowId versionedWorkflowId) {
-    this.versionedWorkflowId = versionedWorkflowId;
+  public String getPath() {
+    return path;
   }
+
+  public boolean isToPublish() {
+    return isToPublish;
+  }
+
+  /*public void setVersionedWorkflowId(VersionedWorkflowId versionedWorkflowId) {
+    this.versionedWorkflowId = versionedWorkflowId;
+  }*/
 }

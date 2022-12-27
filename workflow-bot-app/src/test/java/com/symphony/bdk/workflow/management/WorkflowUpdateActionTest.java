@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -37,6 +38,8 @@ class WorkflowUpdateActionTest {
   WorkflowUpdateAction action;
 
   private static final String swadl = "id: test\n"
+      + "properties:\n"
+      + "  version: v2\n"
       + "activities:\n"
       + "  - send-message:\n"
       + "      id: msg\n"
@@ -47,7 +50,7 @@ class WorkflowUpdateActionTest {
 
   @Test
   void doAction_update_successful() {
-    when(deployer.workflowExist(anyString(), null)).thenReturn(true);
+    when(deployer.workflowExist(anyString(), eq("v2"))).thenReturn(true);
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mock(BpmnModelInstance.class));
     when(deployer.workflowSwadlPath(anyString(), anyString())).thenReturn(Path.of("./workflows"));
     WorkflowUpdateAction spied = spy(action);
@@ -71,9 +74,9 @@ class WorkflowUpdateActionTest {
 
   @Test
   void doAction_updateNonExisting_exception() {
-    when(deployer.workflowExist(anyString(), null)).thenReturn(false);
+    when(deployer.workflowExist(anyString(), eq("v2"))).thenReturn(false);
     assertThatThrownBy(() -> action.doAction(swadl), "No existing swadl must fail").isInstanceOf(
-        NotFoundException.class).hasMessage("Workflow test does not exist");
+        NotFoundException.class).hasMessage("Version v2 of the workflow test does not exist");
   }
 
   @Test

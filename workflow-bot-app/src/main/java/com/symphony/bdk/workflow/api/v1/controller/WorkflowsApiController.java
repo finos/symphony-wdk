@@ -12,7 +12,6 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.security.Authorized;
-import com.symphony.bdk.workflow.versioning.service.VersioningService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -30,12 +29,10 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   private final MonitoringService monitoringService;
   private final WorkflowEngine<BpmnModelInstance> workflowEngine;
-  private final VersioningService versioningService;
 
-  public WorkflowsApiController(WorkflowEngine<BpmnModelInstance> workflowEngine, MonitoringService monitoringService, VersioningService versioningService) {
+  public WorkflowsApiController(WorkflowEngine<BpmnModelInstance> workflowEngine, MonitoringService monitoringService) {
     this.workflowEngine = workflowEngine;
     this.monitoringService = monitoringService;
-    this.versioningService = versioningService;
   }
 
   @Override

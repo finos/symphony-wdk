@@ -24,7 +24,8 @@ public class WorkflowUpdateAction extends WorkflowAbstractAction implements Work
   public void doAction(String content) {
     Workflow workflow = this.convertToWorkflow(content);
     if (!this.workflowExist(workflow.getId(), workflow.getVersion())) {
-      throw new NotFoundException(String.format("Workflow %s does not exist", workflow.getId()));
+      throw new NotFoundException(
+          String.format("Version %s of the workflow %s does not exist", workflow.getVersion(), workflow.getId()));
     }
     workflowEngine.parseAndValidate(workflow);
     Path path = this.getWorkflowFilePath(workflow.getId(), workflow.getVersion());

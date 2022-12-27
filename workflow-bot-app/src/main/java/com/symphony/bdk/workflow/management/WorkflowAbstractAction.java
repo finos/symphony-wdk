@@ -33,7 +33,7 @@ public abstract class WorkflowAbstractAction {
   }
 
   protected void validateFilePath(String path) {
-    if (deployer.workflowSwadlPaths().contains(Path.of(path))) {
+    if (deployer.isPathAlreadyExist(Path.of(path))) {
       throw new DuplicateException("SWADL file already exists");
     }
   }
@@ -44,6 +44,10 @@ public abstract class WorkflowAbstractAction {
 
   protected boolean workflowExist(String id, String version) {
     return deployer.workflowExist(id, version);
+  }
+
+  protected boolean workflowExist(String id) {
+    return deployer.workflowExist(id);
   }
 
   protected void writeFile(String content, Workflow workflow, String path) {
@@ -58,7 +62,7 @@ public abstract class WorkflowAbstractAction {
   }
 
   protected void deleteFile(String workflowId) {
-    if (!workflowExist(workflowId, null)) {
+    if (!workflowExist(workflowId)) {
       throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
     }
     List<File> filesToDelete =

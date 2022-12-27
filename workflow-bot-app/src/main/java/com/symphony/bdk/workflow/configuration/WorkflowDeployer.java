@@ -1,14 +1,14 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 import com.symphony.bdk.workflow.versioning.service.VersioningService;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,10 +20,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -32,9 +30,6 @@ public class WorkflowDeployer {
 
   private final WorkflowEngine<BpmnModelInstance> workflowEngine;
   private final VersioningService versioningService;
-  private final Map<Path, Triple<String, String, Boolean>> deployedWorkflows = new HashMap<>();
-
-  private final Map<Pair<String, String>, Path> workflowIdPathMap = new HashMap<>();
 
   public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine,
       VersioningService versioningService) {
@@ -70,25 +65,24 @@ public class WorkflowDeployer {
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     BpmnModelInstance instance = workflowEngine.parseAndValidate(workflow);
 
-    Triple<String, String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
+    //TODO: Given that {id, version} is unique, do we still get workflow by file? it would require an index to make it correctly fast
+    Optional<VersionedWorkflow> deployedWorkflow = this.versioningService.find(workflowFile);
     if (workflow.isToPublish()) {
       log.debug("Deploying this new workflow");
       workflowEngine.deploy(workflow, instance);
 
       // persist swadl
       String swadl = Files.readString(workflowFile.toFile().toPath(), StandardCharsets.UTF_8);
-      this.persistSwadl(workflow.getId(), workflow.getVersion(), swadl);
+      this.persistWorkflow(workflow.getId(), workflow.getVersion(), swadl, workflowFile.toString());
 
-    } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
+    } else if (deployedWorkflow.isPresent() && deployedWorkflow.get().isToPublish()) {
       log.debug("Workflow is a draft version, undeploy the old version");
-      workflowEngine.undeploy(deployedWorkflow.getLeft());
+      workflowEngine.undeploy(deployedWorkflow.get().getId());
     }
-    deployedWorkflows.put(workflowFile, Triple.of(workflow.getId(), workflow.getVersion(), workflow.isToPublish()));
-    workflowIdPathMap.put(Pair.of(workflow.getId(), workflow.getVersion()), workflowFile);
   }
 
-  private void persistSwadl(String workflowId, String version, String swadl) {
-    this.versioningService.save(workflowId, version, swadl);
+  private void persistWorkflow(String workflowId, String version, String swadl, String swadlPath) {
+    this.versioningService.save(workflowId, version, swadl, swadlPath);
   }
 
 
@@ -98,11 +92,13 @@ public class WorkflowDeployer {
         this.addWorkflow(changedFile);
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-        String workflowId = deployedWorkflows.get(changedFile).getLeft();
-        String workflowVersion = deployedWorkflows.get(changedFile).getMiddle();
-        this.workflowEngine.undeploy(workflowId);
-        this.deployedWorkflows.remove(changedFile);
-        this.workflowIdPathMap.remove(Pair.of(workflowId, workflowVersion));
+        Optional<VersionedWorkflow> versionedWorkflow = this.versioningService.find(changedFile);
+        if (versionedWorkflow.isPresent()) {
+          String workflowId = versionedWorkflow.get().getId();
+          String workflowVersion = versionedWorkflow.get().getVersion();
+          this.workflowEngine.undeploy(workflowId);
+          this.versioningService.delete(workflowId, workflowVersion);
+        }
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
         this.addWorkflow(changedFile);
@@ -118,22 +114,29 @@ public class WorkflowDeployer {
   }
 
   public boolean workflowExist(String id, String version) {
-    return workflowIdPathMap.containsKey(Pair.of(id, version));
+    return this.versioningService.find(id, version).isPresent();
+  }
+
+  public boolean workflowExist(String id) {
+    return !this.versioningService.find(id).isEmpty();
+    //return workflowIdPathMap.containsKey(Pair.of(id, version));
   }
 
   public Path workflowSwadlPath(String id, String version) {
-    return workflowIdPathMap.get(Pair.of(id, version));
+    return this.versioningService.find(id, version)
+        .map(workflow -> Path.of(workflow.getPath()))
+        .orElseThrow(
+            () -> new NotFoundException(String.format("Version %s of the workflow %s does not exist", id, version)));
   }
 
   public List<Path> workflowSwadlPath(String id) {
-    return workflowIdPathMap.keySet()
+    return this.versioningService.find(id)
         .stream()
-        .filter(key -> key.getLeft().equals(id))
-        .map(workflowIdPathMap::get)
+        .map(workflow -> Path.of(workflow.getPath()))
         .collect(Collectors.toList());
   }
 
-  public Set<Path> workflowSwadlPaths() {
-    return deployedWorkflows.keySet();
+  public boolean isPathAlreadyExist(Path path) {
+    return this.versioningService.find(path).isPresent();
   }
 }

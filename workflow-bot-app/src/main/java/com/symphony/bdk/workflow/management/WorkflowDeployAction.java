@@ -51,7 +51,8 @@ public class WorkflowDeployAction extends WorkflowAbstractAction implements Work
 
   private void validateWorkflowUniqueness(Workflow workflow) {
     if (this.workflowExist(workflow.getId(), workflow.getVersion())) {
-      throw new DuplicateException(String.format("Workflow %s already exists", workflow.getId()));
+      throw new DuplicateException(
+          String.format("Version %s of the workflow %s already exists", workflow.getVersion(), workflow.getId()));
     }
   }
 
