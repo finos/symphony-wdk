@@ -24,6 +24,7 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
+import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowsMgtActionHolder;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
@@ -59,16 +60,19 @@ class WorkflowsApiControllerTest {
   private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
 
   @Autowired
-  protected MockMvc mockMvc;
+  MockMvc mockMvc;
 
   @MockBean
   WorkflowsMgtActionHolder mgtActionHolder;
 
   @MockBean
-  protected MonitoringService monitoringService;
+  MonitoringService monitoringService;
 
   @MockBean
-  protected WorkflowEngine<BpmnModelInstance> workflowEngine;
+  LogsStreamingService logsStreamingService;
+
+  @MockBean
+  WorkflowEngine<BpmnModelInstance> workflowEngine;
 
   @Test
   void executeWorkflowById_validRequestTest() throws Exception {
