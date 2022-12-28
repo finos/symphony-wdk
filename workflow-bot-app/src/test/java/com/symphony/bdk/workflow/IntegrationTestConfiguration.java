@@ -39,8 +39,8 @@ public class IntegrationTestConfiguration implements ProcessEnginePlugin {
     return new TestResourcesProvider(Paths.get("dummy").toString());
   }
 
-  @Bean(name="camundaBpmDataSource")
-  @ConfigurationProperties(prefix="spring.camundadatasource")
+  @Bean(name = "camundaBpmDataSource")
+  @ConfigurationProperties(prefix = "spring.camundadatasource")
   public DataSource camundaDataSource() {
     return DataSourceBuilder.create().build();
   }
@@ -68,8 +68,6 @@ public class IntegrationTestConfiguration implements ProcessEnginePlugin {
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    //processEngineConfiguration.getBeans().put(
-      //  UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(this.bdkGateway.session()));
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 

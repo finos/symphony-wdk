@@ -1,11 +1,15 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
+import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY;
+import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_KEY;
+
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -14,9 +18,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY;
-import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_KEY;
-
 @Slf4j
 public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
 
@@ -24,7 +25,7 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
     String messageId = execution.getActivity().getMessageId();
     log.debug("Updating message [{}]", messageId);
-    V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
+    V4Message messageToUpdate = execution.bdk().messages().getMessage(messageId);
     String content = extractContent(execution);
     Boolean silent = execution.getActivity().getSilent();
     log.debug("Updating message silently ? [{}]", silent);

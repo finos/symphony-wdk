@@ -10,5 +10,6 @@ import java.util.Optional;
 
 public interface VersionedWorkflowRepository extends JpaRepository<VersionedWorkflow, VersionedWorkflowId> {
   List<VersionedWorkflow> findByVersionedWorkflowIdId(String workflowId);
+
   Optional<VersionedWorkflow> findByPath(String path);
 }

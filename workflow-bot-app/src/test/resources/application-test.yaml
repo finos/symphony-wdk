@@ -28,3 +28,10 @@ camunda:
       # faster test execution by waking up the job executor quickly
       wait-time-in-millis: 50
       max-wait: 50
+
+spring:
+  camundadatasource:
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+    jdbc-url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE

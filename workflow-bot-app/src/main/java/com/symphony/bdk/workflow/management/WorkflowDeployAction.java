@@ -45,7 +45,7 @@ public class WorkflowDeployAction extends WorkflowAbstractAction implements Work
     if (StringUtils.isNotBlank(workflow.getVersion())) {
       path += "-" + workflow.getVersion();
     }
-    path +=".swadl.yaml";
+    path += ".swadl.yaml";
     return path;
   }
 

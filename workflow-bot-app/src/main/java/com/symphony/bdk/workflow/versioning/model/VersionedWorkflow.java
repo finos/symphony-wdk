@@ -22,6 +22,7 @@ public class VersionedWorkflow {
   public VersionedWorkflow() {
 
   }
+
   public VersionedWorkflow setSwadl(String swadl) {
     this.swadl = swadl;
     return this;

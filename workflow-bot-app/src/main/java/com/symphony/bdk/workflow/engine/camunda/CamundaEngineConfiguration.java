@@ -47,8 +47,8 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
     return new JpaTransactionManager(entityManagerFactory);
   }
 
-  @Bean(name="camundaBpmDataSource")
-  @ConfigurationProperties(prefix="spring.camundadatasource")
+  @Bean(name = "camundaBpmDataSource")
+  @ConfigurationProperties(prefix = "spring.camundadatasource")
   public DataSource camundaDataSource() {
     return DataSourceBuilder.create().build();
   }
