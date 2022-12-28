@@ -24,7 +24,7 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   public void execute(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
     String messageId = execution.getActivity().getMessageId();
     log.debug("Updating message [{}]", messageId);
-    V4Message messageToUpdate =  execution.bdk().messages().getMessage(messageId);
+    V4Message messageToUpdate = execution.bdk().messages().getMessage(messageId);
     String content = extractContent(execution);
     Boolean silent = execution.getActivity().getSilent();
     log.debug("Updating message silently ? [{}]", silent);
