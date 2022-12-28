@@ -9,11 +9,12 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @Slf4j
 public class LogsStreamingService {
-  private final List<SseEmitter> emitters = new ArrayList<>();
+  private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
   @Async
   public void subscribe(SseEmitter emitter) {
