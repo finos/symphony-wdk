@@ -1,18 +1,18 @@
 package com.symphony.bdk.workflow.versioning.model;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 @Embeddable
-@ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@Data
+@Getter
+@Generated // not tested
 public class VersionedWorkflowId implements Serializable {
 
   public String id;
@@ -32,21 +32,5 @@ public class VersionedWorkflowId implements Serializable {
   public VersionedWorkflowId version(String version) {
     this.version = version;
     return this;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public String getVersion() {
-    return version;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public void setVersion(String version) {
-    this.version = version;
   }
 }

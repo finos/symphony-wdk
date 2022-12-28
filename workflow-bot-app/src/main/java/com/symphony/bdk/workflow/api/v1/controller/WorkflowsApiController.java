@@ -46,7 +46,6 @@ public class WorkflowsApiController implements WorkflowsApi {
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
   public ResponseEntity<List<WorkflowView>> listAllWorkflows(String token) {
-
     return ResponseEntity.ok(monitoringService.listAllWorkflows());
   }
 

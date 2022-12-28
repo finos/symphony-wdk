@@ -6,7 +6,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 class WorkflowResourcesProviderTest {
@@ -22,5 +25,18 @@ class WorkflowResourcesProviderTest {
     assertThat(path).isAbsolute();
 
     assertThat(IOUtils.toByteArray(provider.getResource(relativePath))).isEqualTo(DATA);
+  }
+
+  @Test
+  void saveResource_getResourceFile(@TempDir Path tempDir) throws IOException {
+    WorkflowResourcesProvider provider = new WorkflowResourcesProvider(tempDir.toString());
+
+    Path relativePath = Path.of("test.txt");
+    Path path = provider.saveResource(relativePath, DATA);
+    assertThat(path).isAbsolute();
+
+    File resourceFile = provider.getResourceFile(relativePath);
+    InputStream inputStream = Files.newInputStream(resourceFile.toPath());
+    assertThat(IOUtils.toByteArray(inputStream)).isEqualTo(DATA);
   }
 }

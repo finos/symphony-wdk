@@ -65,7 +65,6 @@ public class WorkflowDeployer {
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     BpmnModelInstance instance = workflowEngine.parseAndValidate(workflow);
 
-    //TODO: Given that {id, version} is unique, do we still get workflow by file? it would require an index to make it correctly fast
     Optional<VersionedWorkflow> deployedWorkflow = this.versioningService.find(workflowFile);
     if (workflow.isToPublish()) {
       log.debug("Deploying this new workflow");
@@ -77,14 +76,13 @@ public class WorkflowDeployer {
 
     } else if (deployedWorkflow.isPresent() && deployedWorkflow.get().isToPublish()) {
       log.debug("Workflow is a draft version, undeploy the old version");
-      workflowEngine.undeploy(deployedWorkflow.get().getId());
+      workflowEngine.undeploy(deployedWorkflow.get().getVersionedWorkflowId().getId());
     }
   }
 
   private void persistWorkflow(String workflowId, String version, String swadl, String swadlPath) {
     this.versioningService.save(workflowId, version, swadl, swadlPath);
   }
-
 
   public void handleFileEvent(Path changedFile, WatchEvent<Path> event) throws IOException, ProcessingException {
     if (isYaml(changedFile)) {
@@ -94,8 +92,8 @@ public class WorkflowDeployer {
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
         Optional<VersionedWorkflow> versionedWorkflow = this.versioningService.find(changedFile);
         if (versionedWorkflow.isPresent()) {
-          String workflowId = versionedWorkflow.get().getId();
-          String workflowVersion = versionedWorkflow.get().getVersion();
+          String workflowId = versionedWorkflow.get().getVersionedWorkflowId().getId();
+          String workflowVersion = versionedWorkflow.get().getVersionedWorkflowId().getVersion();
           this.workflowEngine.undeploy(workflowId);
           this.versioningService.delete(workflowId, workflowVersion);
         }
@@ -119,14 +117,13 @@ public class WorkflowDeployer {
 
   public boolean workflowExist(String id) {
     return !this.versioningService.find(id).isEmpty();
-    //return workflowIdPathMap.containsKey(Pair.of(id, version));
   }
 
   public Path workflowSwadlPath(String id, String version) {
     return this.versioningService.find(id, version)
         .map(workflow -> Path.of(workflow.getPath()))
         .orElseThrow(
-            () -> new NotFoundException(String.format("Version %s of the workflow %s does not exist", id, version)));
+            () -> new NotFoundException(String.format("Version %s of the workflow %s does not exist", version, id)));
   }
 
   public List<Path> workflowSwadlPath(String id) {

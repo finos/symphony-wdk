@@ -41,7 +41,6 @@ public class WorkflowFolderWatcher {
   }
 
   @Scheduled(fixedDelay = Long.MAX_VALUE) // will run once after startup and wait for file events
-  //@Transactional(propagation = Propagation.REQUIRES_NEW)
   public void monitorWorkflowsFolder() throws IOException {
     this.watchService = FileSystems.getDefault().newWatchService();
     this.workflowDeployer.addAllWorkflowsFromFolder(this.workflowsFolder);

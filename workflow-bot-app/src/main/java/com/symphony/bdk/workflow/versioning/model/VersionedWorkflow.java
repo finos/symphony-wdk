@@ -1,14 +1,17 @@
 package com.symphony.bdk.workflow.versioning.model;
 
-import lombok.ToString;
+import lombok.Generated;
+import lombok.Getter;
+import org.hibernate.Hibernate;
 
+import java.util.Objects;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 
 @Entity
-@ToString
-//@EqualsAndHashCode
+@Getter
+@Generated // not tested
 public class VersionedWorkflow {
 
   @EmbeddedId
@@ -20,7 +23,6 @@ public class VersionedWorkflow {
   public boolean isToPublish;
 
   public VersionedWorkflow() {
-
   }
 
   public VersionedWorkflow setSwadl(String swadl) {
@@ -38,36 +40,25 @@ public class VersionedWorkflow {
     return this;
   }
 
-  /*public VersionedWorkflowId getVersionedWorkflowId() {
-    return versionedWorkflowId;
-  }*/
-
-  public String getId() {
-    return this.versionedWorkflowId.getId();
-  }
-
-  public String getVersion() {
-    return this.versionedWorkflowId.getVersion();
-  }
-
   public VersionedWorkflow setVersionedWorkflowId(String id, String version) {
     this.versionedWorkflowId = new VersionedWorkflowId(id, version);
     return this;
   }
 
-  public String getSwadl() {
-    return swadl;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+      return false;
+    }
+    VersionedWorkflow that = (VersionedWorkflow) o;
+    return versionedWorkflowId != null && Objects.equals(versionedWorkflowId, that.versionedWorkflowId);
   }
 
-  public String getPath() {
-    return path;
+  @Override
+  public int hashCode() {
+    return Objects.hash(versionedWorkflowId);
   }
-
-  public boolean isToPublish() {
-    return isToPublish;
-  }
-
-  /*public void setVersionedWorkflowId(VersionedWorkflowId versionedWorkflowId) {
-    this.versionedWorkflowId = versionedWorkflowId;
-  }*/
 }

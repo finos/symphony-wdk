@@ -4,6 +4,7 @@ wdk:
     path: ./workflows
   properties:
     monitoring-token: ${wdk.monitoring.token:} # The default value is an empty String
+    management-token: ${wdk.monitoring.token:} # The default value is an empty String
 
 # BDK configuration
 bdk:
@@ -12,6 +13,7 @@ bdk:
     username:
     privateKey:
       path:
+
   default-headers:
     User-Agent: "Symphony-WDK/@wdk.version@ Java/${java.version}"
 
@@ -39,22 +41,17 @@ spring:
     username: sa
     password: sa
     driver-class-name: org.h2.Driver
-    jdbc-url: jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+    jdbc-url: jdbc:h2:file:./data/versioning_database;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
-    #jdbc-url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-
-    #jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    #jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
 
   camundadatasource:
     username: sa
     password: sa
     driver-class-name: org.h2.Driver
-    jdbc-url: jdbc:h2:file:./data2/wdk_database2;OLD_INFORMATION_SCHEMA=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
-    #jdbc-url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    jdbc-url: jdbc:h2:file:./data/wdk_database;OLD_INFORMATION_SCHEMA=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
 
   mvc:
     pathmatch:
