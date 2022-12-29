@@ -134,7 +134,6 @@ public class WorkflowDeployerTest {
 
   @Test
   void testAddAllWorkflowsFromFolderException() {
-    BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
     String file = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> workflowDeployer.addAllWorkflowsFromFolder(Path.of(file)))

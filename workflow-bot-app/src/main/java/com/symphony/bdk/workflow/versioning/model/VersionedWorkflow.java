@@ -2,7 +2,6 @@ package com.symphony.bdk.workflow.versioning.model;
 
 import lombok.Generated;
 import lombok.Getter;
-import org.hibernate.Hibernate;
 
 import java.util.Objects;
 import javax.persistence.EmbeddedId;
@@ -50,7 +49,8 @@ public class VersionedWorkflow {
     if (this == o) {
       return true;
     }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
     VersionedWorkflow that = (VersionedWorkflow) o;
