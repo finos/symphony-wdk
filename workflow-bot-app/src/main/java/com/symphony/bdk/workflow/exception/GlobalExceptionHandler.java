@@ -52,6 +52,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
+  @ExceptionHandler(UnprocessableEntityException.class)
+  public ResponseEntity<ErrorResponse> handle(UnprocessableEntityException exception) {
+    log.error("Unprocessable entity exception: [{}]", exception.getMessage());
+    log.debug("", exception);
+    return handle(exception.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+  }
+
   private ResponseEntity<ErrorResponse> handle(String errorMessage, HttpStatus status) {
     return ResponseEntity.status(status).body(new ErrorResponse(errorMessage));
   }

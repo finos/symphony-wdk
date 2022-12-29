@@ -41,7 +41,7 @@ spring:
     username: sa
     password: sa
     driver-class-name: org.h2.Driver
-    jdbc-url: jdbc:h2:file:./data/versioning_database;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+    jdbc-url: jdbc:h2:mem:versioning_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
   jpa:
     show-sql: true
     hibernate:
@@ -51,7 +51,7 @@ spring:
     username: sa
     password: sa
     driver-class-name: org.h2.Driver
-    jdbc-url: jdbc:h2:file:./data/wdk_database;OLD_INFORMATION_SCHEMA=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+    jdbc-url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
 
   mvc:
     pathmatch:
