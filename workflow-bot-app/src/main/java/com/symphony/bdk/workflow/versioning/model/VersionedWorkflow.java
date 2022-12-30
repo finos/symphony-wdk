@@ -4,22 +4,35 @@ import lombok.Generated;
 import lombok.Getter;
 
 import java.util.Objects;
-import javax.persistence.EmbeddedId;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"workflowId", "version"}),
+    indexes = @Index(name = "versionedWorkflowIndex", columnList = "workflowId, version", unique = true))
 @Getter
 @Generated // not tested
 public class VersionedWorkflow {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long uid;
 
-  @EmbeddedId
-  public VersionedWorkflowId versionedWorkflowId;
+  private String workflowId;
+
+  private String version;
 
   @Lob
-  public String swadl;
-  public String path;
-  public boolean isToPublish;
+  @Column(length = Integer.MAX_VALUE)
+  private String swadl;
+  private String path;
+  private boolean isToPublish;
 
   public VersionedWorkflow() {
   }
@@ -39,8 +52,13 @@ public class VersionedWorkflow {
     return this;
   }
 
-  public VersionedWorkflow setVersionedWorkflowId(String id, String version) {
-    this.versionedWorkflowId = new VersionedWorkflowId(id, version);
+  public VersionedWorkflow setWorkflowId(String workflowId) {
+    this.workflowId = workflowId;
+    return this;
+  }
+
+  public VersionedWorkflow setVersion(String version) {
+    this.version = version;
     return this;
   }
 
@@ -54,11 +72,11 @@ public class VersionedWorkflow {
       return false;
     }
     VersionedWorkflow that = (VersionedWorkflow) o;
-    return versionedWorkflowId != null && Objects.equals(versionedWorkflowId, that.versionedWorkflowId);
+    return uid != null && Objects.equals(uid, that.uid);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(versionedWorkflowId);
+    return Objects.hash(uid, workflowId, version, swadl, path, isToPublish);
   }
 }

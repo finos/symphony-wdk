@@ -1,14 +1,24 @@
 package com.symphony.bdk.workflow.configuration;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.exception.DuplicateException;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 import com.symphony.bdk.workflow.versioning.service.VersioningService;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 public class WorkflowDeployerTest {
@@ -47,29 +51,29 @@ public class WorkflowDeployerTest {
 
   @Test
   void testWorkflowNotExists() {
-    when(versioningService.find("id")).thenReturn(Collections.emptyList());
-    boolean exist = workflowDeployer.workflowExist("id");
+    when(versioningService.findByWorkflowId("id")).thenReturn(Collections.emptyList());
+    boolean exist = workflowDeployer.workflowExists("id");
     assertThat(exist).isFalse();
   }
 
   @Test
   void testWorkflowExists() {
-    when(versioningService.find("id")).thenReturn(Collections.singletonList(new VersionedWorkflow()));
-    boolean exist = workflowDeployer.workflowExist("id");
+    when(versioningService.findByWorkflowId("id")).thenReturn(Collections.singletonList(new VersionedWorkflow()));
+    boolean exist = workflowDeployer.workflowExists("id");
     assertThat(exist).isTrue();
   }
 
   @Test
   void testWorkflowNotExistsWithIdAndVersion() {
-    when(versioningService.find("id", "v1")).thenReturn(Optional.empty());
-    boolean exist = workflowDeployer.workflowExist("id", "v1");
+    when(versioningService.findByWorkflowIdAndVersion("id", "v1")).thenReturn(Optional.empty());
+    boolean exist = workflowDeployer.workflowExists("id", "v1");
     assertThat(exist).isFalse();
   }
 
   @Test
   void testWorkflowExistsWithIdAndVersion() {
-    when(versioningService.find("id", "v1")).thenReturn(Optional.of(new VersionedWorkflow()));
-    boolean exist = workflowDeployer.workflowExist("id", "v1");
+    when(versioningService.findByWorkflowIdAndVersion("id", "v1")).thenReturn(Optional.of(new VersionedWorkflow()));
+    boolean exist = workflowDeployer.workflowExists("id", "v1");
     assertThat(exist).isTrue();
   }
 
@@ -77,9 +81,9 @@ public class WorkflowDeployerTest {
   void testWorkflowSwadlPath() {
     final String path1 = "/path/to/swadl/id/v1";
     final String path2 = "/path/to/swadl/id/v2";
-    when(versioningService.find("id")).thenReturn(
-            Arrays.asList(new VersionedWorkflow().setVersionedWorkflowId("id", "v0").setPath(path1),
-                    new VersionedWorkflow().setVersionedWorkflowId("id", "v1").setPath(path2)));
+    when(versioningService.findByWorkflowId("id")).thenReturn(
+            Arrays.asList(new VersionedWorkflow().setWorkflowId("id").setVersion("v0").setPath(path1),
+                    new VersionedWorkflow().setWorkflowId("id").setVersion("v1").setPath(path2)));
     List<Path> paths = workflowDeployer.workflowSwadlPath("id");
     assertThat(paths).hasSize(2);
     assertThat(paths).containsExactlyInAnyOrder(Path.of(path1), Path.of(path2));
@@ -87,7 +91,7 @@ public class WorkflowDeployerTest {
 
   @Test
   void testWorkflowSwadlPathEmpty() {
-    when(versioningService.find("id", "v1")).thenReturn(Optional.empty());
+    when(versioningService.findByWorkflowIdAndVersion("id", "v1")).thenReturn(Optional.empty());
 
     assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> workflowDeployer.workflowSwadlPath("id", "v1"))
             .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Version v1 of the workflow id does not exist"));
@@ -95,14 +99,15 @@ public class WorkflowDeployerTest {
 
   @Test
   void testWorkflowSwadlPathWithIdAndVersion() {
-    when(versioningService.find("id", "v1")).thenReturn(Optional.of(new VersionedWorkflow().setPath("/path/to/swadl")));
+    when(versioningService.findByWorkflowIdAndVersion("id", "v1"))
+        .thenReturn(Optional.of(new VersionedWorkflow().setPath("/path/to/swadl")));
     Path path = workflowDeployer.workflowSwadlPath("id", "v1");
     assertThat(path.toString()).isEqualTo("/path/to/swadl");
   }
 
   @Test
   void testWorkflowSwadlPathWithIdAndVersionEmpty() {
-    when(versioningService.find("id", "v1")).thenReturn(Optional.empty());
+    when(versioningService.findByWorkflowIdAndVersion("id", "v1")).thenReturn(Optional.empty());
 
     assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> workflowDeployer.workflowSwadlPath("id", "v1"))
             .satisfies(e -> assertThat(e.getMessage()).isEqualTo("Version v1 of the workflow id does not exist"));
@@ -110,14 +115,14 @@ public class WorkflowDeployerTest {
 
   @Test
   void testIsPathAlreadyExist() {
-    when(versioningService.find(any(Path.class))).thenReturn(Optional.of(new VersionedWorkflow()));
+    when(versioningService.findByPath(any(Path.class))).thenReturn(Optional.of(new VersionedWorkflow()));
     boolean pathAlreadyExist = workflowDeployer.isPathAlreadyExist(Path.of(""));
     assertThat(pathAlreadyExist).isTrue();
   }
 
   @Test
   void testIsPathAlreadyNotExist() {
-    when(versioningService.find(any(Path.class))).thenReturn(Optional.empty());
+    when(versioningService.findByPath(any(Path.class))).thenReturn(Optional.empty());
     boolean pathAlreadyExist = workflowDeployer.isPathAlreadyExist(Path.of(""));
     assertThat(pathAlreadyExist).isFalse();
   }
@@ -141,91 +146,94 @@ public class WorkflowDeployerTest {
     String file = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> workflowDeployer.addAllWorkflowsFromFolder(Path.of(file)))
-            .satisfies(
-                    e -> assertThat(e.getMessage()).isEqualTo("Could not find workflows folder to monitor with path: " + file));
+        .satisfies(
+            e -> assertThat(e.getMessage()).isEqualTo("Could not find workflows folder to monitor with path: " + file));
   }
 
   @Test
   void testAddWorkflowDraft() throws IOException, ProcessingException {
     BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
     String workflowFile = "src/test/resources/basic/draft/basic-draft-workflow.swadl.yaml";
-    Path path = Path.of(workflowFile);
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow()
-            .setVersionedWorkflowId("basic-draft-workflow", "")
-            .setPath(workflowFile)
-            .setIsToPublish(true);
+    String workflowId = "basic-draft-workflow";
+    VersionedWorkflow versionedWorkflow = new VersionedWorkflow().setWorkflowId(workflowId)
+        .setVersion("")
+        .setPath(workflowFile)
+        .setIsToPublish(true);
 
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    when(versioningService.find(eq(path))).thenReturn(Optional.of(versionedWorkflow));
+    when(versioningService.findByWorkflowIdAndVersion(eq(workflowId), eq("")))
+        .thenReturn(Optional.of(versionedWorkflow));
 
-    workflowDeployer.addWorkflow(path);
+    workflowDeployer.addWorkflow(Path.of(workflowFile));
 
-    verify(versioningService).find(eq(path));
+    verify(versioningService).findByWorkflowIdAndVersion(eq(workflowId), eq(""));
     verify(workflowEngine, never()).deploy(any(Workflow.class), any(BpmnModelInstance.class));
-    verify(workflowEngine).undeploy(eq("basic-draft-workflow"));
+    verify(workflowEngine).undeploy(eq(workflowId));
   }
 
   @ParameterizedTest
   @CsvSource({"ENTRY_CREATE", "ENTRY_MODIFY"})
-  void testHandleFileEventCreate(String kind) throws IOException, ProcessingException {
+  void testHandleFileEventModify(String kind) throws IOException, ProcessingException {
     WatchEvent event;
     if (kind.equals("ENTRY_CREATE")) {
       event = new WatchEvent(StandardWatchEventKinds.ENTRY_CREATE);
     } else {
       event = new WatchEvent(StandardWatchEventKinds.ENTRY_MODIFY);
     }
+
     String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
-    Path path = Path.of(workflowFile);
+    final String workflowId = "basic-workflow";
     BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow()
-            .setVersionedWorkflowId("basic-workflow", "")
-            .setPath(workflowFile)
-            .setIsToPublish(true);
 
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
     doNothing().when(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
-    when(versioningService.find(eq(path))).thenReturn(Optional.of(versionedWorkflow));
+    when(versioningService.findByWorkflowIdAndVersion(eq(workflowId), eq(""))).thenReturn(Optional.empty());
     doNothing().when(versioningService).save(any(), any(), any(), any());
 
-    workflowDeployer.handleFileEvent(path, event);
+    workflowDeployer.handleFileEvent(Path.of(workflowFile), event);
 
-    verify(versioningService).save(eq("basic-workflow"), eq(""), any(String.class), any(String.class));
+    verify(versioningService).save(eq(workflowId), eq(""), any(String.class), any(String.class));
     verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
     verify(workflowEngine, never()).undeploy(any());
   }
 
-  @Test
-  void testHandleFileEventModify() throws IOException, ProcessingException {
+  @ParameterizedTest
+  @CsvSource({"ENTRY_CREATE", "ENTRY_MODIFY"})
+  void testHandleFileEventModifyDuplicate(String kind) {
+    WatchEvent event;
+    if (kind.equals("ENTRY_CREATE")) {
+      event = new WatchEvent(StandardWatchEventKinds.ENTRY_CREATE);
+    } else {
+      event = new WatchEvent(StandardWatchEventKinds.ENTRY_MODIFY);
+    }
+
     String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
-    Path path = Path.of(workflowFile);
+    final String workflowId = "basic-workflow";
     BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow()
-            .setVersionedWorkflowId("basic-workflow", "")
-            .setPath(workflowFile)
-            .setIsToPublish(true);
+    VersionedWorkflow versionedWorkflow = new VersionedWorkflow().setWorkflowId(workflowId)
+        .setVersion("")
+        .setPath(workflowFile)
+        .setIsToPublish(true);
 
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    doNothing().when(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
-    when(versioningService.find(eq(path))).thenReturn(Optional.of(versionedWorkflow));
-    doNothing().when(versioningService).save(any(), any(), any(), any());
+    when(versioningService.findByWorkflowIdAndVersion(eq(workflowId), eq(""))).thenReturn(
+        Optional.of(versionedWorkflow));
 
-    workflowDeployer.handleFileEvent(path, new WatchEvent(StandardWatchEventKinds.ENTRY_MODIFY));
-
-    verify(versioningService).save(eq("basic-workflow"), eq(""), any(String.class), any(String.class));
-    verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
-    verify(workflowEngine, never()).undeploy(any());
+    assertThatExceptionOfType(DuplicateException.class)
+        .isThrownBy(() -> workflowDeployer.handleFileEvent(Path.of(workflowFile), event))
+        .satisfies(e -> e.getMessage().equals("Version  of the workflow basic-workflow already exists"));
   }
 
   @Test
   void testHandleFileEventDeleteWorkflowFound() throws IOException, ProcessingException {
     String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     Path path = Path.of(workflowFile);
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow()
-            .setVersionedWorkflowId("basic-workflow", "")
-            .setPath(workflowFile)
-            .setIsToPublish(true);
+    VersionedWorkflow versionedWorkflow = new VersionedWorkflow().setWorkflowId("basic-workflow")
+        .setVersion("")
+        .setPath(workflowFile)
+        .setIsToPublish(true);
 
-    when(versioningService.find(eq(path))).thenReturn(Optional.of(versionedWorkflow));
+    when(versioningService.findByPath(eq(path))).thenReturn(Optional.of(versionedWorkflow));
     doNothing().when(versioningService).delete(eq("basic-workflow"), eq(""));
     doNothing().when(workflowEngine).undeploy(eq("basic-workflow"));
 
@@ -241,7 +249,7 @@ public class WorkflowDeployerTest {
     String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     Path path = Path.of(workflowFile);
 
-    when(versioningService.find(eq(path))).thenReturn(Optional.empty());
+    when(versioningService.findByPath(eq(path))).thenReturn(Optional.empty());
 
     workflowDeployer.handleFileEvent(path, new WatchEvent(StandardWatchEventKinds.ENTRY_DELETE));
 

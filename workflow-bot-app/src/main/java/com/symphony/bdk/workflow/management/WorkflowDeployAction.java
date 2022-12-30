@@ -4,7 +4,6 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowMgtAction;
 import com.symphony.bdk.workflow.configuration.WorkflowDeployer;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.exception.DuplicateException;
-import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +23,8 @@ public class WorkflowDeployAction extends WorkflowAbstractAction implements Work
   private final String workflowFolder;
 
   public WorkflowDeployAction(WorkflowEngine<BpmnModelInstance> workflowEngine, WorkflowDeployer deployer,
-      MonitoringService monitoringService, @Value("${wdk.workflows.path}") String workflowFolder) {
-    super(deployer, monitoringService);
+      @Value("${wdk.workflows.path}") String workflowFolder) {
+    super(deployer);
     this.workflowEngine = workflowEngine;
     this.workflowFolder = workflowFolder;
   }

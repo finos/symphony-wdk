@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflowId;
 import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ public class VersioningServiceTest {
   VersioningService versioningService;
 
   private final VersionedWorkflow versionedWorkflow =
-      new VersionedWorkflow().setVersionedWorkflowId("id", "v1").setPath("path/to/swadl/file").setSwadl("swadl");
+      new VersionedWorkflow().setWorkflowId("id").setVersion("v1").setPath("path/to/swadl/file").setSwadl("swadl");
 
   @Test
   void testSaveWithPublish() {
@@ -39,7 +38,14 @@ public class VersioningServiceTest {
     versionedWorkflow.setIsToPublish(false);
     versioningService.save("id", "v1", "swadl", "path/to/swadl/file", false);
 
-    verify(versionedWorkflowRepository).save(versionedWorkflow);
+    ArgumentCaptor<VersionedWorkflow> captor = ArgumentCaptor.forClass(VersionedWorkflow.class);
+
+    verify(versionedWorkflowRepository).save(captor.capture());
+    assertThat(captor.getValue().getWorkflowId()).isEqualTo("id");
+    assertThat(captor.getValue().getVersion()).isEqualTo("v1");
+    assertThat(captor.getValue().getSwadl()).isEqualTo("swadl");
+    assertThat(captor.getValue().getPath()).isEqualTo("path/to/swadl/file");
+    assertThat(captor.getValue().isToPublish()).isFalse();
   }
 
   @Test
@@ -47,7 +53,14 @@ public class VersioningServiceTest {
     when(versionedWorkflowRepository.save(any(VersionedWorkflow.class))).thenReturn(null);
     versioningService.save("id", "v1", "swadl", "path/to/swadl/file");
 
-    verify(versionedWorkflowRepository).save(versionedWorkflow);
+    ArgumentCaptor<VersionedWorkflow> captor = ArgumentCaptor.forClass(VersionedWorkflow.class);
+
+    verify(versionedWorkflowRepository).save(captor.capture());
+    assertThat(captor.getValue().getWorkflowId()).isEqualTo("id");
+    assertThat(captor.getValue().getVersion()).isEqualTo("v1");
+    assertThat(captor.getValue().getSwadl()).isEqualTo("swadl");
+    assertThat(captor.getValue().getPath()).isEqualTo("path/to/swadl/file");
+    assertThat(captor.getValue().isToPublish()).isTrue();
   }
 
   @Test
@@ -57,8 +70,8 @@ public class VersioningServiceTest {
     versioningService.delete("id", "v1");
 
     verify(versionedWorkflowRepository).delete(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getVersionedWorkflowId().getId()).isEqualTo("id");
-    assertThat(argumentCaptor.getValue().getVersionedWorkflowId().getVersion()).isEqualTo("v1");
+    assertThat(argumentCaptor.getValue().getWorkflowId()).isEqualTo("id");
+    assertThat(argumentCaptor.getValue().getVersion()).isEqualTo("v1");
   }
 
   @Test
@@ -68,35 +81,36 @@ public class VersioningServiceTest {
     versioningService.delete("id", "");
 
     verify(versionedWorkflowRepository).delete(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getVersionedWorkflowId().getId()).isEqualTo("id");
-    assertThat(argumentCaptor.getValue().getVersionedWorkflowId().getVersion()).isEqualTo("");
+    assertThat(argumentCaptor.getValue().getWorkflowId()).isEqualTo("id");
+    assertThat(argumentCaptor.getValue().getVersion()).isEqualTo("");
   }
 
   @Test
   void testFindWithIdAndVersion() {
-    when(versionedWorkflowRepository.findById(any(VersionedWorkflowId.class))).thenReturn(
+    when(versionedWorkflowRepository.findByWorkflowIdAndVersion(any(), any())).thenReturn(
         Optional.of(versionedWorkflow));
-    ArgumentCaptor<VersionedWorkflowId> argumentCaptor = ArgumentCaptor.forClass(VersionedWorkflowId.class);
-    versioningService.find("id", "v1");
+    ArgumentCaptor<String> workflowIdCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<String> versionCaptor = ArgumentCaptor.forClass(String.class);
+    versioningService.findByWorkflowIdAndVersion("id", "v1");
 
-    verify(versionedWorkflowRepository).findById(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getId()).isEqualTo("id");
-    assertThat(argumentCaptor.getValue().getVersion()).isEqualTo("v1");
+    verify(versionedWorkflowRepository).findByWorkflowIdAndVersion(workflowIdCaptor.capture(), versionCaptor.capture());
+    assertThat(workflowIdCaptor.getValue()).isEqualTo("id");
+    assertThat(versionCaptor.getValue()).isEqualTo("v1");
   }
 
   @Test
   void testFindWithId() {
-    when(versionedWorkflowRepository.findByVersionedWorkflowIdId(any(String.class))).thenReturn(
+    when(versionedWorkflowRepository.findByWorkflowId(any(String.class))).thenReturn(
         Collections.singletonList(versionedWorkflow));
-    versioningService.find("id");
+    versioningService.findByWorkflowId("id");
 
-    verify(versionedWorkflowRepository).findByVersionedWorkflowIdId(eq("id"));
+    verify(versionedWorkflowRepository).findByWorkflowId(eq("id"));
   }
 
   @Test
   void testFindWithSwadlPath() {
     when(versionedWorkflowRepository.findByPath(any())).thenReturn(Optional.of(versionedWorkflow));
-    versioningService.find(Path.of("path/to/swadl/file"));
+    versioningService.findByPath(Path.of("path/to/swadl/file"));
 
     verify(versionedWorkflowRepository).findByPath(eq("path/to/swadl/file"));
   }

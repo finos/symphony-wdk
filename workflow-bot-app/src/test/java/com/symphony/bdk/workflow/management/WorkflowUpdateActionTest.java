@@ -50,7 +50,7 @@ class WorkflowUpdateActionTest {
 
   @Test
   void doAction_update_successful() {
-    when(deployer.workflowExist(anyString(), eq("v2"))).thenReturn(true);
+    when(deployer.workflowExists(anyString(), eq("v2"))).thenReturn(true);
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mock(BpmnModelInstance.class));
     when(deployer.workflowSwadlPath(anyString(), anyString())).thenReturn(Path.of("./workflows"));
     WorkflowUpdateAction spied = spy(action);
@@ -74,7 +74,7 @@ class WorkflowUpdateActionTest {
 
   @Test
   void doAction_updateNonExisting_exception() {
-    when(deployer.workflowExist(anyString(), eq("v2"))).thenReturn(false);
+    when(deployer.workflowExists(anyString(), eq("v2"))).thenReturn(false);
     assertThatThrownBy(() -> action.doAction(swadl), "No existing swadl must fail").isInstanceOf(
         NotFoundException.class).hasMessage("Version v2 of the workflow test does not exist");
   }

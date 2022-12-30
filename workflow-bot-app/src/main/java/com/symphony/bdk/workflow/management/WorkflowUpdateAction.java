@@ -4,7 +4,6 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowMgtAction;
 import com.symphony.bdk.workflow.configuration.WorkflowDeployer;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -16,9 +15,8 @@ import java.nio.file.Path;
 public class WorkflowUpdateAction extends WorkflowAbstractAction implements WorkflowsMgtAction {
   private final WorkflowEngine<BpmnModelInstance> workflowEngine;
 
-  public WorkflowUpdateAction(WorkflowEngine<BpmnModelInstance> workflowEngine, WorkflowDeployer deployer,
-      MonitoringService monitoringService) {
-    super(deployer, monitoringService);
+  public WorkflowUpdateAction(WorkflowEngine<BpmnModelInstance> workflowEngine, WorkflowDeployer deployer) {
+    super(deployer);
     this.workflowEngine = workflowEngine;
   }
 

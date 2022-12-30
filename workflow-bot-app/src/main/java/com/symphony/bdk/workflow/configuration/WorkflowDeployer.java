@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.exception.DuplicateException;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -65,8 +66,14 @@ public class WorkflowDeployer {
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
     BpmnModelInstance instance = workflowEngine.parseAndValidate(workflow);
 
-    Optional<VersionedWorkflow> deployedWorkflow = this.versioningService.find(workflowFile);
+    Optional<VersionedWorkflow> deployedWorkflow =
+        this.versioningService.findByWorkflowIdAndVersion(workflow.getId(), workflow.getVersion());
     if (workflow.isToPublish()) {
+      if (this.workflowExists(workflow.getId(), workflow.getVersion())) {
+        throw new DuplicateException(
+            String.format("Version %s of the workflow %s already exists", workflow.getVersion(), workflow.getId()));
+      }
+
       log.debug("Deploying this new workflow");
       workflowEngine.deploy(workflow, instance);
 
@@ -76,7 +83,7 @@ public class WorkflowDeployer {
 
     } else if (deployedWorkflow.isPresent() && deployedWorkflow.get().isToPublish()) {
       log.debug("Workflow is a draft version, undeploy the old version");
-      workflowEngine.undeploy(deployedWorkflow.get().getVersionedWorkflowId().getId());
+      workflowEngine.undeploy(deployedWorkflow.get().getWorkflowId());
     }
   }
 
@@ -86,20 +93,18 @@ public class WorkflowDeployer {
 
   public void handleFileEvent(Path changedFile, WatchEvent<Path> event) throws IOException, ProcessingException {
     if (isYaml(changedFile)) {
-      if (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE)) {
+      if (event.kind().equals(StandardWatchEventKinds.ENTRY_CREATE) || event.kind()
+          .equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
         this.addWorkflow(changedFile);
 
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
-        Optional<VersionedWorkflow> versionedWorkflow = this.versioningService.find(changedFile);
+        Optional<VersionedWorkflow> versionedWorkflow = this.versioningService.findByPath(changedFile);
         if (versionedWorkflow.isPresent()) {
-          String workflowId = versionedWorkflow.get().getVersionedWorkflowId().getId();
-          String workflowVersion = versionedWorkflow.get().getVersionedWorkflowId().getVersion();
+          String workflowId = versionedWorkflow.get().getWorkflowId();
+          String workflowVersion = versionedWorkflow.get().getVersion();
           this.workflowEngine.undeploy(workflowId);
           this.versioningService.delete(workflowId, workflowVersion);
         }
-
-      } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
-        this.addWorkflow(changedFile);
 
       } else {
         log.debug("Unknown event: {}", event);
@@ -111,29 +116,29 @@ public class WorkflowDeployer {
     return changedFile.toString().endsWith(".yaml") || changedFile.toString().endsWith(".yml");
   }
 
-  public boolean workflowExist(String id, String version) {
-    return this.versioningService.find(id, version).isPresent();
+  public boolean workflowExists(String id, String version) {
+    return this.versioningService.findByWorkflowIdAndVersion(id, version).isPresent();
   }
 
-  public boolean workflowExist(String id) {
-    return !this.versioningService.find(id).isEmpty();
+  public boolean workflowExists(String id) {
+    return !this.versioningService.findByWorkflowId(id).isEmpty();
   }
 
   public Path workflowSwadlPath(String id, String version) {
-    return this.versioningService.find(id, version)
+    return this.versioningService.findByWorkflowIdAndVersion(id, version)
         .map(workflow -> Path.of(workflow.getPath()))
         .orElseThrow(
             () -> new NotFoundException(String.format("Version %s of the workflow %s does not exist", version, id)));
   }
 
   public List<Path> workflowSwadlPath(String id) {
-    return this.versioningService.find(id)
+    return this.versioningService.findByWorkflowId(id)
         .stream()
         .map(workflow -> Path.of(workflow.getPath()))
         .collect(Collectors.toList());
   }
 
   public boolean isPathAlreadyExist(Path path) {
-    return this.versioningService.find(path).isPresent();
+    return this.versioningService.findByPath(path).isPresent();
   }
 }

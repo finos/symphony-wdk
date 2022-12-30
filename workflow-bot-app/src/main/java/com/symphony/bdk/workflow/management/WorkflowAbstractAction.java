@@ -1,10 +1,8 @@
 package com.symphony.bdk.workflow.management;
 
-import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.configuration.WorkflowDeployer;
 import com.symphony.bdk.workflow.exception.DuplicateException;
 import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -25,7 +23,6 @@ import java.util.stream.Collectors;
 public abstract class WorkflowAbstractAction {
 
   private final WorkflowDeployer deployer;
-  private final MonitoringService monitoringService;
 
   protected Workflow convertToWorkflow(String content) {
     try {
@@ -46,15 +43,11 @@ public abstract class WorkflowAbstractAction {
   }
 
   protected boolean workflowExist(String id, String version) {
-    return deployer.workflowExist(id, version);
+    return deployer.workflowExists(id, version);
   }
 
   protected boolean workflowExist(String id) {
-    return deployer.workflowExist(id);
-  }
-
-  protected boolean canBeDeleted(String workflowId) {
-    return this.monitoringService.listWorkflowInstances(workflowId, StatusEnum.PENDING.name()).isEmpty();
+    return deployer.workflowExists(id);
   }
 
   protected void writeFile(String content, Workflow workflow, String path) {

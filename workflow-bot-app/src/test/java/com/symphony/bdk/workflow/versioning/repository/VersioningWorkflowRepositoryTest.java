@@ -17,17 +17,34 @@ public class VersioningWorkflowRepositoryTest {
   @Autowired
   private VersionedWorkflowRepository versionedWorkflowRepository;
 
+  private final VersionedWorkflow versionedWorkflow1 = new VersionedWorkflow()
+      .setWorkflowId("id1")
+      .setVersion("v1")
+      .setSwadl("swadl")
+      .setPath("/path/to/swadl/file/id1/v1")
+      .setIsToPublish(true);
+
+  private final VersionedWorkflow versionedWorkflow2 = new VersionedWorkflow()
+      .setWorkflowId("id1")
+      .setVersion("v2")
+      .setSwadl("swadl")
+      .setPath("/path/to/swadl/file/id1/v2")
+      .setIsToPublish(true);
+
+  private final VersionedWorkflow versionedWorkflow3 = new VersionedWorkflow()
+      .setWorkflowId("id2")
+      .setVersion("v1")
+      .setSwadl("swadl")
+      .setPath("/path/to/swadl/file/id2/v1")
+      .setIsToPublish(true);
+
   @Test
   void testFindByPath() {
-    VersionedWorkflow versionedWorkflow = new VersionedWorkflow().setVersionedWorkflowId("id1", "v1")
-        .setSwadl("swadl")
-        .setPath("/path/to/swadl/file")
-        .setIsToPublish(true);
-    versionedWorkflowRepository.save(versionedWorkflow);
-    Optional<VersionedWorkflow> workflow = versionedWorkflowRepository.findByPath("/path/to/swadl/file");
+    versionedWorkflowRepository.save(versionedWorkflow1);
+    Optional<VersionedWorkflow> workflow = versionedWorkflowRepository.findByPath("/path/to/swadl/file/id1/v1");
 
     assertThat(workflow.isPresent()).isTrue();
-    assertThat(workflow.get()).isEqualTo(versionedWorkflow);
+    assertThat(workflow.get()).isEqualTo(versionedWorkflow1);
   }
 
   @Test
@@ -43,30 +60,33 @@ public class VersioningWorkflowRepositoryTest {
   }
 
   @Test
-  void testFindByVersionedWorkflowIdId() {
-    VersionedWorkflow versionedWorkflow1 = new VersionedWorkflow().setVersionedWorkflowId("id1", "v1")
-        .setSwadl("swadl")
-        .setPath("/path/to/swadl/file/id1/v1")
-        .setIsToPublish(true);
-
-    VersionedWorkflow versionedWorkflow2 = new VersionedWorkflow().setVersionedWorkflowId("id1", "v2")
-        .setSwadl("swadl")
-        .setPath("/path/to/swadl/file/id1/v2")
-        .setIsToPublish(true);
-
-    VersionedWorkflow versionedWorkflow3 = new VersionedWorkflow().setVersionedWorkflowId("id2", "v1")
-        .setSwadl("swadl")
-        .setPath("/path/to/swadl/file/id2/v1")
-        .setIsToPublish(true);
-
+  void testFindByWorkflowId() {
     versionedWorkflowRepository.save(versionedWorkflow1);
     versionedWorkflowRepository.save(versionedWorkflow2);
     versionedWorkflowRepository.save(versionedWorkflow3);
 
-    List<VersionedWorkflow> workflows = versionedWorkflowRepository.findByVersionedWorkflowIdId("id1");
+    List<VersionedWorkflow> workflows = versionedWorkflowRepository.findByWorkflowId("id1");
     assertThat(workflows).containsExactlyInAnyOrder(versionedWorkflow1, versionedWorkflow2);
 
-    workflows = versionedWorkflowRepository.findByVersionedWorkflowIdId("unfoundId");
+    workflows = versionedWorkflowRepository.findByWorkflowId("unfoundId");
     assertThat(workflows).isEmpty();
+  }
+
+  @Test
+  void testFindByWorkflowIdAndVersion() {
+    versionedWorkflowRepository.save(versionedWorkflow1);
+    versionedWorkflowRepository.save(versionedWorkflow2);
+    versionedWorkflowRepository.save(versionedWorkflow3);
+
+    Optional<VersionedWorkflow> workflow = versionedWorkflowRepository.findByWorkflowIdAndVersion("id1", "v1");
+    assertThat(workflow).isPresent();
+    assertThat(workflow.get().getWorkflowId()).isEqualTo("id1");
+    assertThat(workflow.get().getVersion()).isEqualTo("v1");
+
+    workflow = versionedWorkflowRepository.findByWorkflowIdAndVersion("unfoundId", "v1");
+    assertThat(workflow).isEmpty();
+
+    workflow = versionedWorkflowRepository.findByWorkflowIdAndVersion("id1", "unfoundVersion");
+    assertThat(workflow).isEmpty();
   }
 }

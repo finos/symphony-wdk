@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.versioning.service;
 
 import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflowId;
 import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import org.springframework.stereotype.Component;
@@ -23,7 +22,8 @@ public class VersioningService {
 
   public void save(String workflowId, String version, String swadl, String path, boolean isToPublish) {
     VersionedWorkflow versionedWorkflow = new VersionedWorkflow()
-        .setVersionedWorkflowId(workflowId, version)
+        .setWorkflowId(workflowId)
+        .setVersion(version)
         .setSwadl(swadl)
         .setPath(path)
         .setIsToPublish(isToPublish);
@@ -31,24 +31,25 @@ public class VersioningService {
   }
 
   public void save(String workflowId, String version, String swadl, String path) {
-    save(workflowId, version, swadl, path, true); //isToPublish is true by default
+    save(workflowId, version, swadl, path, true);
   }
 
   public void delete(String workflowId, String version) {
     VersionedWorkflow workflowToDelete = new VersionedWorkflow()
-        .setVersionedWorkflowId(workflowId, version);
+        .setWorkflowId(workflowId)
+        .setVersion(version);
     this.versionedWorkflowRepository.delete(workflowToDelete);
   }
 
-  public Optional<VersionedWorkflow> find(String workflowId, String version) {
-    return this.versionedWorkflowRepository.findById(new VersionedWorkflowId().id(workflowId).version(version));
+  public Optional<VersionedWorkflow> findByWorkflowIdAndVersion(String workflowId, String version) {
+    return this.versionedWorkflowRepository.findByWorkflowIdAndVersion(workflowId, version);
   }
 
-  public List<VersionedWorkflow> find(String workflowId) {
-    return this.versionedWorkflowRepository.findByVersionedWorkflowIdId(workflowId);
+  public List<VersionedWorkflow> findByWorkflowId(String workflowId) {
+    return this.versionedWorkflowRepository.findByWorkflowId(workflowId);
   }
 
-  public Optional<VersionedWorkflow> find(Path path) {
+  public Optional<VersionedWorkflow> findByPath(Path path) {
     return this.versionedWorkflowRepository.findByPath(path.toString());
   }
 }
