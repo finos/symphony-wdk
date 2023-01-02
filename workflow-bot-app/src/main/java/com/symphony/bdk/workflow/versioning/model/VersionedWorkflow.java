@@ -28,6 +28,8 @@ public class VersionedWorkflow {
 
   private String version;
 
+  private String deploymentId;
+
   @Lob
   @Column(length = Integer.MAX_VALUE)
   private String swadl;
@@ -62,6 +64,11 @@ public class VersionedWorkflow {
     return this;
   }
 
+  public VersionedWorkflow setDeploymentId(String deploymentId) {
+    this.deploymentId = deploymentId;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -77,6 +84,6 @@ public class VersionedWorkflow {
 
   @Override
   public int hashCode() {
-    return Objects.hash(uid, workflowId, version, swadl, path, isToPublish);
+    return Objects.hash(uid, workflowId, version, deploymentId, swadl, path, isToPublish);
   }
 }

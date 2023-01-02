@@ -36,7 +36,7 @@ public class VersioningServiceTest {
   void testSaveWithPublish() {
     when(versionedWorkflowRepository.save(any(VersionedWorkflow.class))).thenReturn(null);
     versionedWorkflow.setIsToPublish(false);
-    versioningService.save("id", "v1", "swadl", "path/to/swadl/file", false);
+    versioningService.save("id", "v1", "swadl", "path/to/swadl/file", "", false);
 
     ArgumentCaptor<VersionedWorkflow> captor = ArgumentCaptor.forClass(VersionedWorkflow.class);
 
@@ -51,7 +51,7 @@ public class VersioningServiceTest {
   @Test
   void testSaveWithoutPublish() {
     when(versionedWorkflowRepository.save(any(VersionedWorkflow.class))).thenReturn(null);
-    versioningService.save("id", "v1", "swadl", "path/to/swadl/file");
+    versioningService.save("id", "v1", "swadl", "path/to/swadl/file", "");
 
     ArgumentCaptor<VersionedWorkflow> captor = ArgumentCaptor.forClass(VersionedWorkflow.class);
 
@@ -65,24 +65,22 @@ public class VersioningServiceTest {
 
   @Test
   void testDelete() {
-    doNothing().when(versionedWorkflowRepository).delete(any(VersionedWorkflow.class));
-    ArgumentCaptor<VersionedWorkflow> argumentCaptor = ArgumentCaptor.forClass(VersionedWorkflow.class);
-    versioningService.delete("id", "v1");
+    doNothing().when(versionedWorkflowRepository).deleteAllByWorkflowId(any(String.class));
+    ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+    versioningService.delete("id");
 
-    verify(versionedWorkflowRepository).delete(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getWorkflowId()).isEqualTo("id");
-    assertThat(argumentCaptor.getValue().getVersion()).isEqualTo("v1");
+    verify(versionedWorkflowRepository).deleteAllByWorkflowId(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue()).isEqualTo("id");
   }
 
   @Test
-  void testDeleteEmptyVersion() {
-    doNothing().when(versionedWorkflowRepository).delete(any(VersionedWorkflow.class));
-    ArgumentCaptor<VersionedWorkflow> argumentCaptor = ArgumentCaptor.forClass(VersionedWorkflow.class);
-    versioningService.delete("id", "");
+  void testDeleteEmptyId() {
+    doNothing().when(versionedWorkflowRepository).deleteAllByWorkflowId(any(String.class));
+    ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+    versioningService.delete("");
 
-    verify(versionedWorkflowRepository).delete(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getWorkflowId()).isEqualTo("id");
-    assertThat(argumentCaptor.getValue().getVersion()).isEqualTo("");
+    verify(versionedWorkflowRepository).deleteAllByWorkflowId(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue()).isEqualTo("");
   }
 
   @Test

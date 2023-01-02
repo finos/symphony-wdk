@@ -73,6 +73,26 @@ public class VersioningWorkflowRepositoryTest {
   }
 
   @Test
+  void testFindByWorkflowIdEmpty() {
+    versionedWorkflowRepository.save(versionedWorkflow1);
+    versionedWorkflowRepository.save(versionedWorkflow2);
+    versionedWorkflowRepository.save(versionedWorkflow3);
+
+    List<VersionedWorkflow> workflows = versionedWorkflowRepository.findByWorkflowId("");
+    assertThat(workflows).isEmpty();
+  }
+
+  @Test
+  void testFindByWorkflowIdNull() {
+    versionedWorkflowRepository.save(versionedWorkflow1);
+    versionedWorkflowRepository.save(versionedWorkflow2);
+    versionedWorkflowRepository.save(versionedWorkflow3);
+
+    List<VersionedWorkflow> workflows = versionedWorkflowRepository.findByWorkflowId(null);
+    assertThat(workflows).isEmpty();
+  }
+
+  @Test
   void testFindByWorkflowIdAndVersion() {
     versionedWorkflowRepository.save(versionedWorkflow1);
     versionedWorkflowRepository.save(versionedWorkflow2);
@@ -88,5 +108,18 @@ public class VersioningWorkflowRepositoryTest {
 
     workflow = versionedWorkflowRepository.findByWorkflowIdAndVersion("id1", "unfoundVersion");
     assertThat(workflow).isEmpty();
+  }
+
+  @Test
+  void testDeleteAllByWorkflowId() {
+    versionedWorkflowRepository.save(versionedWorkflow1);
+    versionedWorkflowRepository.save(versionedWorkflow2);
+    versionedWorkflowRepository.save(versionedWorkflow3);
+
+    versionedWorkflowRepository.deleteAllByWorkflowId("id1");
+    List<VersionedWorkflow> all = versionedWorkflowRepository.findAll();
+
+    assertThat(all).hasSize(1);
+    assertThat(all.get(0)).isEqualTo(versionedWorkflow3);
   }
 }

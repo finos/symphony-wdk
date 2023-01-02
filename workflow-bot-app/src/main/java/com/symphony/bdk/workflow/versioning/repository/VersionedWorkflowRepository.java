@@ -13,4 +13,6 @@ public interface VersionedWorkflowRepository extends JpaRepository<VersionedWork
   List<VersionedWorkflow> findByWorkflowId(String workflowId);
 
   Optional<VersionedWorkflow> findByPath(String path);
+
+  void deleteAllByWorkflowId(String workflowId);
 }

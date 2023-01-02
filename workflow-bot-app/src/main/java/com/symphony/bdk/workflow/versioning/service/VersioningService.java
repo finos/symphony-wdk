@@ -20,25 +20,29 @@ public class VersioningService {
     this.versionedWorkflowRepository = versionedWorkflowRepository;
   }
 
-  public void save(String workflowId, String version, String swadl, String path, boolean isToPublish) {
+  public void save(String workflowId, String version, String swadl, String path, String deploymentId) {
+    save(workflowId, version, swadl, path, deploymentId, true);
+  }
+
+  public void save(String workflowId, String version, String swadl, String path, String deploymentId,
+      boolean isToPublish) {
     VersionedWorkflow versionedWorkflow = new VersionedWorkflow()
         .setWorkflowId(workflowId)
         .setVersion(version)
+        .setDeploymentId(deploymentId)
         .setSwadl(swadl)
         .setPath(path)
         .setIsToPublish(isToPublish);
+    this.save(versionedWorkflow, deploymentId);
+  }
+
+  public void save(VersionedWorkflow versionedWorkflow, String deploymentId) {
+    versionedWorkflow.setDeploymentId(deploymentId);
     this.versionedWorkflowRepository.save(versionedWorkflow);
   }
 
-  public void save(String workflowId, String version, String swadl, String path) {
-    save(workflowId, version, swadl, path, true);
-  }
-
-  public void delete(String workflowId, String version) {
-    VersionedWorkflow workflowToDelete = new VersionedWorkflow()
-        .setWorkflowId(workflowId)
-        .setVersion(version);
-    this.versionedWorkflowRepository.delete(workflowToDelete);
+  public void delete(String workflowId) {
+    this.versionedWorkflowRepository.deleteAllByWorkflowId(workflowId);
   }
 
   public Optional<VersionedWorkflow> findByWorkflowIdAndVersion(String workflowId, String version) {

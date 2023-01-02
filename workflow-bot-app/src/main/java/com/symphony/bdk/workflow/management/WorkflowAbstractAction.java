@@ -10,18 +10,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
 public abstract class WorkflowAbstractAction {
 
+  private static final String WORKFLOW_NOT_EXIST_EXCEPTION_MSG = "Workflow %s does not exist";
   private final WorkflowDeployer deployer;
 
   protected Workflow convertToWorkflow(String content) {
@@ -57,23 +55,23 @@ public abstract class WorkflowAbstractAction {
       writer.close();
     } catch (IOException e) {
       log.error("Write swadl file failure", e);
-      throw new RuntimeException("Failed to write SWADL file " + workflow.getId() + " due to " + e.getMessage());
+      throw new RuntimeException(
+          String.format("Failed to write SWADL file %s dut to %s", workflow.getId(), e.getMessage()));
     }
   }
 
-  protected void deleteFile(String workflowId) {
+  protected void deleteSwadlFilesOf(String workflowId) {
     if (!workflowExist(workflowId)) {
-      throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
+      throw new NotFoundException(String.format(WORKFLOW_NOT_EXIST_EXCEPTION_MSG, workflowId));
     }
-    List<File> filesToDelete =
-        deployer.workflowSwadlPath(workflowId)
-            .stream()
-            .map(Path::toFile)
-            .collect(Collectors.toList());
-    filesToDelete.forEach(file -> {
-      if (!file.delete()) {
-        throw new NotFoundException(String.format("Workflow %s does not exist", workflowId));
-      }
-    });
+
+    deployer.workflowSwadlPath(workflowId)
+        .stream()
+        .map(Path::toFile)
+        .forEach(path -> {
+          if (!path.delete()) {
+            throw new NotFoundException(String.format(WORKFLOW_NOT_EXIST_EXCEPTION_MSG, workflowId));
+          }
+        });
   }
 }

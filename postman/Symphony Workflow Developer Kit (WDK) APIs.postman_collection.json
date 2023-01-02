@@ -1,9 +1,8 @@
 {
 	"info": {
-		"_postman_id": "e07b90ef-8da4-451d-83ab-87556df514fa",
-		"name": "Symphony Workflow Developer Kit (WDK) APIs",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "10221895"
+		"_postman_id": "bd3592e5-01f8-4a1e-8ede-8c0f8de5a133",
+		"name": "Symphony Workflow Developer Kit (WDK) APIs Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -47,7 +46,7 @@
 					"response": []
 				},
 				{
-					"name": "Validate and update a SWADL Copy",
+					"name": "Validate and update a SWADL",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -118,6 +117,52 @@
 									"key": "workflowId",
 									"value": null,
 									"description": "workflow id defined in the swadl file"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set an active workflow version",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "default"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId/versions/:version",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows",
+								":workflowId",
+								"versions",
+								":version"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": ""
+								},
+								{
+									"key": "version",
+									"value": ""
 								}
 							]
 						}

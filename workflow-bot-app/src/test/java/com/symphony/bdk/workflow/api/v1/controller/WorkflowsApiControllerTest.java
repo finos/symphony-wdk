@@ -21,23 +21,14 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
-import com.symphony.bdk.workflow.logs.LogsStreamingService;
-import com.symphony.bdk.workflow.management.WorkflowsMgtActionHolder;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
-import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Instant;
@@ -46,8 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@WebMvcTest
-class WorkflowsApiControllerTest {
+class WorkflowsApiControllerTest extends ApiTest {
 
   private static final String WORKFLOW_EXECUTE_PATH = "/v1/workflows/wfId/execute";
   private static final String LIST_WORKFLOWS_PATH = "/v1/workflows/";
@@ -59,24 +49,9 @@ class WorkflowsApiControllerTest {
 
   private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
 
-  @Autowired
-  MockMvc mockMvc;
-
-  @MockBean
-  WorkflowsMgtActionHolder mgtActionHolder;
-
-  @MockBean
-  MonitoringService monitoringService;
-
-  @MockBean
-  LogsStreamingService logsStreamingService;
-
-  @MockBean
-  WorkflowEngine<BpmnModelInstance> workflowEngine;
-
   @Test
   void executeWorkflowById_validRequestTest() throws Exception {
-    doNothing().when(workflowEngine)
+    doNothing().when(engine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
     MvcResult mvcResult = mockMvc.perform(request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH)
@@ -99,7 +74,7 @@ class WorkflowsApiControllerTest {
 
   @Test
   void executeWorkflowById_runTimeExceptionTest() throws Exception {
-    doThrow(new RuntimeException("Error parsing presentationML")).when(workflowEngine)
+    doThrow(new RuntimeException("Error parsing presentationML")).when(engine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
     mockMvc.perform(request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH)
@@ -112,7 +87,7 @@ class WorkflowsApiControllerTest {
 
   @Test
   void executeWorkflowById_illegalArgumentExceptionTest() throws Exception {
-    doThrow(new NotFoundException("No workflow found with id wfId")).when(workflowEngine)
+    doThrow(new NotFoundException("No workflow found with id wfId")).when(engine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
     mockMvc.perform(request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH)
@@ -125,7 +100,7 @@ class WorkflowsApiControllerTest {
 
   @Test
   void executeWorkflowById_unauthorizedExceptionTest() throws Exception {
-    doThrow(new UnauthorizedException("Token is not valid")).when(workflowEngine)
+    doThrow(new UnauthorizedException("Token is not valid")).when(engine)
         .execute(eq("wfId"), any(ExecutionParameters.class));
 
     mockMvc.perform(request(HttpMethod.POST, WORKFLOW_EXECUTE_PATH)

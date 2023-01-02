@@ -6,9 +6,9 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 public interface WorkflowEngine<K> {
 
-  void deploy(Workflow workflow);
+  String deploy(Workflow workflow);
 
-  void deploy(Workflow workflow, K instance);
+  String deploy(Workflow workflow, K instance);
 
   K parseAndValidate(Workflow workflow);
 
