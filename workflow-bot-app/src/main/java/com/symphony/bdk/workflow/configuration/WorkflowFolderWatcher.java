@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.configuration;
 
 import lombok.Generated;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

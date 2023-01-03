@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -25,10 +26,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Set;
-
 @ExtendWith(MockitoExtension.class)
 class WorkflowDeployActionTest {
   @Mock
@@ -39,6 +36,8 @@ class WorkflowDeployActionTest {
   WorkflowDeployAction action;
 
   private static final String swadl = "id: test\n"
+      + "properties:\n"
+      + "  version: v2\n"
       + "activities:\n"
       + "  - send-message:\n"
       + "      id: msg\n"
@@ -54,9 +53,9 @@ class WorkflowDeployActionTest {
 
   @Test
   void doAction_deploy_successful() {
-    when(deployer.workflowExist(anyString())).thenReturn(false);
+    when(deployer.workflowExists(anyString(), eq("v2"))).thenReturn(false);
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mock(BpmnModelInstance.class));
-    when(deployer.workflowSwadlPaths()).thenReturn(Collections.emptySet());
+    when(deployer.isPathAlreadyExist(any())).thenReturn(false);
     WorkflowDeployAction spied = spy(action);
     doNothing().when(spied).writeFile(anyString(), any(Workflow.class), anyString());
     spied.doAction(swadl);
@@ -65,15 +64,15 @@ class WorkflowDeployActionTest {
 
   @Test
   void doAction_deployExistingId_duplicateException() {
-    when(deployer.workflowExist(anyString())).thenReturn(true);
+    when(deployer.workflowExists(anyString(), eq("v2"))).thenReturn(true);
     assertThatThrownBy(() -> action.doAction(swadl), "Deploy an existing workflow id must fail").isInstanceOf(
-        DuplicateException.class).hasMessage("Workflow test already exists");
+        DuplicateException.class).hasMessage("Version v2 of the workflow test already exists");
   }
 
   @Test
   void doAction_deployExistingSwadl_duplicateException() {
-    when(deployer.workflowExist(anyString())).thenReturn(false);
-    when(deployer.workflowSwadlPaths()).thenReturn(Set.of(Path.of("./workflows/test.swadl.yaml")));
+    when(deployer.workflowExists(anyString(), eq("v2"))).thenReturn(false);
+    when(deployer.isPathAlreadyExist(any())).thenReturn(true);
     assertThatThrownBy(() -> action.doAction(swadl), "Deploy an existing swadl must fail").isInstanceOf(
         DuplicateException.class).hasMessage("SWADL file already exists");
   }

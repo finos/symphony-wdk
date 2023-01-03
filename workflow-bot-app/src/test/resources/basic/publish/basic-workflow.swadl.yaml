@@ -1,0 +1,8 @@
+id: basic-workflow
+activities:
+  - execute-script:
+      id: basicScript
+      on:
+        message-received:
+          content: /basic-workflow
+      script: |

@@ -13,8 +13,8 @@ public class WorkflowDeleteAction extends WorkflowAbstractAction implements Work
   }
 
   @Override
-  public void doAction(String id) {
-    deleteFile(id);
+  public void doAction(String workflowId) {
+    deleteSwadlFilesOf(workflowId);
   }
 
   @Override

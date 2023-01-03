@@ -48,7 +48,6 @@ public class MonitoringService {
   private final VariableQueryRepository variableQueryRepository;
   private final ObjectConverter objectConverter;
 
-
   public List<WorkflowView> listAllWorkflows() {
     return objectConverter.convertCollection(workflowQueryRepository.findAll(), WorkflowView.class);
   }

@@ -59,6 +59,19 @@ public interface WorkflowsMgtApi {
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
       @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id);
 
+  @ApiOperation("Roll back a workflow version.")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
+      @ApiResponse(code = 404, message = "No workflow found with id {id} and version {version}",
+          response = ErrorResponse.class),
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PostMapping(value = "/{id}/versions/{version}", consumes = MediaType.TEXT_PLAIN_VALUE)
+  ResponseEntity<Void> setActiveVersion(
+      @ApiParam(value = "Workflow's token to authenticate the request", required = true)
+      @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
+      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id,
+      @ApiParam(value = "Workflow's version to roll back to", required = true) @PathVariable String version);
+
   @ApiOperation("Streaming logs in SSE.")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "", response = ResponseBodyEmitter.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})

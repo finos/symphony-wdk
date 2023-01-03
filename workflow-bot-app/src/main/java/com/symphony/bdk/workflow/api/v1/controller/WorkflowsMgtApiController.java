@@ -1,9 +1,8 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowMgtAction;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
-import com.symphony.bdk.workflow.management.WorkflowsMgtActionHolder;
+import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import com.symphony.bdk.workflow.security.Authorized;
 
 import lombok.RequiredArgsConstructor;
@@ -18,28 +17,35 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 @Slf4j
 public class WorkflowsMgtApiController implements WorkflowsMgtApi {
-  private final WorkflowsMgtActionHolder mgtActionHolder;
+  private final WorkflowManagementService workflowManagementService;
 
   private final LogsStreamingService logsStreamingService;
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
   public ResponseEntity<Void> deploySwadl(String token, String content) {
-    mgtActionHolder.getInstance(WorkflowMgtAction.DEPLOY).doAction(content);
+    workflowManagementService.deploy(content);
     return ResponseEntity.noContent().build();
   }
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
   public ResponseEntity<Void> updateSwadl(String token, String content) {
-    mgtActionHolder.getInstance(WorkflowMgtAction.UPDATE).doAction(content);
+    workflowManagementService.update(content);
     return ResponseEntity.noContent().build();
   }
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
   public ResponseEntity<Void> deleteSwadlById(String token, String id) {
-    mgtActionHolder.getInstance(WorkflowMgtAction.DELETE).doAction(id);
+    workflowManagementService.delete(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
+  public ResponseEntity<Void> setActiveVersion(String token, String id, String version) {
+    workflowManagementService.setActiveVersion(id, version);
     return ResponseEntity.noContent().build();
   }
 
@@ -50,5 +56,4 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
     logsStreamingService.subscribe(emitter);
     return emitter;
   }
-
 }

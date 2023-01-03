@@ -13,12 +13,16 @@ import org.camunda.bpm.engine.impl.scripting.ExecutableScript;
 import org.camunda.bpm.engine.impl.scripting.env.ScriptingEnvironment;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.sql.DataSource;
@@ -26,17 +30,27 @@ import javax.sql.DataSource;
 @Configuration
 @Order(Ordering.DEFAULT_ORDER + 1)
 @Slf4j
+@Profile("!test")
 public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   private final BdkGateway bdkGateway;
+  private final EntityManagerFactory entityManagerFactory;
 
-  public CamundaEngineConfiguration(BdkGateway bdkGateway) {
+
+  public CamundaEngineConfiguration(BdkGateway bdkGateway, EntityManagerFactory entityManagerFactory) {
     this.bdkGateway = bdkGateway;
+    this.entityManagerFactory = entityManagerFactory;
   }
 
   @Bean
-  public PlatformTransactionManager transactionManager(DataSource dataSource) {
-    return new DataSourceTransactionManager(dataSource);
+  public PlatformTransactionManager transactionManager() {
+    return new JpaTransactionManager(entityManagerFactory);
+  }
+
+  @Bean(name = "camundaBpmDataSource")
+  @ConfigurationProperties(prefix = "spring.camundadatasource")
+  public DataSource camundaDataSource() {
+    return DataSourceBuilder.create().build();
   }
 
   @Override

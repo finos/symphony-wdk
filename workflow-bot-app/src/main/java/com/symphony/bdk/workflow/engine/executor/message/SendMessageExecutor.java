@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
+import static java.util.Collections.singletonList;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
@@ -33,12 +35,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.singletonList;
-
 @Slf4j
 @Component
-public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
-    implements ActivityExecutor<SendMessage> {
+public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> implements ActivityExecutor<SendMessage> {
 
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
@@ -111,9 +110,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
     Message messageToSend = this.buildMessage(execution);
     AuthSession authSession = this.getOboAuthSession(execution);
 
-    OboMessageService messages = execution.bdk()
-        .obo(authSession)
-        .messages();
+    OboMessageService messages = execution.bdk().obo(authSession).messages();
 
     return messages.send(streamId, messageToSend);
   }
@@ -128,17 +125,14 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
     } else if (activity.getTo() != null && activity.getTo().getUserIds() != null) {
       // or the user ids are set explicitly in the workflow
       return this.createOrGetStreamId(activity.getTo().getUserIds(), streamService);
-    } else if (execution.getEvent() != null
-        && execution.getEvent().getSource() instanceof V4MessageSent) {
+    } else if (execution.getEvent() != null && execution.getEvent().getSource() instanceof V4MessageSent) {
       // or retrieved from the current event
       V4MessageSent event = (V4MessageSent) execution.getEvent().getSource();
       return singletonList(event.getMessage().getStream().getStreamId());
-    } else if (execution.getEvent() != null
-        && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
+    } else if (execution.getEvent() != null && execution.getEvent().getSource() instanceof V4SymphonyElementsAction) {
       V4SymphonyElementsAction event = (V4SymphonyElementsAction) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
-    } else if (execution.getEvent() != null
-        && execution.getEvent().getSource() instanceof V4UserJoinedRoom) {
+    } else if (execution.getEvent() != null && execution.getEvent().getSource() instanceof V4UserJoinedRoom) {
       V4UserJoinedRoom event = (V4UserJoinedRoom) execution.getEvent().getSource();
       return singletonList(event.getStream().getStreamId());
     } else {
@@ -190,11 +184,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
       templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(execution.bdk().session()));
       String templateFile = activity.getTemplate();
       File file = execution.getResourceFile(Path.of(templateFile));
-      return execution.bdk()
-          .messages()
-          .templates()
-          .newTemplateFromFile(file.getPath())
-          .process(templateVariables);
+      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(templateVariables);
     }
   }
 
@@ -226,7 +216,8 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
               String.format("No attachment in requested message with id %s", actualMessage.getMessageId()));
         }
 
-        V4AttachmentInfo attachmentInfo = actualMessage.getAttachments().stream()
+        V4AttachmentInfo attachmentInfo = actualMessage.getAttachments()
+            .stream()
             .filter(a -> a.getId().equals(attachment.getAttachmentId()))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException(
@@ -242,11 +233,11 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message>
     }
   }
 
-  private void downloadAndAddAttachment(Message.MessageBuilder messageBuilder,
-      V4Message actualMessage, V4AttachmentInfo a, MessageService messages) {
+  private void downloadAndAddAttachment(Message.MessageBuilder messageBuilder, V4Message actualMessage,
+      V4AttachmentInfo a, MessageService messages) {
     String filename = a.getName();
-    byte[] attachmentFromMessage = messages
-        .getAttachment(actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), a.getId());
+    byte[] attachmentFromMessage =
+        messages.getAttachment(actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), a.getId());
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
 
     // stream is closed by HTTP client once the request body has been written (besides no need to close byte array)

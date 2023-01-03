@@ -5,10 +5,15 @@ import com.symphony.bdk.workflow.engine.ResourceProvider;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableCaching
@@ -34,5 +39,12 @@ public class WorkflowBotConfiguration {
   @Bean
   public SymphonyGroupBdkExtension groupExtension() {
     return new SymphonyGroupBdkExtension();
+  }
+
+  @Bean(name = {"dataSource"})
+  @Primary
+  @ConfigurationProperties(prefix = "spring.datasource")
+  public DataSource dataSource() {
+    return DataSourceBuilder.create().build();
   }
 }

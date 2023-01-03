@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowMgtAction;
 import com.symphony.bdk.workflow.configuration.WorkflowDeployer;
 import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,12 +21,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Collections;
 
 
 @ExtendWith(MockitoExtension.class)
 class WorkflowDeleteActionTest {
   @Mock
   WorkflowDeployer deployer;
+
+  @Mock
+  MonitoringService monitoringService;
 
   @InjectMocks
   WorkflowDeleteAction action;
@@ -34,8 +39,8 @@ class WorkflowDeleteActionTest {
   void doAction_delete_successful() {
     Path path = mock(Path.class);
     File file = mock(File.class);
-    when(deployer.workflowExist(eq("id"))).thenReturn(true);
-    when(deployer.workflowSwadlPath(anyString())).thenReturn(path);
+    when(deployer.workflowExists(eq("id"))).thenReturn(true);
+    when(deployer.workflowSwadlPath(anyString())).thenReturn(Collections.singletonList(path));
     when(path.toFile()).thenReturn(file);
     when(file.delete()).thenReturn(true);
     action.doAction("id");
@@ -44,24 +49,24 @@ class WorkflowDeleteActionTest {
   }
 
   @Test
-  void doAction_delete_fileNotExist() {
+  void doAction_delete_workflowExist_fileNotExist() {
     Path path = mock(Path.class);
     File file = mock(File.class);
-    when(deployer.workflowExist(eq("id"))).thenReturn(true);
-    when(deployer.workflowSwadlPath(anyString())).thenReturn(path);
+    when(deployer.workflowExists(eq("id"))).thenReturn(true);
+    when(deployer.workflowSwadlPath(anyString())).thenReturn(Collections.singletonList(path));
     when(path.toFile()).thenReturn(file);
     when(file.delete()).thenReturn(false);
     Assertions.assertThatThrownBy(() -> action.doAction("id"), "Deletion on non-existing file must fail")
-        .isInstanceOf(NotFoundException.class)
-        .hasMessage("Workflow id does not exist");
+            .isInstanceOf(NotFoundException.class)
+            .hasMessage("Workflow id does not exist");
   }
 
   @Test
-  void doAction_delete_fileNull() {
-    when(deployer.workflowExist(eq("id"))).thenReturn(false);
+  void doAction_delete_workflowNotExist() {
+    when(deployer.workflowExists(eq("id"))).thenReturn(false);
     Assertions.assertThatThrownBy(() -> action.doAction("id"), "Deletion on non-existing file must fail")
-        .isInstanceOf(NotFoundException.class)
-        .hasMessage("Workflow id does not exist");
+            .isInstanceOf(NotFoundException.class)
+            .hasMessage("Workflow id does not exist");
   }
 
   @Test

@@ -7,6 +7,7 @@ import com.symphony.bdk.workflow.exception.DuplicateException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,7 +32,7 @@ public class WorkflowDeployAction extends WorkflowAbstractAction implements Work
   @Override
   public void doAction(String content) {
     Workflow workflow = this.convertToWorkflow(content);
-    String path = workflowFolder + File.separator + workflow.getId() + ".swadl.yaml";
+    String path = this.buildFilePath(workflow);
     log.debug("New workflow path is [{}]", path);
     validateWorkflowUniqueness(workflow);
     validateFilePath(path);
@@ -39,9 +40,19 @@ public class WorkflowDeployAction extends WorkflowAbstractAction implements Work
     writeFile(content, workflow, path);
   }
 
+  private String buildFilePath(Workflow workflow) {
+    String path = workflowFolder + File.separator + workflow.getId();
+    if (StringUtils.isNotBlank(workflow.getVersion())) {
+      path += "-" + workflow.getVersion();
+    }
+    path += ".swadl.yaml";
+    return path;
+  }
+
   private void validateWorkflowUniqueness(Workflow workflow) {
-    if (this.workflowExist(workflow.getId())) {
-      throw new DuplicateException(String.format("Workflow %s already exists", workflow.getId()));
+    if (this.workflowExist(workflow.getId(), workflow.getVersion())) {
+      throw new DuplicateException(
+          String.format("Version %s of the workflow %s already exists", workflow.getVersion(), workflow.getId()));
     }
   }
 

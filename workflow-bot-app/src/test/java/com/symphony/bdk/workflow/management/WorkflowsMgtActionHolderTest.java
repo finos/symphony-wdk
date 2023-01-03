@@ -15,7 +15,7 @@ class WorkflowsMgtActionHolderTest {
   @Test
   void getInstance() {
     WorkflowsMgtActionHolder holder = new WorkflowsMgtActionHolder(List.of(new WorkflowDeleteAction(mock(
-        WorkflowDeployer.class))));
+            WorkflowDeployer.class))));
     assertThat(holder.getInstance(WorkflowMgtAction.DELETE)).isInstanceOf(WorkflowDeleteAction.class);
   }
 }

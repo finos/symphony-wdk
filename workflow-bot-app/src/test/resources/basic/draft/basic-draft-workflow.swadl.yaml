@@ -1,0 +1,10 @@
+id: basic-draft-workflow
+properties:
+  publish: false
+activities:
+  - execute-script:
+      id: basicScript
+      on:
+        message-received:
+          content: /basic-workflow
+      script: |
