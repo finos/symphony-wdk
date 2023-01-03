@@ -2,12 +2,12 @@ package com.symphony.bdk.workflow.versioning.model;
 
 import lombok.Generated;
 import lombok.Getter;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Lob;
@@ -20,9 +20,11 @@ import javax.persistence.UniqueConstraint;
 @Getter
 @Generated // not tested
 public class VersionedWorkflow {
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Long uid;
+  @Id @org.springframework.data.annotation.Id
+  @GeneratedValue(generator = "system-uuid")
+  @GenericGenerator(name = "system-uuid", strategy = "uuid")
+  @Column(name = "id")
+  private String id;
 
   private String workflowId;
 
@@ -69,6 +71,15 @@ public class VersionedWorkflow {
     return this;
   }
 
+  public VersionedWorkflow setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getId() {
+    return this.id;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -79,11 +90,11 @@ public class VersionedWorkflow {
       return false;
     }
     VersionedWorkflow that = (VersionedWorkflow) o;
-    return uid != null && Objects.equals(uid, that.uid);
+    return id != null && Objects.equals(id, that.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uid, workflowId, version, deploymentId, swadl, path, isToPublish);
+    return Objects.hash(id, workflowId, version, deploymentId, swadl, path, isToPublish);
   }
 }
