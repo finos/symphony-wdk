@@ -1,13 +1,13 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.workflow.engine.ResourceProvider;
-import com.symphony.bdk.workflow.engine.camunda.audit.AuditTrailLogger;
 import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
 import com.symphony.bdk.workflow.engine.camunda.variable.EscapedJsonVariableDeserializer;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.engine.handler.audit.AuditTrailLogAction;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -72,11 +72,11 @@ public class CamundaExecutor implements JavaDelegate {
   }
 
   private final BdkGateway bdk;
-  private final AuditTrailLogger auditTrailLogger;
+  private final AuditTrailLogAction auditTrailLogger;
   private final ResourceProvider resourceLoader;
   private final ApplicationContext applicationContext;
 
-  public CamundaExecutor(BdkGateway bdk, AuditTrailLogger auditTrailLogger,
+  public CamundaExecutor(BdkGateway bdk, AuditTrailLogAction auditTrailLogger,
       @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader, ApplicationContext applicationContext) {
     this.bdk = bdk;
     this.auditTrailLogger = auditTrailLogger;

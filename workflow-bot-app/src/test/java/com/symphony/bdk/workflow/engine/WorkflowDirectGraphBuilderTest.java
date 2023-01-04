@@ -8,7 +8,6 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
-import org.camunda.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class WorkflowDirectGraphBuilderTest {
   @Mock
   SessionService sessionService;
-  @Mock
-  RuntimeService runtimeService;
   WorkflowDirectGraphBuilder workflowDirectGraphBuilder;
 
   @BeforeEach

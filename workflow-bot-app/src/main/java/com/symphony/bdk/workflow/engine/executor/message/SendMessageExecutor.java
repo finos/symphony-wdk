@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
+import static java.util.Collections.singletonList;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
@@ -32,8 +34,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.singletonList;
 
 @Slf4j
 @Component
