@@ -1,8 +1,9 @@
-package com.symphony.bdk.workflow.engine;
+package com.symphony.bdk.workflow.engine.handler.variable;
 
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.engine.handler.HistoricEventAction;
 import com.symphony.bdk.workflow.event.RealTimeEventProcessor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,32 +15,27 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.history.event.HistoricVariableUpdateEventEntity;
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
-/**
- * Handles workflow events to persist them in database.
- */
 @Component
-@Primary
 @Slf4j
-public class WorkflowEventVariableHandler implements EventHandler {
+public class WorkflowEventVariableAction implements HistoricEventAction {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
   private final RuntimeService runtimeService;
 
-  public WorkflowEventVariableHandler(@Lazy RuntimeService runtimeService,
-      WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
-    this.runtimeService = runtimeService;
+  public WorkflowEventVariableAction(WorkflowDirectGraphCachingService workflowDirectGraphCachingService,
+      @Lazy RuntimeService runtimeService) {
     this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
+    this.runtimeService = runtimeService;
   }
 
   @Override
-  public void handleEvent(HistoryEvent historyEvent) {
+  public void execute(HistoryEvent historyEvent) {
     if (historyEvent instanceof HistoricVariableUpdateEventEntity) {
       this.storeEventHolderVariable((HistoricVariableUpdateEventEntity) historyEvent);
     }
@@ -80,5 +76,4 @@ public class WorkflowEventVariableHandler implements EventHandler {
       }
     }
   }
-
 }

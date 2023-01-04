@@ -1,7 +1,7 @@
-package com.symphony.bdk.workflow.engine.camunda.audit;
+package com.symphony.bdk.workflow.engine.handler.audit;
 
-import com.symphony.bdk.workflow.engine.EventHandler;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
+import com.symphony.bdk.workflow.engine.handler.HistoricEventAction;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -18,15 +18,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Log Camunda events in a specific topic/logger. Events are logged using a key1=value1, key2=value2 format.
- */
-@Slf4j(topic = "audit-trail")
 @Component
-public class AuditTrailLogger implements EventHandler {
-
+@Slf4j(topic = "audit-trail")
+public class AuditTrailLogAction implements HistoricEventAction {
   @Override
-  public void handleEvent(HistoryEvent historyEvent) {
+  public void execute(HistoryEvent historyEvent) {
     if (historyEvent instanceof HistoricJobLogEvent) {
       logJobEvent((HistoricJobLogEvent) historyEvent);
 
@@ -42,6 +38,14 @@ public class AuditTrailLogger implements EventHandler {
     } else {
       log.trace("Event {}", historyEvent);
     }
+  }
+
+  public void execute(DelegateExecution execution, String activityType) {
+    log.info("event={}, process={}, process_key={}, activity={}, activity_name={}, activity_type={}",
+        "execute_activity", execution.getProcessDefinitionId(),
+        ((ExecutionEntity) execution).getProcessDefinition().getKey(),
+        execution.getCurrentActivityId(), execution.getCurrentActivityName(),
+        activityType);
   }
 
   private void logJobEvent(HistoricJobLogEvent event) {
@@ -111,13 +115,5 @@ public class AuditTrailLogger implements EventHandler {
       }
     }
     return "";
-  }
-
-  public void execute(DelegateExecution execution, String activityType) {
-    log.info("event={}, process={}, process_key={}, activity={}, activity_name={}, activity_type={}",
-        "execute_activity", execution.getProcessDefinitionId(),
-        ((ExecutionEntity) execution).getProcessDefinition().getKey(),
-        execution.getCurrentActivityId(), execution.getCurrentActivityName(),
-        activityType);
   }
 }
