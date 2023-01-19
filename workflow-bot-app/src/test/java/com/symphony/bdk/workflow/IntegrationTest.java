@@ -403,6 +403,19 @@ public abstract class IntegrationTest {
     }
   }
 
+  protected Optional<String> lastProcess(Workflow workflow) {
+    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
+            .processDefinitionName(workflow.getId())
+            .orderByProcessInstanceStartTime().desc()
+            .list();
+    if (processes.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.ofNullable(processes.get(0))
+              .map(HistoricProcessInstance::getId);
+    }
+  }
+
   public static List<String> finishedProcessById(String workflowId) {
     return historyService.createHistoricProcessInstanceQuery()
             .processDefinitionKey(workflowId)
@@ -421,19 +434,6 @@ public abstract class IntegrationTest {
             .stream()
             .map(HistoricProcessInstance::getId)
             .collect(Collectors.toList());
-  }
-
-  protected Optional<String> lastProcess(Workflow workflow) {
-    List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionName(workflow.getId())
-        .orderByProcessInstanceStartTime().desc()
-        .list();
-    if (processes.isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.ofNullable(processes.get(0))
-          .map(HistoricProcessInstance::getId);
-    }
   }
 
   public static void assertExecuted(Workflow workflow) {

@@ -9,12 +9,13 @@ import com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static java.util.Collections.singletonMap;
 
@@ -37,14 +38,16 @@ public class V4ElementActionEventProcessor extends AbstractRealTimeEventProcesso
     variables.put(FormVariableListener.FORM_VARIABLES, singletonMap(formId, formReplies));
     ((EventHolder) variables.get(ActivityExecutorContext.EVENT)).getArgs().put(EVENT_NAME_KEY, eventName + formId);
 
-    String processId = getProcessToExecute(formId, eventSource.getFormMessageId());
+    MessageCorrelationBuilder correlationBuilder = runtimeService.createMessageCorrelation(
+            eventName + formId).setVariables(variables);
+    Optional<String> processId = getProcessToExecute(formId, eventSource.getFormMessageId());
 
-    if (processId != null) {
-      runtimeService.createMessageCorrelation(eventName + formId)
-              .processInstanceId(processId)
-              .setVariables(variables)
-              .correlateAll();
+    if (processId.isPresent()) {
+      correlationBuilder = correlationBuilder.processInstanceId(processId.get());
     }
+
+    // In case the form is in the starting activity, there will be no ongoing process
+    correlationBuilder.correlateAll();
   }
 
 
@@ -58,17 +61,11 @@ public class V4ElementActionEventProcessor extends AbstractRealTimeEventProcesso
    * @param messageId of the form.
    * @return process instance id to be resumed.
    */
-  private String getProcessToExecute(String formId, String messageId) {
-    List<String> collect = runtimeService.createVariableInstanceQuery().list().stream()
+  private Optional<String> getProcessToExecute(String formId, String messageId) {
+    return runtimeService.createVariableInstanceQuery().list().stream()
             .filter(a -> a.getName().equals(String.format("%s.%s.%s", formId, ActivityExecutorContext.OUTPUTS,
                     SendMessageExecutor.OUTPUT_MESSAGE_IDS_KEY)) && ((List) a.getValue()).contains(messageId))
             .map(VariableInstance::getProcessInstanceId)
-            .collect(Collectors.toList());
-
-    if (!collect.isEmpty()) {
-      return collect.get(0);
-    } else {
-      return null;
-    }
+            .findFirst();
   }
 }
