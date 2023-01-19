@@ -33,7 +33,7 @@ class WorkflowFolderWatcherTest {
   void setUp() {
     engine = mock(WorkflowEngine.class);
     workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
-    workflowDeployer = new WorkflowDeployer(engine, null);
+    workflowDeployer = new WorkflowDeployer(engine);
 
     when(workflowBotConfiguration.getWorkflowsFolderPath()).thenReturn(workflowsFolder.getPath());
   }

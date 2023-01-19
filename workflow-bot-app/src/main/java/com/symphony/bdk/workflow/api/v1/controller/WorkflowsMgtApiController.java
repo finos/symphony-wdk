@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
+import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import com.symphony.bdk.workflow.security.Authorized;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
+@ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 @RequestMapping("/v1/management/workflows")
 @RequiredArgsConstructor
 @Slf4j

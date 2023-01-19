@@ -54,7 +54,7 @@ class GlobalExceptionHandlerTest {
 
   @Test
   void testInternalServerException() {
-    ErrorResponse expectedErrorResponse = new ErrorResponse("Throwable exception's message");
+    ErrorResponse expectedErrorResponse = new ErrorResponse("Internal server error, something went wrong.");
     Throwable throwable = new Throwable("Throwable exception's message");
     ResponseEntity<ErrorResponse> response = globalExceptionHandler.handle(throwable);
 

@@ -82,7 +82,7 @@ class WorkflowsApiControllerTest extends ApiTest {
             .contentType("application/json")
             .content("{\"args\": {\"content\":\"hello\"}}"))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.message").value("Error parsing presentationML"));
+        .andExpect(jsonPath("$.message").value("Internal server error, something went wrong."));
   }
 
   @Test

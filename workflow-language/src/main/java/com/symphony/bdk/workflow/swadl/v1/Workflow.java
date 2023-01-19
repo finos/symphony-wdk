@@ -35,8 +35,4 @@ public class Workflow {
   public boolean isToPublish() {
     return getProperties().getPublish();
   }
-
-  public String getVersion() {
-    return this.getProperties().getVersion();
-  }
 }
