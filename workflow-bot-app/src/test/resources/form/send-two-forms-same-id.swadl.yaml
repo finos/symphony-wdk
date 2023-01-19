@@ -1,0 +1,24 @@
+id: send-two-forms-same-id
+activities:
+  - send-message:
+      id: sendFormSameIds
+      on:
+        message-received:
+          content: "/two-forms-same-id"
+      to:
+        stream-id: "123"
+      content: |
+        <messageML>
+         <form id="sendFormSameIds">
+           <button name="approve" type="action">Approve</button>
+           <button name="reject" type="action">Reject</button>
+         </form>
+        </messageML>
+
+  - execute-script:
+      id: script
+      on:
+        form-replied:
+          form-id: sendFormSameIds
+      script: |
+        assert true

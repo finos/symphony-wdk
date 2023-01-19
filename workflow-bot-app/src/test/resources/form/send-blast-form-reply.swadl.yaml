@@ -1,0 +1,26 @@
+id: send-blast-form-reply
+activities:
+  - send-message:
+      id: sendBlastForm
+      on:
+        message-received:
+          content: "/blast-form"
+      to:
+        stream-ids:
+          - "123"
+          - "456"
+      content: |
+        <messageML>
+         <form id="sendBlastForm">
+           <button name="approve" type="action">Approve</button>
+           <button name="reject" type="action">Reject</button>
+         </form>
+        </messageML>
+
+  - execute-script:
+      id: script
+      on:
+        form-replied:
+          form-id: sendBlastForm
+      script: |
+        assert true

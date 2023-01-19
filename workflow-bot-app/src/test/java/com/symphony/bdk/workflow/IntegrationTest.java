@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -51,12 +45,14 @@ import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
-import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import io.restassured.RestAssured;
+
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
@@ -78,6 +74,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -96,6 +99,9 @@ public abstract class IntegrationTest {
 
   @SuppressFBWarnings
   public static HistoryService historyService;
+
+  @SuppressFBWarnings
+  public static RuntimeService runtimeService;
 
   @SuppressFBWarnings
   public static RepositoryService repositoryService;
@@ -153,6 +159,11 @@ public abstract class IntegrationTest {
   @Autowired
   public void setHistoryService(HistoryService historyService) {
     IntegrationTest.historyService = historyService;
+  }
+
+  @Autowired
+  public void setRuntimeService(RuntimeService runtimeService) {
+    IntegrationTest.runtimeService = runtimeService;
   }
 
   @Autowired
@@ -279,6 +290,12 @@ public abstract class IntegrationTest {
     return new RealTimeEvent<>(initiator(), new V4SharedPost());
   }
 
+  public static RealTimeEvent<V4MessageSent> messageReceived(String streamId, String content, String messageId) {
+    RealTimeEvent<V4MessageSent> event = messageReceived(streamId, content);
+    event.getSource().getMessage().setMessageId(messageId);
+    return event;
+  }
+
   public static RealTimeEvent<V4MessageSent> messageReceived(String streamId, String content) {
     RealTimeEvent<V4MessageSent> event = messageReceived(content);
     V4Stream stream = new V4Stream();
@@ -334,6 +351,11 @@ public abstract class IntegrationTest {
 
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId,
       String formId, Map<String, Object> formReplies) {
+    return form(messageId, formId, formReplies, "123");
+  }
+
+  public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId, String formId,
+                                                             Map<String, Object> formReplies, String streamId) {
     V4Initiator initiator = new V4Initiator();
     V4User user = new V4User();
     user.setUserId(123L);
@@ -343,14 +365,8 @@ public abstract class IntegrationTest {
     elementsAction.setFormMessageId(messageId);
     elementsAction.setFormId(formId);
     elementsAction.setFormValues(formReplies);
-    elementsAction.setStream(new V4Stream().streamId("123"));
+    elementsAction.setStream(new V4Stream().streamId(streamId));
     return new RealTimeEvent<>(initiator, elementsAction);
-  }
-
-  public static RealTimeEvent<RequestReceivedEvent> requestReceived(String token) {
-    RequestReceivedEvent event = new RequestReceivedEvent();
-    event.setToken(token);
-    return new RealTimeEvent<>(initiator(), event);
   }
 
   public static Boolean processIsCompleted(String processId) {
@@ -385,6 +401,26 @@ public abstract class IntegrationTest {
       return Optional.ofNullable(processes.get(0))
           .map(HistoricProcessInstance::getId);
     }
+  }
+
+  public static List<String> finishedProcessById(String workflowId) {
+    return historyService.createHistoricProcessInstanceQuery()
+            .processDefinitionKey(workflowId)
+            .finished()
+            .list()
+            .stream()
+            .map(HistoricProcessInstance::getId)
+            .collect(Collectors.toList());
+  }
+
+  public static List<String> unfinishedProcessById(String workflowId) {
+    return historyService.createHistoricProcessInstanceQuery()
+            .processDefinitionKey(workflowId)
+            .unfinished()
+            .list()
+            .stream()
+            .map(HistoricProcessInstance::getId)
+            .collect(Collectors.toList());
   }
 
   protected Optional<String> lastProcess(Workflow workflow) {
