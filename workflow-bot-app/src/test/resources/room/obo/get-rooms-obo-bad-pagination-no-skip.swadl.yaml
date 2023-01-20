@@ -1,0 +1,22 @@
+id: get-rooms-on-behalf-of-user-bad-pagination-no-skip
+activities:
+  - get-rooms:
+      id: getRoomsOboValidUserid
+      on:
+        message-received:
+          content: "/get-rooms-obo-bad-pagination"
+      active: true
+      labels:
+        - test
+        - test1
+      query: test
+      sort-order: BASIC
+      obo:
+        user-id: 12345
+      limit: 10
+      #skip not set
+
+  - execute-script:
+      id: scriptShouldNotBeExecuted
+      script: |
+        assert false

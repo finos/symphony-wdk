@@ -34,7 +34,7 @@ public class GetRoomsExecutor extends OboExecutor<GetRooms, V3RoomSearchResults>
       rooms = this.searchRoomsNoPagination(execution);
     } else {
       throw new IllegalArgumentException(
-          String.format("Skip and limit should both be set to get rooms in activity %s", getRooms.getId()));
+          String.format("Skip and limit should both be set in activity %s to get rooms", getRooms.getId()));
     }
 
     execution.setOutputVariable(OUTPUTS_ROOMS_KEY, rooms);
@@ -53,10 +53,10 @@ public class GetRoomsExecutor extends OboExecutor<GetRooms, V3RoomSearchResults>
       criteria.setCreator(new UserId().id(Long.parseLong(getRooms.getCreatorId())));
     }
     if (getRooms.getOwnerId() != null) {
-      criteria.setOwner(new UserId().id(Long.parseLong(getRooms.getCreatorId())));
+      criteria.setOwner(new UserId().id(Long.parseLong(getRooms.getOwnerId())));
     }
     if (getRooms.getMemberId() != null) {
-      criteria.setMember(new UserId().id(Long.parseLong(getRooms.getCreatorId())));
+      criteria.setMember(new UserId().id(Long.parseLong(getRooms.getMemberId())));
     }
     return criteria;
   }
