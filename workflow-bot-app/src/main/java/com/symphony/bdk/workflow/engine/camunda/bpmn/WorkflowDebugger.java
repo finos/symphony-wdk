@@ -66,8 +66,8 @@ public final class WorkflowDebugger {
       log.debug("BPMN image generated to {}", pngFile);
       return pngFile;
     } catch (IOException ioException) {
-      log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image)",
-          ioException);
+      log.warn("Failed to convert BPMN to image, make sure it is installed (npm install -g bpmn-to-image) - {}",
+          ioException.getMessage());
     }
     return outputFolder;
   }

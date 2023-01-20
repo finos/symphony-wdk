@@ -26,12 +26,6 @@
                     ],
                     "description": "Should the workflow be published or not, true publish, false otherwise",
                     "default": true
-                },
-                "version": {
-                    "type": "string",
-                    "description": "Version of the workflow definition",
-                    "pattern": "^[a-zA-Z]+[a-zA-Z0-9][^ ]*$",
-                    "default": "v1"
                 }
             }
         },

@@ -4,12 +4,17 @@ package com.symphony.bdk.workflow.exception;
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import javax.persistence.OptimisticLockException;
 
 
 @Component
@@ -21,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorResponse> handle(Throwable exception) {
     log.error("Internal server error: [{}]", exception.getMessage());
     log.debug("", exception);
-    return handle(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    return handle("Internal server error, something went wrong.", HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @ExceptionHandler(UnauthorizedException.class)
@@ -50,6 +55,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Illegal argument exception: [{}]", exception.getMessage());
     log.debug("", exception);
     return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(OptimisticLockException.class)
+  public ResponseEntity<ErrorResponse> handle(OptimisticLockException exception) {
+    log.error("Optimistic locking exception: [{}]", exception.getMessage());
+    return handle("Workflow being updated is outdated, please refresh then update again.", HttpStatus.CONFLICT);
   }
 
   private ResponseEntity<ErrorResponse> handle(String errorMessage, HttpStatus status) {

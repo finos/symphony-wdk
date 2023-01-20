@@ -1,10 +1,10 @@
 package com.symphony.bdk.workflow.versioning.model;
 
+import lombok.Data;
 import lombok.Generated;
-import lombok.Getter;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,88 +13,42 @@ import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"workflowId", "version"}),
-    indexes = @Index(name = "versionedWorkflowIndex", columnList = "workflowId, version", unique = true))
-@Getter
+@Table(name = "VERSIONED_WORKFLOW", uniqueConstraints = @UniqueConstraint(columnNames = {"WORKFLOW_ID", "VERSION"}),
+    indexes = {@Index(name = "ID_VERSION_IDX", columnList = "WORKFLOW_ID, VERSION", unique = true),
+        @Index(name = "ID_ACTIVE_IDX", columnList = "WORKFLOW_ID, ACTIVE", unique = true)})
+@Data
 @Generated // not tested
 public class VersionedWorkflow {
-  @Id @org.springframework.data.annotation.Id
+  @Id
   @GeneratedValue(generator = "system-uuid")
   @GenericGenerator(name = "system-uuid", strategy = "uuid")
-  @Column(name = "id")
+  @Column(name = "ID")
   private String id;
-
+  @Column(name = "WORKFLOW_ID", nullable = false, length = 100)
   private String workflowId;
-
-  private String version;
-
-  private String deploymentId;
-
+  @Column(name = "VERSION", nullable = false)
+  private Long version;
+  @Column(name = "PUBLISHED", nullable = false)
+  private Boolean published;
+  @Version
+  @Column(name = "ETAG")
+  private Long etag;
   @Lob
-  @Column(length = Integer.MAX_VALUE)
+  @Column(name = "SWADL", length = Integer.MAX_VALUE, nullable = false)
   private String swadl;
-  private String path;
-  private boolean isToPublish;
+  @Column(name = "DEPLOY_ID", length = 64)
+  private String deploymentId;
+  @Column(name = "ACTIVE")
+  private Boolean active;
+  @Column(name = "UPDATED_BY", length = 50)
+  private String userId;
+  @Column(name = "DESC")
+  private String description;
 
-  public VersionedWorkflow() {
-  }
-
-  public VersionedWorkflow setSwadl(String swadl) {
-    this.swadl = swadl;
-    return this;
-  }
-
-  public VersionedWorkflow setPath(String path) {
-    this.path = path;
-    return this;
-  }
-
-  public VersionedWorkflow setIsToPublish(boolean isToPublish) {
-    this.isToPublish = isToPublish;
-    return this;
-  }
-
-  public VersionedWorkflow setWorkflowId(String workflowId) {
-    this.workflowId = workflowId;
-    return this;
-  }
-
-  public VersionedWorkflow setVersion(String version) {
-    this.version = version;
-    return this;
-  }
-
-  public VersionedWorkflow setDeploymentId(String deploymentId) {
-    this.deploymentId = deploymentId;
-    return this;
-  }
-
-  public VersionedWorkflow setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return this.id;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    VersionedWorkflow that = (VersionedWorkflow) o;
-    return id != null && Objects.equals(id, that.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, workflowId, version, deploymentId, swadl, path, isToPublish);
+  public Boolean getActive() {
+    return Optional.ofNullable(this.active).orElse(false);
   }
 }

@@ -4,7 +4,7 @@ wdk:
     path: ./workflows
   properties:
     monitoring-token: ${wdk.monitoring.token:} # The default value is an empty String
-    management-token: ${wdk.monitoring.token:} # The default value is an empty String
+    management-token: ${wdk.management.token:} # The default value is an empty String
 
 # BDK configuration
 bdk:
@@ -38,20 +38,20 @@ camunda:
 # Spring boot configuration
 spring:
   datasource:
-    username: sa
-    password: sa
-    driver-class-name: org.h2.Driver
-    jdbc-url: jdbc:h2:mem:versioning_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    wdk:
+      username: sa
+      password: sa
+      driver-class-name: org.h2.Driver
+      jdbc-url: jdbc:h2:mem:wdk_workflow;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    camunda:
+      username: sa
+      password: sa
+      driver-class-name: org.h2.Driver
+      jdbc-url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
-
-  camundadatasource:
-    username: sa
-    password: sa
-    driver-class-name: org.h2.Driver
-    jdbc-url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
 
   mvc:
     pathmatch:
