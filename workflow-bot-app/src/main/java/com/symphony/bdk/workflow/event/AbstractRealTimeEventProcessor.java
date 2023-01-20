@@ -24,11 +24,11 @@ public abstract class AbstractRealTimeEventProcessor<T> implements RealTimeEvent
   public void process(RealTimeEvent<T> event) throws Exception {
     Map<String, Object> processVariables = new HashMap<>();
     processVariables.put(ActivityExecutorContext.EVENT,
-        new EventHolder<>(event.getInitiator(), event.getSource(), new HashMap<>()));
+            new EventHolder<>(event.getInitiator(), event.getSource(), new HashMap<>()));
 
     if (event.getInitiator() != null
-        && event.getInitiator().getUser() != null
-        && event.getInitiator().getUser().getUserId() != null) {
+            && event.getInitiator().getUser() != null
+            && event.getInitiator().getUser().getUserId() != null) {
       Long userId = event.getInitiator().getUser().getUserId();
       processVariables.put(ActivityExecutorContext.INITIATOR, userId);
       log.debug("Dispatching event {} from user {}", event.getSource().getClass().getSimpleName(), userId);

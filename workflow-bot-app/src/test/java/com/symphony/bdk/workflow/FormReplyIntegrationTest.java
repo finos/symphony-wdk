@@ -1,21 +1,9 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
+import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -27,7 +15,23 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class FormReplyIntegrationTest extends IntegrationTest {
 
@@ -431,5 +435,66 @@ class FormReplyIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(2000)).send(anyString(), contains("END"));
 
     assertThat(workflow).executed(workflow, "sendForm", expectedActivity, "response2");
+  }
+
+  @Test
+  void formReplied_blast() throws Exception {
+    Workflow workflow =
+            SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-blast-form-reply.swadl.yaml"));
+
+    V4Message message1 = new V4Message().stream(new V4Stream().streamId("123")).messageId("MSG_ID1");
+    V4Message message2 = new V4Message().stream(new V4Stream().streamId("456")).messageId("MSG_ID2");
+
+    V4MessageBlastResponse response = new V4MessageBlastResponse().messages(List.of(message1, message2));
+    when(messageService.send(anyList(), any(Message.class))).thenReturn(response);
+
+    engine.deploy(workflow);
+
+    // trigger workflow execution
+    engine.onEvent(messageReceived("123", "/blast-form"));
+    verify(messageService, timeout(5000)).send(eq(List.of("123", "456")), contains("form"));
+
+    // reply to form
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("MSG_ID2", "sendBlastForm", Collections.singletonMap("action", "approve")));
+      return true;
+    });
+
+    assertThat(workflow).executed("sendBlastForm", "script");
+  }
+
+  @Test
+  void formReplied_twoForms_sameFormId() throws Exception {
+    Workflow workflow =
+            SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-two-forms-same-id.swadl.yaml"));
+
+    when(messageService.send(eq("123"), any(Message.class))).thenReturn(message("MSG_ID1"));
+    when(messageService.send(eq("456"), any(Message.class))).thenReturn(message("MSG_ID2"));
+
+    engine.deploy(workflow);
+
+    // trigger 2 executions
+    engine.onEvent(messageReceived("123", "/two-forms-same-id"));
+    engine.onEvent(messageReceived("456", "/two-forms-same-id"));
+    verify(messageService, timeout(5000).times(2)).send(anyString(), contains("form"));
+
+    List<String> finished = finishedProcessById("send-two-forms-same-id");
+    List<String> unfinished = unfinishedProcessById("send-two-forms-same-id");
+
+    assertThat(finished).as("No finished executions as both of them are waiting for a form to be replied").isEmpty();
+    assertThat(unfinished).as("Both executions are unfinished and waiting for a form to be replied").hasSize(2);
+
+    // reply to one form of the 2 that have been sent
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("MSG_ID1", "sendFormSameIds", Collections.singletonMap("action", "approve")));
+      return true;
+    });
+
+    sleepToTimeout(1000);
+
+    finished = finishedProcessById("send-two-forms-same-id");
+    unfinished = unfinishedProcessById("send-two-forms-same-id");
+    assertThat(finished).as("One finished executions as its form has been replied").hasSize(1);
+    assertThat(unfinished).as("One execution is unfinished and waiting for its form to be replied").hasSize(1);
   }
 }

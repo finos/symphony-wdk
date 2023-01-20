@@ -1,20 +1,6 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
@@ -40,8 +26,6 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -53,6 +37,21 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class EventIntegrationTest extends IntegrationTest {
 
@@ -165,14 +164,14 @@ class EventIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(
             getClass().getResourceAsStream("/event/timeout/on-multiple-activities-expiration-with-timeout.swadl.yaml"));
 
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message());
+    when(messageService.send(anyString(), any(Message.class))).thenReturn(new V4Message().messageId("MSG_ID"));
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/start"));
 
     sleepToTimeout(500);
 
-    engine.onEvent(messageReceived("/continue1"));
+    engine.onEvent(messageReceived("123", "/continue1", "MSG_ID"));
 
     sleepToTimeout(500);
 
@@ -185,7 +184,7 @@ class EventIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void onActivityExpiredToNewBranch_timeout() throws IOException, ProcessingException, InterruptedException {
+  void onActivityExpiredToNewBranch_timeout() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/event/timeout/activity-expired-leading-to-new-branch.swadl.yaml"));
 
