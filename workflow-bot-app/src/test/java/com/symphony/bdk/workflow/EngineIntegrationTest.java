@@ -57,7 +57,7 @@ class EngineIntegrationTest extends IntegrationTest {
     when(messageService.send(streamId, content)).thenReturn(message);
 
     engine.deploy(workflow);
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
 
     engine.onEvent(messageReceived("/message"));
     assertThat(lastProcess(workflow)).isEmpty();

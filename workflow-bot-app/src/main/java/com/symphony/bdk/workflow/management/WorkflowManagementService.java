@@ -8,7 +8,6 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.stereotype.Component;
@@ -20,15 +19,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 @Slf4j
 public class WorkflowManagementService {
-  private static final String WORKFLOW_NOT_EXIST_EXCEPTION_MSG = "Workflow %s does not exist.";
-  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
-  private final VersionedWorkflowRepository versioningRepository;
+  protected static final String WORKFLOW_NOT_EXIST_EXCEPTION_MSG = "Workflow %s does not exist.";
+  protected final WorkflowEngine<BpmnModelInstance> workflowEngine;
+  protected final VersionedWorkflowRepository versioningRepository;
   private final ObjectConverter objectConverter;
+
+  public WorkflowManagementService(WorkflowEngine<BpmnModelInstance> workflowEngine,
+      VersionedWorkflowRepository versionedWorkflowRepository, ObjectConverter objectConverter) {
+    this.workflowEngine = workflowEngine;
+    this.versioningRepository = versionedWorkflowRepository;
+    this.objectConverter = objectConverter;
+  }
 
   public void deploy(String content) {
     Workflow workflow = objectConverter.convert(content, Workflow.class);
@@ -99,11 +104,28 @@ public class WorkflowManagementService {
     if (!exist) {
       throw new NotFoundException(String.format(WORKFLOW_NOT_EXIST_EXCEPTION_MSG, id));
     }
-    workflowEngine.undeploy(id);
+    workflowEngine.undeployByWorkflowId(id);
     versioningRepository.deleteByWorkflowId(id);
   }
 
   public void setActiveVersion(String workflowId, String version) {
+    VersionedWorkflow deployedWorkflow = this.getDeployedWorkflow(workflowId, version);
+    this.inactiveVersionedWorkflow(workflowId);
+
+    Workflow workflowToDeploy = objectConverter.convert(deployedWorkflow.getSwadl(), Workflow.class);
+    String deploymentId = workflowEngine.deploy(workflowToDeploy);
+    deployedWorkflow.setDeploymentId(deploymentId);
+
+    this.setActiveAndSave(deployedWorkflow);
+  }
+
+  protected void setActiveVersionWithoutDeployment(String workflowId, String version) {
+    VersionedWorkflow deployedWorkflow = this.getDeployedWorkflow(workflowId, version);
+    this.inactiveVersionedWorkflow(workflowId);
+    this.setActiveAndSave(deployedWorkflow);
+  }
+
+  private VersionedWorkflow getDeployedWorkflow(String workflowId, String version) {
     Optional<VersionedWorkflow> deployedWorkflowOptional =
         versioningRepository.findByWorkflowIdAndVersion(workflowId, Long.valueOf(version));
     if (deployedWorkflowOptional.isEmpty()) {
@@ -116,15 +138,18 @@ public class WorkflowManagementService {
           String.format("Version %s of the workflow %s is in draft mode.", version, workflowId));
     }
 
+    return deployedWorkflow;
+  }
+
+  private void inactiveVersionedWorkflow(String workflowId) {
     Optional<VersionedWorkflow> activeVersion = versioningRepository.findByWorkflowIdAndActiveTrue(workflowId);
     activeVersion.ifPresent(versionedWorkflow -> {
       versionedWorkflow.setActive(null);
       versioningRepository.saveAndFlush(versionedWorkflow);
     });
+  }
 
-    Workflow workflowToDeploy = objectConverter.convert(deployedWorkflow.getSwadl(), Workflow.class);
-    String deploymentId = workflowEngine.deploy(workflowToDeploy);
-    deployedWorkflow.setDeploymentId(deploymentId);
+  private void setActiveAndSave(VersionedWorkflow deployedWorkflow) {
     deployedWorkflow.setActive(true);
     versioningRepository.save(deployedWorkflow);
   }

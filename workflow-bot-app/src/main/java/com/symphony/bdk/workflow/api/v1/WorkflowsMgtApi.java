@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.time.Instant;
 
 @Api("Api to manage workflow swadl lifecycle")
 public interface WorkflowsMgtApi {
@@ -80,4 +83,16 @@ public interface WorkflowsMgtApi {
   SseEmitter streamingLogs(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token);
+
+  @ApiOperation("Schedule a workflow expiration.")
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
+      @ApiResponse(code = 404, message = "No workflow found with id {workflowId}"),
+      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
+  @PostMapping(value = "/{workflowId}")
+  ResponseEntity<Void> addWorkflowExpirationJob(
+      @ApiParam(value = "Workflow's id to expire.", required = true) @PathVariable String workflowId,
+      @ApiParam("Query parameter to either expire every deployment of the workflow or only "
+          + "the active one [All | Active]")
+      @RequestParam(name = "type") String type,
+      @ApiParam(value = "Expiration date. Instant epoch.") @RequestBody Instant expirationDate);
 }

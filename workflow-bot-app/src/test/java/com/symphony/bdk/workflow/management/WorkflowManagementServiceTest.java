@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +31,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -152,13 +150,13 @@ public class WorkflowManagementServiceTest {
 
   @Test
   void testDelete_existingVersion_succeed() {
-    doNothing().when(camundaEngine).undeploy(anyString());
+    doNothing().when(camundaEngine).undeployByWorkflowId(anyString());
     doNothing().when(versioningService).deleteByWorkflowId(anyString());
     when(versioningService.existsByWorkflowId(anyString())).thenReturn(true);
 
     workflowManagementService.delete("id");
 
-    verify(camundaEngine).undeploy(anyString());
+    verify(camundaEngine).undeployByWorkflowId(anyString());
     verify(versioningService).deleteByWorkflowId(anyString());
   }
 

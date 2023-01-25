@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.monitoring.service.converter;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
@@ -31,7 +31,7 @@ class WorkflowInstViewConverterTest {
     // then
     then(instView.getId()).isEqualTo("activity");
     then(instView.getInstanceId()).isEqualTo("inst-id");
-    then(instView.getStatus()).isEqualTo(StatusEnum.valueOf(expected));
+    then(instView.getStatus()).isEqualTo(InstanceStatusEnum.valueOf(expected));
     then(instView.getStartDate()).isEqualTo(start);
     then(instView.getEndDate()).isEqualTo(end);
     then(instView.getDuration()).isEqualTo(Duration.ofMinutes(1));

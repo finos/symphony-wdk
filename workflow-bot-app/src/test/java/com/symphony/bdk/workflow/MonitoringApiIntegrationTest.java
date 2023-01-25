@@ -100,8 +100,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final JsonPath expectedJson = new JsonPath(
         getClass().getResourceAsStream("/monitoring/expected/list-workflows-response-payload.json"));
 
-    engine.undeploy(workflow1.getId()); // clean any old running instance
-    engine.undeploy(workflow2.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow1.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow2.getId()); // clean any old running instance
 
     engine.deploy(workflow1);
     engine.deploy(workflow2);
@@ -116,8 +116,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .statusCode(HttpStatus.OK.value())
         .body("", equalTo(expectedJson.getList("")));
 
-    engine.undeploy(workflow1.getId());
-    engine.undeploy(workflow1.getId());
+    engine.undeployByWorkflowId(workflow1.getId());
+    engine.undeployByWorkflowId(workflow1.getId());
   }
 
   @Test
@@ -143,7 +143,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow1"));
 
@@ -166,7 +166,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("[0].endDate", not(isEmptyString()))
         .body("[0].duration", not(isEmptyString()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -174,7 +174,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow4"));
 
@@ -217,7 +217,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .statusCode(HttpStatus.OK.value())
         .body("", empty());
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -225,7 +225,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow3"));
 
@@ -268,7 +268,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .statusCode(HttpStatus.OK.value())
         .body("", empty());
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -278,7 +278,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     when(messageService.send(anyString(), any(Message.class))).thenThrow(new RuntimeException("Unauthorized"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow1"));
 
@@ -321,7 +321,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .statusCode(HttpStatus.OK.value())
         .body("", empty());
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -362,7 +362,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message);
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow1"));
 
@@ -406,7 +406,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -416,7 +416,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     when(messageService.send(anyString(), any(Message.class))).thenReturn(message("msgId"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/sendForm"));
 
@@ -473,7 +473,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -483,7 +483,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     when(messageService.send(anyString(), any(Message.class))).thenThrow(new RuntimeException("Unauthorized"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow1"));
 
@@ -519,7 +519,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("error.message", equalTo("Unauthorized"))
         .body("error.activityInstId", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -527,7 +527,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
@@ -618,7 +618,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -626,7 +626,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
@@ -710,7 +710,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -718,7 +718,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
@@ -807,7 +807,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -815,7 +815,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
@@ -902,7 +902,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("globalVariables.revision", equalTo(0))
         .body("globalVariables.updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @ParameterizedTest
@@ -926,7 +926,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final String expectedErrorMsg =
         String.format(UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE, unknownWorkflowId, unknownInstanceId);
 
-    engine.undeploy(unknownWorkflowId);
+    engine.undeployByWorkflowId(unknownWorkflowId);
 
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
@@ -944,7 +944,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-definition.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     // Wait for the workflow to get executed
@@ -1034,7 +1034,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -1042,7 +1042,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/oneof-activityfailed-definition.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     // Wait for the workflow to get executed
@@ -1116,7 +1116,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -1124,7 +1124,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/oneof-allof-gateway-definition.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     // Wait for the workflow to get executed
@@ -1231,7 +1231,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -1239,7 +1239,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/allof-on-activities-definition.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     // Wait for the workflow to get executed
@@ -1327,7 +1327,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -1352,7 +1352,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/testingWorkflow5"));
 
@@ -1394,7 +1394,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("[2].outputs.key4", equalTo("value_4_added"))
         .body("[2].updateTime", not(empty()));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -1402,7 +1402,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
@@ -1458,7 +1458,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .body("[1].revision", equalTo(0))
         .body("[2].revision", equalTo(1));
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @Test
@@ -1466,7 +1466,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-5.swadl.yaml"));
 
-    engine.undeploy(workflow.getId()); // clean any old running instance
+    engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
 
     Instant beforeFirstSlashInstant = Instant.now();
@@ -1521,7 +1521,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .statusCode(HttpStatus.OK.value())
         .body("", empty());
 
-    engine.undeploy(workflow.getId());
+    engine.undeployByWorkflowId(workflow.getId());
   }
 
   @ParameterizedTest

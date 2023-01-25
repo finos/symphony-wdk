@@ -14,7 +14,7 @@ public class WorkflowInstView {
   private String id;
   private Integer version;
   private String instanceId;
-  private StatusEnum status;
+  private InstanceStatusEnum status;
   private Instant startDate;
   private Instant endDate;
   private Duration duration;

@@ -4,7 +4,7 @@ import static com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
 
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
-import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
@@ -56,7 +56,7 @@ public class MonitoringService {
     List<WorkflowInstanceDomain> allById;
 
     if (status != null) {
-      allById = workflowInstQueryRepository.findAllById(workflowId, StatusEnum.toInstanceStatusEnum(status));
+      allById = workflowInstQueryRepository.findAllById(workflowId, InstanceStatusEnum.toInstanceStatusEnum(status));
     } else {
       allById = workflowInstQueryRepository.findAllById(workflowId);
     }

@@ -75,7 +75,7 @@ class WorkflowFolderWatcherTest {
     verify(engine, timeout(5_000)).deploy(any(), any());
 
     FileUtils.forceDelete(new File(workflowsFolder, "workflow.swadl.yaml"));
-    verify(engine, timeout(10_000)).undeploy(any());
+    verify(engine, timeout(10_000)).undeployByWorkflowId(any());
 
     watcher.stopMonitoring();
     watcherThread.join();

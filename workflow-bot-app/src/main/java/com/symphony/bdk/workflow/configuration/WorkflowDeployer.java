@@ -64,7 +64,7 @@ public class WorkflowDeployer {
       workflowEngine.deploy(workflow, instance);
     } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
       log.debug("Workflow is a draft version, undeloying the old version");
-      workflowEngine.undeploy(deployedWorkflow.getLeft());
+      workflowEngine.undeployByWorkflowId(deployedWorkflow.getLeft());
     }
     deployedWorkflows.put(workflowFile, Pair.of(workflow.getId(), workflow.isToPublish()));
   }
@@ -76,7 +76,7 @@ public class WorkflowDeployer {
         this.addWorkflow(changedFile);
       } else if (event.kind().equals(StandardWatchEventKinds.ENTRY_DELETE)) {
         String workflowId = deployedWorkflows.get(changedFile).getLeft();
-        this.workflowEngine.undeploy(workflowId);
+        this.workflowEngine.undeployByWorkflowId(workflowId);
         this.deployedWorkflows.remove(changedFile);
       } else {
         log.debug("Unknown event: {}", event);

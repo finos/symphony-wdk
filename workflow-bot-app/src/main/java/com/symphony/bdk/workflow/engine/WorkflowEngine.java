@@ -16,7 +16,9 @@ public interface WorkflowEngine<K> {
 
   <T> void onEvent(RealTimeEvent<T> event);
 
-  void undeploy(String workflowName);
+  void undeployByWorkflowId(String workflowName);
+
+  void undeployByDeploymentId(String deploymentId);
 
   void undeployAll();
 }

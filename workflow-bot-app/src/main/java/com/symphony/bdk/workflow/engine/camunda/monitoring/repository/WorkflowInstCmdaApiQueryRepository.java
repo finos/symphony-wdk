@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
-import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
@@ -41,7 +41,7 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
   }
 
   @Override
-  public List<WorkflowInstanceDomain> findAllById(String id, StatusEnum status) {
+  public List<WorkflowInstanceDomain> findAllById(String id, InstanceStatusEnum status) {
     HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery()
         .processDefinitionKey(id);
 
