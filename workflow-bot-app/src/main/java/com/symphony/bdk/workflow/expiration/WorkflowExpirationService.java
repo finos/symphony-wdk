@@ -1,10 +1,8 @@
 package com.symphony.bdk.workflow.expiration;
 
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
-import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import com.symphony.bdk.workflow.scheduled.RunnableScheduledJob;
 import com.symphony.bdk.workflow.scheduled.ScheduledJobsRegistry;
 import com.symphony.bdk.workflow.versioning.model.WorkflowExpirationJob;
@@ -26,15 +24,20 @@ import java.util.stream.Collectors;
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 @Slf4j
-public class WorkflowExpirationService extends WorkflowManagementService implements WorkflowExpirationInterface {
+public class WorkflowExpirationService implements WorkflowExpirationInterface {
+  private static final String WORKFLOW_NOT_EXIST_EXCEPTION_MSG = "Workflow %s does not exist.";
   private final WorkflowExpirationJobRepository expirationJobRepository;
+  protected final VersionedWorkflowRepository versioningRepository;
+  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
+
   private final ScheduledJobsRegistry scheduledJobsRegistry;
 
   public WorkflowExpirationService(WorkflowExpirationJobRepository workflowExpirationJobRepository,
-      ScheduledJobsRegistry scheduledJobsRegistry, WorkflowEngine<BpmnModelInstance> workflowEngine,
-      VersionedWorkflowRepository versionedWorkflowRepository, ObjectConverter objectConverter) {
-    super(workflowEngine, versionedWorkflowRepository, objectConverter);
+      VersionedWorkflowRepository versionedWorkflowRepository, WorkflowEngine<BpmnModelInstance> workflowEngine,
+      ScheduledJobsRegistry scheduledJobsRegistry) {
     this.expirationJobRepository = workflowExpirationJobRepository;
+    this.versioningRepository = versionedWorkflowRepository;
+    this.workflowEngine = workflowEngine;
     this.scheduledJobsRegistry = scheduledJobsRegistry;
   }
 
