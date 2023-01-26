@@ -29,6 +29,9 @@ its default value disables the monitoring api.
 String. It can be set as an environment variable in the run configuration. Not setting the management-token and keeping
 its default value disables the management api.
 
+`wdk.properties.schedule.pool-size`: The size of threads to keep in the pool for scheduled jobs. Default to 20. It can be set
+as an environment variable in the run configuration.
+
 ### BDK specific configuration
 
 Symphony backend URL and credentials are configured as any bot. The BDK documentation applies here:

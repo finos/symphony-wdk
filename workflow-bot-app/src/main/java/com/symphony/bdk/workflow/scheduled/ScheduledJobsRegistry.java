@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.scheduled;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -12,9 +13,8 @@ import java.util.concurrent.TimeUnit;
 public class ScheduledJobsRegistry {
   private final ScheduledThreadPoolExecutor poolExecutor;
 
-  public ScheduledJobsRegistry() {
-    //TODO: make poolSize configurable
-    this.poolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(20);
+  public ScheduledJobsRegistry(@Value("${wdk.properties.schedule.pool-size}") int corePoolSize) {
+    this.poolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(corePoolSize);
   }
 
   public void scheduleJob(RunnableScheduledJob job) {
@@ -25,9 +25,4 @@ public class ScheduledJobsRegistry {
 
     log.debug("Current number of scheduled jobs in the executor pool is [{}]", poolExecutor.getQueue().size());
   }
-
-  public void destroy() {
-    this.poolExecutor.shutdown();
-  }
-
 }
