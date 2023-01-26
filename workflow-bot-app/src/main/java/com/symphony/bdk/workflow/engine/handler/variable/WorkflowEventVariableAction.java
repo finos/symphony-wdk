@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.engine.handler.variable;
 
+import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
@@ -57,11 +58,11 @@ public class WorkflowEventVariableAction implements HistoricEventAction {
         Object eventName = eventHolder.getArgs().get(RealTimeEventProcessor.EVENT_NAME_KEY);
         String eventId = "";
 
-        if (eventName != null) {
+        WorkflowDirectGraph directGraph =
+            workflowDirectGraphCachingService.getDirectGraph(event.getProcessDefinitionKey());
+        if (eventName != null && directGraph != null) {
           String escapedEventName = RegExUtils.replaceAll((String) eventName, "[\\$\\#]", "\\\\$0");
-          eventId = workflowDirectGraphCachingService.getDirectGraph(event.getProcessDefinitionKey())
-              .readWorkflowNode(escapedEventName)
-              .getEventId();
+          eventId = directGraph.readWorkflowNode(escapedEventName).getEventId();
         }
 
         if (StringUtils.isNotBlank(eventId)) {
