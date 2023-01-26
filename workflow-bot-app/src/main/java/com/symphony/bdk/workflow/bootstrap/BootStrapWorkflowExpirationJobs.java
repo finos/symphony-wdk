@@ -16,7 +16,6 @@ public class BootStrapWorkflowExpirationJobs {
   private final WorkflowExpirationInterface workflowExpirationService;
   private final WorkflowExpirationJobRepository expirationJobRepository;
 
-
   public BootStrapWorkflowExpirationJobs(WorkflowExpirationInterface workflowExpirationService,
       WorkflowExpirationJobRepository workflowExpirationJobRepository) {
     this.workflowExpirationService = workflowExpirationService;
@@ -25,10 +24,7 @@ public class BootStrapWorkflowExpirationJobs {
 
   @PostConstruct
   void setupWorkflowExpirationJobs() {
-    this.expirationJobRepository.findAll()
-        .forEach(
-            job -> this.workflowExpirationService.extracted(job.getId(), job.getDeploymentId(), job.getWorkflowId(),
-                job.getExpirationDate()));
+    this.expirationJobRepository.findAll().forEach(this.workflowExpirationService::scheduleJob);
   }
 
 }

@@ -109,23 +109,6 @@ public class WorkflowManagementService {
   }
 
   public void setActiveVersion(String workflowId, String version) {
-    VersionedWorkflow deployedWorkflow = this.getDeployedWorkflow(workflowId, version);
-    this.inactiveVersionedWorkflow(workflowId);
-
-    Workflow workflowToDeploy = objectConverter.convert(deployedWorkflow.getSwadl(), Workflow.class);
-    String deploymentId = workflowEngine.deploy(workflowToDeploy);
-    deployedWorkflow.setDeploymentId(deploymentId);
-
-    this.setActiveAndSave(deployedWorkflow);
-  }
-
-  protected void setActiveVersionWithoutDeployment(String workflowId, String version) {
-    VersionedWorkflow deployedWorkflow = this.getDeployedWorkflow(workflowId, version);
-    this.inactiveVersionedWorkflow(workflowId);
-    this.setActiveAndSave(deployedWorkflow);
-  }
-
-  private VersionedWorkflow getDeployedWorkflow(String workflowId, String version) {
     Optional<VersionedWorkflow> deployedWorkflowOptional =
         versioningRepository.findByWorkflowIdAndVersion(workflowId, Long.valueOf(version));
     if (deployedWorkflowOptional.isEmpty()) {
@@ -138,18 +121,15 @@ public class WorkflowManagementService {
           String.format("Version %s of the workflow %s is in draft mode.", version, workflowId));
     }
 
-    return deployedWorkflow;
-  }
-
-  private void inactiveVersionedWorkflow(String workflowId) {
     Optional<VersionedWorkflow> activeVersion = versioningRepository.findByWorkflowIdAndActiveTrue(workflowId);
     activeVersion.ifPresent(versionedWorkflow -> {
       versionedWorkflow.setActive(null);
       versioningRepository.saveAndFlush(versionedWorkflow);
     });
-  }
 
-  private void setActiveAndSave(VersionedWorkflow deployedWorkflow) {
+    Workflow workflowToDeploy = objectConverter.convert(deployedWorkflow.getSwadl(), Workflow.class);
+    String deploymentId = workflowEngine.deploy(workflowToDeploy);
+    deployedWorkflow.setDeploymentId(deploymentId);
     deployedWorkflow.setActive(true);
     versioningRepository.save(deployedWorkflow);
   }
