@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
-import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
@@ -131,8 +131,8 @@ class WorkflowsApiControllerTest extends ApiTest {
   @Test
   void listWorkflowInstances() throws Exception {
     WorkflowInstView instanceView1 =
-        workflowInstView("testWorkflowId", "instance1", 222L, 666L, 1, InstanceStatusEnum.COMPLETED);
-    WorkflowInstView instanceView2 = workflowInstView("testWorkflowId", "instance2", 333L, 777L, 2, InstanceStatusEnum.PENDING);
+        workflowInstView("testWorkflowId", "instance1", 222L, 666L, 1, StatusEnum.COMPLETED);
+    WorkflowInstView instanceView2 = workflowInstView("testWorkflowId", "instance2", 333L, 777L, 2, StatusEnum.PENDING);
 
     when(monitoringService.listWorkflowInstances(eq("testWorkflowId"), any())).thenReturn(
         Arrays.asList(instanceView1, instanceView2));
@@ -356,7 +356,7 @@ class WorkflowsApiControllerTest extends ApiTest {
   }
 
   private WorkflowInstView workflowInstView(String workflowId, String instanceId, long start, long end, Integer version,
-      InstanceStatusEnum status) {
+      StatusEnum status) {
 
     return WorkflowInstView.builder()
         .id(workflowId)

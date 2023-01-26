@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -91,8 +90,5 @@ public interface WorkflowsMgtApi {
   @PostMapping(value = "/{workflowId}")
   ResponseEntity<Void> addWorkflowExpirationJob(
       @ApiParam(value = "Workflow's id to expire.", required = true) @PathVariable String workflowId,
-      @ApiParam("Query parameter to either expire every deployment of the workflow or only "
-          + "the active one [All | Active]")
-      @RequestParam(name = "type") String type,
       @ApiParam(value = "Expiration date. Instant epoch.") @RequestBody Instant expirationDate);
 }

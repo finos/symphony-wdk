@@ -64,8 +64,8 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> addWorkflowExpirationJob(String workflowId, String type, Instant expirationDate) {
-    workflowExpirationService.scheduleWorkflowExpiration(workflowId, type, expirationDate);
+  public ResponseEntity<Void> addWorkflowExpirationJob(String workflowId, Instant expirationDate) {
+    workflowExpirationService.scheduleWorkflowExpiration(workflowId, expirationDate);
     return ResponseEntity.ok().build();
   }
 }

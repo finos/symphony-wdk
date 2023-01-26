@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
@@ -68,15 +68,15 @@ class WorkflowInstCmdaApiQueryRepositoryTest {
 
   static Stream<Arguments> instanceStatus() {
     return Stream.of(
-        Arguments.arguments(InstanceStatusEnum.COMPLETED),
-        Arguments.arguments(InstanceStatusEnum.FAILED),
-        Arguments.arguments(InstanceStatusEnum.PENDING)
+        Arguments.arguments(StatusEnum.COMPLETED),
+        Arguments.arguments(StatusEnum.FAILED),
+        Arguments.arguments(StatusEnum.PENDING)
     );
   }
 
   @ParameterizedTest()
   @MethodSource("instanceStatus")
-  void findAllByIdWithStatus(InstanceStatusEnum status) {
+  void findAllByIdWithStatus(StatusEnum status) {
     // given
     HistoricProcessInstance instance1 = mock(HistoricProcessInstance.class);
     HistoricProcessInstance instance2 = mock(HistoricProcessInstance.class);

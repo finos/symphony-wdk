@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.monitoring.service.converter;
 
-import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.converter.Converter;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
@@ -16,7 +16,7 @@ public class WorkflowInstViewConverter implements Converter<WorkflowInstanceDoma
         .id(domain.getName())
         .version(domain.getVersion())
         .instanceId(domain.getInstanceId())
-        .status(InstanceStatusEnum.toInstanceStatusEnum(domain.getStatus()))
+        .status(StatusEnum.toInstanceStatusEnum(domain.getStatus()))
         .startDate(domain.getStartDate())
         .endDate(domain.getEndDate())
         .duration(domain.getDuration())

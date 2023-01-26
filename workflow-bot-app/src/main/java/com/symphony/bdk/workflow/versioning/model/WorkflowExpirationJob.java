@@ -28,9 +28,6 @@ public class WorkflowExpirationJob {
   @Column(name = "DEPLOYMENT_ID", nullable = false)
   private String deploymentId;
 
-  @Column(name = "DEPLOYMENT_EXPIRATION_TYPE")
-  private String deploymentExpirationType;
-
   @Column(name = "EXPIRATION_DATE", nullable = false)
   private Instant expirationDate;
 }

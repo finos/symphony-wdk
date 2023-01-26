@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.expiration;
 
-import com.symphony.bdk.workflow.api.v1.dto.DeploymentExpirationEnum;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -48,48 +47,28 @@ public class WorkflowExpirationService extends WorkflowManagementService impleme
   }
 
   @Override
-  public void scheduleWorkflowExpiration(String workflowId, String type, Instant instant) {
-    Map<String, String> idToDeploymentMap = new HashMap<>();
+  public void scheduleWorkflowExpiration(String workflowId, Instant instant) {
 
-    DeploymentExpirationEnum deploymentExpirationEnum = DeploymentExpirationEnum.toDeploymentExpirationEnum(type);
-    if (DeploymentExpirationEnum.ACTIVE.equals(deploymentExpirationEnum)) {
-      versioningRepository.findByWorkflowIdAndActiveTrue(workflowId)
-          .ifPresent(versionedWorkflow -> idToDeploymentMap.put(versionedWorkflow.getId(),
-              versionedWorkflow.getDeploymentId()));
-    } else {
-      idToDeploymentMap.putAll(versioningRepository.findByWorkflowId(workflowId)
-          .stream()
-          .collect(Collectors.toMap(VersionedWorkflow::getId, VersionedWorkflow::getDeploymentId)));
-    }
+    Map<String, String> idToDeploymentMap = new HashMap<>(versioningRepository.findByWorkflowId(workflowId)
+        .stream()
+        .collect(Collectors.toMap(VersionedWorkflow::getId, VersionedWorkflow::getDeploymentId)));
 
-    if (idToDeploymentMap.isEmpty() && DeploymentExpirationEnum.ACTIVE.equals(deploymentExpirationEnum)) {
-      throw new NotFoundException(String.format("No active deployment is found for workflow %s", workflowId));
-    } else if (idToDeploymentMap.isEmpty()) {
+    if (idToDeploymentMap.isEmpty()) {
       throw new NotFoundException(String.format(WORKFLOW_NOT_EXIST_EXCEPTION_MSG, workflowId));
     }
 
     expirationJobRepository.saveAll(idToDeploymentMap.keySet()
         .stream()
-        .map(id -> new WorkflowExpirationJob(id, workflowId, idToDeploymentMap.get(id), deploymentExpirationEnum.name(),
-            instant))
+        .map(id -> new WorkflowExpirationJob(id, workflowId, idToDeploymentMap.get(id), instant))
         .collect(Collectors.toList()));
 
-    idToDeploymentMap.forEach((id, deploymentId) -> {
-      extracted(id, deploymentId, workflowId, instant, deploymentExpirationEnum);
-    });
-    //extracted(workflowId, instant, idToDeploymentMap, deploymentExpirationEnum);
+    idToDeploymentMap.forEach((id, deploymentId) -> extracted(id, deploymentId, workflowId, instant));
   }
 
   @Override
-  public void extracted(String id, String deploymentId, String workflowId,
-      Instant instant, DeploymentExpirationEnum deploymentExpirationEnum) {
-    scheduledJobsRegistry.scheduleJob(new RunnableScheduledJob(() -> {
-      if (DeploymentExpirationEnum.ACTIVE.equals(deploymentExpirationEnum)) {
-        return String.format("%s.ACTIVE.%s", workflowId, instant);
-      } else {
-        return String.format("%s.ALL.%s", workflowId, instant);
-      }
-    }, Duration.between(Instant.now(), instant).getSeconds(),
+  public void extracted(String id, String deploymentId, String workflowId, Instant instant) {
+    scheduledJobsRegistry.scheduleJob(new RunnableScheduledJob(() -> String.format("%s.%s", workflowId, instant),
+        Duration.between(Instant.now(), instant).getSeconds(),
         () -> {
           versioningRepository.deleteById(id);
           expirationJobRepository.deleteById(id);
@@ -115,39 +94,4 @@ public class WorkflowExpirationService extends WorkflowManagementService impleme
           }
         }));
   }
-/*
-  public void extracted(String workflowId, Instant instant, Map<String, String> idToDeploymentMap,
-      DeploymentExpirationEnum deploymentExpirationEnum) {
-    scheduledJobsRegistry.scheduleJob(new RunnableScheduledJob(() -> {
-      if (DeploymentExpirationEnum.ACTIVE.equals(deploymentExpirationEnum)) {
-        return String.format("%s.ACTIVE.%s", workflowId, instant);
-      } else {
-        return String.format("%s.ALL.%s", workflowId, instant);
-      }
-    }, Duration.between(Instant.now(), instant).getSeconds(),
-        () -> idToDeploymentMap.forEach((versionedWorkflowId, deploymentId) -> {
-          versioningRepository.deleteById(versionedWorkflowId);
-          expirationJobRepository.deleteById(versionedWorkflowId);
-          workflowEngine.undeployByDeploymentId(deploymentId);
-
-          Optional<ProcessDefinition> activeProcessDefinition = repositoryService.createProcessDefinitionQuery()
-              .processDefinitionKey(workflowId)
-              .active()
-              .latestVersion()
-              .list()
-              .stream()
-              .findFirst();
-
-          if (activeProcessDefinition.isPresent()) {
-            String activeDeploymentId = activeProcessDefinition.get().getDeploymentId();
-            Optional<VersionedWorkflow> versionedWorkflow = versioningRepository.findByWorkflowId(workflowId)
-                .stream()
-                .filter(workflow -> workflow.getDeploymentId().equals(activeDeploymentId))
-                .findFirst();
-
-            versionedWorkflow.ifPresent(workflow -> this.setActiveVersionWithoutDeployment(workflow.getWorkflowId(),
-                String.valueOf(workflow.getVersion())));
-          }
-        })));
-  }*/
 }

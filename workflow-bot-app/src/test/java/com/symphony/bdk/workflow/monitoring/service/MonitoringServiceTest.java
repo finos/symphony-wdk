@@ -9,7 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
-import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
@@ -87,7 +87,7 @@ class MonitoringServiceTest {
   @ParameterizedTest
   @CsvSource({"completed", "COMPLETED", "pending", "PENDING", "active", "FAILED", "failed"})
   void listWorkflowInstances_completedFilter(String status) {
-    when(workflowInstQueryRepository.findAllById(anyString(), any(InstanceStatusEnum.class))).thenReturn(
+    when(workflowInstQueryRepository.findAllById(anyString(), any(StatusEnum.class))).thenReturn(
         Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
     // when

@@ -1,6 +1,5 @@
 package com.symphony.bdk.workflow.bootstrap;
 
-import com.symphony.bdk.workflow.api.v1.dto.DeploymentExpirationEnum;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationInterface;
 import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
 
@@ -29,7 +28,7 @@ public class BootStrapWorkflowExpirationJobs {
     this.expirationJobRepository.findAll()
         .forEach(
             job -> this.workflowExpirationService.extracted(job.getId(), job.getDeploymentId(), job.getWorkflowId(),
-                job.getExpirationDate(), DeploymentExpirationEnum.valueOf(job.getDeploymentExpirationType())));
+                job.getExpirationDate()));
   }
 
 }

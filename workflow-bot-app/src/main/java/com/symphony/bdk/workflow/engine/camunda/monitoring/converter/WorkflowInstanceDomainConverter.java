@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.converter;
 
-import com.symphony.bdk.workflow.api.v1.dto.InstanceStatusEnum;
+import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.converter.Converter;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
@@ -30,17 +30,17 @@ public class WorkflowInstanceDomainConverter
   }
 
   private String resolveStatus(String historicProcessInstanceState, String historicProcessInstanceEndActivityId) {
-    if ("ACTIVE".equalsIgnoreCase(historicProcessInstanceState) || InstanceStatusEnum.PENDING.name()
+    if ("ACTIVE".equalsIgnoreCase(historicProcessInstanceState) || StatusEnum.PENDING.name()
         .equalsIgnoreCase(historicProcessInstanceState)) {
-      return InstanceStatusEnum.PENDING.name();
+      return StatusEnum.PENDING.name();
     }
 
-    if (InstanceStatusEnum.COMPLETED.name().equalsIgnoreCase(historicProcessInstanceState)) {
+    if (StatusEnum.COMPLETED.name().equalsIgnoreCase(historicProcessInstanceState)) {
       if (StringUtils.isNotBlank(historicProcessInstanceEndActivityId)
           && historicProcessInstanceEndActivityId.startsWith("endEvent")) {
-        return InstanceStatusEnum.COMPLETED.name();
+        return StatusEnum.COMPLETED.name();
       } else {
-        return InstanceStatusEnum.FAILED.name();
+        return StatusEnum.FAILED.name();
       }
     }
 
