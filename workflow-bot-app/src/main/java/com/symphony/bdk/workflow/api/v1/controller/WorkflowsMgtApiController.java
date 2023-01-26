@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
+import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
+import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
@@ -12,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
@@ -25,29 +30,46 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> deploySwadl(String token, String content) {
-    workflowManagementService.deploy(content);
+  public ResponseEntity<Void> saveAndDeploySwadl(String token, SwadlView swadlView) {
+    workflowManagementService.deploy(swadlView);
     return ResponseEntity.noContent().build();
   }
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> updateSwadl(String token, String content) {
-    workflowManagementService.update(content);
+  public ResponseEntity<Void> updateSwadl(String token, SwadlView swadlView) {
+    workflowManagementService.update(swadlView);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<List<VersionedWorkflowView>> getSwadl(String token, String id) {
+    return ResponseEntity.ok(workflowManagementService.get(id));
+  }
+
+  @Override
+  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
+  public ResponseEntity<Void> deleteSwadl(String token, String id) {
+    workflowManagementService.delete(id, Optional.empty());
     return ResponseEntity.noContent().build();
   }
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> deleteSwadlById(String token, String id) {
-    workflowManagementService.delete(id);
-    return ResponseEntity.noContent().build();
-  }
-
-  @Override
-  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> setActiveVersion(String token, String id, String version) {
+  public ResponseEntity<Void> deployActiveVersion(String token, String id, Long version) {
     workflowManagementService.setActiveVersion(id, version);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public ResponseEntity<VersionedWorkflowView> getSwadlByVersion(String token, String id, Long version) {
+    Optional<VersionedWorkflowView> workflowView = workflowManagementService.get(id, version);
+    return workflowView.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+  }
+
+  @Override
+  public ResponseEntity<Void> deleteSwadlByVersion(String token, String id, Long version) {
+    workflowManagementService.delete(id, Optional.of(version));
     return ResponseEntity.noContent().build();
   }
 
