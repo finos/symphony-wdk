@@ -1,27 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
-import com.symphony.bdk.gen.api.model.RoomSystemInfo;
-import com.symphony.bdk.gen.api.model.RoomTag;
-import com.symphony.bdk.gen.api.model.Stream;
-import com.symphony.bdk.gen.api.model.UserId;
-import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
-import com.symphony.bdk.gen.api.model.V3RoomAttributes;
-import com.symphony.bdk.gen.api.model.V3RoomDetail;
-import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,6 +12,29 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.gen.api.model.RoomSystemInfo;
+import com.symphony.bdk.gen.api.model.RoomTag;
+import com.symphony.bdk.gen.api.model.Stream;
+import com.symphony.bdk.gen.api.model.UserId;
+import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
+import com.symphony.bdk.gen.api.model.V3RoomAttributes;
+import com.symphony.bdk.gen.api.model.V3RoomDetail;
+import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 class RoomIntegrationTest extends IntegrationTest {
 
@@ -204,7 +205,8 @@ class RoomIntegrationTest extends IntegrationTest {
   @ParameterizedTest
   @CsvSource(
       {"/room/obo/create-room-with-details-members-obo-userid.swadl.yaml, /create-mim-details-members-obo-userid",
-      "/room/obo/create-room-with-details-members-obo-username.swadl.yaml, /create-mim-details-members-obo-username"})
+          "/room/obo/create-room-with-details-members-obo-username.swadl.yaml, "
+              + "/create-mim-details-members-obo-username"})
   void createRoomWithDetailsAndMembersObo(String workflowFile, String messageContent) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -602,10 +604,10 @@ class RoomIntegrationTest extends IntegrationTest {
   @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
   @ParameterizedTest
   @CsvSource({"/room/get-rooms-bad-pagination-no-limit.swadl.yaml",
-          "/room/get-rooms-bad-pagination-no-skip.swadl.yaml"})
+      "/room/get-rooms-bad-pagination-no-skip.swadl.yaml"})
   void getRoomsBadPagination(String workflowFile) throws Exception {
     final Workflow workflow = SwadlParser.fromYaml(
-            getClass().getResourceAsStream(workflowFile));
+        getClass().getResourceAsStream(workflowFile));
 
     engine.deploy(workflow);
     engine.onEvent(messageReceived("/get-rooms-bad-pagination"));
@@ -637,10 +639,11 @@ class RoomIntegrationTest extends IntegrationTest {
     verify(oboStreamService, timeout(5000)).searchRooms(refEq(query));
     assertThat(workflow).isExecuted();
   }
+
   @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
   @ParameterizedTest
   @CsvSource({"/room/obo/get-rooms-obo-bad-pagination-no-limit.swadl.yaml",
-          "/room/obo/get-rooms-obo-bad-pagination-no-limit.swadl.yaml"})
+      "/room/obo/get-rooms-obo-bad-pagination-no-limit.swadl.yaml"})
   void getRoomsOboBadPagination(String workflowFile) throws Exception {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
 

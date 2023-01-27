@@ -118,12 +118,12 @@ public class WorkflowManagementService {
       workflow.ifPresent(w -> {
         versionRepository.deleteByWorkflowIdAndVersion(id, ver);
         if (w.getActive()) {
-          workflowEngine.undeploy(w.getWorkflowId());
+          workflowEngine.undeployByWorkflowId(w.getWorkflowId());
         }
       });
     }, () -> {
       versionRepository.deleteByWorkflowId(id);
-      workflowEngine.undeploy(id);
+      workflowEngine.undeployByWorkflowId(id);
     });
   }
 

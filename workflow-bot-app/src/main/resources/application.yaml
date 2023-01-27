@@ -5,6 +5,8 @@ wdk:
   properties:
     monitoring-token: ${wdk.monitoring.token:} # The default value is an empty String
     management-token: ${wdk.management.token:} # The default value is an empty String
+    schedule:
+      pool-size: ${wdk.pool.size:20}
 
 # BDK configuration
 bdk:
@@ -95,4 +97,3 @@ management:
         include: "*"
   server:
     port: 8081
-

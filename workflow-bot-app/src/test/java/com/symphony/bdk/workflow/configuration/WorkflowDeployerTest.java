@@ -71,7 +71,7 @@ public class WorkflowDeployerTest {
     workflowDeployer.handleFileEvent(Path.of(workflowFile), new WatchEvent(StandardWatchEventKinds.ENTRY_CREATE));
 
     verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
-    verify(workflowEngine, never()).undeploy(eq(workflowId));
+    verify(workflowEngine, never()).undeployByWorkflowId(eq(workflowId));
   }
 
   @Test
@@ -119,13 +119,13 @@ public class WorkflowDeployerTest {
     final String deploymentId = "ABC";
     when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
     when(workflowEngine.deploy(any(Workflow.class), eq(mockInstance))).thenReturn(deploymentId);
-    doNothing().when(workflowEngine).undeploy(eq("basic-workflow"));
+    doNothing().when(workflowEngine).undeployByWorkflowId(eq("basic-workflow"));
     workflowDeployer.addWorkflow(path);
     clearInvocations(workflowEngine);
     workflowDeployer.handleFileEvent(path, new WatchEvent(StandardWatchEventKinds.ENTRY_DELETE));
 
     verify(workflowEngine, never()).deploy(any(), any());
-    verify(workflowEngine).undeploy(eq("basic-workflow"));
+    verify(workflowEngine).undeployByWorkflowId(eq("basic-workflow"));
   }
 
   private static class WatchEvent implements java.nio.file.WatchEvent<Path> {

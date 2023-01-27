@@ -13,7 +13,8 @@
             "type": "string",
             "description": "Workflow's id should start with a letter. It is optional. If no id is provided, the workflow filename is used. Otherwise, it will be generated. The id will appear in logs and audit trails.",
             "pattern": "^[a-zA-Z]+[a-zA-Z0-9][^ ]*$",
-            "default": "my-workflow"
+            "default": "my-workflow",
+            "maxLength": 100
         },
         "properties": {
             "type": "object",

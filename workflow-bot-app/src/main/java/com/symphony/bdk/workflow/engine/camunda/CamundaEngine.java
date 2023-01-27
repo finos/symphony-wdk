@@ -111,8 +111,15 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
   }
 
   @Override
-  public void undeploy(String workflowName) {
+  public void undeployByWorkflowId(String workflowName) {
     for (Deployment deployment : repositoryService.createDeploymentQuery().deploymentName(workflowName).list()) {
+      stop(deployment);
+    }
+  }
+
+  @Override
+  public void undeployByDeploymentId(String deploymentId) {
+    for (Deployment deployment : repositoryService.createDeploymentQuery().deploymentId(deploymentId).list()) {
       stop(deployment);
     }
   }

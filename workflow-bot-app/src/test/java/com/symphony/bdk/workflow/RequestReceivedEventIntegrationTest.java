@@ -1,19 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.workflow.engine.ExecutionParameters;
-import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.exception.UnauthorizedException;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +12,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.workflow.engine.ExecutionParameters;
+import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.exception.UnauthorizedException;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 class RequestReceivedEventIntegrationTest extends IntegrationTest {
 
@@ -58,7 +59,7 @@ class RequestReceivedEventIntegrationTest extends IntegrationTest {
 
   @Test
   void onRequestReceived_inOneOf_formRepliedSubsequentActivity() throws IOException, ProcessingException,
-          InterruptedException {
+      InterruptedException {
     final Workflow workflow = SwadlParser.fromYaml(
         getClass().getResourceAsStream("/event/request-received-in-one-of-with-form-replied-activity.swadl.yaml"));
 

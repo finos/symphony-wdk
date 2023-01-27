@@ -4,6 +4,7 @@ import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
+import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import com.symphony.bdk.workflow.security.Authorized;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +27,7 @@ import java.util.Optional;
 @Slf4j
 public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   private final WorkflowManagementService workflowManagementService;
-
+  private final WorkflowExpirationService workflowExpirationService;
   private final LogsStreamingService logsStreamingService;
 
   @Override
@@ -79,5 +81,12 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
     SseEmitter emitter = new SseEmitter();
     logsStreamingService.subscribe(emitter);
     return emitter;
+  }
+
+  @Override
+  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
+  public ResponseEntity<Void> scheduleWorkflowExpirationJob(String workflowId, Instant expirationDate) {
+    workflowExpirationService.scheduleWorkflowExpiration(workflowId, expirationDate);
+    return ResponseEntity.ok().build();
   }
 }
