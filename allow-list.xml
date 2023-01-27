@@ -32,6 +32,13 @@
         <cve>CVE-2022-41854</cve>
     </suppress>
     <suppress>
+      <notes><![CDATA[
+          No fix available
+          ]]></notes>
+      <gav>org.yaml:snakeyaml:1.33</gav>
+      <cve>CVE-2022-1471</cve>
+    </suppress>
+    <suppress>
         <notes><![CDATA[
         Testing false positives by suppressing a CVE
         https://github.com/spring-projects/spring-framework/issues/24434 (Do not expose HttpInvoker)

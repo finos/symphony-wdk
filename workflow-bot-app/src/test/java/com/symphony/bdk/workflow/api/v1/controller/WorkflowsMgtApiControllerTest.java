@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -10,9 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+
+import java.util.Optional;
 
 import java.time.Instant;
 
@@ -22,48 +28,50 @@ class WorkflowsMgtApiControllerTest extends ApiTest {
 
   @Test
   void test_managementRequests_deploy() throws Exception {
-    doNothing().when(workflowManagementService).deploy(anyString());
+    doNothing().when(workflowManagementService).deploy(any(SwadlView.class));
 
     mockMvc.perform(request(HttpMethod.POST, URL)
             .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType("text/plain")
-            .content("swadl content"))
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+            .param("swadl", "content")
+            .param("description", "description"))
         .andExpect(status().isNoContent());
 
-    verify(workflowManagementService).deploy(anyString());
+    verify(workflowManagementService).deploy(any(SwadlView.class));
   }
 
   @Test
   void test_managementRequests_update() throws Exception {
-    doNothing().when(workflowManagementService).update(anyString());
+    doNothing().when(workflowManagementService).update(any(SwadlView.class));
 
     mockMvc.perform(request(HttpMethod.PUT, URL)
             .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType("text/plain")
-            .content("swadl content"))
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+            .param("swadl", "content")
+            .param("description", "description"))
         .andExpect(status().isNoContent());
 
-    verify(workflowManagementService).update(anyString());
+    verify(workflowManagementService).update(any(SwadlView.class));
   }
 
   @Test
   void test_managementRequests_delete() throws Exception {
-    doNothing().when(workflowManagementService).deploy(anyString());
+    doNothing().when(workflowManagementService).delete(anyString(), any(Optional.class));
 
     mockMvc.perform(request(HttpMethod.DELETE, URL + "id")
             .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType("text/plain")
-            .content("swadl content"))
+            .contentType("text/plain"))
         .andExpect(status().isNoContent());
 
-    verify(workflowManagementService).delete(anyString());
+    verify(workflowManagementService).delete(anyString(), any(Optional.class));
   }
 
   @Test
   void test_missingToken_badRequest() throws Exception {
     mockMvc.perform(request(HttpMethod.POST, URL)
-            .contentType("text/plain")
-            .content("content"))
+            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+            .param("swadl", "content")
+            .param("description", "description"))
         .andExpect(status().isBadRequest());
   }
 
@@ -92,14 +100,15 @@ class WorkflowsMgtApiControllerTest extends ApiTest {
 
   @Test
   void test_setActiveVersion_returnOk() throws Exception {
-    doNothing().when(workflowManagementService).setActiveVersion(anyString(), anyString());
+    doNothing().when(workflowManagementService).setActiveVersion(anyString(), anyLong());
 
-    mockMvc.perform(request(HttpMethod.POST, URL + "/wfId/versions/v1")
+    mockMvc.perform(request(HttpMethod.POST, URL + "/wfId/versions/1674651222294886")
             .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
             .contentType("text/plain"))
         .andExpect(status().isNoContent());
 
-    verify(workflowManagementService).setActiveVersion(eq("wfId"), eq("v1"));
+    verify(workflowManagementService).setActiveVersion(eq("wfId"), eq(1674651222294886L));
+
   }
 
   @Test

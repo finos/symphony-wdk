@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "bd3592e5-01f8-4a1e-8ede-8c0f8de5a133",
+		"_postman_id": "ee4b9acd-dcbc-43fd-b5b5-b302598a8298",
 		"name": "Symphony Workflow Developer Kit (WDK) APIs Copy",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10221895"
 	},
 	"item": [
 		{
@@ -20,13 +21,24 @@
 							},
 							{
 								"key": "Content-Type",
-								"value": "text/plain",
+								"value": "multipart/form-data",
 								"type": "text"
 							}
 						],
 						"body": {
-							"mode": "raw",
-							"raw": ""
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "swadl",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								}
+							]
 						},
 						"url": {
 							"raw": "http://localhost:8080/wdk/v1/management/workflows",
@@ -57,13 +69,24 @@
 							},
 							{
 								"key": "Content-Type",
-								"value": "text/plain",
+								"value": "multipart/form-data",
 								"type": "text"
 							}
 						],
 						"body": {
-							"mode": "raw",
-							"raw": ""
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "swadl",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								}
+							]
 						},
 						"url": {
 							"raw": "http://localhost:8080/wdk/v1/management/workflows",
@@ -115,8 +138,143 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": null,
+									"value": "",
 									"description": "workflow id defined in the swadl file"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get SWADL by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows",
+								":workflowId"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": "",
+									"description": "workflow id defined in the swadl file"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get SWADL by ID and Version",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId/versions/:version",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows",
+								":workflowId",
+								"versions",
+								":version"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": "",
+									"description": "workflow id defined in the swadl file"
+								},
+								{
+									"key": "version",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete SWADL by ID and Version",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "text/plain",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId/versions/:version",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows",
+								":workflowId",
+								"versions",
+								":version"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
+									"value": "",
+									"description": "workflow id defined in the swadl file"
+								},
+								{
+									"key": "version",
+									"value": null
 								}
 							]
 						}
