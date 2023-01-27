@@ -1,9 +1,8 @@
 {
 	"info": {
-		"_postman_id": "ee4b9acd-dcbc-43fd-b5b5-b302598a8298",
+		"_postman_id": "9007b2e5-6052-429b-989d-87b2c4916c28",
 		"name": "Symphony Workflow Developer Kit (WDK) APIs Copy",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "10221895"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -320,6 +319,55 @@
 								},
 								{
 									"key": "version",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Schedule workflow expiration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Management-Token",
+								"value": "",
+								"type": "default"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"2023-01-27T23:31:10.908781Z\"",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"wdk",
+								"v1",
+								"management",
+								"workflows",
+								":workflowId"
+							],
+							"variable": [
+								{
+									"key": "workflowId",
 									"value": ""
 								}
 							]
