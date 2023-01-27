@@ -8,9 +8,9 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -21,12 +21,11 @@ public class ScheduledJobsRegistryTest {
 
   @Mock
   private ScheduledThreadPoolExecutor poolExecutor;
-
-  @InjectMocks
-  private ScheduledJobsRegistry scheduledJobsRegistry;
+  private ScheduledJobsRegistry scheduledJobsRegistry = new ScheduledJobsRegistry(20);
 
   @Test
   void scheduleJobNotNullTest() {
+    ReflectionTestUtils.setField(scheduledJobsRegistry, "poolExecutor", poolExecutor);
     when(poolExecutor.schedule(any(RunnableScheduledJob.class), any(Long.class), any(TimeUnit.class))).thenReturn(null);
     when(poolExecutor.getQueue()).thenReturn(new LinkedBlockingQueue<>());
 
@@ -36,6 +35,7 @@ public class ScheduledJobsRegistryTest {
 
   @Test
   void scheduleJobNullTest() {
+    ReflectionTestUtils.setField(scheduledJobsRegistry, "poolExecutor", poolExecutor);
     when(poolExecutor.getQueue()).thenReturn(new LinkedBlockingQueue<>());
 
     scheduledJobsRegistry.scheduleJob(null);
