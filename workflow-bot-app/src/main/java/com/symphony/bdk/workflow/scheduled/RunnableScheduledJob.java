@@ -3,11 +3,13 @@ package com.symphony.bdk.workflow.scheduled;
 import com.symphony.bdk.http.api.tracing.MDCUtils;
 
 import lombok.AllArgsConstructor;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @Slf4j
+@Generated // not testes
 public class RunnableScheduledJob implements Runnable, ScheduledJob {
 
   @Getter

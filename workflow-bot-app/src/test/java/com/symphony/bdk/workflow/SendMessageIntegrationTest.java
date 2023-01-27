@@ -1,6 +1,16 @@
 package com.symphony.bdk.workflow;
 
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.Error;
@@ -14,6 +24,8 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,17 +40,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertMessage;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 class SendMessageIntegrationTest extends IntegrationTest {
@@ -431,9 +432,9 @@ class SendMessageIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/message/send-blast-message-with-stream-ids.swadl.yaml"));
 
     final V4Message successfulMessage = new V4Message()
-            .stream(new V4Stream().streamId("ABC"))
-            .message("<messageML>hello</messageML>")
-            .messageId("MSG_ID");
+        .stream(new V4Stream().streamId("ABC"))
+        .message("<messageML>hello</messageML>")
+        .messageId("MSG_ID");
     final Map<String, Error> errors = Map.of("DEF", new Error().code(403));
     final V4MessageBlastResponse response =
         new V4MessageBlastResponse().errors(errors).messages(Collections.singletonList(successfulMessage));

@@ -88,7 +88,7 @@ public interface WorkflowsMgtApi {
       @ApiResponse(code = 404, message = "No workflow found with id {workflowId}"),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @PostMapping(value = "/{workflowId}")
-  ResponseEntity<Void> addWorkflowExpirationJob(
+  ResponseEntity<Void> scheduleWorkflowExpirationJob(
       @ApiParam(value = "Workflow's id to expire.", required = true) @PathVariable String workflowId,
       @ApiParam(value = "Expiration date. Instant epoch.") @RequestBody Instant expirationDate);
 }

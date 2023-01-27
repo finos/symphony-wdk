@@ -1,5 +1,20 @@
 package com.symphony.bdk.workflow;
 
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
@@ -17,21 +32,6 @@ import org.mockito.ArgumentCaptor;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class FormReplyIntegrationTest extends IntegrationTest {
 
@@ -440,7 +440,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void formReplied_blast() throws Exception {
     Workflow workflow =
-            SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-blast-form-reply.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-blast-form-reply.swadl.yaml"));
 
     V4Message message1 = new V4Message().stream(new V4Stream().streamId("123")).messageId("MSG_ID1");
     V4Message message2 = new V4Message().stream(new V4Stream().streamId("456")).messageId("MSG_ID2");
@@ -466,7 +466,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   @Test
   void formReplied_twoForms_sameFormId() throws Exception {
     Workflow workflow =
-            SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-two-forms-same-id.swadl.yaml"));
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-two-forms-same-id.swadl.yaml"));
 
     when(messageService.send(eq("123"), any(Message.class))).thenReturn(message("MSG_ID1"));
     when(messageService.send(eq("456"), any(Message.class))).thenReturn(message("MSG_ID2"));

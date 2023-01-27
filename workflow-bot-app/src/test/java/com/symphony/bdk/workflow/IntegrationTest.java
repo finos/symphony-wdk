@@ -1,5 +1,11 @@
 package com.symphony.bdk.workflow;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -47,9 +53,7 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import io.restassured.RestAssured;
-
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -76,13 +80,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {"wdk.properties.management-token=myToken"})
 @ActiveProfiles("test")
 @ContextConfiguration
 @Import(IntegrationTestConfiguration.class)
@@ -355,7 +354,7 @@ public abstract class IntegrationTest {
   }
 
   public static RealTimeEvent<V4SymphonyElementsAction> form(String messageId, String formId,
-                                                             Map<String, Object> formReplies, String streamId) {
+      Map<String, Object> formReplies, String streamId) {
     V4Initiator initiator = new V4Initiator();
     V4User user = new V4User();
     user.setUserId(123L);
@@ -405,35 +404,35 @@ public abstract class IntegrationTest {
 
   protected Optional<String> lastProcess(Workflow workflow) {
     List<HistoricProcessInstance> processes = historyService.createHistoricProcessInstanceQuery()
-            .processDefinitionName(workflow.getId())
-            .orderByProcessInstanceStartTime().desc()
-            .list();
+        .processDefinitionName(workflow.getId())
+        .orderByProcessInstanceStartTime().desc()
+        .list();
     if (processes.isEmpty()) {
       return Optional.empty();
     } else {
       return Optional.ofNullable(processes.get(0))
-              .map(HistoricProcessInstance::getId);
+          .map(HistoricProcessInstance::getId);
     }
   }
 
   public static List<String> finishedProcessById(String workflowId) {
     return historyService.createHistoricProcessInstanceQuery()
-            .processDefinitionKey(workflowId)
-            .finished()
-            .list()
-            .stream()
-            .map(HistoricProcessInstance::getId)
-            .collect(Collectors.toList());
+        .processDefinitionKey(workflowId)
+        .finished()
+        .list()
+        .stream()
+        .map(HistoricProcessInstance::getId)
+        .collect(Collectors.toList());
   }
 
   public static List<String> unfinishedProcessById(String workflowId) {
     return historyService.createHistoricProcessInstanceQuery()
-            .processDefinitionKey(workflowId)
-            .unfinished()
-            .list()
-            .stream()
-            .map(HistoricProcessInstance::getId)
-            .collect(Collectors.toList());
+        .processDefinitionKey(workflowId)
+        .unfinished()
+        .list()
+        .stream()
+        .map(HistoricProcessInstance::getId)
+        .collect(Collectors.toList());
   }
 
   public static void assertExecuted(Workflow workflow) {

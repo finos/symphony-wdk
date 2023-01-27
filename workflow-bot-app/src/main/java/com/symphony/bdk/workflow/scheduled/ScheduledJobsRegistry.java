@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.scheduled;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -10,8 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@NoArgsConstructor //for testing purpose
 public class ScheduledJobsRegistry {
-  private final ScheduledThreadPoolExecutor poolExecutor;
+  private ScheduledThreadPoolExecutor poolExecutor;
 
   public ScheduledJobsRegistry(@Value("${wdk.properties.schedule.pool-size}") int corePoolSize) {
     this.poolExecutor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(corePoolSize);

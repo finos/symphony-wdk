@@ -22,5 +22,4 @@ public class BootStrapWorkflowExpirationJobs {
   void setupWorkflowExpirationJobs() {
     this.expirationJobRepository.findAll().forEach(this.workflowExpirationPlanner::planExpiration);
   }
-
 }

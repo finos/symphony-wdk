@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
+import static java.util.Collections.singletonList;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.OboMessageService;
@@ -19,7 +21,6 @@ import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -34,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.singletonList;
 
 @Slf4j
 @Component
@@ -64,7 +63,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
 
     if (streamIds.isEmpty()) {
       throw new IllegalArgumentException(
-              String.format("No stream/user ids set to send a message in activity %s", activity.getId()));
+          String.format("No stream/user ids set to send a message in activity %s", activity.getId()));
 
     } else if (isObo(activity) && activity.getObo() != null && streamIds.size() == 1) {
       message = this.doOboWithCache(execution);
@@ -72,7 +71,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
     } else if (isObo(activity) && streamIds.size() > 1) {
       // TODO: Add blast message obo case when it is enabled: https://perzoinc.atlassian.net/browse/PLAT-11231
       throw new IllegalArgumentException(
-              String.format("Blast message, in activity %s, is not OBO enabled", activity.getId()));
+          String.format("Blast message, in activity %s, is not OBO enabled", activity.getId()));
 
     } else if (streamIds.size() == 1) {
       message = execution.bdk().messages().send(streamIds.get(0), messageToSend);
@@ -116,7 +115,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
 
     if (streamIds.isEmpty()) {
       throw new IllegalArgumentException(
-              String.format("No stream ids set to send a message in activity %s", activity.getId()));
+          String.format("No stream ids set to send a message in activity %s", activity.getId()));
     }
 
     String streamId = streamIds.get(0);
@@ -129,7 +128,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
   }
 
   private List<String> resolveStreamId(ActivityExecutorContext<SendMessage> execution, SendMessage activity,
-                                       StreamService streamService) {
+      StreamService streamService) {
     if (activity.getTo() != null && activity.getTo().getStreamId() != null) {
       // either the stream id is set explicitly in the workflow
       return singletonList(activity.getTo().getStreamId());
@@ -150,7 +149,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
       return singletonList(event.getStream().getStreamId());
     } else {
       throw new IllegalArgumentException(
-              String.format("No stream id set to send a message in activity %s", activity.getId()));
+          String.format("No stream id set to send a message in activity %s", activity.getId()));
     }
   }
 
@@ -202,7 +201,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
   }
 
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,
-                                    ActivityExecutorContext<SendMessage> execution) throws IOException {
+      ActivityExecutorContext<SendMessage> execution) throws IOException {
     if (attachment.getContentPath() != null) {
       // stream is closed by HTTP client once the request body has been written
       InputStream content = this.loadAttachment(attachment.getContentPath(), execution);
@@ -214,7 +213,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
   }
 
   private void handleForwardedAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,
-                                         MessageService messages) {
+      MessageService messages) {
     if (attachment.getMessageId() != null) {
       V4Message actualMessage = messages.getMessage(attachment.getMessageId());
 
@@ -226,31 +225,31 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
         // send the provided attachment only
         if (actualMessage.getAttachments() == null) {
           throw new IllegalStateException(
-                  String.format("No attachment in requested message with id %s", actualMessage.getMessageId()));
+              String.format("No attachment in requested message with id %s", actualMessage.getMessageId()));
         }
 
         V4AttachmentInfo attachmentInfo = actualMessage.getAttachments()
-                .stream()
-                .filter(a -> a.getId().equals(attachment.getAttachmentId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(
-                        String.format("No attachment with id %s found in message with id %s",
-                                attachment.getAttachmentId(), attachment.getMessageId())));
+            .stream()
+            .filter(a -> a.getId().equals(attachment.getAttachmentId()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException(
+                String.format("No attachment with id %s found in message with id %s",
+                    attachment.getAttachmentId(), attachment.getMessageId())));
 
         downloadAndAddAttachment(messageBuilder, actualMessage, attachmentInfo, messages);
       } else if (actualMessage.getAttachments() != null) {
         // send all message's attachments
         actualMessage.getAttachments()
-                .forEach(a -> downloadAndAddAttachment(messageBuilder, actualMessage, a, messages));
+            .forEach(a -> downloadAndAddAttachment(messageBuilder, actualMessage, a, messages));
       }
     }
   }
 
   private void downloadAndAddAttachment(Message.MessageBuilder messageBuilder, V4Message actualMessage,
-                                        V4AttachmentInfo a, MessageService messages) {
+      V4AttachmentInfo a, MessageService messages) {
     String filename = a.getName();
     byte[] attachmentFromMessage =
-            messages.getAttachment(actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), a.getId());
+        messages.getAttachment(actualMessage.getStream().getStreamId(), actualMessage.getMessageId(), a.getId());
     byte[] decodedAttachmentFromMessage = Base64.getDecoder().decode(attachmentFromMessage);
 
     // stream is closed by HTTP client once the request body has been written (besides no need to close byte array)
@@ -258,7 +257,7 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
   }
 
   private InputStream loadAttachment(String attachmentPath, ActivityExecutorContext<SendMessage> execution)
-          throws IOException {
+      throws IOException {
     if (attachmentPath == null) {
       return null;
     }
