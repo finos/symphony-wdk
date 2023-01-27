@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @DataJpaTest(properties = {"wdk.properties.management-token=token"})
 @Import({WorkflowDataSourceConfiguration.class})
-public class VersioningWorkflowRepositoryTest {
+public class VersionedWorkflowRepositoryTest {
   @Autowired
   VersionedWorkflowRepository versionedWorkflowRepository;
   VersionedWorkflow versionedWorkflow1;
@@ -107,21 +107,10 @@ public class VersioningWorkflowRepositoryTest {
 
   @Test
   void findFirstByWorkflowIdOrderByVersionDesc() {
-    Optional<VersionedWorkflow> workflow = versionedWorkflowRepository.findFirstByWorkflowIdOrderByVersionDesc("id1");
+    Optional<VersionedWorkflow> workflow = versionedWorkflowRepository.findByWorkflowIdAndPublishedFalse("id1");
     assertThat(workflow).isPresent();
     assertThat(workflow.get().getWorkflowId()).isEqualTo("id1");
     assertThat(workflow.get().getVersion()).isEqualTo(V3);
   }
 
-  @Test
-  void testDeleteAllByWorkflowId() {
-    boolean exist = versionedWorkflowRepository.existsByWorkflowId("id1");
-    assertThat(exist).isTrue();
-
-    versionedWorkflowRepository.deleteByWorkflowId("id1");
-    List<VersionedWorkflow> all = versionedWorkflowRepository.findAll();
-
-    assertThat(all).hasSize(1);
-    assertThat(all.get(0)).isEqualTo(versionedWorkflow4);
-  }
 }

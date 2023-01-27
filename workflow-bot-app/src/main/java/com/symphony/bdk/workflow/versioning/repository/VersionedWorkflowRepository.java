@@ -4,9 +4,6 @@ import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,11 +18,9 @@ public interface VersionedWorkflowRepository extends JpaRepository<VersionedWork
 
   Optional<VersionedWorkflow> findByWorkflowIdAndActiveTrue(String workflowId);
 
-  Optional<VersionedWorkflow> findFirstByWorkflowIdOrderByVersionDesc(String workflowId);
+  Optional<VersionedWorkflow> findByWorkflowIdAndPublishedFalse(String workflowId);
 
-  @Modifying
-  @Query("DELETE FROM VersionedWorkflow f WHERE f.workflowId=:workflowId")
-  void deleteByWorkflowId(@Param("workflowId") String workflowId);
+  void deleteByWorkflowId(String workflowId);
 
-  boolean existsByWorkflowId(String workflowId);
+  void deleteByWorkflowIdAndVersion(String id, Long version);
 }
