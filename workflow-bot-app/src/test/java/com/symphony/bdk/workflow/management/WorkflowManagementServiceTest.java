@@ -154,24 +154,24 @@ public class WorkflowManagementServiceTest {
     VersionedWorkflow workflow = new VersionedWorkflow();
     workflow.setActive(true);
     workflow.setWorkflowId("id");
-    doNothing().when(camundaEngine).undeploy(anyString());
+    doNothing().when(camundaEngine).undeployByWorkflowId(anyString());
     doNothing().when(versionRepository).deleteByWorkflowIdAndVersion(anyString(), anyLong());
     when(versionRepository.findByWorkflowIdAndVersion(anyString(), anyLong())).thenReturn(Optional.of(workflow));
 
     workflowManagementService.delete("id", Optional.of(1674651222294886L));
 
-    verify(camundaEngine).undeploy(anyString());
+    verify(camundaEngine).undeployByWorkflowId(anyString());
     verify(versionRepository).deleteByWorkflowIdAndVersion(anyString(), anyLong());
   }
 
   @Test
   void testDelete_withoutVersion_succeed() {
-    doNothing().when(camundaEngine).undeploy(anyString());
+    doNothing().when(camundaEngine).undeployByWorkflowId(anyString());
     doNothing().when(versionRepository).deleteByWorkflowId(anyString());
 
     workflowManagementService.delete("id", Optional.empty());
 
-    verify(camundaEngine).undeploy(anyString());
+    verify(camundaEngine).undeployByWorkflowId(anyString());
     verify(versionRepository).deleteByWorkflowId(anyString());
   }
 
