@@ -9,6 +9,7 @@ import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.MismatchingMessageCorrelationException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
 import org.camunda.bpm.engine.runtime.VariableInstance;
@@ -42,11 +43,16 @@ public class V4ElementActionEventProcessor extends AbstractRealTimeEventProcesso
     Optional<String> processId = getProcessToExecute(formId, eventSource.getFormMessageId());
 
     if (processId.isPresent()) {
-      correlationBuilder = correlationBuilder.processInstanceId(processId.get());
+      correlationBuilder.processInstanceId(processId.get()).correlateAll();
+    } else {
+      // In case the form is in the starting activity, there will be no ongoing process
+      try {
+        correlationBuilder.startMessageOnly().correlateAll();
+      } catch (MismatchingMessageCorrelationException correlationException) {
+        log.debug("This happens when no ongoing process is waiting the form {} reply event. {}",
+            formId, correlationException.getMessage());
+      }
     }
-
-    // In case the form is in the starting activity, there will be no ongoing process
-    correlationBuilder.correlateAll();
   }
 
 

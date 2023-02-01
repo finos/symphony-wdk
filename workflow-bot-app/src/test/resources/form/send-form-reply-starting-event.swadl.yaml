@@ -1,0 +1,14 @@
+id: send-form-starting-event
+activities:
+  - execute-script:
+      id: sendFormStartingEvent
+      on:
+        form-replied:
+          form-id: FORM_ID
+      script: |
+        variables.formReplied = true
+
+  - execute-script:
+      id: assertScript
+      script: |
+        assert variables.formReplied == true

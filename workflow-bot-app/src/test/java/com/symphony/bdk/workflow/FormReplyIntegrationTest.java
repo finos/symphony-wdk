@@ -464,7 +464,7 @@ class FormReplyIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void formReplied_twoForms_sameFormId() throws Exception {
+  void formReplied_twoForms_sameFormId_sameWorkflow() throws Exception {
     Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-two-forms-same-id.swadl.yaml"));
 
@@ -496,5 +496,22 @@ class FormReplyIntegrationTest extends IntegrationTest {
     unfinished = unfinishedProcessById("send-two-forms-same-id");
     assertThat(finished).as("One finished executions as its form has been replied").hasSize(1);
     assertThat(unfinished).as("One execution is unfinished and waiting for its form to be replied").hasSize(1);
+  }
+
+  @Test
+  void formReplied_startingEvent() throws Exception {
+    final Workflow workflow =
+        SwadlParser.fromYaml(getClass().getResourceAsStream("/form/send-form-reply-starting-event.swadl.yaml"));
+
+    engine.deploy(workflow);
+
+    await().atMost(5, TimeUnit.SECONDS).ignoreExceptions().until(() -> {
+      engine.onEvent(form("MSG_ID", "FORM_ID", Collections.singletonMap("action", "approve")));
+      return true;
+    });
+
+    sleepToTimeout(1000);
+
+    assertThat(workflow).executed("sendFormStartingEvent", "assertScript");
   }
 }
