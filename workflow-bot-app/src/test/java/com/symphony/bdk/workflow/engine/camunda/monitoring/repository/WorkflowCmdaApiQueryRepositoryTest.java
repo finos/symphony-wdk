@@ -33,7 +33,7 @@ class WorkflowCmdaApiQueryRepositoryTest {
     ProcessDefinition instance2 = mock(ProcessDefinition.class);
     QueryMocks.mockProcessDefinitionQuery(repositoryService).list(List.of(instance1, instance2));
 
-    WorkflowDomain domain = WorkflowDomain.builder().version(3).id("wf").name("workflow").build();
+    WorkflowDomain domain = WorkflowDomain.builder().version(3L).id("wf").name("workflow").build();
     when(objectConverter.convertCollection(anyList(), eq(WorkflowDomain.class))).thenReturn(List.of(domain));
 
     //when

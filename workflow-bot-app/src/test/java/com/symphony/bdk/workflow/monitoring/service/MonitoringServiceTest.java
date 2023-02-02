@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
@@ -17,10 +18,10 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,11 +48,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class MonitoringServiceTest {
   @Mock
-  WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
+  WorkflowDirectedGraphService workflowDirectedGraphService;
   @Mock
   WorkflowQueryRepository workflowQueryRepository;
   @Mock
@@ -79,28 +82,55 @@ class MonitoringServiceTest {
     when(workflowInstQueryRepository.findAllById(anyString())).thenReturn(Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
     // when
-    List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", null);
+    List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", null, null);
     //then
     assertThat(workflowViews).isEmpty();
+    verify(workflowInstQueryRepository).findAllById(anyString());
   }
 
   @ParameterizedTest
   @CsvSource({"completed", "COMPLETED", "pending", "PENDING", "active", "FAILED", "failed"})
   void listWorkflowInstances_completedFilter(String status) {
-    when(workflowInstQueryRepository.findAllById(anyString(), any(StatusEnum.class))).thenReturn(
+    when(workflowInstQueryRepository.findAllByIdAndStatus(anyString(), any(StatusEnum.class))).thenReturn(
         Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
     // when
-    List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", status);
+    List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", status, null);
     //then
     assertThat(workflowViews).isEmpty();
+    verify(workflowInstQueryRepository).findAllByIdAndStatus(anyString(), any(StatusEnum.class));
+  }
+
+  @Test
+  void listWorkflowInstancesWithVersion() {
+    when(workflowInstQueryRepository.findAllByIdAndVersion(anyString(), anyString())).thenReturn(
+        Collections.emptyList());
+    when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
+    // when
+    List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", null, 1234L);
+    //then
+    assertThat(workflowViews).isEmpty();
+    verify(workflowInstQueryRepository).findAllByIdAndVersion(anyString(), anyString());
+  }
+
+  @Test
+  void listWorkflowInstancesWithStatusAndVersion() {
+    when(workflowInstQueryRepository.findAllByIdAndStatusAndVersion(anyString(), eq(StatusEnum.PENDING),
+        anyString())).thenReturn(Collections.emptyList());
+    when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(Collections.emptyList());
+    // when
+    List<WorkflowInstView> workflowViews = service.listWorkflowInstances("id", "active", 1234L);
+    //then
+    assertThat(workflowViews).isEmpty();
+    verify(workflowInstQueryRepository).findAllByIdAndStatusAndVersion(anyString(), eq(StatusEnum.PENDING),
+        anyString());
   }
 
   @Test
   void listWorkflowInstancesBadStatus() {
     assertThatExceptionOfType(IllegalArgumentException.class)
         .as("bad_status is not a valid workflow instance status")
-        .isThrownBy(() -> service.listWorkflowInstances("id", "bad_status"))
+        .isThrownBy(() -> service.listWorkflowInstances("id", "bad_status", null))
         .satisfies(exception -> assertThat(exception.getMessage()).isEqualTo(
             "Workflow instance status bad_status is not known. Allowed values [Completed, Pending, Failed]"));
   }
@@ -160,11 +190,11 @@ class MonitoringServiceTest {
     activity2.eventId("activity2");
     activity2.setWrappedType(MessageReceivedEvent.class);
 
-    WorkflowDirectGraph directGraph = new WorkflowDirectGraph();
+    WorkflowDirectedGraph directGraph = new WorkflowDirectedGraph("workflow");
     directGraph.registerToDictionary("activity1", activity1);
     directGraph.registerToDictionary("activity2", activity2);
 
-    when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(directGraph);
+    when(workflowDirectedGraphService.getDirectedGraph("workflow")).thenReturn(directGraph);
 
     // mock variables
     VariablesDomain vars = new VariablesDomain();
@@ -218,8 +248,10 @@ class MonitoringServiceTest {
             "Either no workflow deployed with id workflow, or instance is not an instance of it"));
   }
 
-  @Test
-  void getWorkflowDefinition() {
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(longs = {1234L})
+  void getWorkflowDefinition(Long version) {
     // mock graph
     WorkflowNode activity1 = new WorkflowNode();
     SendMessage sendMessage = new SendMessage();
@@ -236,20 +268,25 @@ class MonitoringServiceTest {
     activity2.id("activity2");
     activity2.wrappedType(SendMessage.class);
 
-    WorkflowDirectGraph directGraph = new WorkflowDirectGraph();
-    directGraph.registerToDictionary("activity1", activity1);
-    directGraph.registerToDictionary("activity2", activity2);
-    directGraph.addParent("activity2", "activity1");
-    directGraph.getChildren("activity1").addChild("activity2");
-    directGraph.getVariables().put("variable", "value");
+    WorkflowDirectedGraph directedGraph = new WorkflowDirectedGraph("workflow", version);
+    directedGraph.registerToDictionary("activity1", activity1);
+    directedGraph.registerToDictionary("activity2", activity2);
+    directedGraph.addParent("activity2", "activity1");
+    directedGraph.getChildren("activity1").addChild("activity2");
+    directedGraph.getVariables().put("variable", "value");
 
-    when(workflowDirectGraphCachingService.getDirectGraph("workflow")).thenReturn(directGraph);
-
-    // when
-    WorkflowDefinitionView definitionView = service.getWorkflowDefinition("workflow");
+    WorkflowDefinitionView definitionView;
+    if (Optional.ofNullable(version).isPresent()) {
+      when(workflowDirectedGraphService.getDirectedGraph(eq("workflow"), eq(version))).thenReturn(directedGraph);
+      definitionView = service.getWorkflowDefinition("workflow", version);
+    } else {
+      when(workflowDirectedGraphService.getDirectedGraph(eq("workflow"))).thenReturn(directedGraph);
+      definitionView = service.getWorkflowDefinition("workflow");
+    }
 
     // then
     assertThat(definitionView.getWorkflowId()).isEqualTo("workflow");
+    assertThat(definitionView.getVersion()).isEqualTo(version);
     assertThat(definitionView.getVariables()).hasSize(1);
     assertThat(definitionView.getVariables()).containsKey("variable");
     assertThat(definitionView.getFlowNodes()).hasSize(2);

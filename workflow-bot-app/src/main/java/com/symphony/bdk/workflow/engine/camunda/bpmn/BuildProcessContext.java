@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.ERROR_CODE;
 
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class BuildProcessContext {
   private static final String LAST = "last";
   @Delegate
-  private final WorkflowDirectGraph workflowGraph;
+  private final WorkflowDirectedGraph workflowGraph;
   private final Map<String, AbstractFlowNodeBuilder<?, ?>> camundaBuilderMap = new HashMap<>();
 
   /**
@@ -51,7 +51,7 @@ public class BuildProcessContext {
    */
   private final ProcessBuilder processBuilder;
 
-  public BuildProcessContext(WorkflowDirectGraph workflowGraph, ProcessBuilder process) {
+  public BuildProcessContext(WorkflowDirectedGraph workflowGraph, ProcessBuilder process) {
     this.workflowGraph = workflowGraph;
     this.processBuilder = process;
   }

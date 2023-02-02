@@ -2,8 +2,7 @@
 	"info": {
 		"_postman_id": "f477e7c1-aa1c-40d9-bef3-8b22e7239160",
 		"name": "Symphony WDK APIs",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "6756114"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -399,7 +398,13 @@
 									"value": "",
 									"description": "pending,completed",
 									"disabled": true
-								}
+								},
+                {
+                  "key": "version",
+                  "value": null,
+                  "description": "workflow version",
+                  "disabled": true
+                }
 							],
 							"variable": [
 								{
@@ -513,7 +518,7 @@
 								},
 								{
 									"key": "instanceId",
-									"value": "53b73bbd-a37d-11ed-be04-00155d4e0d4d"
+									"value": ""
 								}
 							]
 						}
@@ -547,6 +552,14 @@
 								"workflows",
 								":workflowId",
 								"definitions"
+							],
+							"query": [
+								{
+									"key": "version",
+									"value": null,
+                  "description": "workflow version",
+									"disabled": true
+								}
 							],
 							"variable": [
 								{
@@ -605,7 +618,7 @@
 								},
 								{
 									"key": "instanceId",
-									"value": "53b73bbd-a37d-11ed-be04-00155d4e0d4d"
+									"value": ""
 								}
 							]
 						}

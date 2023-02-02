@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn.builder;
 
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
@@ -55,7 +55,7 @@ public class SignalNodeBuilder extends AbstractNodeBpmnBuilder {
    */
   private boolean hasFormRepliedEventBrother(BuildProcessContext context, String parentId) {
     return context.readChildren(parentId) != null
-        && context.readChildren(parentId).getGateway() != WorkflowDirectGraph.Gateway.PARALLEL
+        && context.readChildren(parentId).getGateway() != WorkflowDirectedGraph.Gateway.PARALLEL
         && context.readChildren(parentId).getChildren()
         .stream().map(context::readWorkflowNode)
         .anyMatch(WorkflowNode::isNotExclusiveFormReply);

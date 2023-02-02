@@ -7,6 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,11 +31,14 @@ class WorkflowFolderWatcherTest {
   private WorkflowDeployer workflowDeployer;
   private WorkflowBotConfiguration workflowBotConfiguration;
 
+  private WorkflowDirectedGraphService directedGraphService;
+
   @BeforeEach
   void setUp() {
     engine = mock(WorkflowEngine.class);
     workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
-    workflowDeployer = new WorkflowDeployer(engine);
+    directedGraphService = mock(WorkflowDirectedGraphService.class);
+    workflowDeployer = new WorkflowDeployer(engine, directedGraphService);
 
     when(workflowBotConfiguration.getWorkflowsFolderPath()).thenReturn(workflowsFolder.getPath());
   }
@@ -45,7 +50,7 @@ class WorkflowFolderWatcherTest {
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
 
-    verify(engine, timeout(5_000)).deploy(any(), any());
+    verify(engine, timeout(5_000)).deploy(any(Workflow.class));
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -59,7 +64,7 @@ class WorkflowFolderWatcherTest {
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
     copyWorkflow();
 
-    verify(engine, timeout(10_000)).deploy(any(), any());
+    verify(engine, timeout(10_000)).deploy(any(Workflow.class));
 
     watcher.stopMonitoring();
     watcherThread.join();
@@ -72,7 +77,7 @@ class WorkflowFolderWatcherTest {
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).deploy(any(), any());
+    verify(engine, timeout(5_000)).deploy(any(Workflow.class));
 
     FileUtils.forceDelete(new File(workflowsFolder, "workflow.swadl.yaml"));
     verify(engine, timeout(10_000)).undeployByWorkflowId(any());
@@ -88,11 +93,11 @@ class WorkflowFolderWatcherTest {
     copyWorkflow();
     final Thread watcherThread = startWatcherThread(watcher);
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(5_000)).deploy(any(), any());
+    verify(engine, timeout(5_000)).deploy(any(Workflow.class));
 
     copyWorkflow();
     Thread.sleep(1_000); // just a small wait to (try) to make sure the folder is watched before copying file
-    verify(engine, timeout(10_000).times(2)).deploy(any(), any());
+    verify(engine, timeout(10_000).times(2)).deploy(any(Workflow.class));
 
     watcher.stopMonitoring();
     watcherThread.join();

@@ -10,5 +10,5 @@ import lombok.RequiredArgsConstructor;
 public class WorkflowDomain {
   private final String id;
   private final String name;
-  private final int version;
+  private final Long version;
 }

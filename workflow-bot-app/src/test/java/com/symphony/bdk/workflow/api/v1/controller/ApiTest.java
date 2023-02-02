@@ -1,12 +1,12 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,7 +18,7 @@ public class ApiTest {
   MockMvc mockMvc;
 
   @MockBean
-  WorkflowEngine<BpmnModelInstance> engine;
+  WorkflowEngine<CamundaTranslatedWorkflowContext> engine;
 
   @MockBean
   MonitoringService monitoringService;

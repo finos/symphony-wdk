@@ -11,7 +11,7 @@ import java.time.Instant;
 public class WorkflowInstanceDomain {
   private final String id;
   private final String name;
-  private final Integer version;
+  private final Long version;
   private final String instanceId;
   private final String status;
   private final Instant startDate;

@@ -11,11 +11,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,22 +33,24 @@ import java.nio.file.StandardWatchEventKinds;
 public class WorkflowDeployerTest {
 
   @Mock
-  WorkflowEngine workflowEngine;
+  WorkflowEngine<CamundaTranslatedWorkflowContext> workflowEngine;
+  @Mock
+  WorkflowDirectedGraphService directedGraphService;
 
   @InjectMocks
   WorkflowDeployer workflowDeployer;
 
   @Test
   void testAddAllWorkflowsFromFolder() {
-    BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
     String swadlFolderPath = "src/test/resources/basic/publish/";
     String deploymentId = "ABC";
 
-    when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    when(workflowEngine.deploy(any(Workflow.class), eq(mockInstance))).thenReturn(deploymentId);
+    when(workflowEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(workflowEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn(deploymentId);
 
     workflowDeployer.addAllWorkflowsFromFolder(Path.of(swadlFolderPath));
-    verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
+    verify(workflowEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
   }
 
   @Test
@@ -60,71 +64,74 @@ public class WorkflowDeployerTest {
 
   @Test
   void testAddWorkflowPublish_workflowNotExists() throws IOException, ProcessingException {
-    BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
     String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     String workflowId = "basic-workflow";
     String deploymentId = "ABC";
 
-    when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    when(workflowEngine.deploy(any(Workflow.class), eq(mockInstance))).thenReturn(deploymentId);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(workflowEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(workflowEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn(deploymentId);
+    when(directedGraphService.putDirectedGraph(any())).thenReturn(mock(WorkflowDirectedGraph.class));
 
     workflowDeployer.handleFileEvent(Path.of(workflowFile), new WatchEvent(StandardWatchEventKinds.ENTRY_CREATE));
 
-    verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
+    verify(workflowEngine).deploy(eq(context));
     verify(workflowEngine, never()).undeployByWorkflowId(eq(workflowId));
   }
 
   @Test
   void testUpdateWorkflowDraft_workflowAlreadyExists() throws IOException, ProcessingException {
     String workflowFile = "src/test/resources/basic/draft/basic-draft-workflow.swadl.yaml";
-    String workflowId = "basic-draft-workflow";
-    BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
-    when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(workflowEngine.translate(any(Workflow.class))).thenReturn(context);
 
     workflowDeployer.handleFileEvent(Path.of(workflowFile), new WatchEvent(StandardWatchEventKinds.ENTRY_MODIFY));
-    verify(workflowEngine, never()).deploy(any(Workflow.class), any(BpmnModelInstance.class));
+    verify(workflowEngine, never()).deploy(any(CamundaTranslatedWorkflowContext.class));
   }
 
   @Test
   void testHandleFileEventCreate() throws IOException, ProcessingException {
     final String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
-    final BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
     final String deploymentId = "ABC";
 
-    when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    when(workflowEngine.deploy(any(Workflow.class), eq(mockInstance))).thenReturn(deploymentId);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(workflowEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(workflowEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn(deploymentId);
+    when(directedGraphService.putDirectedGraph(any())).thenReturn(mock(WorkflowDirectedGraph.class));
 
     workflowDeployer.handleFileEvent(Path.of(workflowFile), new WatchEvent(StandardWatchEventKinds.ENTRY_CREATE));
-    verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
+    verify(workflowEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
   }
 
   @Test
   void testHandleFileEventModify() throws IOException, ProcessingException {
-    final BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
     final String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     final String deploymentId = "ABC";
-    when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    when(workflowEngine.deploy(any(Workflow.class), eq(mockInstance))).thenReturn(deploymentId);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(workflowEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(workflowEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn(deploymentId);
+    when(directedGraphService.putDirectedGraph(any())).thenReturn(mock(WorkflowDirectedGraph.class));
 
     workflowDeployer.handleFileEvent(Path.of(workflowFile), new WatchEvent(StandardWatchEventKinds.ENTRY_MODIFY));
 
-    verify(workflowEngine).deploy(any(Workflow.class), eq(mockInstance));
+    verify(workflowEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
   }
 
   @Test
   void testHandleFileEventDeleteWorkflow() throws IOException, ProcessingException {
     String workflowFile = "src/test/resources/basic/publish/basic-workflow.swadl.yaml";
     Path path = Path.of(workflowFile);
-    final BpmnModelInstance mockInstance = mock(BpmnModelInstance.class);
     final String deploymentId = "ABC";
-    when(workflowEngine.parseAndValidate(any(Workflow.class))).thenReturn(mockInstance);
-    when(workflowEngine.deploy(any(Workflow.class), eq(mockInstance))).thenReturn(deploymentId);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(workflowEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(workflowEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn(deploymentId);
     doNothing().when(workflowEngine).undeployByWorkflowId(eq("basic-workflow"));
+    when(directedGraphService.putDirectedGraph(any())).thenReturn(mock(WorkflowDirectedGraph.class));
     workflowDeployer.addWorkflow(path);
     clearInvocations(workflowEngine);
     workflowDeployer.handleFileEvent(path, new WatchEvent(StandardWatchEventKinds.ENTRY_DELETE));
 
-    verify(workflowEngine, never()).deploy(any(), any());
+    verify(workflowEngine, never()).deploy(any(CamundaTranslatedWorkflowContext.class));
     verify(workflowEngine).undeployByWorkflowId(eq("basic-workflow"));
   }
 

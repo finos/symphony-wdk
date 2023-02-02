@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.Map;
 
 class WorkflowInstanceDomainConverterTest {
 
@@ -21,6 +22,7 @@ class WorkflowInstanceDomainConverterTest {
     entity.setId("id");
     entity.setProcessDefinitionKey("workflow");
     entity.setProcessInstanceId("instance-id");
+    entity.setProcessDefinitionId("definition-id4");
     entity.setProcessDefinitionVersion(4);
     Date start = new Date();
     entity.setStartTime(start);
@@ -33,10 +35,10 @@ class WorkflowInstanceDomainConverterTest {
 
     // when
     WorkflowInstanceDomainConverter converter = new WorkflowInstanceDomainConverter();
-    WorkflowInstanceDomain domain = converter.apply(entity);
+    WorkflowInstanceDomain domain = converter.apply(entity, Map.of("definition-id4", "1674651222294886"));
 
     // then
-    assertThat(domain.getVersion()).isEqualTo(4);
+    assertThat(domain.getVersion()).isEqualTo(1674651222294886L);
     assertThat(domain.getId()).isEqualTo("id");
     assertThat(domain.getName()).isEqualTo("workflow");
     assertThat(domain.getInstanceId()).isEqualTo("instance-id");

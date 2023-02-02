@@ -14,9 +14,8 @@ import java.util.List;
 @Repository
 public class WorkflowCmdaApiQueryRepository extends CamundaAbstractQueryRepository implements WorkflowQueryRepository {
 
-  public WorkflowCmdaApiQueryRepository(RepositoryService repositoryService,
-      HistoryService historyService, RuntimeService runtimeService,
-      ObjectConverter objectConverter) {
+  public WorkflowCmdaApiQueryRepository(RepositoryService repositoryService, HistoryService historyService,
+      RuntimeService runtimeService, ObjectConverter objectConverter) {
     super(repositoryService, historyService, runtimeService, objectConverter);
   }
 

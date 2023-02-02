@@ -6,7 +6,7 @@ import static com.symphony.bdk.workflow.WorkflowValidator.validateFirstActivity;
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
 
 import com.symphony.bdk.core.service.session.SessionService;
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.Gateway;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.Gateway;
 import com.symphony.bdk.workflow.event.WorkflowEventType;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.exception.NoStartingEventException;
@@ -28,7 +28,7 @@ import java.util.Optional;
 /**
  * Builder constructs the given workflow into a direct graph structure
  *
- * @see WorkflowDirectGraph
+ * @see WorkflowDirectedGraph
  */
 public class WorkflowDirectGraphBuilder {
   private static final String TIMEOUT_SUFFIX = "_timeout";
@@ -45,9 +45,9 @@ public class WorkflowDirectGraphBuilder {
     this.sessionService = sessionService;
   }
 
-  public WorkflowDirectGraph build() {
+  public WorkflowDirectedGraph build() {
     List<Activity> activities = workflow.getActivities();
-    WorkflowDirectGraph directGraph = new WorkflowDirectGraph();
+    WorkflowDirectedGraph directGraph = new WorkflowDirectedGraph(workflow.getId(), workflow.getVersion());
     activities.forEach(activity -> directGraph.registerToDictionary(activity.getActivity().getId(),
         new WorkflowNode().id(activity.getActivity().getId()).eventId(activity.getActivity().getId())
             .wrappedType(activity.getActivity().getClass())
@@ -67,7 +67,7 @@ public class WorkflowDirectGraphBuilder {
   /**
    * when events are in a "allOf" list, a join gateway is added to ease the final workflow instance construction.
    */
-  private String computeParallelJoinGateway(WorkflowDirectGraph directGraph, Activity activity) {
+  private String computeParallelJoinGateway(WorkflowDirectedGraph directGraph, Activity activity) {
     String activityId = activity.getActivity().getId();
     if (activity.getEvents().isParallel()) {
       String joinActivityId = activityId + JOIN_GATEWAY;
@@ -83,7 +83,7 @@ public class WorkflowDirectGraphBuilder {
     return activityId;
   }
 
-  private void computeStandaloneActivities(List<Activity> activities, WorkflowDirectGraph directGraph, int index) {
+  private void computeStandaloneActivities(List<Activity> activities, WorkflowDirectedGraph directGraph, int index) {
     Activity activity = activities.get(index);
     if (activity.getEvents().isEmpty()) {
       if (index == 0) {
@@ -109,7 +109,7 @@ public class WorkflowDirectGraphBuilder {
   }
 
   private void computeEvents(int activityIndex, String activityId, List<Activity> activities,
-      WorkflowDirectGraph directGraph) {
+      WorkflowDirectedGraph directGraph) {
     Activity activity = activities.get(activityIndex);
     RelationalEvents onEvents = activity.getEvents();
 
@@ -157,7 +157,7 @@ public class WorkflowDirectGraphBuilder {
   }
 
   private void computeSignal(int activityIndex, List<Activity> activities, Triple<String, String, Class<?>> eventNodeId,
-      Event event, WorkflowEventType type, RelationalEvents onEvents, WorkflowDirectGraph directGraph) {
+      Event event, WorkflowEventType type, RelationalEvents onEvents, WorkflowDirectedGraph directGraph) {
     WorkflowNode signalEvent = new WorkflowNode().id(eventNodeId.getMiddle())
         .eventId(readEventId(eventNodeId))
         .wrappedType(eventNodeId.getRight())
@@ -177,7 +177,7 @@ public class WorkflowDirectGraphBuilder {
   }
 
   private void computeActivityTimeout(int activityIndex, String eventNodeId, Event event, WorkflowEventType type,
-      boolean isParallel, WorkflowDirectGraph directGraph, WorkflowNode signalEvent, BaseActivity activity) {
+      boolean isParallel, WorkflowDirectedGraph directGraph, WorkflowNode signalEvent, BaseActivity activity) {
     String timeout = activity.getOn().getTimeout();
     signalEvent.elementType(WorkflowNodeType.SIGNAL_EVENT);
 
@@ -205,7 +205,7 @@ public class WorkflowDirectGraphBuilder {
     }
   }
 
-  private void computeNoExclusiveFormReplyEvent(String eventNodeId, Event event, WorkflowDirectGraph directGraph,
+  private void computeNoExclusiveFormReplyEvent(String eventNodeId, Event event, WorkflowDirectedGraph directGraph,
       WorkflowNode signalEvent, String activityId) {
     validateExistingNodeId(eventNodeId.substring(WorkflowEventType.FORM_REPLIED.getEventName().length()),
         activityId, workflow.getId(), directGraph);
@@ -215,7 +215,7 @@ public class WorkflowDirectGraphBuilder {
     directGraph.registerToDictionary(signalEvent.getId(), signalEvent.elementType(WorkflowNodeType.FORM_REPLIED_EVENT));
   }
 
-  private String computeExpiredActivity(Event event, String activityId, WorkflowDirectGraph directGraph) {
+  private String computeExpiredActivity(Event event, String activityId, WorkflowDirectedGraph directGraph) {
     // get the parent timeout event of the referred activity
     String parentActivity = directGraph.getParents(event.getActivityExpired().getActivityId()).get(0);
     validateExistingNodeId(parentActivity, activityId, workflow.getId(), directGraph);
@@ -235,7 +235,7 @@ public class WorkflowDirectGraphBuilder {
     }
   }
 
-  private void registerTimeoutEvent(WorkflowDirectGraph directGraph, String timeoutEventId, String parentId,
+  private void registerTimeoutEvent(WorkflowDirectedGraph directGraph, String timeoutEventId, String parentId,
       String timeoutValue) {
     if (!directGraph.isRegistered(timeoutEventId)) {
       EventWithTimeout timeoutEvent = new EventWithTimeout();
@@ -251,7 +251,7 @@ public class WorkflowDirectGraphBuilder {
   }
 
   private void computeActivity(int activityIndex, List<Activity> activities, String nodeId, Event event,
-      RelationalEvents onEvents, WorkflowDirectGraph directGraph) {
+      RelationalEvents onEvents, WorkflowDirectedGraph directGraph) {
     if (activityIndex == 0) {
       validateFirstActivity(activities.get(0).getActivity(), event, workflow.getId());
       directGraph.addStartEvent(nodeId);

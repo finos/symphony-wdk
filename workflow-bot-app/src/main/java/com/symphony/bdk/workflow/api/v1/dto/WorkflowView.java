@@ -9,5 +9,5 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkflowView {
   private String id;
-  private String version;
+  private Long version;
 }

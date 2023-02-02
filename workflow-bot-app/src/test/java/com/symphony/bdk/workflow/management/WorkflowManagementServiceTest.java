@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Properties;
@@ -24,7 +25,6 @@ import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,7 +44,7 @@ public class WorkflowManagementServiceTest {
   ObjectConverter conveter;
 
   @Mock
-  WorkflowEngine<BpmnModelInstance> camundaEngine;
+  WorkflowEngine<CamundaTranslatedWorkflowContext> camundaEngine;
 
   @InjectMocks
   WorkflowManagementService workflowManagementService;
@@ -70,9 +70,10 @@ public class WorkflowManagementServiceTest {
   @Test
   void testDeploy_existingActiveVersion_updateOldInsertNew() {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
-    BpmnModelInstance instance = mock(BpmnModelInstance.class);
-    when(camundaEngine.parseAndValidate(any(Workflow.class))).thenReturn(instance);
-    when(camundaEngine.deploy(any(Workflow.class), any(BpmnModelInstance.class))).thenReturn("id");
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(context.getWorkflow()).thenReturn(workflow);
+    when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(camundaEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn("id");
     VersionedWorkflow activeVersion = new VersionedWorkflow();
     when(versionRepository.save(any())).thenReturn(activeVersion);
     when(versionRepository.saveAndFlush(any())).thenReturn(activeVersion);
@@ -81,7 +82,7 @@ public class WorkflowManagementServiceTest {
     workflowManagementService.deploy(swadlView);
 
     assertThat(activeVersion.getActive()).isFalse();
-    verify(camundaEngine).deploy(any(Workflow.class), any(BpmnModelInstance.class));
+    verify(camundaEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
     verify(versionRepository).save(any());
     verify(versionRepository).saveAndFlush(any());
   }
@@ -89,16 +90,31 @@ public class WorkflowManagementServiceTest {
   @Test
   void testDeploy_noActiveVersion_insertNew() {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
-    BpmnModelInstance instance = mock(BpmnModelInstance.class);
-    when(camundaEngine.parseAndValidate(any(Workflow.class))).thenReturn(instance);
-    when(camundaEngine.deploy(any(Workflow.class), any(BpmnModelInstance.class))).thenReturn("id");
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(context.getWorkflow()).thenReturn(workflow);
+    when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(camundaEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn("id");
     when(versionRepository.save(any(VersionedWorkflow.class))).thenReturn(null);
     when(versionRepository.findByWorkflowIdAndActiveTrue(eq("test"))).thenReturn(Optional.empty());
 
     workflowManagementService.deploy(swadlView);
 
-    verify(camundaEngine).deploy(any(Workflow.class), any(BpmnModelInstance.class));
+    verify(camundaEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
     verify(versionRepository).save(any(VersionedWorkflow.class));
+  }
+
+  @Test
+  void testDeploy_existNoPublishedVersion_exceptionThrown() {
+    when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
+    VersionedWorkflow noPublishedVersion = new VersionedWorkflow();
+    noPublishedVersion.setPublished(false);
+    noPublishedVersion.setVersion(1234L);
+    when(versionRepository.findByWorkflowIdAndPublishedFalse(anyString())).thenReturn(Optional.of(noPublishedVersion));
+
+    assertThatThrownBy(() -> workflowManagementService.deploy(swadlView)).isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Version 1234 of workflow has not published yet.");
   }
 
   @Test
@@ -107,9 +123,9 @@ public class WorkflowManagementServiceTest {
     VersionedWorkflow noPublishedVersion = new VersionedWorkflow();
     noPublishedVersion.setPublished(false);
     when(versionRepository.findByWorkflowIdAndPublishedFalse(anyString())).thenReturn(Optional.of(noPublishedVersion));
-    BpmnModelInstance instance = mock(BpmnModelInstance.class);
-    when(camundaEngine.parseAndValidate(any(Workflow.class))).thenReturn(instance);
-    when(camundaEngine.deploy(any(Workflow.class), any(BpmnModelInstance.class))).thenReturn("id");
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
+    when(camundaEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn("id");
     when(versionRepository.save(any(VersionedWorkflow.class))).thenReturn(noPublishedVersion);
 
     workflowManagementService.update(swadlView);
@@ -117,7 +133,7 @@ public class WorkflowManagementServiceTest {
     assertThat(noPublishedVersion.getDeploymentId()).isEqualTo("id");
     assertThat(noPublishedVersion.getActive()).isTrue();
     assertThat(noPublishedVersion.getPublished()).isTrue();
-    verify(camundaEngine).deploy(any(Workflow.class), any(BpmnModelInstance.class));
+    verify(camundaEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
   }
 
   @Test
@@ -130,15 +146,15 @@ public class WorkflowManagementServiceTest {
     noPublishedVersion.setPublished(false);
     noPublishedVersion.setActive(false);
     when(versionRepository.findByWorkflowIdAndPublishedFalse(anyString())).thenReturn(Optional.of(noPublishedVersion));
-    BpmnModelInstance instance = mock(BpmnModelInstance.class);
-    when(camundaEngine.parseAndValidate(any(Workflow.class))).thenReturn(instance);
+    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
+    when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
     when(versionRepository.save(any(VersionedWorkflow.class))).thenReturn(noPublishedVersion);
 
     workflowManagementService.update(swadlView);
 
     assertThat(noPublishedVersion.getActive()).isFalse();
     assertThat(noPublishedVersion.getPublished()).isFalse();
-    verify(camundaEngine, never()).deploy(any(Workflow.class), any(BpmnModelInstance.class));
+    verify(camundaEngine, never()).deploy(any(CamundaTranslatedWorkflowContext.class));
   }
 
   @Test
@@ -154,13 +170,14 @@ public class WorkflowManagementServiceTest {
     VersionedWorkflow workflow = new VersionedWorkflow();
     workflow.setActive(true);
     workflow.setWorkflowId("id");
-    doNothing().when(camundaEngine).undeployByWorkflowId(anyString());
+    workflow.setDeploymentId("deploymentId");
+    doNothing().when(camundaEngine).undeployByDeploymentId(anyString());
     doNothing().when(versionRepository).deleteByWorkflowIdAndVersion(anyString(), anyLong());
     when(versionRepository.findByWorkflowIdAndVersion(anyString(), anyLong())).thenReturn(Optional.of(workflow));
 
-    workflowManagementService.delete("id", Optional.of(1674651222294886L));
+    workflowManagementService.delete("id", 1674651222294886L);
 
-    verify(camundaEngine).undeployByWorkflowId(anyString());
+    verify(camundaEngine).undeployByDeploymentId(anyString());
     verify(versionRepository).deleteByWorkflowIdAndVersion(anyString(), anyLong());
   }
 
@@ -169,7 +186,7 @@ public class WorkflowManagementServiceTest {
     doNothing().when(camundaEngine).undeployByWorkflowId(anyString());
     doNothing().when(versionRepository).deleteByWorkflowId(anyString());
 
-    workflowManagementService.delete("id", Optional.empty());
+    workflowManagementService.delete("id", null);
 
     verify(camundaEngine).undeployByWorkflowId(anyString());
     verify(versionRepository).deleteByWorkflowId(anyString());
@@ -190,13 +207,13 @@ public class WorkflowManagementServiceTest {
     when(versionRepository.findByWorkflowIdAndActiveTrue(anyString())).thenReturn(Optional.of(activeWorkflow));
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
     String deploymentId = "ABC";
-    when(camundaEngine.deploy(any())).thenReturn(deploymentId);
+    when(camundaEngine.deploy(any(Workflow.class))).thenReturn(deploymentId);
     when(versionRepository.save(any())).thenReturn(versionedWorkflow);
     when(versionRepository.saveAndFlush(any())).thenReturn(activeWorkflow);
 
     workflowManagementService.setActiveVersion(workflowId, 1674651222294886L);
 
-    verify(camundaEngine).deploy(any());
+    verify(camundaEngine).deploy(any(Workflow.class));
     verify(versionRepository).save(any());
     assertThat(activeWorkflow.getActive()).isFalse();
     assertThat(versionedWorkflow.getActive()).isTrue();

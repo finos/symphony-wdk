@@ -86,14 +86,14 @@ class EngineIntegrationTest extends IntegrationTest {
   void validateOnlyWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/validation/validate-only.swadl.yaml"));
-    engine.parseAndValidate(workflow);
+    engine.translate(workflow);
   }
 
   @Test
   void nonValidateWorkflow() throws IOException, ProcessingException {
     final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
         "/validation/duplicated-id-not-valid.swadl.yaml"));
-    assertThatThrownBy(() -> engine.parseAndValidate(workflow)).isInstanceOf(UniqueIdViolationException.class);
+    assertThatThrownBy(() -> engine.translate(workflow)).isInstanceOf(UniqueIdViolationException.class);
   }
 
 }

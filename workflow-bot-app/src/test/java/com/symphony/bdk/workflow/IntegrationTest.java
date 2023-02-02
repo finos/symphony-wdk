@@ -44,7 +44,6 @@ import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.workflow.configuration.WorkflowBotConfiguration;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
@@ -81,7 +80,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"wdk.properties.management-token=myToken"})
+    properties = {"wdk.properties.management-token=myToken", "wdk.workflows.path=./"})
 @ActiveProfiles("test")
 @ContextConfiguration
 @Import(IntegrationTestConfiguration.class)
@@ -104,10 +103,6 @@ public abstract class IntegrationTest {
 
   @SuppressFBWarnings
   public static RepositoryService repositoryService;
-
-  // Mock WDK config
-  @MockBean(name = "workflowBotConfiguration")
-  WorkflowBotConfiguration workflowBotConfiguration;
 
   // Mock the BDK
   @MockBean
@@ -199,9 +194,6 @@ public abstract class IntegrationTest {
 
   @BeforeEach
   void setUpMocks() {
-    when(workflowBotConfiguration.getMonitoringToken()).thenReturn("MONITORING_TOKEN_VALUE");
-    when(workflowBotConfiguration.getWorkflowsFolderPath()).thenReturn("");
-
     when(bdkGateway.messages()).thenReturn(this.messageService);
     when(bdkGateway.streams()).thenReturn(this.streamService);
     when(bdkGateway.connections()).thenReturn(this.connectionService);

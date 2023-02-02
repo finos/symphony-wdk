@@ -12,7 +12,7 @@ import java.time.Instant;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkflowInstView {
   private String id;
-  private Integer version;
+  private Long version;
   private String instanceId;
   private StatusEnum status;
   private Instant startDate;

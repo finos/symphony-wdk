@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow.configuration;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,7 @@ import javax.annotation.PreDestroy;
 @Generated // slow tests on Mac
 @Slf4j
 @Service
-@ConditionalOnProperty(value = "wdk.workflows.path")
+@ConditionalOnPropertyNotEmpty("wdk.workflows.path")
 public class WorkflowFolderWatcher {
 
   private final Path workflowsFolder;

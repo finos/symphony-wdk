@@ -12,7 +12,7 @@ class WorkflowDomainConverterTest {
   void apply() {
     // given
     ProcessDefinitionEntity entity = new ProcessDefinitionEntity();
-    entity.setVersion(2);
+    entity.setVersionTag("2");
     entity.setId("id");
     entity.setName("workflow");
 

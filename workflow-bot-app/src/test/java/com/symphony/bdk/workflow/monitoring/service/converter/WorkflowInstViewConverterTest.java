@@ -22,7 +22,9 @@ class WorkflowInstViewConverterTest {
     Instant start = Instant.now();
     Instant end = Instant.now().plus(5, ChronoUnit.MINUTES);
     WorkflowInstanceDomain domain = WorkflowInstanceDomain.builder().name("activity").instanceId("inst-id").duration(
-        Duration.ofMinutes(1)).status(status).startDate(start).endDate(end).version(1).build();
+        Duration.ofMinutes(1)).status(status).startDate(start).endDate(end)
+        .version(1L)
+        .build();
 
     // when
     WorkflowInstViewConverter converter = new WorkflowInstViewConverter();
@@ -35,6 +37,6 @@ class WorkflowInstViewConverterTest {
     then(instView.getStartDate()).isEqualTo(start);
     then(instView.getEndDate()).isEqualTo(end);
     then(instView.getDuration()).isEqualTo(Duration.ofMinutes(1));
-    then(instView.getVersion()).isEqualTo(1);
+    then(instView.getVersion()).isEqualTo(1L);
   }
 }

@@ -5,8 +5,6 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +19,11 @@ import java.util.Set;
  *
  * @see Workflow
  */
-@CacheConfig(cacheNames = "workflowDirectGraph")
-@Cacheable
-public class WorkflowDirectGraph {
+public class WorkflowDirectedGraph {
+  @Getter
+  private final Long version;
+  @Getter
+  private final String workflowId;
   /**
    * Dictionary map, workflow element id as key, element itself as value
    */
@@ -47,6 +47,16 @@ public class WorkflowDirectGraph {
 
   @Getter
   private final Map<String, Object> variables = new HashMap<>();
+
+  public WorkflowDirectedGraph(String workflowId, Long version) {
+    this.workflowId = workflowId;
+    this.version = version;
+  }
+
+  public WorkflowDirectedGraph(String workflowId) {
+    this.workflowId = workflowId;
+    this.version = null;
+  }
 
   public void addParent(String id, String parent) {
     parents.computeIfAbsent(id, k -> new HashSet<>()).add(parent);
