@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9007b2e5-6052-429b-989d-87b2c4916c28",
-		"name": "Symphony Workflow Developer Kit (WDK) APIs Copy",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"_postman_id": "f477e7c1-aa1c-40d9-bef3-8b22e7239160",
+		"name": "Symphony WDK APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6756114"
 	},
 	"item": [
 		{
@@ -15,7 +16,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "text"
 							},
 							{
@@ -29,23 +30,21 @@
 							"formdata": [
 								{
 									"key": "swadl",
-									"value": "",
+									"value": "id: my-workflow\nactivities:\n  - send-message:\n      id: init\n      on:\n        message-received:\n          content: /hello\n      content: Hi!",
 									"type": "text"
 								},
 								{
 									"key": "description",
-									"value": "",
+									"value": "Added new activity",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -63,7 +62,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "text"
 							},
 							{
@@ -77,23 +76,21 @@
 							"formdata": [
 								{
 									"key": "swadl",
-									"value": "",
+									"value": "id: my-workflow\nactivities:\n  - send-message:\n      id: init\n      on:\n        message-received:\n          content: /hello\n      content: Hi Again!",
 									"type": "text"
 								},
 								{
 									"key": "description",
-									"value": "",
+									"value": "Edited init activity",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -111,7 +108,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "text"
 							},
 							{
@@ -121,12 +118,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -137,7 +132,7 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": "",
+									"value": "my-workflow",
 									"description": "workflow id defined in the swadl file"
 								}
 							]
@@ -152,7 +147,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "text"
 							},
 							{
@@ -162,12 +157,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -178,7 +171,7 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": "",
+									"value": "my-workflow",
 									"description": "workflow id defined in the swadl file"
 								}
 							]
@@ -193,7 +186,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "text"
 							},
 							{
@@ -203,12 +196,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId/versions/:version",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId/versions/:version",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -221,12 +212,12 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": "",
+									"value": "my-workflow",
 									"description": "workflow id defined in the swadl file"
 								},
 								{
 									"key": "version",
-									"value": ""
+									"value": "1"
 								}
 							]
 						}
@@ -240,7 +231,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "text"
 							},
 							{
@@ -250,12 +241,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId/versions/:version",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId/versions/:version",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -268,12 +257,12 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": "",
+									"value": "my-workflow",
 									"description": "workflow id defined in the swadl file"
 								},
 								{
 									"key": "version",
-									"value": null
+									"value": "1"
 								}
 							]
 						}
@@ -287,7 +276,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "default"
 							},
 							{
@@ -297,12 +286,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId/versions/:version",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId/versions/:version",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -315,11 +302,11 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": ""
+									"value": "my-workflow"
 								},
 								{
 									"key": "version",
-									"value": ""
+									"value": "1"
 								}
 							]
 						}
@@ -333,7 +320,7 @@
 						"header": [
 							{
 								"key": "X-Management-Token",
-								"value": "",
+								"value": "{{management-token}}",
 								"type": "default"
 							},
 							{
@@ -344,7 +331,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "\"2023-01-27T23:31:10.908781Z\"",
+							"raw": "\"2023-12-31T12:00:00.000000Z\"",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -352,12 +339,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/management/workflows/:workflowId",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -368,7 +353,7 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": ""
+									"value": "my-workflow"
 								}
 							]
 						}
@@ -387,7 +372,7 @@
 						"header": [
 							{
 								"key": "X-Monitoring-Token",
-								"value": "",
+								"value": "{{monitoring-token}}",
 								"type": "text"
 							},
 							{
@@ -397,12 +382,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances?status=pending",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/instances",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -413,13 +396,15 @@
 							"query": [
 								{
 									"key": "status",
-									"value": "pending"
+									"value": "",
+									"description": "pending,completed",
+									"disabled": true
 								}
 							],
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": ""
+									"value": "my-workflow"
 								}
 							]
 						}
@@ -433,7 +418,7 @@
 						"header": [
 							{
 								"key": "X-Monitoring-Token",
-								"value": "",
+								"value": "{{monitoring-token}}",
 								"type": "text"
 							},
 							{
@@ -443,12 +428,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/workflows/",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -469,7 +452,7 @@
 						"header": [
 							{
 								"key": "X-Monitoring-Token",
-								"value": "myBestToken",
+								"value": "{{monitoring-token}}",
 								"type": "text"
 							},
 							{
@@ -488,12 +471,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/states?started_before=2022-09-21T15:47:00Z&started_after=2022-09-26T16:29:57.512Z&finished_before=2022-09-21T15:46:00.939Z&finished_after=2022-09-21T15:46:00.939Z",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/instances/:instanceId/states",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -506,29 +487,33 @@
 							"query": [
 								{
 									"key": "started_before",
-									"value": "2022-09-21T15:47:00Z"
+									"value": "2025-01-01T12:00:00Z",
+									"disabled": true
 								},
 								{
 									"key": "started_after",
-									"value": "2022-09-26T16:29:57.512Z"
+									"value": "2023-01-01T12:00:00Z",
+									"disabled": true
 								},
 								{
 									"key": "finished_before",
-									"value": "2022-09-21T15:46:00.939Z"
+									"value": "2025-01-01T12:00:00Z",
+									"disabled": true
 								},
 								{
 									"key": "finished_after",
-									"value": "2022-09-21T15:46:00.939Z"
+									"value": "2023-01-01T12:00:00Z",
+									"disabled": true
 								}
 							],
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": ""
+									"value": "my-workflow"
 								},
 								{
 									"key": "instanceId",
-									"value": ""
+									"value": "53b73bbd-a37d-11ed-be04-00155d4e0d4d"
 								}
 							]
 						}
@@ -542,7 +527,7 @@
 						"header": [
 							{
 								"key": "X-Monitoring-Token",
-								"value": "",
+								"value": "{{monitoring-token}}",
 								"type": "text"
 							},
 							{
@@ -552,12 +537,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/definitions",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/definitions",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -568,7 +551,7 @@
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": ""
+									"value": "my-workflow"
 								}
 							]
 						}
@@ -582,7 +565,7 @@
 						"header": [
 							{
 								"key": "X-Monitoring-Token",
-								"value": "",
+								"value": "{{monitoring-token}}",
 								"type": "text"
 							},
 							{
@@ -592,12 +575,10 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/instances/:instanceId/variables?updated_before=2022-09-26T16:31:13.505Z&updated_after=2022-09-26T16:30:01.303Z",
-							"protocol": "http",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/instances/:instanceId/variables?updated_before=2025-01-01T12:00:00Z&updated_after=2023-01-01T12:00:00Z",
 							"host": [
-								"localhost"
+								"{{wdk-uri}}"
 							],
-							"port": "8080",
 							"path": [
 								"wdk",
 								"v1",
@@ -610,21 +591,21 @@
 							"query": [
 								{
 									"key": "updated_before",
-									"value": "2022-09-26T16:31:13.505Z"
+									"value": "2025-01-01T12:00:00Z"
 								},
 								{
 									"key": "updated_after",
-									"value": "2022-09-26T16:30:01.303Z"
+									"value": "2023-01-01T12:00:00Z"
 								}
 							],
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": ""
+									"value": "my-workflow"
 								},
 								{
 									"key": "instanceId",
-									"value": ""
+									"value": "53b73bbd-a37d-11ed-be04-00155d4e0d4d"
 								}
 							]
 						}
@@ -640,13 +621,13 @@
 				"header": [
 					{
 						"key": "X-Workflow-Token",
-						"value": "",
+						"value": "workflow-specific-token",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"args\": {\n    \"argKey1\": \"value\",\n    \"argkey2\": \"value\"\n  }\n}\n",
+					"raw": "{\n  \"args\": {\n    \"key1\": \"value1\",\n    \"key2\": \"value2\"\n  }\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -654,12 +635,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/wdk/v1/workflows/:workflowId/execute",
-					"protocol": "http",
+					"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/execute",
 					"host": [
-						"localhost"
+						"{{wdk-uri}}"
 					],
-					"port": "8080",
 					"path": [
 						"wdk",
 						"v1",
@@ -670,7 +649,7 @@
 					"variable": [
 						{
 							"key": "workflowId",
-							"value": ""
+							"value": "my-workflow"
 						}
 					]
 				}
