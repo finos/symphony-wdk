@@ -8,9 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 
@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 public class WorkflowEventVariableActionTest {
 
   @Mock
-  WorkflowDirectGraphCachingService cachingService;
+  WorkflowDirectedGraphService cachingService;
 
   @Mock
   RuntimeService runtimeService;
@@ -66,15 +66,15 @@ public class WorkflowEventVariableActionTest {
     workflowNode.setId(eventName);
     workflowNode.setEventId(eventId);
 
-    WorkflowDirectGraph workflowDirectGraph = new WorkflowDirectGraph();
-    workflowDirectGraph.registerToDictionary(eventName, workflowNode);
-    when(cachingService.getDirectGraph(anyString())).thenReturn(workflowDirectGraph);
+    WorkflowDirectedGraph workflowDirectedGraph = new WorkflowDirectedGraph(processDefKey);
+    workflowDirectedGraph.registerToDictionary(eventName, workflowNode);
+    when(cachingService.getDirectedGraph(anyString())).thenReturn(workflowDirectedGraph);
 
     doNothing().when(runtimeService).setVariable(anyString(), anyString(), any());
 
     eventVariableAction.execute(historyEvent);
 
-    verify(cachingService).getDirectGraph(eq(processDefKey));
+    verify(cachingService).getDirectedGraph(eq(processDefKey));
     verify(runtimeService).setVariable(eq(executionId), eq(eventId), any(EventHolder.class));
   }
 
@@ -84,7 +84,7 @@ public class WorkflowEventVariableActionTest {
     historyEvent.setVariableName(ActivityExecutorContext.EVENT);
     historyEvent.setByteValue(new byte[] {});
 
-    verify(cachingService, never()).getDirectGraph(anyString());
+    verify(cachingService, never()).getDirectedGraph(anyString());
     verify(runtimeService, never()).setVariable(anyString(), anyString(), any(EventHolder.class));
   }
 }

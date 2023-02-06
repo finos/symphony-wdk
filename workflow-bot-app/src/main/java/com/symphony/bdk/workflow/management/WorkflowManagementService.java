@@ -5,6 +5,7 @@ import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
@@ -12,13 +13,10 @@ import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowReposito
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,29 +27,30 @@ import java.util.Optional;
 @Slf4j
 public class WorkflowManagementService {
   private static final String WORKFLOW_NOT_EXIST_EXCEPTION_MSG = "Workflow %s does not exist.";
-  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
+  private final WorkflowEngine<CamundaTranslatedWorkflowContext> workflowEngine;
   private final VersionedWorkflowRepository versionRepository;
   private final ObjectConverter objectConverter;
 
   public void deploy(SwadlView swadlView) {
     Workflow workflow = objectConverter.convert(swadlView.getSwadl(), Workflow.class);
-    BpmnModelInstance modelInstance = workflowEngine.parseAndValidate(workflow);
+    CamundaTranslatedWorkflowContext context = workflowEngine.translate(workflow);
     Optional<VersionedWorkflow> notPublished = versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId());
     notPublished.ifPresent(wf -> {
       throw new IllegalArgumentException(
           String.format("Version %s of workflow has not published yet.", wf.getVersion()));
     });
     if (workflow.isToPublish()) {
-      publishWorkflow(swadlView, workflow, modelInstance);
+      publishWorkflow(swadlView, context);
     } else {
-      VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, Optional.empty());
+      VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, null);
       versionRepository.save(versionedWorkflow);
     }
   }
 
-  private void publishWorkflow(SwadlView swadlView, Workflow workflow, BpmnModelInstance modelInstance) {
-    String deploy = workflowEngine.deploy(workflow, modelInstance);
-    VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, Optional.of(deploy));
+  private void publishWorkflow(SwadlView swadlView, CamundaTranslatedWorkflowContext context) {
+    String deploy = workflowEngine.deploy(context);
+    Workflow workflow = context.getWorkflow();
+    VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, deploy);
     Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndActiveTrue(workflow.getId());
     if (activeVersion.isPresent()) {
       VersionedWorkflow activeWorkflow = activeVersion.get();
@@ -61,30 +60,30 @@ public class WorkflowManagementService {
     versionRepository.save(versionedWorkflow);
   }
 
-  private VersionedWorkflow toVersionedWorkflow(Workflow workflow, SwadlView swadlView, Optional<String> deploymentId) {
+  private VersionedWorkflow toVersionedWorkflow(Workflow workflow, SwadlView swadlView, String deploymentId) {
+    Optional<String> optionalDeployId = Optional.ofNullable(deploymentId);
     VersionedWorkflow versionedWorkflow = new VersionedWorkflow();
     versionedWorkflow.setWorkflowId(workflow.getId());
-    versionedWorkflow.setVersion(ChronoUnit.MICROS.between(Instant.EPOCH, Instant.now()));
-    versionedWorkflow.setDeploymentId(deploymentId.orElse(null));
+    versionedWorkflow.setVersion(workflow.getVersion());
+    versionedWorkflow.setDeploymentId(optionalDeployId.orElse(null));
     versionedWorkflow.setSwadl(swadlView.getSwadl());
     versionedWorkflow.setDescription(swadlView.getDescription());
     versionedWorkflow.setPublished(workflow.isToPublish());
-    versionedWorkflow.setActive(deploymentId.isPresent() ? true : null);
-    versionedWorkflow.setDeploymentId(deploymentId.orElse(null));
+    versionedWorkflow.setActive(optionalDeployId.isPresent() ? true : null);
+    versionedWorkflow.setDeploymentId(optionalDeployId.orElse(null));
     return versionedWorkflow;
   }
 
   public void update(SwadlView swadlView) {
     Workflow workflow = objectConverter.convert(swadlView.getSwadl(), Workflow.class);
-    Optional<VersionedWorkflow> unpublished = versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId());
-    VersionedWorkflow versionedWorkflow = validateUpdateOperation(workflow, unpublished);
-    BpmnModelInstance modelInstance = workflowEngine.parseAndValidate(workflow);
-    versionedWorkflow.setVersion(ChronoUnit.MICROS.between(Instant.EPOCH, Instant.now()));
+    VersionedWorkflow versionedWorkflow = readAndValidate(workflow);
+    CamundaTranslatedWorkflowContext context = workflowEngine.translate(workflow);
+    versionedWorkflow.setVersion(workflow.getVersion());
     versionedWorkflow.setSwadl(swadlView.getSwadl());
     versionedWorkflow.setDescription(swadlView.getDescription());
     versionedWorkflow.setPublished(workflow.isToPublish());
     if (workflow.isToPublish()) {
-      String deploy = workflowEngine.deploy(workflow, modelInstance);
+      String deploy = workflowEngine.deploy(context);
       versionedWorkflow.setDeploymentId(deploy);
       versionedWorkflow.setActive(true);
     }
@@ -101,24 +100,28 @@ public class WorkflowManagementService {
     return versionedWorkflow.map(w -> objectConverter.convert(w, VersionedWorkflowView.class));
   }
 
-  private VersionedWorkflow validateUpdateOperation(Workflow workflow, Optional<VersionedWorkflow> activeVersion) {
+  private VersionedWorkflow readAndValidate(Workflow workflow) {
+    Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId());
     if (activeVersion.isEmpty()) {
       throw new NotFoundException(String.format(WORKFLOW_NOT_EXIST_EXCEPTION_MSG, workflow.getId()));
     }
-    VersionedWorkflow versionedWorkflow = activeVersion.get();
-    if (versionedWorkflow.getPublished()) {
+    if (activeVersion.get().getPublished()) {
       throw new IllegalArgumentException("Update on a published Workflow is forbidden.");
     }
-    return versionedWorkflow;
+    return activeVersion.get();
   }
 
-  public void delete(String id, Optional<Long> version) {
-    version.ifPresentOrElse(ver -> {
+  public void delete(String id) {
+    this.delete(id, null);
+  }
+
+  public void delete(String id, Long version) {
+    Optional.ofNullable(version).ifPresentOrElse(ver -> {
       Optional<VersionedWorkflow> workflow = versionRepository.findByWorkflowIdAndVersion(id, ver);
       workflow.ifPresent(w -> {
         versionRepository.deleteByWorkflowIdAndVersion(id, ver);
         if (w.getActive()) {
-          workflowEngine.undeployByWorkflowId(w.getWorkflowId());
+          workflowEngine.undeployByDeploymentId(w.getDeploymentId());
         }
       });
     }, () -> {

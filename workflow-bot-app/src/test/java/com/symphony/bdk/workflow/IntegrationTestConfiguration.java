@@ -1,5 +1,9 @@
 package com.symphony.bdk.workflow;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.symphony.bdk.workflow.configuration.WorkflowBotConfiguration;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,5 +20,13 @@ public class IntegrationTestConfiguration {
   @Bean("workflowResourcesProvider")
   public ResourceProvider workflowResourcesProvider() {
     return new TestResourcesProvider(Paths.get("dummy").toString());
+  }
+
+  @Bean(name = "workflowBotConfiguration")
+  public WorkflowBotConfiguration workflowBotConfiguration() {
+    WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
+    when(workflowBotConfiguration.getMonitoringToken()).thenReturn("MONITORING_TOKEN_VALUE");
+    when(workflowBotConfiguration.getWorkflowsFolderPath()).thenReturn("./");
+    return workflowBotConfiguration;
   }
 }

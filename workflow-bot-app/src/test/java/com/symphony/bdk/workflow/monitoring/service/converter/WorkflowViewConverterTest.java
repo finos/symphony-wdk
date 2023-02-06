@@ -12,7 +12,7 @@ class WorkflowViewConverterTest {
   @Test
   void apply() {
     // given
-    WorkflowDomain domain = WorkflowDomain.builder().id("id").version(2).name("workflow").build();
+    WorkflowDomain domain = WorkflowDomain.builder().id("id").version(1234L).name("workflow").build();
 
     //when
     WorkflowViewConverter converter = new WorkflowViewConverter();
@@ -20,5 +20,6 @@ class WorkflowViewConverterTest {
 
     // then
     assertThat(view.getId()).isEqualTo("workflow");
+    assertThat(view.getVersion()).isEqualTo(1234L);
   }
 }

@@ -4,7 +4,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
@@ -69,7 +69,7 @@ class WorkflowValidatorTest {
 
   @Test
   void validateExistingNodeId() {
-    WorkflowDirectGraph graph = new WorkflowDirectGraph();
+    WorkflowDirectedGraph graph = new WorkflowDirectedGraph("workflowId");
     graph.addParent("activity", "parent");
     Assertions.assertThatThrownBy(
         () -> WorkflowValidator.validateExistingNodeId("unknownId", "activity", "workflowId", graph)).isInstanceOf(

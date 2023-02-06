@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.bootstrap;
 
+import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationPlanner;
 import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
 
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 @RequiredArgsConstructor
 @Slf4j
 @Profile({"!test"})
+@ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 public class BootStrapWorkflowExpirationJobs {
   private final WorkflowExpirationJobRepository expirationJobRepository;
   private final WorkflowExpirationPlanner workflowExpirationPlanner;

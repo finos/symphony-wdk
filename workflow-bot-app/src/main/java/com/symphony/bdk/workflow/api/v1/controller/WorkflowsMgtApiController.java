@@ -4,6 +4,7 @@ import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
+import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
@@ -52,7 +53,7 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
   public ResponseEntity<Void> deleteSwadl(String token, String id) {
-    workflowManagementService.delete(id, Optional.empty());
+    workflowManagementService.delete(id);
     return ResponseEntity.noContent().build();
   }
 
@@ -66,12 +67,14 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   @Override
   public ResponseEntity<VersionedWorkflowView> getSwadlByVersion(String token, String id, Long version) {
     Optional<VersionedWorkflowView> workflowView = workflowManagementService.get(id, version);
-    return workflowView.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+    return workflowView.map(ResponseEntity::ok)
+        .orElseThrow(
+            () -> new NotFoundException(String.format("Version %s of workflow %s is not found.", version, id)));
   }
 
   @Override
   public ResponseEntity<Void> deleteSwadlByVersion(String token, String id, Long version) {
-    workflowManagementService.delete(id, Optional.of(version));
+    workflowManagementService.delete(id, version);
     return ResponseEntity.noContent().build();
   }
 

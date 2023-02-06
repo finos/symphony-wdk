@@ -13,6 +13,7 @@ public class WorkflowViewConverter implements Converter<WorkflowDomain, Workflow
   public WorkflowView apply(WorkflowDomain workflowDomain) {
     return WorkflowView.builder()
         .id(workflowDomain.getName())
+        .version(workflowDomain.getVersion())
         .build();
   }
 }

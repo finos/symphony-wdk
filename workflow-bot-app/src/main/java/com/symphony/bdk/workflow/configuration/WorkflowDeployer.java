@@ -1,14 +1,15 @@
 package com.symphony.bdk.workflow.configuration;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -21,15 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@ConditionalOnPropertyNotEmpty("wdk.workflows.path")
+@RequiredArgsConstructor
 @Slf4j
 public class WorkflowDeployer {
 
-  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
+  private final WorkflowEngine<CamundaTranslatedWorkflowContext> workflowEngine;
   private final Map<Path, Pair<String, Boolean>> deployedWorkflows = new HashMap<>();
-
-  public WorkflowDeployer(@Autowired WorkflowEngine<BpmnModelInstance> workflowEngine) {
-    this.workflowEngine = workflowEngine;
-  }
+  private final WorkflowDirectedGraphService workflowDirectedGraphService;
 
   public void addAllWorkflowsFromFolder(Path path) {
     if (!Files.isDirectory(path)) {
@@ -57,11 +57,12 @@ public class WorkflowDeployer {
     }
     log.debug("Adding a new workflow");
     Workflow workflow = SwadlParser.fromYaml(workflowFile.toFile());
-    BpmnModelInstance instance = workflowEngine.parseAndValidate(workflow);
+    CamundaTranslatedWorkflowContext context = workflowEngine.translate(workflow);
     Pair<String, Boolean> deployedWorkflow = deployedWorkflows.get(workflowFile);
     if (workflow.isToPublish()) {
       log.debug("Deploying this new workflow");
-      workflowEngine.deploy(workflow, instance);
+      workflowEngine.deploy(context);
+      workflowDirectedGraphService.putDirectedGraph(context.getWorkflowDirectedGraph());
     } else if (deployedWorkflow != null && deployedWorkflow.getRight()) {
       log.debug("Workflow is a draft version, undeloying the old version");
       workflowEngine.undeployByWorkflowId(deployedWorkflow.getLeft());

@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
+import static com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService.ACTIVE_WORKFLOW_DIRECTED_GRAPH;
+
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -17,8 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.xml.ModelValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -29,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
+public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowContext> {
 
   private final RepositoryService repositoryService;
 
@@ -39,6 +42,7 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
   private final AuditTrailLogAction auditTrailLogger;
 
+  @Autowired
   public CamundaEngine(RepositoryService repositoryService, CamundaBpmnBuilder bpmnBuilder,
       List<RealTimeEventProcessor<?>> processors, AuditTrailLogAction auditTrailLogger) {
     this.repositoryService = repositoryService;
@@ -50,23 +54,23 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
   @Override
   public String deploy(Workflow workflow) {
-    BpmnModelInstance instance = parseAndValidate(workflow);
-    return deploy(workflow, instance);
+    CamundaTranslatedWorkflowContext context = translate(workflow);
+    return deploy(context);
   }
 
   @Override
-  public String deploy(Workflow workflow, BpmnModelInstance bpmnInstance) {
-    Deployment deployment = bpmnBuilder.deployWorkflow(workflow, (BpmnModelInstance) bpmnInstance);
+  public String deploy(CamundaTranslatedWorkflowContext context) {
+    Deployment deployment = bpmnBuilder.deployWorkflow(context);
     log.info("Deployed workflow {} {}", deployment.getId(), deployment.getName());
     auditTrailLogger.deployed(deployment);
     return deployment.getId();
   }
 
   @Override
-  public BpmnModelInstance parseAndValidate(Workflow workflow) {
+  public CamundaTranslatedWorkflowContext translate(Workflow workflow) {
     checkIdsAreUnique(workflow);
     try {
-      return bpmnBuilder.parseWorkflowToBpmn(workflow);
+      return bpmnBuilder.translateWorkflow(workflow);
     } catch (JsonProcessingException | ModelValidationException exception) {
       throw new IllegalArgumentException(
           String.format("Workflow parsing process failed, \"%s\" may not be a valid workflow.", workflow.getId()),
@@ -110,6 +114,7 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
     }
   }
 
+  @CacheEvict(ACTIVE_WORKFLOW_DIRECTED_GRAPH)
   @Override
   public void undeployByWorkflowId(String workflowName) {
     for (Deployment deployment : repositoryService.createDeploymentQuery().deploymentName(workflowName).list()) {
@@ -119,9 +124,8 @@ public class CamundaEngine implements WorkflowEngine<BpmnModelInstance> {
 
   @Override
   public void undeployByDeploymentId(String deploymentId) {
-    for (Deployment deployment : repositoryService.createDeploymentQuery().deploymentId(deploymentId).list()) {
-      stop(deployment);
-    }
+    Deployment deployment = repositoryService.createDeploymentQuery().deploymentId(deploymentId).singleResult();
+    stop(deployment);
   }
 
   private void stop(Deployment deployment) {

@@ -62,7 +62,9 @@ public interface WorkflowsApi {
       @ApiParam(value = "Workflows monitoring token to authenticate the request")
       @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
       @ApiParam("Optional query parameter to filter instances by status [Pending | Completed | Failed]")
-      @RequestParam(required = false) String status);
+      @RequestParam(required = false) String status,
+      @ApiParam("Optional version parameter to filter instances by version")
+      @RequestParam(required = false) Long version);
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowNodesView.class),
@@ -102,7 +104,9 @@ public interface WorkflowsApi {
   ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(
       @ApiParam(value = "Workflow's id to get activities definitions", required = true) @PathVariable String workflowId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token);
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @ApiParam("Optional version parameter to filter instances by version")
+      @RequestParam(required = false) Long version);
 
   @ApiOperation("List global variables for a given workflow")
   @ApiResponses(

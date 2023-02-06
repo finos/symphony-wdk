@@ -6,17 +6,19 @@ import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.ha
 import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.hasLoopAfterSubProcess;
 
 import com.symphony.bdk.core.service.session.SessionService;
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph.NodeChildren;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraphBuilder;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.NodeChildren;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderFactory;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
@@ -28,7 +30,6 @@ import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.camunda.bpm.model.xml.ModelValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -39,6 +40,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CamundaBpmnBuilder {
   public static final String DEPLOYMENT_RESOURCE_TOKEN_KEY = "WORKFLOW_TOKEN";
   public static final String EXCLUSIVE_GATEWAY_SUFFIX = "_exclusive_gateway";
@@ -48,37 +50,30 @@ public class CamundaBpmnBuilder {
   private final RepositoryService repositoryService;
   private final WorkflowNodeBpmnBuilderFactory builderFactory;
   private final SessionService sessionService;
+  private final WorkflowDirectedGraphService directedGraphService;
 
-  private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
-
-  @Autowired
-  public CamundaBpmnBuilder(RepositoryService repositoryService, WorkflowNodeBpmnBuilderFactory builderFactory,
-      SessionService sessionService, WorkflowDirectGraphCachingService workflowDirectGraphCachingService) {
-    this.repositoryService = repositoryService;
-    this.builderFactory = builderFactory;
-    this.sessionService = sessionService;
-    this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
-  }
-
-  public BpmnModelInstance parseWorkflowToBpmn(Workflow workflow)
+  public CamundaTranslatedWorkflowContext translateWorkflow(Workflow workflow)
       throws JsonProcessingException, ModelValidationException {
-    BpmnModelInstance instance = workflowToBpmn(workflow);
+    CamundaTranslatedWorkflowContext context = workflowToBpmn(workflow);
     try {
-      Bpmn.validateModel(instance);
+      Bpmn.validateModel(context.getBpmnModelInstance());
       log.debug("workflow [{}] has been successfully validated.", workflow.getId());
-      return instance;
+      return context;
     } finally {
       log.debug("workflow [{}]'s validation is done.", workflow.getId());
       if (log.isDebugEnabled()) {
-        WorkflowDebugger.generateDebugFiles(workflow.getId(), instance);
+        WorkflowDebugger.generateDebugFiles(workflow.getId(), context.getBpmnModelInstance());
       }
     }
   }
 
-  public Deployment deployWorkflow(Workflow workflow, BpmnModelInstance instance) {
+  public Deployment deployWorkflow(CamundaTranslatedWorkflowContext context) {
+    Workflow workflow = context.getWorkflow();
+    BpmnModelInstance instance = context.getBpmnModelInstance();
     DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
         .name(workflow.getId())
         .addModelInstance(workflow.getId() + ".bpmn", instance);
+    directedGraphService.putDirectedGraph(context.getWorkflowDirectedGraph());
     return setWorkflowTokenIfExists(deploymentBuilder, workflow).deploy();
   }
 
@@ -96,19 +91,19 @@ public class CamundaBpmnBuilder {
     return deploymentBuilder;
   }
 
-  private BpmnModelInstance workflowToBpmn(Workflow workflow) throws JsonProcessingException {
+  private CamundaTranslatedWorkflowContext workflowToBpmn(Workflow workflow) throws JsonProcessingException {
     // spaces are not supported in BPMN here
     String processId = workflow.getId().replaceAll("\\s+", "");
     ProcessBuilder process = Bpmn.createExecutableProcess(processId).name(workflow.getId());
+    Optional.ofNullable(workflow.getVersion()).ifPresent(v -> process.camundaVersionTag(String.valueOf(v)));
 
-    WorkflowDirectGraph workflowDirectGraph = new WorkflowDirectGraphBuilder(workflow, sessionService).build();
-    BuildProcessContext context = new BuildProcessContext(workflowDirectGraph, process);
-    this.workflowDirectGraphCachingService.putDirectGraph(workflow.getId(), workflowDirectGraph);
+    WorkflowDirectedGraph workflowDirectedGraph = new WorkflowDirectGraphBuilder(workflow, sessionService).build();
+    BuildProcessContext context = new BuildProcessContext(workflowDirectedGraph, process);
     buildWorkflowInDfs(new NodeChildren(context.getStartEvents()), "", context);
     AbstractFlowNodeBuilder<?, ?> builder = closeUpSubProcessesIfAny(context, context.getLastNodeBuilder());
-    BpmnModelInstance model = builder.done();
-    process.addExtensionElement(VariablesListener.create(model, workflow.getVariables()));
-    return model;
+    BpmnModelInstance instance = builder.done();
+    process.addExtensionElement(VariablesListener.create(instance, workflow.getVariables()));
+    return new CamundaTranslatedWorkflowContext(workflow, workflowDirectedGraph, instance);
   }
 
   private AbstractFlowNodeBuilder<?, ?> closeUpSubProcessesIfAny(BuildProcessContext context,
@@ -145,7 +140,7 @@ public class CamundaBpmnBuilder {
     String currentNodeId = currentNode.getId();
     NodeChildren currentNodeChildren = context.readChildren(currentNodeId);
     if (currentNodeChildren != null && !currentNodeChildren.isEmpty()) {
-      if (currentNodeChildren.getGateway() == WorkflowDirectGraph.Gateway.PARALLEL) {
+      if (currentNodeChildren.getGateway() == WorkflowDirectedGraph.Gateway.PARALLEL) {
         builder = builder.parallelGateway(currentNodeId + FORK_GATEWAY);
       } else {
         builder =

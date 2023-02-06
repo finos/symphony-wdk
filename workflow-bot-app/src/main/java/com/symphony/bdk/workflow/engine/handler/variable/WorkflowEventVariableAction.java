@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow.engine.handler.variable;
 
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
-import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectGraphCachingService;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
+import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
 import com.symphony.bdk.workflow.engine.handler.HistoricEventAction;
@@ -26,12 +26,12 @@ public class WorkflowEventVariableAction implements HistoricEventAction {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private final WorkflowDirectGraphCachingService workflowDirectGraphCachingService;
+  private final WorkflowDirectedGraphService workflowDirectedGraphService;
   private final RuntimeService runtimeService;
 
-  public WorkflowEventVariableAction(WorkflowDirectGraphCachingService workflowDirectGraphCachingService,
+  public WorkflowEventVariableAction(WorkflowDirectedGraphService workflowDirectedGraphService,
       @Lazy RuntimeService runtimeService) {
-    this.workflowDirectGraphCachingService = workflowDirectGraphCachingService;
+    this.workflowDirectedGraphService = workflowDirectedGraphService;
     this.runtimeService = runtimeService;
   }
 
@@ -58,8 +58,8 @@ public class WorkflowEventVariableAction implements HistoricEventAction {
         Object eventName = eventHolder.getArgs().get(RealTimeEventProcessor.EVENT_NAME_KEY);
         String eventId = "";
 
-        WorkflowDirectGraph directGraph =
-            workflowDirectGraphCachingService.getDirectGraph(event.getProcessDefinitionKey());
+        WorkflowDirectedGraph directGraph =
+            workflowDirectedGraphService.getDirectedGraph(event.getProcessDefinitionKey());
         if (eventName != null && directGraph != null) {
           String escapedEventName = RegExUtils.replaceAll((String) eventName, "[\\$\\#]", "\\\\$0");
           eventId = directGraph.readWorkflowNode(escapedEventName).getEventId();

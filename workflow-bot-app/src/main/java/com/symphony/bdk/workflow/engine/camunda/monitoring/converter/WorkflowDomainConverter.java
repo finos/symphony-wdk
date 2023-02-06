@@ -6,6 +6,8 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowDomain;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class WorkflowDomainConverter implements Converter<ProcessDefinitionEntity, WorkflowDomain> {
 
@@ -14,7 +16,7 @@ public class WorkflowDomainConverter implements Converter<ProcessDefinitionEntit
     return WorkflowDomain.builder()
         .id(processDefinition.getId())
         .name(processDefinition.getName())
-        .version(processDefinition.getVersion())
+        .version(Optional.ofNullable(processDefinition.getVersionTag()).map(Long::valueOf).orElse(null))
         .build();
   }
 }

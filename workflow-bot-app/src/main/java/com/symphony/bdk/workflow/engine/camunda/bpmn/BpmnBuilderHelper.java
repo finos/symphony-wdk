@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
-import com.symphony.bdk.workflow.engine.WorkflowDirectGraph;
+import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 
@@ -24,7 +24,7 @@ public class BpmnBuilderHelper {
   }
 
   public static boolean hasActivitiesOnly(BuildProcessContext context,
-      WorkflowDirectGraph.NodeChildren currentNodeChildren) {
+      WorkflowDirectedGraph.NodeChildren currentNodeChildren) {
     return currentNodeChildren.getChildren()
         .stream()
         .noneMatch(s -> {
@@ -35,28 +35,28 @@ public class BpmnBuilderHelper {
   }
 
   public static boolean hasAllConditionalChildren(BuildProcessContext context,
-      WorkflowDirectGraph.NodeChildren currentNodeChildren, String parentId) {
+      WorkflowDirectedGraph.NodeChildren currentNodeChildren, String parentId) {
     return currentNodeChildren.getChildren()
         .stream()
         .allMatch(s -> context.readWorkflowNode(s).isConditional(parentId));
   }
 
   public static boolean hasConditionalString(BuildProcessContext context,
-      WorkflowDirectGraph.NodeChildren currentNodeChildren, String parentId) {
+      WorkflowDirectedGraph.NodeChildren currentNodeChildren, String parentId) {
     return currentNodeChildren.getChildren()
         .stream()
         .anyMatch(s -> context.readWorkflowNode(s).isConditional(parentId));
   }
 
   public static boolean isConditionalLoop(AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context,
-      WorkflowDirectGraph.NodeChildren currentNodeChildren) {
+      WorkflowDirectedGraph.NodeChildren currentNodeChildren) {
     return currentNodeChildren.isChildUnique() && context.isAlreadyBuilt(currentNodeChildren.getUniqueChild())
         && !context.readWorkflowNode(currentNodeChildren.getUniqueChild()).isConditional()
         && builder instanceof AbstractGatewayBuilder;
   }
 
   public static boolean hasLoopAfterSubProcess(BuildProcessContext context,
-      WorkflowDirectGraph.NodeChildren currentNodeChildren,
+      WorkflowDirectedGraph.NodeChildren currentNodeChildren,
       WorkflowNodeType currentNodeType) {
     return currentNodeType == WorkflowNodeType.ACTIVITY_COMPLETED_EVENT && context.hasEventSubProcess()
         && currentNodeChildren.getChildren().stream().anyMatch(context::isAlreadyBuilt);

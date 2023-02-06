@@ -1,6 +1,8 @@
 package com.symphony.bdk.workflow.expiration;
 
+import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.scheduled.RunnableScheduledJob;
 import com.symphony.bdk.workflow.scheduled.ScheduledJobsRegistry;
 import com.symphony.bdk.workflow.versioning.model.WorkflowExpirationJob;
@@ -8,7 +10,6 @@ import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowReposito
 import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -16,8 +17,9 @@ import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 public class DefaultWorkflowExpirationPlanner implements WorkflowExpirationPlanner {
-  private final WorkflowEngine<BpmnModelInstance> workflowEngine;
+  private final WorkflowEngine<CamundaTranslatedWorkflowContext> workflowEngine;
   private final WorkflowExpirationJobRepository expirationJobRepository;
   private final VersionedWorkflowRepository versioningRepository;
   private final ScheduledJobsRegistry scheduledJobsRegistry;

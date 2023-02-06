@@ -159,7 +159,6 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("[0].id", equalTo("testingWorkflow1"))
-        .body("[0].version", equalTo(1))
         .body("[0].status", equalTo("COMPLETED"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))
@@ -170,9 +169,11 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   }
 
   @Test
-  void listWorkflowInstances_pendingStatusFilter() throws Exception {
+  void listWorkflowInstances_pendingStatusAndVersionFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-4.swadl.yaml"));
+    long version = Instant.now().toEpochMilli();
+    workflow.setVersion(version);
 
     engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
@@ -185,12 +186,28 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending", "testingWorkflow4"))
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?status=pending&version=" + version, "testingWorkflow4"))
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("[0].id", equalTo("testingWorkflow4"))
-        .body("[0].version", equalTo(1))
+        .body("[0].version", equalTo(version))
+        .body("[0].status", equalTo("PENDING"))
+        .body("[0].instanceId", not(isEmptyString()))
+        .body("[0].startDate", not(isEmptyString()))
+        .body("[0].endDate", isEmptyOrNullString())
+        .body("[0].duration", isEmptyOrNullString());
+
+    given()
+        .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
+        .contentType(ContentType.JSON)
+        .when()
+        .get(String.format(LIST_WORKFLOW_INSTANCES_PATH + "?version=" + version, "testingWorkflow4"))
+        .then()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("[0].id", equalTo("testingWorkflow4"))
+        .body("[0].version", equalTo(version))
         .body("[0].status", equalTo("PENDING"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))
@@ -224,6 +241,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   void listWorkflowInstances_completedStatusFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
+    long version = Instant.now().toEpochMilli();
+    workflow.setVersion(version);
 
     engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
@@ -241,7 +260,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("[0].id", equalTo("testingWorkflow3"))
-        .body("[0].version", equalTo(1))
+        .body("[0].version", equalTo(version))
         .body("[0].status", equalTo("COMPLETED"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))
@@ -294,7 +313,6 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("[0].id", equalTo("testingWorkflow1"))
-        .body("[0].version", equalTo(1))
         .body("[0].status", equalTo("FAILED"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))
@@ -1333,7 +1351,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   @Test
   void listWorkflowActivitiesDefinitions_unknownWorkflowId() {
     final String unknownWorkflowId = "unknownWorkflowId";
-    final String expectedErrorMsg = String.format("No workflow deployed with id '%s' is found", unknownWorkflowId);
+    final String expectedErrorMsg =
+        String.format("No workflow with id '%s' and version 'null' is found", unknownWorkflowId);
 
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)

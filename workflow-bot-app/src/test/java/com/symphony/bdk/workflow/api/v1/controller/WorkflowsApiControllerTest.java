@@ -3,7 +3,9 @@ package com.symphony.bdk.workflow.api.v1.controller;
 import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -113,8 +115,12 @@ class WorkflowsApiControllerTest extends ApiTest {
 
   @Test
   void listAllWorkflows() throws Exception {
-    WorkflowView workflowView1 = WorkflowView.builder().id("id1").version("1").build();
-    WorkflowView workflowView2 = WorkflowView.builder().id("id2").version("2").build();
+    WorkflowView workflowView1 = WorkflowView.builder().id("id1")
+        .version(1L)
+        .build();
+    WorkflowView workflowView2 = WorkflowView.builder().id("id2")
+        .version(2L)
+        .build();
 
     when(monitoringService.listAllWorkflows()).thenReturn(Arrays.asList(workflowView1, workflowView2));
 
@@ -131,10 +137,11 @@ class WorkflowsApiControllerTest extends ApiTest {
   @Test
   void listWorkflowInstances() throws Exception {
     WorkflowInstView instanceView1 =
-        workflowInstView("testWorkflowId", "instance1", 222L, 666L, 1, StatusEnum.COMPLETED);
-    WorkflowInstView instanceView2 = workflowInstView("testWorkflowId", "instance2", 333L, 777L, 2, StatusEnum.PENDING);
+        workflowInstView("testWorkflowId", "instance1", 222L, 666L, 1L, StatusEnum.COMPLETED);
+    WorkflowInstView instanceView2 =
+        workflowInstView("testWorkflowId", "instance2", 333L, 777L, 2L, StatusEnum.PENDING);
 
-    when(monitoringService.listWorkflowInstances(eq("testWorkflowId"), any())).thenReturn(
+    when(monitoringService.listWorkflowInstances(eq("testWorkflowId"), isNull(), isNull())).thenReturn(
         Arrays.asList(instanceView1, instanceView2));
 
     mockMvc.perform(
@@ -151,6 +158,36 @@ class WorkflowsApiControllerTest extends ApiTest {
 
         .andExpect(jsonPath("[1].id").value("testWorkflowId"))
         .andExpect(jsonPath("[1].version").value(2))
+        .andExpect(jsonPath("[1].instanceId").value("instance2"))
+        .andExpect(jsonPath("[1].status").value("PENDING"))
+        .andExpect(jsonPath("[1].startDate").isNotEmpty())
+        .andExpect(jsonPath("[1].endDate").isNotEmpty());
+  }
+
+  @Test
+  void listWorkflowInstancesByVersion() throws Exception {
+    WorkflowInstView instanceView1 =
+        workflowInstView("testWorkflowId", "instance1", 222L, 666L, 1L, StatusEnum.COMPLETED);
+    WorkflowInstView instanceView2 =
+        workflowInstView("testWorkflowId", "instance2", 333L, 777L, 1L, StatusEnum.PENDING);
+
+    when(monitoringService.listWorkflowInstances(eq("testWorkflowId"), isNull(), anyLong())).thenReturn(
+        Arrays.asList(instanceView1, instanceView2));
+
+    mockMvc.perform(
+            request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId"))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE).queryParam("version", "1"))
+        .andExpect(status().isOk())
+
+        .andExpect(jsonPath("[0].id").value("testWorkflowId"))
+        .andExpect(jsonPath("[0].version").value(1))
+        .andExpect(jsonPath("[0].instanceId").value("instance1"))
+        .andExpect(jsonPath("[0].status").value("COMPLETED"))
+        .andExpect(jsonPath("[0].startDate").isNotEmpty())
+        .andExpect(jsonPath("[0].endDate").isNotEmpty())
+
+        .andExpect(jsonPath("[1].id").value("testWorkflowId"))
+        .andExpect(jsonPath("[1].version").value(1))
         .andExpect(jsonPath("[1].instanceId").value("instance2"))
         .andExpect(jsonPath("[1].status").value("PENDING"))
         .andExpect(jsonPath("[1].startDate").isNotEmpty())
@@ -268,19 +305,21 @@ class WorkflowsApiControllerTest extends ApiTest {
 
     WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
         .workflowId(workflowId)
+        .version(1L)
         .variables(Collections.emptyMap())
         .flowNodes(Arrays.asList(activity0, event, activity1))
         .build();
 
-    when(monitoringService.getWorkflowDefinition(workflowId)).thenReturn(workflowDefinitionView);
+    when(monitoringService.getWorkflowDefinition(eq(workflowId), eq(1L))).thenReturn(workflowDefinitionView);
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, workflowId))
-                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
+                .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE).queryParam("version", "1"))
         .andExpect(status().isOk())
 
         .andExpect(jsonPath("$.workflowId").value(workflowId))
         .andExpect(jsonPath("$.variables").isEmpty())
+        .andExpect(jsonPath("$.version").value(1))
 
         .andExpect(jsonPath("$.flowNodes[0].nodeId").value("activity0"))
         .andExpect(jsonPath("$.flowNodes[0].type").value("SEND_MESSAGE"))
@@ -346,7 +385,7 @@ class WorkflowsApiControllerTest extends ApiTest {
     final String illegalWorkflowId = "testWorkflowId";
     final String errorMsg = String.format("No workflow deployed with id '%s' is found", illegalWorkflowId);
 
-    when(monitoringService.getWorkflowDefinition(illegalWorkflowId)).thenThrow(new NotFoundException(errorMsg));
+    when(monitoringService.getWorkflowDefinition(illegalWorkflowId, null)).thenThrow(new NotFoundException(errorMsg));
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, illegalWorkflowId))
@@ -355,7 +394,7 @@ class WorkflowsApiControllerTest extends ApiTest {
         .andExpect(jsonPath("message").value(errorMsg));
   }
 
-  private WorkflowInstView workflowInstView(String workflowId, String instanceId, long start, long end, Integer version,
+  private WorkflowInstView workflowInstView(String workflowId, String instanceId, long start, long end, Long version,
       StatusEnum status) {
 
     return WorkflowInstView.builder()
