@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.api.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkflowDefinitionView {
   private String workflowId;
   private Long version;
