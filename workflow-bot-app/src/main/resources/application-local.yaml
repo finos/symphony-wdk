@@ -23,4 +23,3 @@ logging:
     org.camunda.bpm.engine.script: DEBUG
     org.camunda.bpm: OFF
     com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: DEBUG
-    root: OFF
