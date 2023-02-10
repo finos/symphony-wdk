@@ -15,7 +15,7 @@ bdk:
 
 logging:
   level:
-    org.camunda.bpm.engine.bpmn.parser: WARN
+    org.camunda.bpm.engine.bpmn.parser: DEBUG
     org.camunda.bpm.engine.bpmn.behavior: DEBUG
     org.camunda.bpm.engine.dmn: DEBUG
     org.camunda.bpm.engine.pvm: DEBUG
