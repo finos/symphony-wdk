@@ -80,7 +80,13 @@ logging:
   level:
     com.symphony: DEBUG
     # Troubleshoot Camunda by setting lower log level
-    org.camunda: WARN
+    org.camunda.bpm.engine.bpmn.parser: WARN
+    org.camunda.bpm.engine.bpmn.behavior: WARN
+    org.camunda.bpm.engine.dmn: WARN
+    org.camunda.bpm.engine.pvm: WARN
+    org.camunda.bpm.dmn.feel: WARN
+    org.camunda.bpm.engine.script: WARN
+    org.camunda.bpm: OFF
     # Audit trail can be disabled with WARN level
     #audit-trail: WARN
     # Disable BPMN image generation
