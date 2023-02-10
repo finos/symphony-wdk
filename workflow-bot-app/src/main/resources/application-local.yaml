@@ -15,10 +15,12 @@ bdk:
 
 logging:
   level:
-    org.camunda.bpm.engine.bpmn.parser: DEBUG
+    org.camunda.bpm.engine.bpmn.parser: WARN
     org.camunda.bpm.engine.bpmn.behavior: DEBUG
     org.camunda.bpm.engine.dmn: DEBUG
     org.camunda.bpm.engine.pvm: DEBUG
     org.camunda.bpm.dmn.feel: DEBUG
     org.camunda.bpm.engine.script: DEBUG
+    org.camunda.bpm: OFF
     com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: DEBUG
+    root: OFF
