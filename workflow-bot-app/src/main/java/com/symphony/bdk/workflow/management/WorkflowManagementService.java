@@ -27,6 +27,7 @@ import java.util.Optional;
 @Slf4j
 public class WorkflowManagementService {
   private static final String WORKFLOW_NOT_EXIST_EXCEPTION_MSG = "Workflow %s does not exist.";
+  private static final String WORKFLOW_UPDATE_FORBIDDEN_EXCEPTION_MSG = "Update on a published Workflow is forbidden.";
   private final WorkflowEngine<CamundaTranslatedWorkflowContext> workflowEngine;
   private final VersionedWorkflowRepository versionRepository;
   private final ObjectConverter objectConverter;
@@ -101,14 +102,17 @@ public class WorkflowManagementService {
   }
 
   private VersionedWorkflow readAndValidate(Workflow workflow) {
-    Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId());
+    List<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowId(workflow.getId());
     if (activeVersion.isEmpty()) {
       throw new NotFoundException(String.format(WORKFLOW_NOT_EXIST_EXCEPTION_MSG, workflow.getId()));
     }
-    if (activeVersion.get().getPublished()) {
-      throw new IllegalArgumentException("Update on a published Workflow is forbidden.");
+
+    if (activeVersion.stream().anyMatch(VersionedWorkflow::getPublished)) {
+      throw new UnsupportedOperationException(WORKFLOW_UPDATE_FORBIDDEN_EXCEPTION_MSG);
     }
-    return activeVersion.get();
+
+    // The list can only contain 1 draft version item
+    return activeVersion.get(0);
   }
 
   public void delete(String id) {
