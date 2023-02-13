@@ -2,16 +2,12 @@
 package com.symphony.bdk.workflow.exception;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
-
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.OptimisticLockException;
@@ -55,6 +51,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Illegal argument exception: [{}]", exception.getMessage());
     log.debug("", exception);
     return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(UnsupportedOperationException.class)
+  public ResponseEntity<ErrorResponse> handle(UnsupportedOperationException exception) {
+    log.error("Unsupported operation exception: [{}]", exception.getMessage());
+    log.debug("", exception);
+    return handle(exception.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   @ExceptionHandler(OptimisticLockException.class)
