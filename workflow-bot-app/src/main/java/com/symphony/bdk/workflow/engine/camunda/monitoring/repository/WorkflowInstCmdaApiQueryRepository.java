@@ -44,11 +44,16 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
   @Override
   public List<WorkflowInstanceDomain> findAllByIdAndVersion(String id, String version) {
     Map<String, String> processIdVersionTagMap = getProcessIdVersionMap(id, version);
-    List<HistoricProcessInstance> instances = historyService.createHistoricProcessInstanceQuery()
-        .processDefinitionKey(id)
-        .orderByProcessInstanceStartTime()
-        .asc()
-        .list();
+    List<HistoricProcessInstance> instances = new ArrayList<>();
+
+    processIdVersionTagMap.keySet().forEach(processDefinitionId -> {
+      instances.addAll(historyService.createHistoricProcessInstanceQuery()
+          .processDefinitionId(processDefinitionId)
+          .orderByProcessInstanceStartTime()
+          .asc()
+          .list());
+    });
+
     return objectConverter.convertCollection(instances, processIdVersionTagMap, WorkflowInstanceDomain.class);
   }
 
@@ -80,28 +85,42 @@ public class WorkflowInstCmdaApiQueryRepository extends CamundaAbstractQueryRepo
     List<HistoricProcessInstance> instances = new ArrayList<>();
     switch (status) {
       case COMPLETED:
-        instances.addAll(historicProcessInstanceQuery.finished()
-            .orderByProcessInstanceStartTime()
-            .asc()
-            .list()
-            .stream()
-            .filter(
-                instance -> instance.getEndActivityId() != null && instance.getEndActivityId().startsWith("endEvent"))
-            .collect(Collectors.toList()));
+        processIdVersionTagMap.keySet().forEach(processDefinitionId ->
+            instances.addAll(historicProcessInstanceQuery.processDefinitionId(processDefinitionId)
+                .finished()
+                .orderByProcessInstanceStartTime()
+                .asc()
+                .list()
+                .stream()
+                .filter(
+                    instance -> instance.getEndActivityId() != null && instance.getEndActivityId()
+                        .startsWith("endEvent"))
+                .collect(Collectors.toList())));
         break;
+
       case FAILED:
-        instances.addAll(historicProcessInstanceQuery.finished()
-            .orderByProcessInstanceStartTime()
-            .asc()
-            .list()
-            .stream()
-            .filter(
-                instance -> instance.getEndActivityId() != null && !instance.getEndActivityId().startsWith("endEvent"))
-            .collect(Collectors.toList()));
+        processIdVersionTagMap.keySet().forEach(processDefinitionId ->
+            instances.addAll(historicProcessInstanceQuery.processInstanceId(processDefinitionId)
+                .finished()
+                .orderByProcessInstanceStartTime()
+                .asc()
+                .list()
+                .stream()
+                .filter(
+                    instance -> instance.getEndActivityId() != null && !instance.getEndActivityId()
+                        .startsWith("endEvent"))
+                .collect(Collectors.toList())));
         break;
+
       case PENDING:
-        instances.addAll(historicProcessInstanceQuery.unfinished().orderByProcessInstanceStartTime().asc().list());
+        processIdVersionTagMap.keySet().forEach(processDefinitionId ->
+            instances.addAll(historicProcessInstanceQuery.processDefinitionId(processDefinitionId)
+                .unfinished()
+                .orderByProcessInstanceStartTime()
+                .asc()
+                .list()));
         break;
+
       default:
         break;
     }
