@@ -13,6 +13,7 @@ import com.symphony.bdk.workflow.security.Authorized;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -33,9 +34,13 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> saveAndDeploySwadl(String token, SwadlView swadlView) {
+  public ResponseEntity<Double> saveAndDeploySwadl(String token, SwadlView swadlView) {
+    StopWatch watch = new StopWatch();
+    watch.start();
     workflowManagementService.deploy(swadlView);
-    return ResponseEntity.noContent().build();
+    watch.stop();
+    System.out.println("Deployed in " + watch.getTotalTimeSeconds());
+    return ResponseEntity.ok(watch.getTotalTimeSeconds());
   }
 
   @Override

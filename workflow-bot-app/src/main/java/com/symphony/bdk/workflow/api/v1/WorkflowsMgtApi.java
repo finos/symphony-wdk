@@ -37,7 +37,7 @@ public interface WorkflowsMgtApi {
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ResponseEntity<Void> saveAndDeploySwadl(
+  ResponseEntity<Double> saveAndDeploySwadl(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
       @ApiParam(value = "Workflow SWADL form to create") @ModelAttribute SwadlView swadlView);
