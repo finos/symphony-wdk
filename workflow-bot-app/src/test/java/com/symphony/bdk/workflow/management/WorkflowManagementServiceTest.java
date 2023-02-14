@@ -13,6 +13,7 @@ import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,7 +50,6 @@ public class WorkflowManagementServiceTest {
   @InjectMocks
   WorkflowManagementService workflowManagementService;
 
-
   static final String swadl = "id: test\n"
       + "activities:\n"
       + "  - send-message:\n"
@@ -64,7 +64,7 @@ public class WorkflowManagementServiceTest {
 
   public WorkflowManagementServiceTest() throws IOException, ProcessingException {
     workflow = SwadlParser.fromYaml(swadl);
-    swadlView = SwadlView.builder().swadl(swadl).description("desc").build();
+    swadlView = SwadlView.builder().swadl(swadl).description("desc").author("1234").build();
   }
 
   @Test
@@ -81,10 +81,23 @@ public class WorkflowManagementServiceTest {
 
     workflowManagementService.deploy(swadlView);
 
-    assertThat(activeVersion.getActive()).isFalse();
+    ArgumentCaptor<VersionedWorkflow> newVersionedWorkflowCaptor = ArgumentCaptor.forClass(VersionedWorkflow.class);
+    ArgumentCaptor<VersionedWorkflow> oldVersionedWorkflowCaptor = ArgumentCaptor.forClass(VersionedWorkflow.class);
+
     verify(camundaEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
-    verify(versionRepository).save(any());
-    verify(versionRepository).saveAndFlush(any());
+    verify(versionRepository).save(newVersionedWorkflowCaptor.capture());
+    verify(versionRepository).saveAndFlush(oldVersionedWorkflowCaptor.capture());
+
+    assertThat(newVersionedWorkflowCaptor.getValue().getActive())
+        .as("The new version is set as active")
+        .isTrue();
+    assertThat(newVersionedWorkflowCaptor.getValue().getSwadl()).isEqualTo(swadlView.getSwadl());
+    assertThat(newVersionedWorkflowCaptor.getValue().getUserId()).isEqualTo(swadlView.getAuthor());
+    assertThat(newVersionedWorkflowCaptor.getValue().getDescription()).isEqualTo(swadlView.getDescription());
+
+    assertThat(oldVersionedWorkflowCaptor.getValue().getActive())
+        .as("The old version is not active anymore")
+        .isFalse();
   }
 
   @Test
@@ -99,8 +112,17 @@ public class WorkflowManagementServiceTest {
 
     workflowManagementService.deploy(swadlView);
 
+    ArgumentCaptor<VersionedWorkflow> newVersionedWorkflowCaptor = ArgumentCaptor.forClass(VersionedWorkflow.class);
+
     verify(camundaEngine).deploy(any(CamundaTranslatedWorkflowContext.class));
-    verify(versionRepository).save(any(VersionedWorkflow.class));
+    verify(versionRepository).save(newVersionedWorkflowCaptor.capture());
+
+    assertThat(newVersionedWorkflowCaptor.getValue().getActive())
+        .as("The new version is set as active")
+        .isTrue();
+    assertThat(newVersionedWorkflowCaptor.getValue().getSwadl()).isEqualTo(swadlView.getSwadl());
+    assertThat(newVersionedWorkflowCaptor.getValue().getUserId()).isEqualTo(swadlView.getAuthor());
+    assertThat(newVersionedWorkflowCaptor.getValue().getDescription()).isEqualTo(swadlView.getDescription());
   }
 
   @Test
@@ -114,7 +136,7 @@ public class WorkflowManagementServiceTest {
     when(versionRepository.findByWorkflowIdAndPublishedFalse(anyString())).thenReturn(Optional.of(noPublishedVersion));
 
     assertThatThrownBy(() -> workflowManagementService.deploy(swadlView)).isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Version 1234 of workflow has not published yet.");
+        .hasMessage("Version 1234 of workflow has not been published yet.");
   }
 
   @Test

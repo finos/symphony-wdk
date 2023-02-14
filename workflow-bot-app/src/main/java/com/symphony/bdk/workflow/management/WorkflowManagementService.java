@@ -35,11 +35,13 @@ public class WorkflowManagementService {
   public void deploy(SwadlView swadlView) {
     Workflow workflow = objectConverter.convert(swadlView.getSwadl(), Workflow.class);
     CamundaTranslatedWorkflowContext context = workflowEngine.translate(workflow);
-    Optional<VersionedWorkflow> notPublished = versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId());
-    notPublished.ifPresent(wf -> {
-      throw new IllegalArgumentException(
-          String.format("Version %s of workflow has not published yet.", wf.getVersion()));
-    });
+
+    versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId())
+        .ifPresent(wf -> {
+          throw new IllegalArgumentException(
+              String.format("Version %s of workflow has not been published yet.", wf.getVersion()));
+        });
+
     if (workflow.isToPublish()) {
       publishWorkflow(swadlView, context);
     } else {
@@ -69,6 +71,7 @@ public class WorkflowManagementService {
     versionedWorkflow.setDeploymentId(optionalDeployId.orElse(null));
     versionedWorkflow.setSwadl(swadlView.getSwadl());
     versionedWorkflow.setDescription(swadlView.getDescription());
+    versionedWorkflow.setUserId(swadlView.getAuthor());
     versionedWorkflow.setPublished(workflow.isToPublish());
     versionedWorkflow.setActive(optionalDeployId.isPresent() ? true : null);
     versionedWorkflow.setDeploymentId(optionalDeployId.orElse(null));

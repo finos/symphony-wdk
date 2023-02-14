@@ -36,7 +36,12 @@
 									"key": "description",
 									"value": "Added new activity",
 									"type": "text"
-								}
+								},
+                                {
+                                    "key": "author",
+                                    "value": "123456",
+                                    "type": "text"
+                                }
 							]
 						},
 						"url": {
