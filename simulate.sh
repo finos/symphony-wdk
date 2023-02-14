@@ -7,7 +7,7 @@ do
     esac
 done
 
-if [ -z "$NB_WORKFLOWS" ] || [ -z "$NB_PROC_PER_WORKFLOW" ] || [ -z "NB_ACTIVITIES_PER_WORKFLOW" ]
+if [ -z "$NB_WORKFLOWS" ] || [ -z "$NB_PROC_PER_WORKFLOW" ] || [ -z "$NB_ACTIVITIES_PER_WORKFLOW" ]
 then
   echo "WRONG INPUT. THE EXPECTED FORMAT IS:"
   echo "./simulate.sh -w {NB_WORKFLOWS_TO_DEPLOY} -p {NB_PROCESSES_PER_WORKFLOW} -a {NB_ACTIVITIES_PER_WORKFLOW}"
