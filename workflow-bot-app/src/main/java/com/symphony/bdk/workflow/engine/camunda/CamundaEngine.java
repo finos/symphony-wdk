@@ -1,7 +1,6 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
-import static com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService.ACTIVE_WORKFLOW_DIRECTED_GRAPH;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -13,8 +12,6 @@ import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.swadl.exception.UniqueIdViolationException;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.event.RequestReceivedEvent;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
@@ -23,12 +20,15 @@ import org.camunda.bpm.model.xml.ModelValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService.ACTIVE_WORKFLOW_DIRECTED_GRAPH;
 
 @Slf4j
 @Component
@@ -103,6 +103,8 @@ public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowCo
       throw new UnauthorizedException("Request is not authorised");
     }
 
+    StopWatch watch = new StopWatch();
+    watch.start();
     // dispatch event
     try {
       RealTimeEvent<RequestReceivedEvent> event = toRealTimeEvent(parameters, processDefinition.getName());
@@ -111,6 +113,9 @@ public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowCo
     } catch (Exception e) {
       log.debug("Failed to parse MessageML, should not happen", e);
       throw new RuntimeException(e);
+    } finally {
+      watch.stop();
+      log.info("[CamundaEngine] - RequestReceived event dispatch took {}s", watch.getTotalTimeSeconds());
     }
   }
 

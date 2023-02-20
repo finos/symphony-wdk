@@ -29,6 +29,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +88,9 @@ public class CamundaExecutor implements JavaDelegate {
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void execute(DelegateExecution execution) throws Exception {
+    StopWatch watch = new StopWatch();
+    watch.start();
+
     Class<?> implClass = Class.forName((String) execution.getVariable(EXECUTOR));
 
     ActivityExecutor<?> executor;
@@ -122,6 +126,8 @@ public class CamundaExecutor implements JavaDelegate {
       throw new BpmnError("FAILURE", e);
     } finally {
       clearMdc();
+      watch.stop();
+      log.info("[CamundaExecutor] - Execution took {}s", watch.getTotalTimeSeconds());
     }
   }
 

@@ -9,7 +9,6 @@ import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import com.symphony.bdk.workflow.security.Authorized;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +34,33 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
   public ResponseEntity<Double> saveAndDeploySwadl(String token, SwadlView swadlView) {
+    /*MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    System.out.println(String.format("[Before] Initial memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getInit() /1073741824));
+    System.out.println(String.format("[Before] Used heap memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getUsed() /1073741824));
+    System.out.println(String.format("[Before] Max heap memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getMax() /1073741824));
+    System.out.println(String.format("[Before] Committed memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getCommitted() /1073741824));
+*/
+
     StopWatch watch = new StopWatch();
     watch.start();
     workflowManagementService.deploy(swadlView);
     watch.stop();
-    System.out.println("Deployed in " + watch.getTotalTimeSeconds());
+
+    /*memoryMXBean = ManagementFactory.getMemoryMXBean();
+    System.out.println(String.format("[After] Initial memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getInit() /1073741824));
+    System.out.println(String.format("[After] Used heap memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getUsed() /1073741824));
+    System.out.println(String.format("[After] Max heap memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getMax() /1073741824));
+    System.out.println(String.format("[After] Committed memory: %.2f GB",
+            (double)memoryMXBean.getHeapMemoryUsage().getCommitted() /1073741824));
+
+    System.out.println("Deployed in " + watch.getTotalTimeSeconds());*/
     return ResponseEntity.ok(watch.getTotalTimeSeconds());
   }
 
