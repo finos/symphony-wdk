@@ -241,8 +241,6 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   void listWorkflowInstances_completedStatusFilter() throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-3.swadl.yaml"));
-    long version = Instant.now().toEpochMilli();
-    workflow.setVersion(version);
 
     engine.undeployByWorkflowId(workflow.getId()); // clean any old running instance
     engine.deploy(workflow);
@@ -260,7 +258,6 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .assertThat()
         .statusCode(HttpStatus.OK.value())
         .body("[0].id", equalTo("testingWorkflow3"))
-        .body("[0].version", equalTo(version))
         .body("[0].status", equalTo("COMPLETED"))
         .body("[0].instanceId", not(isEmptyString()))
         .body("[0].startDate", not(isEmptyString()))

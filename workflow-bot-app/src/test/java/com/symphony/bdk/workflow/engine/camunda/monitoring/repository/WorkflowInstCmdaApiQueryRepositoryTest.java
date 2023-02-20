@@ -39,6 +39,44 @@ class WorkflowInstCmdaApiQueryRepositoryTest {
   @InjectMocks WorkflowInstCmdaApiQueryRepository queryRepository;
 
   @Test
+  void findAllById() {
+    // given
+    HistoricProcessInstance instance1 = mock(HistoricProcessInstance.class);
+    HistoricProcessInstance instance2 = mock(HistoricProcessInstance.class);
+    QueryMocks.mockHistoricProcessInstanceQuery(historyService).list(List.of(instance1, instance2));
+    ProcessDefinition definition1 = mock(ProcessDefinition.class);
+    ProcessDefinition definition2 = mock(ProcessDefinition.class);
+    QueryMocks.mockProcessDefinitionQuery(repositoryService).list(List.of(definition1, definition2));
+
+    WorkflowInstanceDomain domain1 = WorkflowInstanceDomain.builder()
+        .name("workflow")
+        .status("active")
+        .version(1L)
+        .startDate(Instant.now())
+        .endDate(Instant.now())
+        .instanceId("inst-id1")
+        .duration(Duration.ofMillis(5000))
+        .id("id1")
+        .build();
+    WorkflowInstanceDomain domain2 = WorkflowInstanceDomain.builder()
+        .name("workflow")
+        .status("pending")
+        .version(1L)
+        .startDate(Instant.now())
+        .instanceId("inst-id2")
+        .id("id2")
+        .build();
+    when(objectConverter.convertCollection(anyList(), eq(WorkflowInstanceDomain.class))).thenReturn(
+        List.of(domain1, domain2));
+
+    // when
+    List<WorkflowInstanceDomain> all = queryRepository.findAllById("workflow");
+
+    // given
+    assertThat(all).hasSize(2);
+  }
+
+  @Test
   void findAllByIdAndVersion() {
     // given
     HistoricProcessInstance instance1 = mock(HistoricProcessInstance.class);
@@ -91,7 +129,37 @@ class WorkflowInstCmdaApiQueryRepositoryTest {
 
   @ParameterizedTest()
   @MethodSource("instanceStatus")
-  void findAllByIdWithStatusAndVersion(StatusEnum status) {
+  void findAllByIdWithStatus(StatusEnum status) {
+    // given
+    HistoricProcessInstance instance1 = mock(HistoricProcessInstance.class);
+    HistoricProcessInstance instance2 = mock(HistoricProcessInstance.class);
+    QueryMocks.mockHistoricProcessInstanceQuery(historyService).list(List.of(instance1, instance2));
+    ProcessDefinition definition1 = mock(ProcessDefinition.class);
+    ProcessDefinition definition2 = mock(ProcessDefinition.class);
+    QueryMocks.mockProcessDefinitionQuery(repositoryService).list(List.of(definition1, definition2));
+
+    WorkflowInstanceDomain domain1 = WorkflowInstanceDomain.builder()
+        .name("workflow")
+        .status("active")
+        .startDate(Instant.now())
+        .endDate(Instant.now())
+        .instanceId("inst-id1")
+        .duration(Duration.ofMillis(5000))
+        .id("id1")
+        .build();
+
+    when(objectConverter.convertCollection(anyList(), eq(WorkflowInstanceDomain.class))).thenReturn(
+        List.of(domain1));
+
+    // when
+    List<WorkflowInstanceDomain> all = queryRepository.findAllByIdAndStatus("workflow", status);
+
+    // given
+    assertThat(all).hasSize(1);
+  }
+
+  @Test
+  void findAllByIdWithStatusAndVersion() {
     // given
     HistoricProcessInstance instance1 = mock(HistoricProcessInstance.class);
     HistoricProcessInstance instance2 = mock(HistoricProcessInstance.class);
@@ -118,7 +186,8 @@ class WorkflowInstCmdaApiQueryRepositoryTest {
         List.of(domain1));
 
     // when
-    List<WorkflowInstanceDomain> all = queryRepository.findAllByIdAndStatus("workflow", status);
+    List<WorkflowInstanceDomain> all =
+        queryRepository.findAllByIdAndStatusAndVersion("workflow", StatusEnum.PENDING, "1");
 
     // given
     assertThat(all).hasSize(1);

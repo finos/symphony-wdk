@@ -71,7 +71,6 @@ public class WorkflowManagementServiceTest {
   void testDeploy_existingActiveVersion_updateOldInsertNew() {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
     CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
-    when(context.getWorkflow()).thenReturn(workflow);
     when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
     when(camundaEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn("id");
     VersionedWorkflow activeVersion = new VersionedWorkflow();
@@ -104,7 +103,6 @@ public class WorkflowManagementServiceTest {
   void testDeploy_noActiveVersion_insertNew() {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
     CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
-    when(context.getWorkflow()).thenReturn(workflow);
     when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
     when(camundaEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn("id");
     when(versionRepository.save(any(VersionedWorkflow.class))).thenReturn(null);
@@ -242,7 +240,7 @@ public class WorkflowManagementServiceTest {
     when(versionRepository.findByWorkflowIdAndVersion(anyString(), anyLong())).thenReturn(
         Optional.of(versionedWorkflow));
     when(versionRepository.findByWorkflowIdAndActiveTrue(anyString())).thenReturn(Optional.of(activeWorkflow));
-    when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
+    when(conveter.convert(anyString(), eq(1674651222294886L), eq(Workflow.class))).thenReturn(workflow);
     String deploymentId = "ABC";
     when(camundaEngine.deploy(any(Workflow.class))).thenReturn(deploymentId);
     when(versionRepository.save(any())).thenReturn(versionedWorkflow);

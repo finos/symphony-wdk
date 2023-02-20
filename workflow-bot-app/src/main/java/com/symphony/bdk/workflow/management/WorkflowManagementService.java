@@ -35,32 +35,22 @@ public class WorkflowManagementService {
   public void deploy(SwadlView swadlView) {
     Workflow workflow = objectConverter.convert(swadlView.getSwadl(), Workflow.class);
     CamundaTranslatedWorkflowContext context = workflowEngine.translate(workflow);
-
-    versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId())
-        .ifPresent(wf -> {
-          throw new IllegalArgumentException(
-              String.format("Version %s of workflow has not been published yet.", wf.getVersion()));
-        });
-
+    throwExceptionIfUnPublishedVersionExists(workflow);
+    String deploy = null;
     if (workflow.isToPublish()) {
-      publishWorkflow(swadlView, context);
-    } else {
-      VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, null);
-      versionRepository.save(versionedWorkflow);
+      deploy = workflowEngine.deploy(context);
+      setCurrentActiveVersionToInactive(workflow.getId());
     }
+    VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, deploy);
+    versionRepository.save(versionedWorkflow);
   }
 
-  private void publishWorkflow(SwadlView swadlView, CamundaTranslatedWorkflowContext context) {
-    String deploy = workflowEngine.deploy(context);
-    Workflow workflow = context.getWorkflow();
-    VersionedWorkflow versionedWorkflow = toVersionedWorkflow(workflow, swadlView, deploy);
-    Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndActiveTrue(workflow.getId());
-    if (activeVersion.isPresent()) {
-      VersionedWorkflow activeWorkflow = activeVersion.get();
-      activeWorkflow.setActive(null);
-      versionRepository.saveAndFlush(activeWorkflow);
-    }
-    versionRepository.save(versionedWorkflow);
+  private void throwExceptionIfUnPublishedVersionExists(Workflow workflow) {
+    Optional<VersionedWorkflow> notPublished = versionRepository.findByWorkflowIdAndPublishedFalse(workflow.getId());
+    notPublished.ifPresent(wf -> {
+      throw new IllegalArgumentException(
+          String.format("Version %s of workflow has not been published yet.", wf.getVersion()));
+    });
   }
 
   private VersionedWorkflow toVersionedWorkflow(Workflow workflow, SwadlView swadlView, String deploymentId) {
@@ -80,18 +70,29 @@ public class WorkflowManagementService {
 
   public void update(SwadlView swadlView) {
     Workflow workflow = objectConverter.convert(swadlView.getSwadl(), Workflow.class);
-    VersionedWorkflow versionedWorkflow = readAndValidate(workflow);
     CamundaTranslatedWorkflowContext context = workflowEngine.translate(workflow);
+
+    VersionedWorkflow versionedWorkflow = readAndValidate(workflow);
     versionedWorkflow.setVersion(workflow.getVersion());
     versionedWorkflow.setSwadl(swadlView.getSwadl());
     versionedWorkflow.setDescription(swadlView.getDescription());
     versionedWorkflow.setPublished(workflow.isToPublish());
+
     if (workflow.isToPublish()) {
       String deploy = workflowEngine.deploy(context);
+      setCurrentActiveVersionToInactive(workflow.getId());
       versionedWorkflow.setDeploymentId(deploy);
       versionedWorkflow.setActive(true);
     }
     versionRepository.save(versionedWorkflow);
+  }
+
+  private void setCurrentActiveVersionToInactive(String workflow) {
+    Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndActiveTrue(workflow);
+    activeVersion.ifPresent(activeWorkflow -> {
+      activeWorkflow.setActive(null);
+      versionRepository.saveAndFlush(activeWorkflow);
+    });
   }
 
   public List<VersionedWorkflowView> get(String id) {
@@ -138,6 +139,16 @@ public class WorkflowManagementService {
   }
 
   public void setActiveVersion(String workflowId, Long version) {
+    VersionedWorkflow deployedWorkflow = validateWorkflowVersion(workflowId, version);
+    Workflow workflowToDeploy = objectConverter.convert(deployedWorkflow.getSwadl(), version, Workflow.class);
+    String deploymentId = workflowEngine.deploy(workflowToDeploy);
+    setCurrentActiveVersionToInactive(workflowId);
+    deployedWorkflow.setDeploymentId(deploymentId);
+    deployedWorkflow.setActive(true);
+    versionRepository.save(deployedWorkflow);
+  }
+
+  private VersionedWorkflow validateWorkflowVersion(String workflowId, Long version) {
     Optional<VersionedWorkflow> optionalDeployed = versionRepository.findByWorkflowIdAndVersion(workflowId, version);
     if (optionalDeployed.isEmpty()) {
       throw new NotFoundException(String.format("Version %s of the workflow %s does not exist.", version, workflowId));
@@ -148,17 +159,6 @@ public class WorkflowManagementService {
       throw new IllegalArgumentException(
           String.format("Version %s of the workflow %s is in draft mode.", version, workflowId));
     }
-
-    Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndActiveTrue(workflowId);
-    activeVersion.ifPresent(versionedWorkflow -> {
-      versionedWorkflow.setActive(null);
-      versionRepository.saveAndFlush(versionedWorkflow);
-    });
-
-    Workflow workflowToDeploy = objectConverter.convert(deployedWorkflow.getSwadl(), Workflow.class);
-    String deploymentId = workflowEngine.deploy(workflowToDeploy);
-    deployedWorkflow.setDeploymentId(deploymentId);
-    deployedWorkflow.setActive(true);
-    versionRepository.save(deployedWorkflow);
+    return deployedWorkflow;
   }
 }

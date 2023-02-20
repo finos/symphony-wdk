@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
 
-class WorkflowInstanceDomainConverterTest {
+class WorkflowInstDomainVersionConverterTest {
 
   @ParameterizedTest
   @CsvSource({"PENDING, PENDING, ", "COMPLETED, COMPLETED, endEvent", "COMPLETED, FAILED, notEndEvent", "UNKNOWN,,"})
@@ -34,7 +34,7 @@ class WorkflowInstanceDomainConverterTest {
     entity.setDurationInMillis(duration.toMillis());
 
     // when
-    WorkflowInstanceDomainConverter converter = new WorkflowInstanceDomainConverter();
+    WorkflowInstDomainVersionConverter converter = new WorkflowInstDomainVersionConverter();
     WorkflowInstanceDomain domain = converter.apply(entity, Map.of("definition-id4", "1674651222294886"));
 
     // then
