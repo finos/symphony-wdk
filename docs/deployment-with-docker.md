@@ -59,7 +59,8 @@ Run Symphony WDK docker image with the shared folder as a volume. You can also s
 
 For example, if `PROFILE=prod` is used, then `application-prod.yml` will be used if found in the shared folder. Otherwise, if `./symphony/application.yml` exists, it will be used instead.
 
-`PROFILE` environment variable is optional. 
+`PROFILE` environment variable is optional with default value `default`.
+`VOLUME` environment variable is optional with default value `./symphony`.
 ```shell
 docker run -v $(pwd)/my_folder:/symphony -e VOLUME=symphony -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
 ```
