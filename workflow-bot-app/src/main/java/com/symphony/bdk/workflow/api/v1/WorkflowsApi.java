@@ -50,7 +50,7 @@ public interface WorkflowsApi {
   @GetMapping("/")
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token);
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token);
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
@@ -60,7 +60,7 @@ public interface WorkflowsApi {
   ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(
       @ApiParam(value = "Workflow's id to list instances", required = true) @PathVariable String workflowId,
       @ApiParam(value = "Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam("Optional query parameter to filter instances by status [Pending | Completed | Failed]")
       @RequestParam(required = false) String status,
       @ApiParam("Optional version parameter to filter instances by version")
@@ -74,7 +74,7 @@ public interface WorkflowsApi {
       @ApiParam(value = "Workflow's id to list instance activities", required = true) @PathVariable String workflowId,
       @ApiParam(value = "Workflow's instance id to list activities", required = true) @PathVariable String instanceId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam(
           value = "Optional query parameter to filter activities having started before the date. "
               + "The date is an ISO 8601 date",
@@ -104,7 +104,7 @@ public interface WorkflowsApi {
   ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(
       @ApiParam(value = "Workflow's id to get activities definitions", required = true) @PathVariable String workflowId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam("Optional version parameter to filter instances by version")
       @RequestParam(required = false) Long version);
 
@@ -118,7 +118,7 @@ public interface WorkflowsApi {
       @ApiParam(value = "Workflow's instance id to list global variables", required = true) @PathVariable
       String instanceId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam(value = "Optional query parameter to filter global variables update occurred before the date. "
           + "The date is an ISO 8601 date", example = "2022-09-21T15:43:24.917Z")
       @RequestParam(required = false, name = "updated_before") Instant updatedBefore,
