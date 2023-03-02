@@ -55,7 +55,7 @@ workflows/	application-prod.yaml	application.yaml	private_key_default.pem		priva
 ```
 
 ### Run Docker image
-Run Symphony WDK docker image with the shared folder as a volume. You can also specify the Spring profile as an environment variable. 
+Run Symphony WDK docker image with the shared folder as a volume. You can also specify the Spring profile and the shared volume path as environment variables. 
 
 For example, if `PROFILE=prod` is used, then `application-prod.yml` will be used if found in the shared folder. Otherwise, if `./symphony/application.yml` exists, it will be used instead.
 
