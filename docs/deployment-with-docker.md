@@ -24,7 +24,7 @@ application-prod.yaml	application.yaml	private_key_default.pem		private_key_prod
 ```
 _note: `application.yml` configuration file should refer to the RSA private key inside container. This also applies to the persistence database `jdbc-url` if file based persistence is enabled._
 
-Example of `application.yml` with folder being mounted in the container at ./symphony/ :
+Example of `application.yml` with folder being mounted in the container at `./symphony/` :
 ```yaml
 wdk:
   workflows:
@@ -61,7 +61,7 @@ For example, if `PROFILE=prod` is used, then `application-prod.yml` will be used
 
 `PROFILE` environment variable is optional. 
 ```shell
-docker run -v $(pwd)/my_folder:/symphony -VOLUME=symphony -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
+docker run -v $(pwd)/my_folder:/symphony -e VOLUME=symphony -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
 ```
 ---
 If Symphony WDK is running with disk based deployment mode, any `*.swadl.yaml` workflow file added to `./symphony/workflows` will be deployed.
