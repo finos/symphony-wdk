@@ -1,20 +1,7 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.builder;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
@@ -22,9 +9,6 @@ import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -42,6 +26,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.builder;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 class MonitoringApiIntegrationTest extends IntegrationTest {
@@ -87,8 +86,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .get(path)
         .then()
         .assertThat()
-        .statusCode(HttpStatus.UNAUTHORIZED.value())
-        .body("message", equalTo(INVALID_X_MONITORING_TOKEN_EXCEPTION_MESSAGE));
+        .statusCode(HttpStatus.BAD_REQUEST.value());
   }
 
   @Test

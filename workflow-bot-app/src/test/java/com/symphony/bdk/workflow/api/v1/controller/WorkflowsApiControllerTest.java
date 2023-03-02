@@ -13,6 +13,7 @@ import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -117,6 +118,7 @@ class WorkflowsApiControllerTest extends ApiTest {
     mockMvc.perform(request(HttpMethod.GET, LIST_WORKFLOWS_PATH))
             .andExpect(status().isBadRequest());
   }
+
   @Test
   void listAllWorkflows() throws Exception {
     WorkflowView workflowView1 = WorkflowView.builder().id("id1")
