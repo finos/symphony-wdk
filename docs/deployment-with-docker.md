@@ -71,5 +71,10 @@ For example, if `PROFILE=prod` is used, then `application-prod.yml` will be used
 ```shell
 docker run -v $(pwd)/symphony:/symphony -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
 ```
+If you want to mount the persistence database in a separate volume, `./data` for example, then create the folder in the same level as `./symphony`, update the `jdbc-url` property accordingly `jdbc-url: jdbc:h2:file:./data/wdk_workflow;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE` and run:
+```shell
+docker run -v $(pwd)/symphony:/symphony -v $(pwd)/data:/data -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
+```
+
 ---
 If Symphony WDK is running with disk based deployment mode, any `*.swadl.yaml` workflow file added to `./symphony/workflows` will be deployed.
