@@ -41,6 +41,13 @@ jobs:
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
           ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publish closeAndReleaseRepository
 
+      - name: Upload fatJar artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          path: workflow-bot-app/build/libs/**
+          if-no-files-found: error
+          retention-days: 1
+
   build-and-push-image:
     name: "Push Docker Image"
     needs: build
@@ -49,6 +56,14 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Upload fatJar artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: .
+
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
