@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wdk-test-config
+data:
+  application-prod.yaml: |
+    # WDK configuration
+    wdk:
+      #workflows:
+        #path: ""
+      properties:
+        monitoring-token:  # The default value is an empty String
+        management-token:  # The default value is an empty String
+        schedule:
+          pool-size: 20
+    
+    # BDK configuration
+    bdk:
+      host:
+      bot:
+        username:
+        privateKey:
+          path: /data/symphony/rsa/
+    
+    # Camunda configuration
+    camunda:
+      bpm:
+        # Job execution is configured to pick up expired/scheduled activities quickly
+        job-execution:
+          wait-time-in-millis: 1000
+          max-wait: 1000
+        # Remove WARN logs at startup (we are not using this feature but our own watcher)
+        deployment-resource-pattern:
+        generic-properties:
+          properties:
+            # Avoid requests to the outside world
+            telemetryReporterActivate: false
+        # Upon failures, do not retry, this is left to the workflow's developer to control
+        default-number-of-retries: 1
+    
+    # Spring boot configuration
+    spring:
+      datasource:
+        wdk:
+          username: 
+          password: 
+          driver-class-name: org.h2.Driver
+          jdbc-url: 
+        camunda:
+          username: 
+          password: 
+          driver-class-name: org.h2.Driver
+          jdbc-url: 
+      jpa:
+        show-sql: true
+        hibernate:
+          ddl-auto: update
+    
+      mvc:
+        pathmatch:
+          matching-strategy: ant_path_matcher
+    
+      main:
+        banner-mode: off
+        # To completely disable listening to an HTTP port
+        # web-application-type: none
+      groovy:
+        template:
+          # Avoid warning log during startup
+          check-template-location: false
+    
+    # Server Configuration, listen on port 8080 by default
+    server:
+      servlet:
+        contextPath: /wdk
+    
+    logging:
+      file:
+        name: simulation-logs.log
+      pattern:
+        file: "%d{yyyy-MM-dd'T'HH:mm:ss,SSS}Z %-5level [%t] %C{-15}: %m proc.id=%mdc{X-PROCESS-ID} act.id=%mdc{X-ACTIVITY-ID} %n%xEx"
+        console: "%d{yyyy-MM-dd'T'HH:mm:ss,SSS}Z %-5level [%t] %C{-15}: %m proc.id=%mdc{X-PROCESS-ID} act.id=%mdc{X-ACTIVITY-ID} %n%xEx"
+      level:
+        com.symphony: DEBUG
+        # Troubleshoot Camunda by setting lower log level
+        org.camunda.bpm.engine.bpmn.parser: WARN
+        org.camunda.bpm.engine.bpmn.behavior: WARN
+        org.camunda.bpm.engine.dmn: WARN
+        org.camunda.bpm.engine.pvm: WARN
+        org.camunda.bpm.dmn.feel: WARN
+        org.camunda.bpm.engine.script: WARN
+        org.camunda.bpm: OFF
+        # Audit trail can be disabled with WARN level
+        #audit-trail: WARN
+        # Disable BPMN image generation
+        com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: INFO
+    
+    # Actuator endpoint is enabled by default on port 8081
+    management:
+      health:
+        camunda:
+          enabled: true
+      endpoints:
+        web:
+          exposure:
+            include: "*"
+      server:
+        port: 8081
+    
+      springfox:
+        documentation:
+          auto-startup: false

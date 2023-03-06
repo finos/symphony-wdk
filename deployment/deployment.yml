@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wdk-test
+  name: wdk-test
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: wdk-test
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: wdk-test
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: wdk-test-keys
+          image: ghcr.io/symphonyplatformsolutions/wdk-bot:1.5.0-snapshot
+          imagePullPolicy: IfNotPresent
+            #livenessProbe:
+            #failureThreshold: 3
+            #httpGet:
+            #path: /wdk/health
+            #port: 8080
+            #scheme: HTTP
+            #initialDelaySeconds: 30
+            #periodSeconds: 30
+            #successThreshold: 1
+          #timeoutSeconds: 10
+          name: wdk
+          ports:
+            - containerPort: 8080
+              name: wdk
+              protocol: TCP
+                #readinessProbe:
+                #failureThreshold: 3
+                #httpGet:
+                #path: /wdk/health
+                #port: 8080
+              #scheme: HTTP
+              #initialDelaySeconds: 30
+              #periodSeconds: 30
+              #successThreshold: 1
+              #timeoutSeconds: 5
+          #resources:
+          #  limits:
+          #    cpu: 70m
+          #    memory: 1024Mi
+          #  requests:
+          #    cpu: 50m
+          #    memory: 512Mi
+          volumeMounts:
+            - mountPath: /data/symphony/rsa
+              name: keys
+            - mountPath: /data/symphony/data
+              name: data
+            - mountPath: /data/symphony/application-prod.yaml
+              name: config
+              subPath: application-prod.yaml
+      volumes:
+        - configMap:
+            name: wdk-test-config
+          name: config
+        - name: data
+          persistentVolumeClaim:
+            claimName: wdk-test-data-pvc
+        - name: keys
+          secret:
+            secretName: wdk-test-keys
