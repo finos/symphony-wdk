@@ -29,7 +29,7 @@ jobs:
           arguments: bootJar
 
       - name: Log in to the Container registry
-        uses: docker/login-action@ec9cdf07d570632daeb912f5b2099cb9ec1d01e6
+        uses: docker/login-action
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -37,12 +37,12 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@3343011071fa59c64a174cc6aa415dc13b31b7b2
+        uses: docker/metadata-action
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@35434f557ad77672899d67f7992fb5560bda1071
+        uses: docker/build-push-action
         with:
           context: .
           push: true
