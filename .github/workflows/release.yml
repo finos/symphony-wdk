@@ -6,6 +6,10 @@ on:
   release:
     types: [ published ]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     name: "Release"
@@ -37,6 +41,37 @@ jobs:
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
           ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publish closeAndReleaseRepository
 
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      #- name: Build bootJar
+      #  uses: gradle/gradle-build-action@v2
+      #  with:
+      #    arguments: bootJar
+
+      - name: Log in to the Container registry
+        uses: docker/login-action
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.
