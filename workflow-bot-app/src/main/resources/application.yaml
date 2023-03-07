@@ -41,13 +41,13 @@ camunda:
 spring:
   datasource:
     wdk:
-      username:
-      password:
+      username: sa
+      password: sa
       driver-class-name: org.h2.Driver
       jdbc-url: jdbc:h2:mem:wdk_workflow;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     camunda:
-      username:
-      password:
+      username: sa
+      password: sa
       driver-class-name: org.h2.Driver
       jdbc-url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
   jpa:
