@@ -1,5 +1,5 @@
 FROM openjdk:11-slim-buster AS builder
-COPY workflow-bot-app/build/libs/*.jar wdk.jar
+COPY artifact/*.jar wdk.jar
 
 # Create custom JRE
 RUN mkdir custom
