@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.OboServices;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -50,7 +44,6 @@ import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.restassured.RestAssured;
 import org.camunda.bpm.engine.HistoryService;
@@ -79,6 +72,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {"wdk.properties.management-token=myToken", "wdk.workflows.path=./"})
 @ActiveProfiles("test")
@@ -87,7 +86,7 @@ import java.util.stream.Collectors;
 public abstract class IntegrationTest {
 
   @LocalServerPort
-  private int port;
+  protected int port;
 
   @Autowired
   WorkflowEngine engine;
