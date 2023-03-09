@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.persistence.OptimisticLockException;
 
-
 @Component
 @ControllerAdvice
 @Slf4j

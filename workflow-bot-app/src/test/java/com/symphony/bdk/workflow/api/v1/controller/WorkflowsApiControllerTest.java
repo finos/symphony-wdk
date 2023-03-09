@@ -1,18 +1,5 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
@@ -38,6 +25,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class WorkflowsApiControllerTest extends ApiTest {
 
@@ -114,6 +114,12 @@ class WorkflowsApiControllerTest extends ApiTest {
   }
 
   @Test
+  void listAllWorkflows_noTokenProvidedTest() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET, LIST_WORKFLOWS_PATH))
+            .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void listAllWorkflows() throws Exception {
     WorkflowView workflowView1 = WorkflowView.builder().id("id1")
         .version(1L)
@@ -162,6 +168,12 @@ class WorkflowsApiControllerTest extends ApiTest {
         .andExpect(jsonPath("[1].status").value("PENDING"))
         .andExpect(jsonPath("[1].startDate").isNotEmpty())
         .andExpect(jsonPath("[1].endDate").isNotEmpty());
+  }
+
+  @Test
+  void listWorkflowInstances_noTokenProvidedTest() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,  String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId")))
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -255,6 +267,13 @@ class WorkflowsApiControllerTest extends ApiTest {
         .andExpect(jsonPath("nodes[0].outputs[\"c\"]").value("d"));
   }
 
+  @Test
+  void listWorkflowInstanceStates_noTokenProvidedTest() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,
+                    String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "workflowId", "instanceId")))
+            .andExpect(status().isBadRequest());
+  }
+
   @ParameterizedTest
   @CsvSource({"?started_before=INVALID_INSTANT", "?started_after=INVALID_INSTANT", "?finished_before=INVALID_INSTANT",
       "?finished_after=INVALID_INSTANT"})
@@ -341,6 +360,12 @@ class WorkflowsApiControllerTest extends ApiTest {
   }
 
   @Test
+  void getWorkflowDefinitions_noTokenProvidedTest() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, "workflowId")))
+            .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void listWorkflowInstanceGlobalVariables() throws Exception {
     final String workflowId = "testWorkflowId";
     final String instanceId = "testInstanceId";
@@ -370,6 +395,13 @@ class WorkflowsApiControllerTest extends ApiTest {
         .andExpect(jsonPath("[1].revision").value(1));
   }
 
+  @Test
+  void listWorkflowInstanceGlobalVariables_noTokenProvidedTest() throws Exception {
+    mockMvc.perform(request(HttpMethod.GET,
+                    String.format(LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH, "workflowId", "instanceId")))
+            .andExpect(status().isBadRequest());
+  }
+
   @ParameterizedTest
   @CsvSource({"?updated_before=INVALID", "?updated_after=INVALID"})
   void listWorkflowInstanceGlobalVariablesBadQueryParameter(String queryParam) throws Exception {
@@ -378,7 +410,6 @@ class WorkflowsApiControllerTest extends ApiTest {
             .header("X-Monitoring-Token", MONITORING_TOKEN_VALUE))
         .andExpect(status().isBadRequest());
   }
-
 
   @Test
   void listWorkflowActivities_illegalArgument() throws Exception {
