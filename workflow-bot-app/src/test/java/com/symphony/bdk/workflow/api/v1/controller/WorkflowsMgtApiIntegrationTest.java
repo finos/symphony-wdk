@@ -27,10 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WorkflowsMgtApiIntegrationTest extends IntegrationTest {
-
-  @Autowired
-  private TestRestTemplate restTemplate;
-
   private static final String VALID_SWADL_V1 = "id: dummy-workflow\n" +
           "properties: \n" +
           "  publish: false\n" +
@@ -72,7 +68,6 @@ class WorkflowsMgtApiIntegrationTest extends IntegrationTest {
   private static final String CONTENT_TYPE_KEY = "Content-Type";
   private static final String VALIDATE_AND_DEPLOY_URL = "http://localhost:%s/wdk/v1/management/workflows";
   private static final String VALIDATE_AND_UPDATE_URL = "http://localhost:%s/wdk/v1/management/workflows";
-
   private static final String SET_ACTIVE_VERSION_URL = "http://localhost:%s/wdk/v1/management/workflows/%s/versions/%s";
   private static final String GET_SWADL_BY_ID_URL = "http://localhost:%s/wdk/v1/management/workflows/%s";
   private static final String DELETE_SWADL_BY_ID_URL =
@@ -80,6 +75,9 @@ class WorkflowsMgtApiIntegrationTest extends IntegrationTest {
   private static final String DELETE_SWADL_BY_ID_AND_VERSION_URL =
           "http://localhost:%s/wdk/v1/management/workflows/%s/versions/%s";
   private static final String LIST_ALL_DEPLOYED_WORKFLOWS_URL = "http://localhost:%s/wdk/v1/workflows/";
+
+  @Autowired
+  private TestRestTemplate restTemplate;
 
   @Test
   void updateAndRollbackWorkflowIntegrationTest() {

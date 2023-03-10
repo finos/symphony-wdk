@@ -89,7 +89,7 @@ public abstract class IntegrationTest {
   protected int port;
 
   @Autowired
-  protected WorkflowEngine engine;
+  WorkflowEngine engine;
 
   @Autowired
   ResourceProvider resourceProvider;
@@ -126,7 +126,7 @@ public abstract class IntegrationTest {
   StreamService streamService;
 
   @MockBean(name = "messageService")
-  protected MessageService messageService;
+  MessageService messageService;
 
   @MockBean(name = "userService")
   UserService userService;
