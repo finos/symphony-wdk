@@ -3,9 +3,6 @@ COPY artifact/*.jar wdk.jar
 
 # Create custom JRE
 RUN mkdir custom
-
-RUN jar -xf wdk.jar
-
 RUN jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules java.base,java.scripting,java.sql,jdk.unsupported,java.se,jdk.crypto.ec --output custom/jre
 
 FROM alpine:3.11
