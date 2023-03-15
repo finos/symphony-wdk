@@ -1,24 +1,38 @@
 package com.symphony.bdk.workflow.api.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 
 @Data
-@Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class NodeView {
-  private String workflowId;
-  private String instanceId;
   private String nodeId;
   private String type;
   private String group;
-  private Instant startDate;
-  private Instant endDate;
-  private Duration duration;
-  private Map<String, Object> outputs;
+  private List<String> parents;
+  private List<ChildView> children;
+
+  @AllArgsConstructor(staticName = "of")
+  @NoArgsConstructor
+  @Data
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public static class ChildView {
+    private String nodeId;
+    private String condition;
+
+    public ChildView(String nodeId) {
+      this.nodeId = nodeId;
+    }
+
+    public static ChildView of(String nodeId) {
+      return new ChildView(nodeId);
+    }
+  }
 }

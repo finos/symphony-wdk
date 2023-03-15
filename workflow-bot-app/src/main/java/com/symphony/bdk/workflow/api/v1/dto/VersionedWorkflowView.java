@@ -30,7 +30,9 @@ public class VersionedWorkflowView {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Long createdBy;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String swadl;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String description;
 }

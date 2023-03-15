@@ -10,7 +10,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.symphony.bdk.core.auth.jwt.UserClaim;
@@ -20,202 +23,255 @@ import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@DisplayName("Test workflow management api")
 class WorkflowsMgtApiControllerTest extends ApiTest {
 
-  private static final String URL = "/v1/management/workflows";
+  private static final String URL = "/v1/workflows";
 
-  @Test
-  void test_managementRequests_deploy() throws Exception {
-    doNothing().when(workflowManagementService).deploy(any(SwadlView.class));
 
-    mockMvc.perform(request(HttpMethod.POST, URL)
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-            .param("swadl", "content")
-            .param("description", "description"))
-        .andExpect(status().isNoContent());
+  @Nested
+  @DisplayName("Deployment api")
+  class Deployment {
+    @Test
+    @DisplayName("Save deployment")
+    void testDeploy() throws Exception {
+      doNothing().when(workflowManagementService).deploy(any(SwadlView.class));
 
-    verify(workflowManagementService).deploy(any(SwadlView.class));
+      mockMvc.perform(post(URL).header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+          .param("swadl", "content")
+          .param("description", "description")).andExpect(status().isNoContent());
+
+      verify(workflowManagementService).deploy(any(SwadlView.class));
+    }
+
+    @Test
+    @DisplayName("Deploy workflow request with owner")
+    void test_deployRequests_withOwner() throws Exception {
+      doNothing().when(workflowManagementService).deploy(any(SwadlView.class));
+      UserClaim user = mock(UserClaim.class);
+      when(user.getId()).thenReturn(12345L);
+      mockMvc.perform(post(URL)
+              .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+              .requestAttr("user", user)
+              .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+              .param("swadl", "content")
+              .param("description", "description"))
+          .andExpect(status().isNoContent());
+
+      ArgumentCaptor<SwadlView> captor = ArgumentCaptor.forClass(SwadlView.class);
+      verify(workflowManagementService).deploy(captor.capture());
+      assertThat(captor.getValue().getCreatedBy()).isEqualTo(12345);
+    }
+
+    @Test
+    @DisplayName("Update deployment")
+    void testUpdate() throws Exception {
+      doNothing().when(workflowManagementService).update(any(SwadlView.class));
+
+      mockMvc.perform(put(URL).header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+          .param("swadl", "content")
+          .param("description", "description")).andExpect(status().isNoContent());
+
+      verify(workflowManagementService).update(any(SwadlView.class));
+    }
+
+    @Test
+    @DisplayName("Missing token bad request")
+    void test_missingToken_badRequest() throws Exception {
+      mockMvc.perform(post(URL).contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+          .param("swadl", "content")
+          .param("description", "description")).andExpect(status().isBadRequest());
+    }
   }
 
-  @Test
-  @DisplayName("Deploy workflow request with owner")
-  void test_deployRequests_withOwner() throws Exception {
-    doNothing().when(workflowManagementService).deploy(any(SwadlView.class));
-    UserClaim user = mock(UserClaim.class);
-    when(user.getId()).thenReturn(12345L);
-    mockMvc.perform(request(HttpMethod.POST, URL)
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .requestAttr("user", user)
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-            .param("swadl", "content")
-            .param("description", "description"))
-        .andExpect(status().isNoContent());
 
-    ArgumentCaptor<SwadlView> captor = ArgumentCaptor.forClass(SwadlView.class);
-    verify(workflowManagementService).deploy(captor.capture());
-    assertThat(captor.getValue().getCreatedBy()).isEqualTo(12345);
+  @Nested
+  @DisplayName("Get workflows")
+  class GetMethods {
+    String getUri = URL + "/{workflowId}";
+
+    @Test
+    @DisplayName("Get active version")
+    void testGetActiveVersion() throws Exception {
+      when(workflowManagementService.get(anyString())).thenReturn(Optional.of(VersionedWorkflowView.builder().build()));
+
+      mockMvc.perform(get(getUri, "id").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
+          .andExpect(status().isOk());
+
+      verify(workflowManagementService).get(anyString());
+    }
+
+    @Test
+    @DisplayName("Get not found version")
+    void testGetNotFoundVersion() throws Exception {
+      when(workflowManagementService.get(anyString(), anyLong())).thenReturn(Optional.empty());
+
+      mockMvc.perform(get(getUri, "/wfId").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .queryParam("version", "1674651222294886")).andExpect(status().isOk());
+
+      verify(workflowManagementService).get(eq("wfId"), eq(1674651222294886L));
+    }
+
+    @Test
+    @DisplayName("Get specific version")
+    void testGetSpecificVersion() throws Exception {
+      when(workflowManagementService.get(anyString(), anyLong())).thenReturn(
+          Optional.of(VersionedWorkflowView.builder().build()));
+
+      mockMvc.perform(get(getUri, "/wfId").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .queryParam("version", "1674651222294886")).andExpect(status().isOk());
+
+      verify(workflowManagementService).get(eq("wfId"), eq(1674651222294886L));
+    }
+
+    @Test
+    @DisplayName("Get all versions")
+    void testAllVersions() throws Exception {
+      when(workflowManagementService.getAllVersions(anyString())).thenReturn(
+          List.of(VersionedWorkflowView.builder().build()));
+
+      mockMvc.perform(get(getUri, "/wfId").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .queryParam("all_versions", "true")).andExpect(status().isOk());
+
+      verify(workflowManagementService).getAllVersions(eq("wfId"));
+    }
   }
 
-  @Test
-  void test_managementRequests_update() throws Exception {
-    doNothing().when(workflowManagementService).update(any(SwadlView.class));
 
-    mockMvc.perform(request(HttpMethod.PUT, URL)
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-            .param("swadl", "content")
-            .param("description", "description"))
-        .andExpect(status().isNoContent());
+  @Nested
+  @DisplayName("Delete workflow")
+  class DeleteMethods {
+    String deleteUri = URL + "/{workflowId}";
 
-    verify(workflowManagementService).update(any(SwadlView.class));
+    @Test
+    @DisplayName("by ID")
+    void testDeleteWorkflow() throws Exception {
+      doNothing().when(workflowManagementService).delete(anyString());
+
+      mockMvc.perform(delete(deleteUri, "id").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .contentType("application/json")).andExpect(status().isNoContent());
+
+      verify(workflowManagementService).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("by version")
+    void testDeleteByVersion() throws Exception {
+      doNothing().when(workflowManagementService).delete(anyString(), anyLong());
+
+      mockMvc.perform(delete(deleteUri, "id").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+              .contentType("application/json")
+              .queryParam("version", "1674651222294886"))
+          .andExpect(status().isNoContent());
+
+      verify(workflowManagementService).delete(anyString(), anyLong());
+    }
   }
 
-  @Test
-  void test_managementRequests_get() throws Exception {
-    when(workflowManagementService.get(anyString())).thenReturn(List.of());
 
-    mockMvc.perform(request(HttpMethod.GET, URL + "/id")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
-        .andExpect(status().isOk());
+  @Nested
+  @DisplayName("Test Streaming logs")
+  class StreamLog {
+    String streamLogUri = URL + "/logs";
 
-    verify(workflowManagementService).get(anyString());
+    @Test
+    @DisplayName("Streaming logs missing token")
+    void test_streamingLogs_missingToken_badRequest() throws Exception {
+      mockMvc.perform(get(streamLogUri).contentType("text/plain")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Streaming logs")
+    void test_streamingLogs_returnOk() throws Exception {
+      mockMvc.perform(
+              get(streamLogUri).contentType("text/plain").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
+          .andExpect(status().isOk());
+    }
   }
 
-  @Test
-  void test_managementRequests_delete() throws Exception {
-    doNothing().when(workflowManagementService).delete(anyString());
 
-    mockMvc.perform(request(HttpMethod.DELETE, URL + "/id")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType("text/plain"))
-        .andExpect(status().isNoContent());
+  @Nested
+  @DisplayName("Set active version and expiration time of workflow")
+  class ActiveVersion {
+    String getVersionUri = URL + "/{workflowId}";
 
-    verify(workflowManagementService).delete(anyString());
+    @Test
+    @DisplayName("Set active version successfully")
+    void testActiveVersion() throws Exception {
+      doNothing().when(workflowManagementService).setActiveVersion(anyString(), anyLong());
+
+      mockMvc.perform(put(getVersionUri, "/wfId").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+          .queryParam("version", "1674651222294886")
+          .contentType("application/json")).andExpect(status().isNoContent());
+
+      verify(workflowManagementService).setActiveVersion(eq("wfId"), eq(1674651222294886L));
+    }
+
+    @Test
+    @DisplayName("Set active version and expiration time")
+    void testActiveVersionAndExpiration() throws Exception {
+      doNothing().when(workflowManagementService).setActiveVersion(anyString(), anyLong());
+      final Instant now = Instant.now();
+      doNothing().when(workflowExpirationService).scheduleWorkflowExpiration(eq("wfId"), eq(now));
+
+      mockMvc.perform(put(getVersionUri, "/wfId").header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+              .contentType("application/json")
+              .queryParam("version", "1674651222294886")
+              .queryParam("expiration_date", now.toString()))
+          .andExpect(status().isNoContent());
+
+      verify(workflowManagementService).setActiveVersion(eq("wfId"), eq(1674651222294886L));
+      verify(workflowExpirationService).scheduleWorkflowExpiration(eq("wfId"), eq(now));
+    }
+
+    @Test
+    @DisplayName("Token is missing")
+    void testTokenMissing() throws Exception {
+      mockMvc.perform(put(getVersionUri, "/wfId").contentType("application/json")
+              .queryParam("expiration_date", Instant.now().toString()))
+          .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Workflow not found")
+    void testWorkflowNotFound() throws Exception {
+      final String workflowId = "wfId";
+      final Instant now = Instant.now();
+
+      doThrow(NotFoundException.class).when(workflowExpirationService)
+          .scheduleWorkflowExpiration(eq(workflowId), eq(now));
+
+      mockMvc.perform(put(getVersionUri, workflowId).header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+              .contentType("application/json")
+              .queryParam("expiration_date", now.toString()))
+          .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Schedule workflow expiration successfully")
+    void testScheduleWorkflowExpiration() throws Exception {
+      final String workflowId = "wfId";
+      final Instant now = Instant.now();
+
+      doNothing().when(workflowExpirationService).scheduleWorkflowExpiration(eq(workflowId), eq(now));
+      mockMvc.perform(put(getVersionUri, workflowId).header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
+              .contentType("application/json")
+              .queryParam("expiration_date", now.toString()))
+          .andExpect(status().isNoContent());
+
+      verify(workflowExpirationService).scheduleWorkflowExpiration(eq(workflowId), eq(now));
+    }
   }
 
-  @Test
-  void test_missingToken_badRequest() throws Exception {
-    mockMvc.perform(request(HttpMethod.POST, URL)
-            .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-            .param("swadl", "content")
-            .param("description", "description"))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void test_streamingLogs_missingToken_badRequest() throws Exception {
-    mockMvc.perform(request(HttpMethod.GET, URL + "/logs")
-            .contentType("text/plain"))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void test_streamingLogs_returnOk() throws Exception {
-    mockMvc.perform(request(HttpMethod.GET, URL + "/logs")
-            .contentType("text/plain")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
-        .andExpect(status().isOk());
-  }
-
-  @Test
-  void test_getWorkflowByVersion_notFound() throws Exception {
-    when(workflowManagementService.get(anyString(), anyLong())).thenReturn(Optional.empty());
-
-    mockMvc.perform(request(HttpMethod.GET, URL + "/wfId/versions/1674651222294886")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
-        .andExpect(status().isNotFound());
-
-    verify(workflowManagementService).get(eq("wfId"), eq(1674651222294886L));
-  }
-
-  @Test
-  void test_getWorkflowByVersion_returnOk() throws Exception {
-    when(workflowManagementService.get(anyString(), anyLong())).thenReturn(Optional.of(VersionedWorkflowView.builder()
-        .build()));
-
-    mockMvc.perform(request(HttpMethod.GET, URL + "/wfId/versions/1674651222294886")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
-        .andExpect(status().isOk());
-
-    verify(workflowManagementService).get(eq("wfId"), eq(1674651222294886L));
-  }
-
-  @Test
-  void test_deleteByVersion_delete() throws Exception {
-    doNothing().when(workflowManagementService).delete(anyString(), anyLong());
-
-    mockMvc.perform(request(HttpMethod.DELETE, URL + "/wfId/versions/1674651222294886")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken"))
-        .andExpect(status().isNoContent());
-
-    verify(workflowManagementService).delete(anyString(), anyLong());
-  }
-
-  @Test
-  void test_setActiveVersion_badRequest() throws Exception {
-    mockMvc.perform(request(HttpMethod.POST, URL + "/wfid/versions/1674651222294886")
-            .contentType("text/plain")
-            .content("content"))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void test_setActiveVersion_returnOk() throws Exception {
-    doNothing().when(workflowManagementService).setActiveVersion(anyString(), anyLong());
-
-    mockMvc.perform(request(HttpMethod.POST, URL + "/wfId/versions/1674651222294886")
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType("text/plain"))
-        .andExpect(status().isNoContent());
-
-    verify(workflowManagementService).setActiveVersion(eq("wfId"), eq(1674651222294886L));
-
-  }
-
-  @Test
-  void test_scheduleWorkflowExpiration_badRequest() throws Exception {
-    mockMvc.perform(request(HttpMethod.POST, URL + "/wfid")
-            .contentType("application/json")
-            .content(Instant.now().toString()))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void test_scheduleWorkflowExpiration_exceptionThrown() throws Exception {
-    final String workflowId = "wfId";
-    final Instant now = Instant.now();
-
-    doThrow(NotFoundException.class).when(workflowExpirationService)
-        .scheduleWorkflowExpiration(eq(workflowId), eq(now));
-
-    mockMvc.perform(request(HttpMethod.POST, URL + "/" + workflowId)
-            .contentType("application/json")
-            .content(Instant.now().toString()))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void test_scheduleWorkflowExpiration_returnOk() throws Exception {
-    final String workflowId = "wfId";
-    final Instant now = Instant.now();
-
-    doNothing().when(workflowExpirationService).scheduleWorkflowExpiration(eq(workflowId), eq(now));
-    mockMvc.perform(request(HttpMethod.POST, URL + "/" + workflowId)
-            .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-            .contentType("application/json")
-            .content("\"" + now.toString() + "\""))
-        .andExpect(status().isOk());
-
-    verify(workflowExpirationService).scheduleWorkflowExpiration(eq(workflowId), eq(now));
-  }
 }

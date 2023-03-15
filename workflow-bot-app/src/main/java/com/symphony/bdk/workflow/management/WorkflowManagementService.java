@@ -96,14 +96,19 @@ public class WorkflowManagementService {
     });
   }
 
-  public List<VersionedWorkflowView> get(String id) {
-    List<VersionedWorkflow> workflows = versionRepository.findByWorkflowId(id);
-    return objectConverter.convertCollection(workflows, VersionedWorkflowView.class);
+  public Optional<VersionedWorkflowView> get(String id) {
+    Optional<VersionedWorkflow> activeVersion = versionRepository.findByWorkflowIdAndActiveTrue(id);
+    return activeVersion.map(w -> objectConverter.convert(w, VersionedWorkflowView.class));
   }
 
   public Optional<VersionedWorkflowView> get(String id, Long version) {
     Optional<VersionedWorkflow> versionedWorkflow = versionRepository.findByWorkflowIdAndVersion(id, version);
     return versionedWorkflow.map(w -> objectConverter.convert(w, VersionedWorkflowView.class));
+  }
+
+  public List<VersionedWorkflowView> getAllVersions(String id) {
+    List<VersionedWorkflow> workflows = versionRepository.findByWorkflowId(id);
+    return objectConverter.convertCollection(workflows, VersionedWorkflowView.class);
   }
 
   public void delete(String id) {

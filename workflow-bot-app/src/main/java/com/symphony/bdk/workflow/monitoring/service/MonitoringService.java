@@ -2,13 +2,13 @@ package com.symphony.bdk.workflow.monitoring.service;
 
 import static com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.NodeChildren;
 
-import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeStateView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesStateView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
@@ -81,7 +81,7 @@ public class MonitoringService {
     return objectConverter.convertCollection(allById, WorkflowInstView.class);
   }
 
-  public WorkflowNodesView listWorkflowInstanceNodes(String workflowId, String instanceId,
+  public WorkflowNodesStateView listWorkflowInstanceNodes(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter) {
     // check if the instance belongs to the provided workflow
     WorkflowInstView instance = this.checkIsInstanceOfWorkflow(workflowId, instanceId);
@@ -90,18 +90,18 @@ public class MonitoringService {
         activityQueryRepository.findAllByWorkflowInstanceId(workflowId, instanceId, lifeCycleFilter);
     WorkflowDirectedGraph directGraph = getWorkflowDirectedGraph(workflowId, instance.getVersion());
 
-    List<NodeView> nodes = getNodeViews(activityInstances, directGraph);
+    List<NodeStateView> nodes = getNodeViews(activityInstances, directGraph);
     VariablesDomain globalVariables = this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId,
         ActivityExecutorContext.VARIABLES);
     VariablesDomain error =
         this.variableQueryRepository.findVarsByWorkflowInstanceIdAndVarName(instanceId, ActivityExecutorContext.ERROR);
 
-    return buildWorkflowNodesView(nodes, globalVariables, error);
+    return buildWorkflowNodesStateView(nodes, globalVariables, error);
   }
 
-  private static WorkflowNodesView buildWorkflowNodesView(List<NodeView> nodes, VariablesDomain globalVariables,
-      VariablesDomain error) {
-    WorkflowNodesView result = new WorkflowNodesView();
+  private static WorkflowNodesStateView buildWorkflowNodesStateView(List<NodeStateView> nodes,
+      VariablesDomain globalVariables, VariablesDomain error) {
+    WorkflowNodesStateView result = new WorkflowNodesStateView();
     result.setNodes(nodes.stream().filter(a -> a.getType() != null).collect(Collectors.toList()));
     result.setGlobalVariables(new VariableView(globalVariables));
     if (!error.getOutputs().isEmpty()) {
@@ -110,9 +110,9 @@ public class MonitoringService {
     return result;
   }
 
-  private List<NodeView> getNodeViews(List<ActivityInstanceDomain> activityInstances,
+  private List<NodeStateView> getNodeViews(List<ActivityInstanceDomain> activityInstances,
       WorkflowDirectedGraph directGraph) {
-    List<NodeView> nodes = objectConverter.convertCollection(activityInstances, NodeView.class);
+    List<NodeStateView> nodes = objectConverter.convertCollection(activityInstances, NodeStateView.class);
     nodes.stream()
         .filter(node -> directGraph.isRegistered(node.getNodeId()))
         .forEach(node -> {
@@ -124,22 +124,22 @@ public class MonitoringService {
     return nodes;
   }
 
-  public WorkflowDefinitionView getWorkflowDefinition(String workflowId) {
+  public WorkflowNodesView getWorkflowDefinition(String workflowId) {
     return this.getWorkflowDefinition(workflowId, null);
   }
 
-  public WorkflowDefinitionView getWorkflowDefinition(String workflowId, Long version) {
+  public WorkflowNodesView getWorkflowDefinition(String workflowId, Long version) {
     WorkflowDirectedGraph directedGraph = getWorkflowDirectedGraph(workflowId, version);
 
     Map<String, WorkflowNode> dictionary = directedGraph.getDictionary();
-    List<NodeDefinitionView> activities = dictionary.keySet().stream().map(node -> {
+    List<NodeView> activities = dictionary.keySet().stream().map(node -> {
       WorkflowNode workflowNode = dictionary.get(node);
       NodeChildren children = directedGraph.getChildren(node);
       List<String> parents = directedGraph.getParents(node);
       return buildNode(dictionary, node, workflowNode, children, parents);
     }).collect(Collectors.toList());
 
-    return WorkflowDefinitionView.builder()
+    return WorkflowNodesView.builder()
         .workflowId(workflowId)
         .flowNodes(activities)
         .version(directedGraph.getVersion())
@@ -158,14 +158,14 @@ public class MonitoringService {
     return directGraph;
   }
 
-  private static NodeDefinitionView buildNode(Map<String, WorkflowNode> dictionary, String key,
+  private static NodeView buildNode(Map<String, WorkflowNode> dictionary, String key,
       WorkflowNode workflowNode, NodeChildren children, List<String> parents) {
-    NodeDefinitionView.NodeDefinitionViewBuilder nodeBuilder = NodeDefinitionView.builder()
+    NodeView.NodeViewBuilder nodeBuilder = NodeView.builder()
         .nodeId(key)
         .parents(parents)
         .children(children.getChildren()
             .stream()
-            .map(c -> NodeDefinitionView.ChildView.of(c, determineCondition(dictionary.get(c), key)))
+            .map(c -> NodeView.ChildView.of(c, determineCondition(dictionary.get(c), key)))
             .collect(Collectors.toList()));
 
     String name = WorkflowNodeTypeHelper.toUpperUnderscore(workflowNode.getWrappedType().getSimpleName());

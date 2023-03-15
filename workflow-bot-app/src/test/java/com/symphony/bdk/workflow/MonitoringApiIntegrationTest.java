@@ -1,7 +1,7 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.builder;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeView.ChildView;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeView.builder;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -51,7 +51,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "wdk/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "wdk/v1/workflows/%s/instances/%s/states";
-  private static final String LIST_WORKFLOW_DEFINITIONS_PATH = "/wdk/v1/workflows/%s/definitions";
+  private static final String LIST_WORKFLOW_NODES_PATH = "/wdk/v1/workflows/%s/nodes";
   private static final String LIST_WORKFLOW_GLOBAL_VARIABLES = "/wdk/v1/workflows/%s/instances/%s/variables";
   private static final String X_MONITORING_TOKEN_HEADER_KEY = "X-Monitoring-Token";
   private static final String X_MONITORING_TOKEN_HEADER_VALUE = "MONITORING_TOKEN_VALUE";
@@ -65,7 +65,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
   @ParameterizedTest
   @CsvSource(value = {LIST_WORKFLOWS_PATH, LIST_WORKFLOW_INSTANCES_PATH, LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH,
-      LIST_WORKFLOW_DEFINITIONS_PATH})
+      LIST_WORKFLOW_NODES_PATH
+  })
   void badToken(String path) {
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, "BAD_TOKEN")
@@ -80,7 +81,8 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
   @ParameterizedTest
   @CsvSource(value = {LIST_WORKFLOWS_PATH, LIST_WORKFLOW_INSTANCES_PATH, LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH,
-      LIST_WORKFLOW_DEFINITIONS_PATH})
+      LIST_WORKFLOW_NODES_PATH
+  })
   void missingTokenHeader(String path) {
     given()
         .contentType(ContentType.JSON)
@@ -1003,18 +1005,18 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "testingWorkflow1"))
+        .get(String.format(LIST_WORKFLOW_NODES_PATH, "testingWorkflow1"))
         .thenReturn();
 
     // actual flow nodes
     ObjectMapper objectMapper = new ObjectMapper();
-    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
+    List<NodeView> nodeViews = new ArrayList<>();
     List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
 
     flowNodes.forEach(flowNode -> {
       try {
-        nodeDefinitionViews.add(
-            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
+        nodeViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeView.class));
       } catch (JsonProcessingException e) {
         e.printStackTrace();
         fail("Unexpected error when converting api response to TaskDefinitionView class");
@@ -1022,7 +1024,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     });
 
     // expected flow nodes
-    NodeDefinitionView expectedSendMessageActivity1 = builder()
+    NodeView expectedSendMessageActivity1 = builder()
         .nodeId("testingWorkflow1SendMsg1")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1030,7 +1032,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList(ChildView.of("sendForm")))
         .build();
 
-    NodeDefinitionView expectedSendMessageActivity2 = builder()
+    NodeView expectedSendMessageActivity2 = builder()
         .nodeId("sendForm")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1038,7 +1040,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("form-reply_sendForm"), ChildView.of("form-reply_sendForm_timeout", "expired")))
         .build();
 
-    NodeDefinitionView expectedMessageReceivedEventTask = builder()
+    NodeView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/testingWorkflow1")
         .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
@@ -1046,7 +1048,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList(ChildView.of("testingWorkflow1SendMsg1")))
         .build();
 
-    NodeDefinitionView expectedFormRepliedEventTask = NodeDefinitionView.builder()
+    NodeView expectedFormRepliedEventTask = NodeView.builder()
         .nodeId("form-reply_sendForm")
         .type(WorkflowNodeTypeHelper.toType("FORM_REPLIED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("FORM_REPLIED_EVENT"))
@@ -1054,7 +1056,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList(ChildView.of("receiveForm")))
         .build();
 
-    NodeDefinitionView expectedFormRepliedTimeoutEventTask = NodeDefinitionView.builder()
+    NodeView expectedFormRepliedTimeoutEventTask = NodeView.builder()
         .nodeId("form-reply_sendForm_timeout")
         .type(WorkflowNodeTypeHelper.toType("ACTIVITY_EXPIRED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("ACTIVITY_EXPIRED_EVENT"))
@@ -1062,7 +1064,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    NodeDefinitionView expectedReceiveFormTask = NodeDefinitionView.builder()
+    NodeView expectedReceiveFormTask = NodeView.builder()
         .nodeId("receiveForm")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1070,7 +1072,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    List<NodeDefinitionView> expectedTaskDefinitions =
+    List<NodeView> expectedTaskDefinitions =
         Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2,
             expectedMessageReceivedEventTask, expectedFormRepliedEventTask, expectedFormRepliedTimeoutEventTask,
             expectedReceiveFormTask);
@@ -1079,7 +1081,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("testingWorkflow1");
     assertThat(response.body().jsonPath().getMap("variables")).isEmpty();
 
-    assertThat(nodeDefinitionViews)
+    assertThat(nodeViews)
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
@@ -1101,18 +1103,18 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "on-activity-failed-one-of"))
+        .get(String.format(LIST_WORKFLOW_NODES_PATH, "on-activity-failed-one-of"))
         .thenReturn();
 
     // actual flow nodes
     ObjectMapper objectMapper = new ObjectMapper();
-    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
+    List<NodeView> nodeViews = new ArrayList<>();
     List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
 
     flowNodes.forEach(flowNode -> {
       try {
-        nodeDefinitionViews.add(
-            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
+        nodeViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeView.class));
       } catch (JsonProcessingException e) {
         e.printStackTrace();
         fail("Unexpected error when converting api response to TaskDefinitionView class");
@@ -1120,7 +1122,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     });
 
     // expected flow nodes
-    NodeDefinitionView expectedSendMessageActivity1 = builder()
+    NodeView expectedSendMessageActivity1 = builder()
         .nodeId("first")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1128,7 +1130,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("second"), ChildView.of("fallback", "failed")))
         .build();
 
-    NodeDefinitionView expectedSendMessageActivity2 = builder()
+    NodeView expectedSendMessageActivity2 = builder()
         .nodeId("second")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1136,7 +1138,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("fallback", "failed")))
         .build();
 
-    NodeDefinitionView expectedSendMessageFallback = builder()
+    NodeView expectedSendMessageFallback = builder()
         .nodeId("fallback")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1144,7 +1146,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    NodeDefinitionView expectedMessageReceivedEventTask = builder()
+    NodeView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/failure")
         .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
@@ -1152,7 +1154,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList(ChildView.of("first")))
         .build();
 
-    List<NodeDefinitionView> expectedTaskDefinitions =
+    List<NodeView> expectedTaskDefinitions =
         Arrays.asList(expectedSendMessageActivity1, expectedSendMessageActivity2,
             expectedSendMessageFallback,
             expectedMessageReceivedEventTask);
@@ -1161,7 +1163,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("on-activity-failed-one-of");
     assertThat(response.body().jsonPath().getMap("variables")).isEmpty();
 
-    assertThat(nodeDefinitionViews)
+    assertThat(nodeViews)
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
@@ -1183,18 +1185,18 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "all-of-messages-received"))
+        .get(String.format(LIST_WORKFLOW_NODES_PATH, "all-of-messages-received"))
         .thenReturn();
 
     // actual flow nodes
     ObjectMapper objectMapper = new ObjectMapper();
-    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
+    List<NodeView> nodeViews = new ArrayList<>();
     List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
 
     flowNodes.forEach(flowNode -> {
       try {
-        nodeDefinitionViews.add(
-            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
+        nodeViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeView.class));
       } catch (JsonProcessingException e) {
         e.printStackTrace();
         fail("Unexpected error when converting api response to TaskDefinitionView class");
@@ -1202,7 +1204,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     });
 
     // expected flow nodes
-    NodeDefinitionView expectedSendMessageStart = builder()
+    NodeView expectedSendMessageStart = builder()
         .nodeId("start")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1210,7 +1212,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("scriptTrue", "${variables.allOf == true}"), ChildView.of("scriptFalse")))
         .build();
 
-    NodeDefinitionView expectedScriptTrue = builder()
+    NodeView expectedScriptTrue = builder()
         .nodeId("scriptTrue")
         .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
         .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
@@ -1219,7 +1221,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
             ChildView.of("endMessage_join_gateway")))
         .build();
 
-    NodeDefinitionView expectedScriptFalse = builder()
+    NodeView expectedScriptFalse = builder()
         .nodeId("scriptFalse")
         .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
         .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
@@ -1227,7 +1229,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    NodeDefinitionView expectedMessageReceivedEventTask = builder()
+    NodeView expectedMessageReceivedEventTask = builder()
         .nodeId("message-received_/start")
         .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
@@ -1235,7 +1237,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList(ChildView.of("start")))
         .build();
 
-    NodeDefinitionView expectedReceiveMessageEnd = builder()
+    NodeView expectedReceiveMessageEnd = builder()
         .nodeId("message-received_/message")
         .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
@@ -1243,7 +1245,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("endMessage_join_gateway")))
         .build();
 
-    NodeDefinitionView expectedUserJoinedGateway = builder()
+    NodeView expectedUserJoinedGateway = builder()
         .nodeId("user-joined-room")
         .type(WorkflowNodeTypeHelper.toType("USER_JOINED_ROOM_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("USER_JOINED_ROOM_EVENT"))
@@ -1251,7 +1253,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("endMessage_join_gateway")))
         .build();
 
-    NodeDefinitionView expectedJoinGateway = builder()
+    NodeView expectedJoinGateway = builder()
         .nodeId("endMessage_join_gateway")
         .type(WorkflowNodeTypeHelper.toType("JOIN_GATEWAY"))
         .group(WorkflowNodeTypeHelper.toGroup("JOIN_GATEWAY"))
@@ -1259,7 +1261,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("endMessage")))
         .build();
 
-    NodeDefinitionView expectedSendMessageEnd = builder()
+    NodeView expectedSendMessageEnd = builder()
         .nodeId("endMessage")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1267,7 +1269,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    List<NodeDefinitionView> expectedTaskDefinitions =
+    List<NodeView> expectedTaskDefinitions =
         Arrays.asList(expectedMessageReceivedEventTask, expectedSendMessageStart, expectedScriptTrue,
             expectedScriptFalse, expectedReceiveMessageEnd, expectedUserJoinedGateway, expectedJoinGateway,
             expectedSendMessageEnd);
@@ -1276,7 +1278,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("all-of-messages-received");
     assertThat(response.body().jsonPath().getMap("variables")).hasSize(1);
 
-    assertThat(nodeDefinitionViews)
+    assertThat(nodeViews)
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
@@ -1298,25 +1300,25 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, "diagram-test"))
+        .get(String.format(LIST_WORKFLOW_NODES_PATH, "diagram-test"))
         .thenReturn();
 
     // actual flow nodes
     ObjectMapper objectMapper = new ObjectMapper();
-    List<NodeDefinitionView> nodeDefinitionViews = new ArrayList<>();
+    List<NodeView> nodeViews = new ArrayList<>();
     List<Object> flowNodes = response.body().jsonPath().getList("flowNodes");
 
     flowNodes.forEach(flowNode -> {
       try {
-        nodeDefinitionViews.add(
-            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeDefinitionView.class));
+        nodeViews.add(
+            objectMapper.readValue(objectMapper.writeValueAsString(flowNode), NodeView.class));
       } catch (JsonProcessingException e) {
         e.printStackTrace();
         fail("Unexpected error when converting api response to TaskDefinitionView class");
       }
     });
 
-    NodeDefinitionView messageReceived = builder()
+    NodeView messageReceived = builder()
         .nodeId("message-received_diagram")
         .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
@@ -1325,7 +1327,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .build();
 
     // expected flow nodes
-    NodeDefinitionView expectedSendMessageStart = builder()
+    NodeView expectedSendMessageStart = builder()
         .nodeId("init")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1333,7 +1335,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("abc"), ChildView.of("def")))
         .build();
 
-    NodeDefinitionView abc = builder()
+    NodeView abc = builder()
         .nodeId("abc")
         .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
         .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
@@ -1341,7 +1343,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("completed_join_gateway")))
         .build();
 
-    NodeDefinitionView def = builder()
+    NodeView def = builder()
         .nodeId("def")
         .type(WorkflowNodeTypeHelper.toType("EXECUTE_SCRIPT"))
         .group(WorkflowNodeTypeHelper.toGroup("EXECUTE_SCRIPT"))
@@ -1349,7 +1351,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(List.of(ChildView.of("completed_join_gateway")))
         .build();
 
-    NodeDefinitionView gateway = builder()
+    NodeView gateway = builder()
         .nodeId("completed_join_gateway")
         .type(WorkflowNodeTypeHelper.toType("JOIN_GATEWAY"))
         .group(WorkflowNodeTypeHelper.toGroup("JOIN_GATEWAY"))
@@ -1357,7 +1359,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.singletonList(ChildView.of("completed")))
         .build();
 
-    NodeDefinitionView expectedSendMessageEnd = builder()
+    NodeView expectedSendMessageEnd = builder()
         .nodeId("completed")
         .type(WorkflowNodeTypeHelper.toType("SEND_MESSAGE"))
         .group(WorkflowNodeTypeHelper.toGroup("SEND_MESSAGE"))
@@ -1365,14 +1367,14 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .children(Collections.emptyList())
         .build();
 
-    List<NodeDefinitionView> expectedTaskDefinitions =
+    List<NodeView> expectedTaskDefinitions =
         Arrays.asList(messageReceived, expectedSendMessageStart, abc, def, gateway, expectedSendMessageEnd);
 
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     assertThat(response.body().jsonPath().getString("workflowId")).isEqualTo("diagram-test");
     assertThat(response.body().jsonPath().getMap("variables")).isEmpty();
 
-    assertThat(nodeDefinitionViews)
+    assertThat(nodeViews)
         .hasSameSizeAs(expectedTaskDefinitions)
         .hasSameElementsAs(expectedTaskDefinitions);
 
@@ -1389,7 +1391,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format(LIST_WORKFLOW_DEFINITIONS_PATH, unknownWorkflowId))
+        .get(String.format(LIST_WORKFLOW_NODES_PATH, unknownWorkflowId))
         .then()
         .assertThat()
         .statusCode(HttpStatus.NOT_FOUND.value())
