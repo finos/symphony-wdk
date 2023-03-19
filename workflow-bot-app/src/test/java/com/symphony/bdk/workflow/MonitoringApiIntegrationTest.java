@@ -1,16 +1,33 @@
 package com.symphony.bdk.workflow;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.builder;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
-import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
+import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.junit.jupiter.api.Disabled;
@@ -26,21 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.builder;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 class MonitoringApiIntegrationTest extends IntegrationTest {
@@ -59,7 +61,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
   private static final String UNKNOWN_WORKFLOW_EXCEPTION_MESSAGE =
       "Either no workflow deployed with id %s, or %s is not an instance of it";
 
-  @Autowired MonitoringService monitoringService;
+  @Autowired VersionedWorkflowRepository versionedWorkflowRepository;
 
   @ParameterizedTest
   @CsvSource(value = {LIST_WORKFLOWS_PATH, LIST_WORKFLOW_INSTANCES_PATH, LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH,
@@ -95,14 +97,42 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-1.swadl.yaml"));
     final Workflow workflow2 =
         SwadlParser.fromYaml(getClass().getResourceAsStream("/monitoring/testing-workflow-2.swadl.yaml"));
-    final JsonPath expectedJson = new JsonPath(
-        getClass().getResourceAsStream("/monitoring/expected/list-workflows-response-payload.json"));
 
     engine.undeployByWorkflowId(workflow1.getId()); // clean any old running instance
     engine.undeployByWorkflowId(workflow2.getId()); // clean any old running instance
 
     engine.deploy(workflow1);
     engine.deploy(workflow2);
+
+    long version = Instant.now().toEpochMilli();
+
+    VersionedWorkflow v1 = new VersionedWorkflow();
+    v1.setWorkflowId(workflow1.getId());
+    v1.setVersion(version);
+    v1.setPublished(true);
+    v1.setSwadl("swadl");
+    v1.setActive(true);
+    v1.setCreatedBy(123456L);
+
+    VersionedWorkflow v12 = new VersionedWorkflow();
+    v12.setWorkflowId(workflow1.getId());
+    v12.setVersion(Instant.now().plusSeconds(10).toEpochMilli());
+    v12.setPublished(false);
+    v12.setSwadl("swadl");
+    v12.setActive(false);
+    v12.setCreatedBy(123456L);
+
+    VersionedWorkflow v2 = new VersionedWorkflow();
+    v2.setWorkflowId(workflow2.getId());
+    v2.setVersion(version);
+    v2.setPublished(true);
+    v2.setActive(true);
+    v2.setSwadl("swadl");
+    v2.setCreatedBy(123456L);
+
+    versionedWorkflowRepository.save(v1);
+    versionedWorkflowRepository.save(v12);
+    versionedWorkflowRepository.save(v2);
 
     given()
         .header(X_MONITORING_TOKEN_HEADER_KEY, X_MONITORING_TOKEN_HEADER_VALUE)
@@ -112,7 +142,13 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
         .then()
         .assertThat()
         .statusCode(HttpStatus.OK.value())
-        .body("", equalTo(expectedJson.getList("")));
+        .body("size()", is(2))
+        .body("[0].id", equalTo("testingWorkflow1"))
+        .body("[0].version", equalTo(version))
+        .body("[0].createdBy", equalTo(123456))
+        .body("[1].id", equalTo("testingWorkflow2"))
+        .body("[1].version", equalTo(version))
+        .body("[1].createdBy", equalTo(123456));
 
     engine.undeployByWorkflowId(workflow1.getId());
     engine.undeployByWorkflowId(workflow1.getId());

@@ -18,7 +18,7 @@ import javax.persistence.Version;
 @Entity
 @Table(name = "VERSIONED_WORKFLOW", uniqueConstraints = @UniqueConstraint(columnNames = {"WORKFLOW_ID", "VERSION"}),
     indexes = {@Index(name = "ID_VERSION_IDX", columnList = "WORKFLOW_ID, VERSION", unique = true),
-        @Index(name = "ID_ACTIVE_IDX", columnList = "WORKFLOW_ID, ACTIVE", unique = true)})
+        @Index(name = "ID_ACTIVE_IDX", columnList = "ACTIVE, WORKFLOW_ID", unique = true)})
 @Data
 @Generated // not tested
 public class VersionedWorkflow {
@@ -43,8 +43,8 @@ public class VersionedWorkflow {
   private String deploymentId;
   @Column(name = "ACTIVE")
   private Boolean active;
-  @Column(name = "UPDATED_BY", length = 50)
-  private String userId;
+  @Column(name = "CREATED_BY", length = 50)
+  private Long createdBy;
   @Column(name = "DESC")
   private String description;
 

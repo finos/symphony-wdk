@@ -36,7 +36,6 @@ public class WorkflowsApiController implements WorkflowsApi {
   public ResponseEntity<Object> executeWorkflowById(String token, String id, WorkflowExecutionRequest arguments) {
     log.info("Executing workflow {}", id);
     workflowEngine.execute(id, new ExecutionParameters(arguments.getArgs(), token));
-
     return ResponseEntity.noContent().build();
   }
 

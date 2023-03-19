@@ -10,4 +10,5 @@ import lombok.Data;
 public class WorkflowView {
   private String id;
   private Long version;
+  private Long createdBy;
 }
