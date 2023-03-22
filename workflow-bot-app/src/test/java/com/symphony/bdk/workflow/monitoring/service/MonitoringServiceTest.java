@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +33,7 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 import com.symphony.bdk.workflow.swadl.v1.event.MessageReceivedEvent;
+import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;
@@ -69,7 +71,22 @@ class MonitoringServiceTest {
 
   @Test
   void listAllWorkflows() {
+    service = new MonitoringService(workflowDirectedGraphService, workflowQueryRepository, workflowInstQueryRepository,
+        activityQueryRepository, variableQueryRepository, objectConverter, Optional.empty());
     when(workflowQueryRepository.findAll()).thenReturn(Collections.emptyList());
+    when(objectConverter.convertCollection(anyList(), eq(WorkflowView.class))).thenReturn(Collections.emptyList());
+    // when
+    List<WorkflowView> workflowViews = service.listAllWorkflows();
+    //then
+    assertThat(workflowViews).isEmpty();
+  }
+
+  @Test
+  void listAllWorkflowsWithAuthor() {
+    VersionedWorkflowRepository versionedWorkflowRepository = mock(VersionedWorkflowRepository.class);
+    service = new MonitoringService(workflowDirectedGraphService, workflowQueryRepository, workflowInstQueryRepository,
+        activityQueryRepository, variableQueryRepository, objectConverter, Optional.of(versionedWorkflowRepository));
+    when(versionedWorkflowRepository.findByActiveTrue()).thenReturn(Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowView.class))).thenReturn(Collections.emptyList());
     // when
     List<WorkflowView> workflowViews = service.listAllWorkflows();

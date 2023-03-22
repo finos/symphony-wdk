@@ -1,5 +1,18 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
+import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
@@ -25,19 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class WorkflowsApiControllerTest extends ApiTest {
 
@@ -116,7 +116,7 @@ class WorkflowsApiControllerTest extends ApiTest {
   @Test
   void listAllWorkflows_noTokenProvidedTest() throws Exception {
     mockMvc.perform(request(HttpMethod.GET, LIST_WORKFLOWS_PATH))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -172,8 +172,8 @@ class WorkflowsApiControllerTest extends ApiTest {
 
   @Test
   void listWorkflowInstances_noTokenProvidedTest() throws Exception {
-    mockMvc.perform(request(HttpMethod.GET,  String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId")))
-            .andExpect(status().isBadRequest());
+    mockMvc.perform(request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCES_PATH, "testWorkflowId")))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -270,8 +270,8 @@ class WorkflowsApiControllerTest extends ApiTest {
   @Test
   void listWorkflowInstanceStates_noTokenProvidedTest() throws Exception {
     mockMvc.perform(request(HttpMethod.GET,
-                    String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "workflowId", "instanceId")))
-            .andExpect(status().isBadRequest());
+            String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, "workflowId", "instanceId")))
+        .andExpect(status().isBadRequest());
   }
 
   @ParameterizedTest
@@ -362,7 +362,7 @@ class WorkflowsApiControllerTest extends ApiTest {
   @Test
   void getWorkflowDefinitions_noTokenProvidedTest() throws Exception {
     mockMvc.perform(request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, "workflowId")))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -398,8 +398,8 @@ class WorkflowsApiControllerTest extends ApiTest {
   @Test
   void listWorkflowInstanceGlobalVariables_noTokenProvidedTest() throws Exception {
     mockMvc.perform(request(HttpMethod.GET,
-                    String.format(LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH, "workflowId", "instanceId")))
-            .andExpect(status().isBadRequest());
+            String.format(LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH, "workflowId", "instanceId")))
+        .andExpect(status().isBadRequest());
   }
 
   @ParameterizedTest

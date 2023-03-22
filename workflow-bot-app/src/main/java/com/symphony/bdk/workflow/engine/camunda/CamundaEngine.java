@@ -68,7 +68,7 @@ public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowCo
 
   @Override
   public CamundaTranslatedWorkflowContext translate(Workflow workflow) {
-    checkIdsAreUnique(workflow);
+    checkUniquenessOfActivitiesId(workflow);
     try {
       return bpmnBuilder.translateWorkflow(workflow);
     } catch (JsonProcessingException | ModelValidationException exception) {
@@ -151,7 +151,7 @@ public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowCo
     }
   }
 
-  private void checkIdsAreUnique(Workflow workflow) {
+  private void checkUniquenessOfActivitiesId(Workflow workflow) {
     List<String> duplicatedIds = workflow.getActivities()
         .stream()
         .map(activity -> activity.getActivity().getId())

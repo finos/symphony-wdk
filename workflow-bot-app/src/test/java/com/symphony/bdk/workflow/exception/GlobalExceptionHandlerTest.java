@@ -1,11 +1,12 @@
 package com.symphony.bdk.workflow.exception;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class GlobalExceptionHandlerTest {
 
@@ -35,7 +36,7 @@ class GlobalExceptionHandlerTest {
   void testUnsupportedOperationException() {
     ErrorResponse expectedErrorResponse = new ErrorResponse("Unsupported operation exception's message");
     ResponseEntity<ErrorResponse> response = globalExceptionHandler.handle(
-            new UnsupportedOperationException("Unsupported operation exception's message"));
+        new UnsupportedOperationException("Unsupported operation exception's message"));
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
     assertThat(response.getBody()).isEqualTo(expectedErrorResponse);

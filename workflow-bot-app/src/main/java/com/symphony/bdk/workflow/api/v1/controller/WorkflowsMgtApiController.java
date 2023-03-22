@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
+import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
@@ -33,7 +35,12 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> saveAndDeploySwadl(String token, SwadlView swadlView) {
+  public ResponseEntity<Void> saveAndDeploySwadl(String token, SwadlView swadlView, HttpServletRequest request) {
+    Object userAttribute = request.getAttribute("user");
+    if (userAttribute != null) {
+      UserClaim user = (UserClaim) userAttribute;
+      swadlView.setCreatedBy(user.getId());
+    }
     workflowManagementService.deploy(swadlView);
     return ResponseEntity.noContent().build();
   }
