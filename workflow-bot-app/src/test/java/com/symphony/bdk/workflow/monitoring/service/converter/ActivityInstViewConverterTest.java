@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.monitoring.service.converter;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-import com.symphony.bdk.workflow.api.v1.dto.NodeView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeStateView;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
@@ -40,7 +40,7 @@ class ActivityInstViewConverterTest {
 
     // when
     ActivityInstViewConverter converter = new ActivityInstViewConverter();
-    NodeView instanceView = converter.apply(domain);
+    NodeStateView instanceView = converter.apply(domain);
 
     // then
     then(instanceView.getNodeId()).isEqualTo("activity");

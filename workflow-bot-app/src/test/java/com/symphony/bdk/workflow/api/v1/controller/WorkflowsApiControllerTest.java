@@ -1,6 +1,6 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView.ChildView;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeView.ChildView;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -13,13 +13,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.symphony.bdk.workflow.api.v1.dto.NodeDefinitionView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeStateView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesStateView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -42,11 +42,11 @@ import java.util.Map;
 class WorkflowsApiControllerTest extends ApiTest {
 
   private static final String WORKFLOW_EXECUTE_PATH = "/v1/workflows/wfId/execute";
-  private static final String LIST_WORKFLOWS_PATH = "/v1/workflows/";
+  private static final String LIST_WORKFLOWS_PATH = "/v1/workflows";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "/v1/workflows/%s/instances/%s/states";
-  private static final String GET_WORKFLOW_DEFINITIONS_PATH = "/v1/workflows/%s/definitions";
+  private static final String GET_WORKFLOW_DEFINITIONS_PATH = "/v1/workflows/%s/nodes";
   private static final String LIST_WORKFLOW_INSTANCE_GLOBAL_VARS_PATH = "/v1/workflows/%s/instances/%s/variables";
 
   private static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
@@ -221,20 +221,20 @@ class WorkflowsApiControllerTest extends ApiTest {
     globalVariables.setRevision(0);
     globalVariables.setUpdateTime(Instant.ofEpochMilli(333L));
 
-    NodeView nodeView1 =
+    NodeStateView nodeStateView1 =
         activityInstanceView(workflowId, "activity0", instanceId, "SEND_MESSAGE", "ACTIVITY",
             new VariableView(activityOutputs), 222L, 666L);
 
-    NodeView nodeView2 =
+    NodeStateView nodeStateView2 =
         activityInstanceView(workflowId, "activity1", instanceId, "CREATE_ROOM", "ACTIVITY",
             new VariableView(activityOutputs), 333L, 777L);
 
-    WorkflowNodesView workflowNodesView = new WorkflowNodesView();
-    workflowNodesView.setNodes(Arrays.asList(nodeView1, nodeView2));
-    workflowNodesView.setGlobalVariables(new VariableView(globalVariables));
+    WorkflowNodesStateView workflowNodesStateView = new WorkflowNodesStateView();
+    workflowNodesStateView.setNodes(Arrays.asList(nodeStateView1, nodeStateView2));
+    workflowNodesStateView.setGlobalVariables(new VariableView(globalVariables));
 
     when(monitoringService.listWorkflowInstanceNodes(eq(workflowId), eq(instanceId),
-        any(WorkflowInstLifeCycleFilter.class))).thenReturn(workflowNodesView);
+        any(WorkflowInstLifeCycleFilter.class))).thenReturn(workflowNodesStateView);
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH, workflowId, instanceId))
@@ -307,29 +307,29 @@ class WorkflowsApiControllerTest extends ApiTest {
   void getWorkflowDefinitions() throws Exception {
     final String workflowId = "testWorkflowId";
 
-    NodeDefinitionView activity0 =
-        new NodeDefinitionView("activity0", "SEND_MESSAGE",
+    NodeView activity0 =
+        new NodeView("activity0", "SEND_MESSAGE",
             "ACTIVITY", Collections.emptyList(),
             Collections.singletonList(ChildView.of("event0")));
 
-    NodeDefinitionView event =
-        new NodeDefinitionView("event0", "ROOM_UPDATED",
+    NodeView event =
+        new NodeView("event0", "ROOM_UPDATED",
             "EVENT", Collections.singletonList("activity0"),
             Collections.singletonList(ChildView.of("activity1")));
 
-    NodeDefinitionView activity1 =
-        new NodeDefinitionView("activity1", "SEND_MESSAGE",
+    NodeView activity1 =
+        new NodeView("activity1", "SEND_MESSAGE",
             "ACTIVITY", Collections.singletonList("event0"),
             Collections.emptyList());
 
-    WorkflowDefinitionView workflowDefinitionView = WorkflowDefinitionView.builder()
+    WorkflowNodesView workflowNodesView = WorkflowNodesView.builder()
         .workflowId(workflowId)
         .version(1L)
         .variables(Collections.emptyMap())
         .flowNodes(Arrays.asList(activity0, event, activity1))
         .build();
 
-    when(monitoringService.getWorkflowDefinition(eq(workflowId), eq(1L))).thenReturn(workflowDefinitionView);
+    when(monitoringService.getWorkflowDefinition(eq(workflowId), eq(1L))).thenReturn(workflowNodesView);
 
     mockMvc.perform(
             request(HttpMethod.GET, String.format(GET_WORKFLOW_DEFINITIONS_PATH, workflowId))
@@ -438,9 +438,9 @@ class WorkflowsApiControllerTest extends ApiTest {
         .build();
   }
 
-  private NodeView activityInstanceView(String workflowId, String activityId, String instanceId,
+  private NodeStateView activityInstanceView(String workflowId, String activityId, String instanceId,
       String type, String group, VariableView variables, Long start, Long end) {
-    return NodeView.builder()
+    return NodeStateView.builder()
         .workflowId(workflowId)
         .instanceId(instanceId)
         .nodeId(activityId)
