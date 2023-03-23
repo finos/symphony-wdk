@@ -100,7 +100,7 @@ jar {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        boot(MavenPublication) {
             artifact bootJar
         }
         plain(MavenPublication) {
@@ -122,4 +122,10 @@ processResources {
     filter ReplaceTokens, tokens: [
             "wdk.version": project.version
     ]
+}
+
+signing {
+  required { !rootProject.ext.projectVersion.endsWith('SNAPSHOT') }
+  sign publishing.publications.boot
+  sign publishing.publications.plain
 }
