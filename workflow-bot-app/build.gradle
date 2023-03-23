@@ -100,7 +100,7 @@ jar {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        boot(MavenPublication) {
             artifact bootJar
         }
         plain(MavenPublication) {
