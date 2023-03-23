@@ -96,16 +96,16 @@ bootJar {
 
 jar {
     enabled = true
-    classifier = ''
 }
 
 publishing {
     publications {
-        boot(MavenPublication) {
+        maven(MavenPublication) {
             artifact bootJar
         }
         plain(MavenPublication) {
             from components.java
+            artifactId = "${project.name}-plain"
             pom(rootProject.ext.pomDefinition)
             pom.withXml {
                 asNode().children().first().plus {

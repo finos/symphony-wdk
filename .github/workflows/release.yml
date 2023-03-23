@@ -7,7 +7,6 @@ on:
     types: [ published ]
 
 env:
-  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -39,12 +38,12 @@ jobs:
         run: |
           mkdir -p ~/.gnupg/
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
-          ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publish closeAndReleaseRepository
+          ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=${{ github.workspace }}/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publishToSonatype closeAndReleaseStagingRepository
 
       - name: Upload fatJar artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          path: workflow-bot-app/build/libs/**
+          path: workflow-bot-app/build/libs/*boot*jar
           if-no-files-found: error
           retention-days: 1
 
