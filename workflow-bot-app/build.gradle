@@ -81,11 +81,6 @@ dependencies {
     }
 }
 
-bootBuildImage {
-    imageName = "workflow-bot"
-    builder = "gcr.io/buildpacks/builder"
-}
-
 bootJar {
     classifier = 'boot'
     manifest {
@@ -122,4 +117,9 @@ processResources {
     filter ReplaceTokens, tokens: [
             "wdk.version": project.version
     ]
+}
+
+signing {
+  required { !rootProject.ext.projectVersion.endsWith('SNAPSHOT') }
+  sign publishing.publications.plain
 }
