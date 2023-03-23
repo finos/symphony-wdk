@@ -94,6 +94,4 @@ publishing {
 signing {
     required { !rootProject.ext.projectVersion.endsWith('SNAPSHOT') }
     sign publishing.publications.maven
-    sign publishing.publications.boot
-    sign publishing.publications.plain
 }

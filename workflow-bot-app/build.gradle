@@ -123,3 +123,9 @@ processResources {
             "wdk.version": project.version
     ]
 }
+
+signing {
+  required { !rootProject.ext.projectVersion.endsWith('SNAPSHOT') }
+  sign publishing.publications.boot
+  sign publishing.publications.plain
+}
