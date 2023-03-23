@@ -95,7 +95,7 @@ jar {
 
 publishing {
     publications {
-        boot(MavenPublication) {
+        maven(MavenPublication) {
             artifact bootJar
         }
         plain(MavenPublication) {
@@ -121,6 +121,5 @@ processResources {
 
 signing {
   required { !rootProject.ext.projectVersion.endsWith('SNAPSHOT') }
-  sign publishing.publications.boot
   sign publishing.publications.plain
 }
