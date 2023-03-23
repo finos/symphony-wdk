@@ -43,4 +43,4 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
 COPY --from=builder custom/jre /custom/jre
 COPY --from=builder wdk.jar wdk.jar
 
-ENTRYPOINT ["custom/jre/bin/java", "-Dspring.config.additional-location=./symphony/",  "-jar", "wdk.jar", "--spring.profiles.active=${PROFILE:default}"]
+ENTRYPOINT ["custom/jre/bin/java", "-Dspring.config.additional-location=./symphony/", "-Dloader.path=./symphony/libs", "-jar", "wdk.jar", "--spring.profiles.active=${PROFILE:default}"]

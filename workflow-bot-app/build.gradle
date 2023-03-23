@@ -95,15 +95,25 @@ bootJar {
 }
 
 jar {
-    // disabled this task to avoid publishing useless plain jar
-    enabled = false
+    enabled = true
+    classifier = ''
 }
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            // publish the fat executable jar to be used by the Symphony generator
+        boot(MavenPublication) {
             artifact bootJar
+        }
+        plain(MavenPublication) {
+            from components.java
+            pom(rootProject.ext.pomDefinition)
+            pom.withXml {
+                asNode().children().first().plus {
+                    setResolveStrategy(Closure.DELEGATE_FIRST)
+                    'name' project.name
+                    'description' project.description
+                }
+            }
         }
     }
 }
