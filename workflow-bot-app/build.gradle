@@ -81,11 +81,6 @@ dependencies {
     }
 }
 
-bootBuildImage {
-    imageName = "workflow-bot"
-    builder = "gcr.io/buildpacks/builder"
-}
-
 bootJar {
     classifier = 'boot'
     manifest {
