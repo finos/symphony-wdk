@@ -1,13 +1,11 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -16,7 +14,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
@@ -25,7 +22,6 @@ import com.symphony.bdk.workflow.exception.NotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.http.MediaType;
 
 import java.time.Instant;
@@ -52,25 +48,6 @@ class WorkflowsMgtApiControllerTest extends ApiTest {
           .param("description", "description")).andExpect(status().isNoContent());
 
       verify(workflowManagementService).deploy(any(SwadlView.class));
-    }
-
-    @Test
-    @DisplayName("Deploy workflow request with owner")
-    void test_deployRequests_withOwner() throws Exception {
-      doNothing().when(workflowManagementService).deploy(any(SwadlView.class));
-      UserClaim user = mock(UserClaim.class);
-      when(user.getId()).thenReturn(12345L);
-      mockMvc.perform(post(URL)
-              .header(WorkflowsMgtApi.X_MANAGEMENT_TOKEN_KEY, "myToken")
-              .requestAttr("user", user)
-              .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-              .param("swadl", "content")
-              .param("description", "description"))
-          .andExpect(status().isNoContent());
-
-      ArgumentCaptor<SwadlView> captor = ArgumentCaptor.forClass(SwadlView.class);
-      verify(workflowManagementService).deploy(captor.capture());
-      assertThat(captor.getValue().getCreatedBy()).isEqualTo(12345);
     }
 
     @Test

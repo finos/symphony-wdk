@@ -26,7 +26,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Instant;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 @Api("Api to manage workflow swadl lifecycle")
 public interface WorkflowsMgtApi {
@@ -41,8 +40,7 @@ public interface WorkflowsMgtApi {
   ResponseEntity<Void> saveAndDeploySwadl(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow SWADL form to create") @ModelAttribute SwadlView swadlView,
-      HttpServletRequest request);
+      @ApiParam(value = "Workflow SWADL form to create") @ModelAttribute SwadlView swadlView);
 
   @ApiOperation("Validate and update the latest workflow SWADL content.")
   @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
