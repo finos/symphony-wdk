@@ -1,27 +1,5 @@
 package com.symphony.bdk.workflow.management;
 
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
-import com.symphony.bdk.workflow.converter.ObjectConverter;
-import com.symphony.bdk.workflow.engine.WorkflowEngine;
-import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
-import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.v1.Properties;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -34,6 +12,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
+import com.symphony.bdk.workflow.converter.ObjectConverter;
+import com.symphony.bdk.workflow.engine.WorkflowEngine;
+import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.v1.Properties;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
+import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
+
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowManagementServiceTest {
@@ -188,8 +189,8 @@ public class WorkflowManagementServiceTest {
     when(versionRepository.findByWorkflowId(anyString())).thenReturn(Collections.singletonList(publishedVersion));
 
     assertThatThrownBy(() -> workflowManagementService.update(swadlView))
-            .isInstanceOf(UnsupportedOperationException.class)
-            .hasMessage("Update on a published Workflow is forbidden.");
+        .isInstanceOf(UnsupportedOperationException.class)
+        .hasMessage("Update on a published Workflow is forbidden.");
   }
 
   @Test

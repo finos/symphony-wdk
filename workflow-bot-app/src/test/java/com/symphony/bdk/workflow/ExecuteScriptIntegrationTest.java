@@ -1,19 +1,20 @@
 package com.symphony.bdk.workflow;
 
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.symphony.bdk.gen.api.model.V4MessageSent;
-import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
+
+import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.spring.events.RealTimeEvent;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 class ExecuteScriptIntegrationTest extends IntegrationTest {
 
