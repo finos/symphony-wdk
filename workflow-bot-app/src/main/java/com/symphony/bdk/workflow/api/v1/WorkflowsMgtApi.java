@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -54,65 +54,53 @@ public interface WorkflowsMgtApi {
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
       @ApiParam(value = "Workflow SWADL form to update") @ModelAttribute SwadlView swadlView);
 
-  @ApiOperation("Get all versioned workflows by the given ID.")
+  @ApiOperation(
+      "Get the active version of the workflow by the given ID, which is default behavior; if the version parameter"
+          + "is given, that version will be returned; if all_versions flag is true, all versions will be returned; if"
+          + "version is provided and versions flag is true, all versions will be returned.")
   @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
       @ApiResponse(code = 404, message = "No workflow found with id {id}", response = ErrorResponse.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @GetMapping("/{id}")
-  ResponseEntity<List<VersionedWorkflowView>> getSwadl(
+  @GetMapping(path = "/{workflowId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  ResponseEntity<List<VersionedWorkflowView>> getVersionedWorkflow(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id);
+      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Get a specific version value") @RequestParam(required = false, name = "version")
+      Long version,
+      @ApiParam(value = "Get all versions flag", defaultValue = "false")
+      @RequestParam(required = false, name = "all_versions", defaultValue = "false") Boolean allVersions);
 
-  @ApiOperation("Delete the workflow by the given ID.")
+  @ApiOperation(
+      "Delete the workflow by the given ID, all versions will be deleted, unless the version parameter is specified.")
   @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
       @ApiResponse(code = 404, message = "No workflow found with id {id}", response = ErrorResponse.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @DeleteMapping("/{id}")
-  ResponseEntity<Void> deleteSwadl(
+  @DeleteMapping(path = "/{workflowId}")
+  ResponseEntity<Void> deleteWorkflowByIdAndVersion(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id);
+      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Workflow's version to delete") @RequestParam(required = false, name = "version")
+      Long version);
 
-  @ApiOperation("Roll back a workflow version.")
+  @ApiOperation("Fall back to a specific workflow version, or set an expiration time for the workflow.")
   @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
       @ApiResponse(code = 404, message = "No workflow found with id {id} and version {version}",
           response = ErrorResponse.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PostMapping(value = "/{id}/versions/{version}")
-  ResponseEntity<Void> deployActiveVersion(
+  @PutMapping(path = "/{workflowId}")
+  ResponseEntity<Void> setVersionAndExpirationTime(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id,
-      @ApiParam(value = "Workflow's version to roll back to", required = true) @PathVariable Long version);
-
-  @ApiOperation("Get a specific version workflow.")
-  @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
-      @ApiResponse(code = 404, message = "No workflow found with id {id} and version {version}",
-          response = ErrorResponse.class),
-      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @GetMapping(value = "/{id}/versions/{version}")
-  ResponseEntity<VersionedWorkflowView> getSwadlByVersion(
-      @ApiParam(value = "Workflow's token to authenticate the request", required = true)
-      @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id,
-      @ApiParam(value = "Workflow's version to roll back to", required = true) @PathVariable Long version);
-
-  @ApiOperation("Delete the workflow by the given ID and version.")
-  @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
-      @ApiResponse(code = 404, message = "No workflow found with id {id}", response = ErrorResponse.class),
-      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  @DeleteMapping("/{id}/versions/{version}")
-  ResponseEntity<Void> deleteSwadlByVersion(
-      @ApiParam(value = "Workflow's token to authenticate the request", required = true)
-      @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String id,
-      @ApiParam(value = "Workflow version") @PathVariable Long version);
+      @ApiParam(value = "Workflow's id that is provided in SWADL", required = true) @PathVariable String workflowId,
+      @ApiParam(value = "Workflow's version to roll back to") @RequestParam(required = false, name = "version")
+      Long version,
+      @ApiParam(value = "Expiration date. Instant epoch.") @RequestParam(required = false, name = "expiration_date")
+      Instant expirationDate);
 
   @ApiOperation("Streaming logs in SSE.")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "", response = ResponseBodyEmitter.class),
@@ -123,12 +111,4 @@ public interface WorkflowsMgtApi {
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token);
 
-  @ApiOperation("Schedule a workflow expiration.")
-  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-      @ApiResponse(code = 404, message = "No workflow found with id {workflowId}"),
-      @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
-  @PostMapping(value = "/{workflowId}")
-  ResponseEntity<Void> scheduleWorkflowExpirationJob(
-      @ApiParam(value = "Workflow's id to expire.", required = true) @PathVariable String workflowId,
-      @ApiParam(value = "Expiration date. Instant epoch.") @RequestBody Instant expirationDate);
 }

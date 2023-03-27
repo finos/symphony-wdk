@@ -6,15 +6,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.workflow.api.v1.dto.NodeView;
+import com.symphony.bdk.workflow.api.v1.dto.NodeStateView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesStateView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
@@ -32,6 +33,7 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 import com.symphony.bdk.workflow.swadl.v1.event.MessageReceivedEvent;
+import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;
@@ -69,7 +71,22 @@ class MonitoringServiceTest {
 
   @Test
   void listAllWorkflows() {
+    service = new MonitoringService(workflowDirectedGraphService, workflowQueryRepository, workflowInstQueryRepository,
+        activityQueryRepository, variableQueryRepository, objectConverter, Optional.empty());
     when(workflowQueryRepository.findAll()).thenReturn(Collections.emptyList());
+    when(objectConverter.convertCollection(anyList(), eq(WorkflowView.class))).thenReturn(Collections.emptyList());
+    // when
+    List<WorkflowView> workflowViews = service.listAllWorkflows();
+    //then
+    assertThat(workflowViews).isEmpty();
+  }
+
+  @Test
+  void listAllWorkflowsWithAuthor() {
+    VersionedWorkflowRepository versionedWorkflowRepository = mock(VersionedWorkflowRepository.class);
+    service = new MonitoringService(workflowDirectedGraphService, workflowQueryRepository, workflowInstQueryRepository,
+        activityQueryRepository, variableQueryRepository, objectConverter, Optional.of(versionedWorkflowRepository));
+    when(versionedWorkflowRepository.findByActiveTrue()).thenReturn(Collections.emptyList());
     when(objectConverter.convertCollection(anyList(), eq(WorkflowView.class))).thenReturn(Collections.emptyList());
     // when
     List<WorkflowView> workflowViews = service.listAllWorkflows();
@@ -139,7 +156,7 @@ class MonitoringServiceTest {
   @ValueSource(strings = {"", "errors"})
   void listWorkflowInstanceActivities(String errors) {
     // given
-    NodeView view1 = NodeView.builder()
+    NodeStateView view1 = NodeStateView.builder()
         .instanceId("instance")
         .nodeId("activity1")
         .workflowId("workflow")
@@ -149,7 +166,7 @@ class MonitoringServiceTest {
         .type(WorkflowNodeTypeHelper.toType("MESSAGE_RECEIVED_EVENT"))
         .group(WorkflowNodeTypeHelper.toGroup("MESSAGE_RECEIVED_EVENT"))
         .outputs(Maps.newHashMap("key", "value1")).build();
-    NodeView view2 = NodeView.builder()
+    NodeStateView view2 = NodeStateView.builder()
         .instanceId("instance")
         .nodeId("activity2")
         .workflowId("workflow")
@@ -167,7 +184,7 @@ class MonitoringServiceTest {
     when(activityQueryRepository.findAllByWorkflowInstanceId(anyString(), anyString(),
         any(WorkflowInstLifeCycleFilter.class))).thenReturn(Collections.singletonList(ActivityInstanceDomain.builder()
         .build())); // returns at least one item, otherwise an IllegalArgumentException will be thrown
-    when(objectConverter.convertCollection(anyList(), eq(NodeView.class))).thenReturn(
+    when(objectConverter.convertCollection(anyList(), eq(NodeStateView.class))).thenReturn(
         List.of(view1, view2));
     when(objectConverter.convertCollection(anyList(), eq(WorkflowInstView.class))).thenReturn(
         List.of(workflowInstView));
@@ -214,7 +231,7 @@ class MonitoringServiceTest {
     }
 
     // when
-    WorkflowNodesView workflowInstanceActivities = service.listWorkflowInstanceNodes("workflow", "instance",
+    WorkflowNodesStateView workflowInstanceActivities = service.listWorkflowInstanceNodes("workflow", "instance",
         new WorkflowInstLifeCycleFilter(null, null, null, null));
 
     // then
@@ -275,7 +292,7 @@ class MonitoringServiceTest {
     directedGraph.getChildren("activity1").addChild("activity2");
     directedGraph.getVariables().put("variable", "value");
 
-    WorkflowDefinitionView definitionView;
+    WorkflowNodesView definitionView;
     if (Optional.ofNullable(version).isPresent()) {
       when(workflowDirectedGraphService.getDirectedGraph(eq("workflow"), eq(version))).thenReturn(directedGraph);
       definitionView = service.getWorkflowDefinition("workflow", version);

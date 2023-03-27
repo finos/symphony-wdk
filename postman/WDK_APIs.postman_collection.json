@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f477e7c1-aa1c-40d9-bef3-8b22e7239160",
+		"_postman_id": "3200ce68-c9c2-45d9-b53c-cdc6fdb4b572",
 		"name": "Symphony WDK APIs",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10221895"
 	},
 	"item": [
 		{
@@ -29,7 +30,7 @@
 							"formdata": [
 								{
 									"key": "swadl",
-									"value": "id: my-workflow\nactivities:\n  - send-message:\n      id: init\n      on:\n        message-received:\n          content: /hello\n      content: Hi!",
+									"value": "id: my-workflow\nproperties:\n  publish: false\nactivities:\n  - send-message:\n      id: init\n      on:\n        message-received:\n          content: /hello\n      content: \"Hi!\"",
 									"type": "text"
 								},
 								{
@@ -37,22 +38,21 @@
 									"value": "Added new activity",
 									"type": "text"
 								},
-                                {
-                                    "key": "author",
-                                    "value": "123456",
-                                    "type": "text"
-                                }
+								{
+									"key": "author",
+									"value": "123456",
+									"type": "text"
+								}
 							]
 						},
 						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows",
 							"host": [
 								"{{wdk-uri}}"
 							],
 							"path": [
 								"wdk",
 								"v1",
-								"management",
 								"workflows"
 							]
 						}
@@ -80,25 +80,24 @@
 							"formdata": [
 								{
 									"key": "swadl",
-									"value": "id: my-workflow\nactivities:\n  - send-message:\n      id: init\n      on:\n        message-received:\n          content: /hello\n      content: Hi Again!",
+									"value": "id: my-workflow\nproperties:\n  publish: true\nactivities:\n  - send-message:\n      id: init\n      on:\n        message-received:\n          content: /hello\n      content: \"Hi Again!\"\n",
 									"type": "text"
 								},
 								{
 									"key": "description",
-									"value": "Edited init activity",
+									"value": "Edit init activity",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows",
 							"host": [
 								"{{wdk-uri}}"
 							],
 							"path": [
 								"wdk",
 								"v1",
-								"management",
 								"workflows"
 							]
 						}
@@ -122,16 +121,23 @@
 							}
 						],
 						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId",
 							"host": [
 								"{{wdk-uri}}"
 							],
 							"path": [
 								"wdk",
 								"v1",
-								"management",
 								"workflows",
 								":workflowId"
+							],
+							"query": [
+								{
+									"key": "version",
+									"value": "1675952881966104",
+									"description": "Optional, if provided, only the given version is deleted",
+									"disabled": true
+								}
 							],
 							"variable": [
 								{
@@ -145,7 +151,7 @@
 					"response": []
 				},
 				{
-					"name": "Get SWADL by ID",
+					"name": "Get SWADL by ID and version",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -161,112 +167,35 @@
 							}
 						],
 						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId",
 							"host": [
 								"{{wdk-uri}}"
 							],
 							"path": [
 								"wdk",
 								"v1",
-								"management",
 								"workflows",
 								":workflowId"
 							],
-							"variable": [
-								{
-									"key": "workflowId",
-									"value": "my-workflow",
-									"description": "workflow id defined in the swadl file"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get SWADL by ID and Version",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-Management-Token",
-								"value": "{{management-token}}",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "text/plain",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId/versions/:version",
-							"host": [
-								"{{wdk-uri}}"
-							],
-							"path": [
-								"wdk",
-								"v1",
-								"management",
-								"workflows",
-								":workflowId",
-								"versions",
-								":version"
-							],
-							"variable": [
-								{
-									"key": "workflowId",
-									"value": "my-workflow",
-									"description": "workflow id defined in the swadl file"
-								},
+							"query": [
 								{
 									"key": "version",
-									"value": "1"
+									"value": "1675952881966104",
+									"description": "Optional, if provided, this version is returned",
+									"disabled": true
+								},
+								{
+									"key": "all_versions",
+									"value": "false",
+									"description": "Optional, if provided, all versions are returned",
+									"disabled": true
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete SWADL by ID and Version",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "X-Management-Token",
-								"value": "{{management-token}}",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "text/plain",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId/versions/:version",
-							"host": [
-								"{{wdk-uri}}"
-							],
-							"path": [
-								"wdk",
-								"v1",
-								"management",
-								"workflows",
-								":workflowId",
-								"versions",
-								":version"
 							],
 							"variable": [
 								{
 									"key": "workflowId",
 									"value": "my-workflow",
-									"description": "workflow id defined in the swadl file"
-								},
-								{
-									"key": "version",
-									"value": "1"
+									"description": "workflow id defined in the swadl file, by default, only the active version is returned"
 								}
 							]
 						}
@@ -274,9 +203,9 @@
 					"response": []
 				},
 				{
-					"name": "Set an active workflow version",
+					"name": "Set an active workflow version or/and expiration date",
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "X-Management-Token",
@@ -290,74 +219,33 @@
 							}
 						],
 						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId/versions/:version",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId?expiration_date=\"2023-12-31T12:00:00.000000Z\"",
 							"host": [
 								"{{wdk-uri}}"
 							],
 							"path": [
 								"wdk",
 								"v1",
-								"management",
-								"workflows",
-								":workflowId",
-								"versions",
-								":version"
-							],
-							"variable": [
-								{
-									"key": "workflowId",
-									"value": "my-workflow"
-								},
-								{
-									"key": "version",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Schedule workflow expiration",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Management-Token",
-								"value": "{{management-token}}",
-								"type": "default"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "\"2023-12-31T12:00:00.000000Z\"",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/management/workflows/:workflowId",
-							"host": [
-								"{{wdk-uri}}"
-							],
-							"path": [
-								"wdk",
-								"v1",
-								"management",
 								"workflows",
 								":workflowId"
 							],
+							"query": [
+								{
+									"key": "version",
+									"value": "1675952881966104",
+									"description": "target deploy version",
+									"disabled": true
+								},
+								{
+									"key": "expiration_date",
+									"value": "\"2023-12-31T12:00:00.000000Z\"",
+									"description": "set expiration date on the workflow"
+								}
+							],
 							"variable": [
 								{
 									"key": "workflowId",
-									"value": "my-workflow"
+									"value": null
 								}
 							]
 						}
@@ -404,12 +292,12 @@
 									"description": "pending,completed",
 									"disabled": true
 								},
-                {
-                  "key": "version",
-                  "value": null,
-                  "description": "workflow version",
-                  "disabled": true
-                }
+								{
+									"key": "version",
+									"value": "",
+									"description": "workflow version",
+									"disabled": true
+								}
 							],
 							"variable": [
 								{
@@ -531,7 +419,7 @@
 					"response": []
 				},
 				{
-					"name": "List activities definitions for a workflow given by its Id",
+					"name": "List activities graph nodes for a workflow given by its Id",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -547,7 +435,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/definitions",
+							"raw": "{{wdk-uri}}/wdk/v1/workflows/:workflowId/nodes",
 							"host": [
 								"{{wdk-uri}}"
 							],
@@ -556,13 +444,13 @@
 								"v1",
 								"workflows",
 								":workflowId",
-								"definitions"
+								"nodes"
 							],
 							"query": [
 								{
 									"key": "version",
-									"value": null,
-                  "description": "workflow version",
+									"value": "1675952881966104",
+									"description": "workflow version",
 									"disabled": true
 								}
 							],

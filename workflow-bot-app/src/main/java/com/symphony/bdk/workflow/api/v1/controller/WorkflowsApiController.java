@@ -2,10 +2,10 @@ package com.symphony.bdk.workflow.api.v1.controller;
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsApi;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesStateView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -36,7 +36,6 @@ public class WorkflowsApiController implements WorkflowsApi {
   public ResponseEntity<Object> executeWorkflowById(String token, String id, WorkflowExecutionRequest arguments) {
     log.info("Executing workflow {}", id);
     workflowEngine.execute(id, new ExecutionParameters(arguments.getArgs(), token));
-
     return ResponseEntity.noContent().build();
   }
 
@@ -55,7 +54,7 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  public ResponseEntity<WorkflowNodesView> getInstanceState(String workflowId, String instanceId,
+  public ResponseEntity<WorkflowNodesStateView> getInstanceState(String workflowId, String instanceId,
       String token, Instant startedBefore, Instant startedAfter, Instant finishedBefore, Instant finishedAfter) {
     WorkflowInstLifeCycleFilter lifeCycleFilter =
         new WorkflowInstLifeCycleFilter(startedBefore, startedAfter, finishedBefore, finishedAfter);
@@ -65,7 +64,7 @@ public class WorkflowsApiController implements WorkflowsApi {
 
   @Override
   @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
-  public ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(String workflowId, String token, Long version) {
+  public ResponseEntity<WorkflowNodesView> getWorkflowGraphNodes(String workflowId, String token, Long version) {
     return ResponseEntity.ok(monitoringService.getWorkflowDefinition(workflowId, version));
   }
 

@@ -6,7 +6,7 @@ Symphony WDK released docker images are published as a [Github package](https://
 ### Pull Docker image
 Pull the docker image. You can replace the tag "latest" with the [release tag](https://github.com/finos/symphony-wdk/tags) you want.
 ```shell
- $ docker pull ghcr.io/finos/symphony-wdk:latest
+ $ docker pull finos/symphony-wdk:latest
 ```
 
 ### Mount `./symphony/` shared folder
@@ -69,11 +69,11 @@ For example, if `PROFILE=prod` is used, then `application-prod.yml` will be used
 
 `PROFILE` environment variable is optional with default value `default`.
 ```shell
-docker run -v $(pwd)/symphony:/symphony -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
+docker run -v $(pwd)/symphony:/symphony -e PROFILE=prod -p 8080:8080 finos/symphony-wdk:latest 
 ```
 If you want to mount the persistence database in a separate volume, `./data` for example, then create the folder in the same level as `./symphony`, update the `jdbc-url` property accordingly `jdbc:h2:file:./data/wdk_workflow;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE` and run:
 ```shell
-docker run -v $(pwd)/symphony:/symphony -v $(pwd)/data:/data -e PROFILE=prod -p 8080:8080 ghcr.io/finos/symphony-wdk:latest 
+docker run -v $(pwd)/symphony:/symphony -v $(pwd)/data:/data -e PROFILE=prod -p 8080:8080 finos/symphony-wdk:latest 
 ```
 
 ---

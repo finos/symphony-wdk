@@ -110,4 +110,16 @@ public class VersionedWorkflowRepositoryTest {
     assertThat(workflow.get().getVersion()).isEqualTo(V3);
   }
 
+  @Test
+  void findByActiveTrue() {
+    List<VersionedWorkflow> workflows = versionedWorkflowRepository.findByActiveTrue();
+    assertThat(workflows).hasSize(2);
+  }
+
+  @Test
+  void findByWorkflowIdOrderByVersionDesc() {
+    Optional<VersionedWorkflow> workflows = versionedWorkflowRepository.findTopByWorkflowIdOrderByVersionDesc("id1");
+    assertThat(workflows).isNotEmpty();
+    assertThat(workflows.get().getVersion()).isEqualTo(V3);
+  }
 }

@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,7 +64,7 @@ public class WorkflowManagementServiceTest {
 
   public WorkflowManagementServiceTest() throws IOException, ProcessingException {
     workflow = SwadlParser.fromYaml(swadl);
-    swadlView = SwadlView.builder().swadl(swadl).description("desc").author("1234").build();
+    swadlView = SwadlView.builder().swadl(swadl).description("desc").createdBy(1234L).build();
   }
 
   @Test
@@ -92,7 +91,7 @@ public class WorkflowManagementServiceTest {
         .as("The new version is set as active")
         .isTrue();
     assertThat(newVersionedWorkflowCaptor.getValue().getSwadl()).isEqualTo(swadlView.getSwadl());
-    assertThat(newVersionedWorkflowCaptor.getValue().getUserId()).isEqualTo(swadlView.getAuthor());
+    assertThat(newVersionedWorkflowCaptor.getValue().getCreatedBy()).isEqualTo(swadlView.getCreatedBy());
     assertThat(newVersionedWorkflowCaptor.getValue().getDescription()).isEqualTo(swadlView.getDescription());
 
     assertThat(oldVersionedWorkflowCaptor.getValue().getActive())
@@ -120,15 +119,13 @@ public class WorkflowManagementServiceTest {
         .as("The new version is set as active")
         .isTrue();
     assertThat(newVersionedWorkflowCaptor.getValue().getSwadl()).isEqualTo(swadlView.getSwadl());
-    assertThat(newVersionedWorkflowCaptor.getValue().getUserId()).isEqualTo(swadlView.getAuthor());
+    assertThat(newVersionedWorkflowCaptor.getValue().getCreatedBy()).isEqualTo(swadlView.getCreatedBy());
     assertThat(newVersionedWorkflowCaptor.getValue().getDescription()).isEqualTo(swadlView.getDescription());
   }
 
   @Test
   void testDeploy_existNoPublishedVersion_exceptionThrown() {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
-    CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
-    when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
     VersionedWorkflow noPublishedVersion = new VersionedWorkflow();
     noPublishedVersion.setPublished(false);
     noPublishedVersion.setVersion(1234L);
@@ -143,7 +140,8 @@ public class WorkflowManagementServiceTest {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
     VersionedWorkflow noPublishedVersion = new VersionedWorkflow();
     noPublishedVersion.setPublished(false);
-    when(versionRepository.findByWorkflowId(anyString())).thenReturn(Collections.singletonList(noPublishedVersion));
+    when(versionRepository.findTopByWorkflowIdOrderByVersionDesc(anyString())).thenReturn(
+        Optional.of(noPublishedVersion));
     CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
     when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
     when(camundaEngine.deploy(any(CamundaTranslatedWorkflowContext.class))).thenReturn("id");
@@ -166,7 +164,8 @@ public class WorkflowManagementServiceTest {
     VersionedWorkflow noPublishedVersion = new VersionedWorkflow();
     noPublishedVersion.setPublished(false);
     noPublishedVersion.setActive(false);
-    when(versionRepository.findByWorkflowId(anyString())).thenReturn(Collections.singletonList(noPublishedVersion));
+    when(versionRepository.findTopByWorkflowIdOrderByVersionDesc(anyString())).thenReturn(
+        Optional.of(noPublishedVersion));
     CamundaTranslatedWorkflowContext context = mock(CamundaTranslatedWorkflowContext.class);
     when(camundaEngine.translate(any(Workflow.class))).thenReturn(context);
     when(versionRepository.save(any(VersionedWorkflow.class))).thenReturn(noPublishedVersion);
@@ -186,7 +185,8 @@ public class WorkflowManagementServiceTest {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
     VersionedWorkflow publishedVersion = new VersionedWorkflow();
     publishedVersion.setPublished(true);
-    when(versionRepository.findByWorkflowId(anyString())).thenReturn(Collections.singletonList(publishedVersion));
+    when(versionRepository.findTopByWorkflowIdOrderByVersionDesc(anyString())).thenReturn(
+        Optional.of(publishedVersion));
 
     assertThatThrownBy(() -> workflowManagementService.update(swadlView))
         .isInstanceOf(UnsupportedOperationException.class)
@@ -196,7 +196,6 @@ public class WorkflowManagementServiceTest {
   @Test
   void testUpdate_noActiveVersion_notFoundException() {
     when(conveter.convert(anyString(), eq(Workflow.class))).thenReturn(workflow);
-    when(versionRepository.findByWorkflowId(anyString())).thenReturn(Collections.emptyList());
 
     assertThatThrownBy(() -> workflowManagementService.update(swadlView)).isInstanceOf(NotFoundException.class);
   }

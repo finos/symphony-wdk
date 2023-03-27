@@ -4,7 +4,6 @@ import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
-import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
@@ -18,12 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
-@RequestMapping("/v1/management/workflows")
+@RequestMapping("/v1/workflows")
 @RequiredArgsConstructor
 @Slf4j
 public class WorkflowsMgtApiController implements WorkflowsMgtApi {
@@ -46,35 +46,39 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   }
 
   @Override
-  public ResponseEntity<List<VersionedWorkflowView>> getSwadl(String token, String id) {
-    return ResponseEntity.ok(workflowManagementService.get(id));
+  public ResponseEntity<List<VersionedWorkflowView>> getVersionedWorkflow(String token, String workflowId, Long version,
+      Boolean allVersions) {
+    List<VersionedWorkflowView> result = new ArrayList<>();
+    if (version == null && !allVersions) {
+      workflowManagementService.get(workflowId).ifPresent(result::add);
+    } else if (allVersions) {
+      result.addAll(workflowManagementService.getAllVersions(workflowId));
+    } else {
+      workflowManagementService.get(workflowId, version).ifPresent(result::add);
+    }
+    return ResponseEntity.ok(result);
   }
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> deleteSwadl(String token, String id) {
-    workflowManagementService.delete(id);
+  public ResponseEntity<Void> deleteWorkflowByIdAndVersion(String token, String workflowId, Long version) {
+    Optional.ofNullable(version)
+            .ifPresentOrElse(v -> workflowManagementService.delete(workflowId, version),
+                () -> workflowManagementService.delete(workflowId));
     return ResponseEntity.noContent().build();
   }
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> deployActiveVersion(String token, String id, Long version) {
-    workflowManagementService.setActiveVersion(id, version);
-    return ResponseEntity.noContent().build();
-  }
+  public ResponseEntity<Void> setVersionAndExpirationTime(String token, String workflowId, Long version,
+      Instant expirationDate) {
+    if (version != null) {
+      workflowManagementService.setActiveVersion(workflowId, version);
+    }
 
-  @Override
-  public ResponseEntity<VersionedWorkflowView> getSwadlByVersion(String token, String id, Long version) {
-    Optional<VersionedWorkflowView> workflowView = workflowManagementService.get(id, version);
-    return workflowView.map(ResponseEntity::ok)
-        .orElseThrow(
-            () -> new NotFoundException(String.format("Version %s of workflow %s is not found.", version, id)));
-  }
-
-  @Override
-  public ResponseEntity<Void> deleteSwadlByVersion(String token, String id, Long version) {
-    workflowManagementService.delete(id, version);
+    if (expirationDate != null) {
+      workflowExpirationService.scheduleWorkflowExpiration(workflowId, expirationDate);
+    }
     return ResponseEntity.noContent().build();
   }
 
@@ -84,12 +88,5 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
     SseEmitter emitter = new SseEmitter();
     logsStreamingService.subscribe(emitter);
     return emitter;
-  }
-
-  @Override
-  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
-  public ResponseEntity<Void> scheduleWorkflowExpirationJob(String workflowId, Instant expirationDate) {
-    workflowExpirationService.scheduleWorkflowExpiration(workflowId, expirationDate);
-    return ResponseEntity.ok().build();
   }
 }

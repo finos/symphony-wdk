@@ -20,7 +20,7 @@ public class VersionedWorkflowConverter implements Converter<VersionedWorkflow, 
         .deploymentId(versionedWorkflow.getDeploymentId())
         .swadl(versionedWorkflow.getSwadl())
         .description(versionedWorkflow.getDescription())
-        .lastUpdatedBy(versionedWorkflow.getUserId())
+        .createdBy(versionedWorkflow.getCreatedBy())
         .build();
   }
 }

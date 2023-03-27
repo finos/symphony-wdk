@@ -147,6 +147,7 @@ public class CamundaBpmnBuilder {
             exclusiveSubTreeNodes(currentNodeId, currentNode.getElementType(), builder, context, currentNodeChildren);
       }
       context.addNodeBuilder(currentNodeId, builder); // cache the builder to reuse for its kids
+      // recursive
       buildWorkflowInDfs(currentNodeChildren, currentNodeId, context);
       if (hasAllConditionalChildren(context, currentNodeChildren, currentNodeId)
           && builder instanceof ExclusiveGatewayBuilder) {

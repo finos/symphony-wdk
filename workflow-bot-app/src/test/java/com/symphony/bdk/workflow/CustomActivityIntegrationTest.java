@@ -31,7 +31,7 @@ class CustomActivityIntegrationTest extends IntegrationTest {
         .header("X-Monitoring-Token", "MONITORING_TOKEN_VALUE")
         .contentType(ContentType.JSON)
         .when()
-        .get(String.format("/wdk/v1/workflows/%s/definitions", "custom-activity"))
+        .get(String.format("/wdk/v1/workflows/%s/nodes", "custom-activity"))
         .thenReturn();
 
     // actual flow nodes

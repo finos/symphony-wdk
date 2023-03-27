@@ -28,9 +28,11 @@ public class VersionedWorkflowView {
   private String deploymentId;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String lastUpdatedBy;
+  private Long createdBy;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String swadl;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String description;
 }

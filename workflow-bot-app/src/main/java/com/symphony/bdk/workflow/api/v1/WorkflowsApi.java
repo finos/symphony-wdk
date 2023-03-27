@@ -2,9 +2,9 @@ package com.symphony.bdk.workflow.api.v1;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
-import com.symphony.bdk.workflow.api.v1.dto.WorkflowDefinitionView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
+import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesStateView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowNodesView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 
@@ -47,10 +47,10 @@ public interface WorkflowsApi {
   @ApiResponses(
       value = {@ApiResponse(code = 200, message = "OK", response = WorkflowView.class, responseContainer = "List"),
           @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
-  @GetMapping("/")
+  @GetMapping
   ResponseEntity<List<WorkflowView>> listAllWorkflows(
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token);
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token);
 
   @ApiOperation("List all instances of a given workflow")
   @ApiResponses(
@@ -60,21 +60,21 @@ public interface WorkflowsApi {
   ResponseEntity<List<WorkflowInstView>> listWorkflowInstances(
       @ApiParam(value = "Workflow's id to list instances", required = true) @PathVariable String workflowId,
       @ApiParam(value = "Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam("Optional query parameter to filter instances by status [Pending | Completed | Failed]")
       @RequestParam(required = false) String status,
       @ApiParam("Optional version parameter to filter instances by version")
       @RequestParam(required = false) Long version);
 
   @ApiOperation("List the completed activities in a given instance for a given workflow")
-  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowNodesView.class),
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowNodesStateView.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
   @GetMapping("/{workflowId}/instances/{instanceId}/states")
-  ResponseEntity<WorkflowNodesView> getInstanceState(
+  ResponseEntity<WorkflowNodesStateView> getInstanceState(
       @ApiParam(value = "Workflow's id to list instance activities", required = true) @PathVariable String workflowId,
       @ApiParam(value = "Workflow's instance id to list activities", required = true) @PathVariable String instanceId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam(
           value = "Optional query parameter to filter activities having started before the date. "
               + "The date is an ISO 8601 date",
@@ -97,14 +97,14 @@ public interface WorkflowsApi {
       @RequestParam(required = false, name = "finished_after") Instant finishedAfter
   );
 
-  @ApiOperation("Get activities definitions for a given workflow")
-  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowDefinitionView.class),
+  @ApiOperation("Get activities graph nodes for a given workflow")
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = WorkflowNodesView.class),
       @ApiResponse(code = 401, message = "Request is not authorised", response = ErrorResponse.class)})
-  @GetMapping("/{workflowId}/definitions")
-  ResponseEntity<WorkflowDefinitionView> getWorkflowDefinition(
+  @GetMapping("/{workflowId}/nodes")
+  ResponseEntity<WorkflowNodesView> getWorkflowGraphNodes(
       @ApiParam(value = "Workflow's id to get activities definitions", required = true) @PathVariable String workflowId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam("Optional version parameter to filter instances by version")
       @RequestParam(required = false) Long version);
 
@@ -118,7 +118,7 @@ public interface WorkflowsApi {
       @ApiParam(value = "Workflow's instance id to list global variables", required = true) @PathVariable
       String instanceId,
       @ApiParam("Workflows monitoring token to authenticate the request")
-      @RequestHeader(name = X_MONITORING_TOKEN_KEY, required = false) String token,
+      @RequestHeader(name = X_MONITORING_TOKEN_KEY) String token,
       @ApiParam(value = "Optional query parameter to filter global variables update occurred before the date. "
           + "The date is an ISO 8601 date", example = "2022-09-21T15:43:24.917Z")
       @RequestParam(required = false, name = "updated_before") Instant updatedBefore,

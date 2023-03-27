@@ -8,5 +8,5 @@ import lombok.Data;
 public class SwadlView {
   private String description;
   private String swadl;
-  private String author;
+  private Long createdBy;
 }

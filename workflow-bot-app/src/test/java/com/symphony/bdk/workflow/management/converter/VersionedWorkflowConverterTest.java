@@ -20,7 +20,7 @@ class VersionedWorkflowConverterTest {
     versionedWorkflow.setActive(true);
     versionedWorkflow.setDescription("description");
     versionedWorkflow.setDeploymentId("deployment");
-    versionedWorkflow.setUserId("user");
+    versionedWorkflow.setCreatedBy(1234L);
     VersionedWorkflowConverter converter = new VersionedWorkflowConverter();
     VersionedWorkflowView workflowView = converter.apply(versionedWorkflow);
     assertThat(workflowView.getWorkflowId()).isEqualTo("workflow");
@@ -30,6 +30,6 @@ class VersionedWorkflowConverterTest {
     assertThat(workflowView.getActive()).isTrue();
     assertThat(workflowView.getDeploymentId()).isEqualTo("deployment");
     assertThat(workflowView.getDescription()).isEqualTo("description");
-    assertThat(workflowView.getLastUpdatedBy()).isEqualTo("user");
+    assertThat(workflowView.getCreatedBy()).isEqualTo(1234L);
   }
 }

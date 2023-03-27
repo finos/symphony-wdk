@@ -3,8 +3,7 @@ COPY artifact/*.jar wdk.jar
 
 # Create custom JRE
 RUN mkdir custom
-RUN jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules jdk.unsupported,java.se --output custom/jre
-
+RUN jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules java.base,java.scripting,java.sql,jdk.unsupported,java.se,jdk.crypto.ec --output custom/jre
 
 FROM alpine:3.11
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
@@ -44,4 +43,4 @@ RUN apk add --no-cache --virtual .build-deps curl binutils \
 COPY --from=builder custom/jre /custom/jre
 COPY --from=builder wdk.jar wdk.jar
 
-ENTRYPOINT ["custom/jre/bin/java", "-Dspring.config.additional-location=./symphony/",  "-jar", "wdk.jar", "--spring.profiles.active=${PROFILE:default}"]
+ENTRYPOINT ["custom/jre/bin/java", "-Dspring.config.additional-location=./symphony/", "-Dloader.path=./symphony/libs", "-jar", "wdk.jar", "--spring.profiles.active=${PROFILE:default}"]

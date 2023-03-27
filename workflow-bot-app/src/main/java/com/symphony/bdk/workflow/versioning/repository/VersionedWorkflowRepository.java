@@ -14,11 +14,15 @@ import java.util.Optional;
 public interface VersionedWorkflowRepository extends JpaRepository<VersionedWorkflow, String> {
   List<VersionedWorkflow> findByWorkflowId(String workflowId);
 
+  Optional<VersionedWorkflow> findTopByWorkflowIdOrderByVersionDesc(String workflowId);
+
   Optional<VersionedWorkflow> findByWorkflowIdAndVersion(String workflowId, Long version);
 
   Optional<VersionedWorkflow> findByWorkflowIdAndActiveTrue(String workflowId);
 
   Optional<VersionedWorkflow> findByWorkflowIdAndPublishedFalse(String workflowId);
+
+  List<VersionedWorkflow> findByActiveTrue();
 
   void deleteByWorkflowId(String workflowId);
 
