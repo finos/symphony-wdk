@@ -84,7 +84,6 @@ import java.util.stream.Collectors;
 @ActiveProfiles("test")
 @ContextConfiguration
 @Import(IntegrationTestConfiguration.class)
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class IntegrationTest {
 
   @LocalServerPort
