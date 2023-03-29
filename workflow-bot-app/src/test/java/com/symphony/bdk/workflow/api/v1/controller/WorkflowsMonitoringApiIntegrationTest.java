@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "A NP should make the test fail")
 public class WorkflowsMonitoringApiIntegrationTest extends ApiIntegrationTest {
   private static final String VALID_SWADL_1 = "id: valid-dummy-workflow-1\n"
       + "activities:\n"

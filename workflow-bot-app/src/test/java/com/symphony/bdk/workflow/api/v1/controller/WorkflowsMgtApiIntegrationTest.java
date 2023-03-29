@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+@SuppressFBWarnings(value = {"NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"},
     justification = "A NP should make the test fail")
 class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
   private static final String VALID_SWADL_V1 = "id: dummy-workflow\n"
@@ -64,7 +64,7 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(voidResponse.getBody()).isNull();
 
     // request the workflow swadl
-    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow");
+    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow", true);
     assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(getSwadlResponse.getBody()).hasSize(1);
     assertThat(getSwadlResponse.getBody().get(0)).isEqualTo(Pair.of(VALID_SWADL_V1, false));
@@ -98,11 +98,16 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(voidResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     assertThat(voidResponse.getBody()).isNull();
 
-    // get workflow swadls
-    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow");
+    // get all workflow swadl versions
+    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow", true);
     assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(getSwadlResponse.getBody())
         .containsExactlyInAnyOrder(Pair.of(UPDATED_VALID_SWADL_V1, false), Pair.of(VALID_SWADL_V2, true));
+
+    // get active workflow swadl version
+    getSwadlResponse = getSwadlById("dummy-workflow");
+    assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(getSwadlResponse.getBody()).containsOnly(Pair.of(VALID_SWADL_V2, true));
   }
 
   @Test
@@ -113,11 +118,17 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(voidResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     assertThat(voidResponse.getBody()).isNull();
 
-    // get workflow swadls
-    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow");
+    // get all workflow swadl versions
+    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse =
+        getSwadlById("dummy-workflow", true);
     assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(getSwadlResponse.getBody()).containsExactlyInAnyOrder(
         Pair.of(UPDATED_VALID_SWADL_V1, true), Pair.of(VALID_SWADL_V2, false));
+
+    // get active workflow swadl version
+    getSwadlResponse = getSwadlById("dummy-workflow");
+    assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(getSwadlResponse.getBody()).containsOnly(Pair.of(UPDATED_VALID_SWADL_V1, true));
   }
 
   @Test
@@ -128,10 +139,10 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(voidResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     assertThat(voidResponse.getBody()).isNull();
 
-    // get workflow swadls
-    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow");
+    // get all workflow swadl versions
+    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow", true);
     assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(getSwadlResponse.getBody()).containsExactlyInAnyOrder(Pair.of(VALID_SWADL_V2, false));
+    assertThat(getSwadlResponse.getBody()).containsOnly(Pair.of(VALID_SWADL_V2, false));
   }
 
   @Test
@@ -142,8 +153,8 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(voidResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     assertThat(voidResponse.getBody()).isNull();
 
-    // get workflow swadls
-    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow");
+    // get all workflow swadl versions
+    ResponseEntity<List<Pair<String, Boolean>>> getSwadlResponse = getSwadlById("dummy-workflow", true);
     assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(getSwadlResponse.getBody()).isEmpty();
   }

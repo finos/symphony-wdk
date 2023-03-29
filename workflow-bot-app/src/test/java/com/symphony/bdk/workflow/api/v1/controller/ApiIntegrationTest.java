@@ -7,6 +7,8 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -23,21 +25,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApiIntegrationTest extends IntegrationTest {
   protected static final String MANAGEMENT_TOKEN_KEY = "X-Management-Token";
   protected static final String MANAGEMENT_TOKEN_VALUE = "MANAGEMENT_TOKEN_VALUE";
   protected static final String MONITORING_TOKEN_KEY = "X-Monitoring-Token";
   protected static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
   protected static final String CONTENT_TYPE_KEY = "Content-Type";
-  protected static final String VALIDATE_AND_DEPLOY_URL = "http://localhost:%s/wdk/v1/management/workflows";
-  protected static final String VALIDATE_AND_UPDATE_URL = "http://localhost:%s/wdk/v1/management/workflows";
-  protected static final String GET_SWADL_BY_ID_URL = "http://localhost:%s/wdk/v1/management/workflows/%s";
-  protected static final String SET_ACTIVE_VERSION_URL =
-      "http://localhost:%s/wdk/v1/management/workflows/%s/versions/%s";
+  protected static final String VALIDATE_AND_DEPLOY_URL = "http://localhost:%s/wdk/v1/workflows";
+  protected static final String VALIDATE_AND_UPDATE_URL = "http://localhost:%s/wdk/v1/workflows";
+  protected static final String GET_SWADL_BY_ID_URL = "http://localhost:%s/wdk/v1/workflows/%s?all_versions=%s";
+  protected static final String SET_ACTIVE_VERSION_URL = "http://localhost:%s/wdk/v1/workflows/%s?version=%s";
   protected static final String DELETE_SWADL_BY_ID_AND_VERSION_URL =
-      "http://localhost:%s/wdk/v1/management/workflows/%s/versions/%s";
-  protected static final String DELETE_SWADL_BY_ID_URL =
-      "http://localhost:%s/wdk/v1/management/workflows/%s";
+      "http://localhost:%s/wdk/v1/workflows/%s?version=%s";
+  protected static final String DELETE_SWADL_BY_ID_URL = "http://localhost:%s/wdk/v1/workflows/%s";
   protected static final String LIST_ALL_DEPLOYED_WORKFLOWS_URL = "http://localhost:%s/wdk/v1/workflows/";
   protected static final String LIST_INSTANCES_URL = "http://localhost:%s/wdk/v1/workflows/%s/instances";
   protected static final String LIST_INSTANCES_STATUS_URL =
@@ -47,6 +48,10 @@ public class ApiIntegrationTest extends IntegrationTest {
   protected TestRestTemplate restTemplate;
 
   protected ResponseEntity<List<Pair<String, Boolean>>> getSwadlById(String workflowId) {
+    return getSwadlById(workflowId, false);
+  }
+
+  protected ResponseEntity<List<Pair<String, Boolean>>> getSwadlById(String workflowId, boolean allVersions) {
     restTemplate.getRestTemplate().setInterceptors(
         Collections.singletonList((request, body, execution) -> {
           request.getHeaders().add(MANAGEMENT_TOKEN_KEY, MANAGEMENT_TOKEN_VALUE);
@@ -55,7 +60,7 @@ public class ApiIntegrationTest extends IntegrationTest {
         }));
 
     ResponseEntity<Object[]> response = restTemplate.getForEntity(
-        String.format(GET_SWADL_BY_ID_URL, port, workflowId), Object[].class);
+        String.format(GET_SWADL_BY_ID_URL, port, workflowId, allVersions), Object[].class);
 
     List<Pair<String, Boolean>> responseBodyAsList = new ArrayList<>();
 
@@ -98,9 +103,8 @@ public class ApiIntegrationTest extends IntegrationTest {
     headers.setContentType(MediaType.TEXT_PLAIN);
     headers.add(MANAGEMENT_TOKEN_KEY, MANAGEMENT_TOKEN_VALUE);
 
-    return restTemplate.postForEntity(
-        String.format(SET_ACTIVE_VERSION_URL, port, workflowId, versionToRollback),
-        new HttpEntity<>(headers), Void.class);
+    return restTemplate.exchange(String.format(SET_ACTIVE_VERSION_URL, port, workflowId, versionToRollback),
+        HttpMethod.PUT, new HttpEntity<>(headers), Void.class, Collections.emptyList());
   }
 
   protected ResponseEntity<Void> deleteWorkflow(String workflowId) {
@@ -171,7 +175,23 @@ public class ApiIntegrationTest extends IntegrationTest {
 
   // overrides the parent class method that undeploy workflows after each test in order to keep them deployed
   @AfterEach
-  void removeAllWorkflows() {
-    System.out.println("");
+  void removeAllWorkflows() {}
+
+  @BeforeAll
+  void cleanVersionedWorkflows() throws InterruptedException {
+    List<WorkflowView> workflowViews = listAllWorkflows().getBody();
+    if (workflowViews != null) {
+      workflowViews.forEach(e -> deleteWorkflow(e.getId()));
+    }
+
+    for (int i = 0; i < 5; i++) {
+      try {
+        engine.undeployAll();
+        return;
+      } catch (Exception e) {
+        // this might fail if processes are running at the same time, wait a bit a retry one more time
+        Thread.sleep(100); // NOSONAR
+      }
+    }
   }
 }
