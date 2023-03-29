@@ -127,7 +127,7 @@ public abstract class IntegrationTest {
   StreamService streamService;
 
   @MockBean(name = "messageService")
-  protected MessageService messageService;
+  MessageService messageService;
 
   @MockBean(name = "userService")
   UserService userService;
