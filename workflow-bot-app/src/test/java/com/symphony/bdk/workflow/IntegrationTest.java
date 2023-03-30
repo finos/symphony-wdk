@@ -87,10 +87,10 @@ import java.util.stream.Collectors;
 public abstract class IntegrationTest {
 
   @LocalServerPort
-  private int port;
+  protected int port;
 
   @Autowired
-  WorkflowEngine engine;
+  protected WorkflowEngine engine;
 
   @Autowired
   ResourceProvider resourceProvider;

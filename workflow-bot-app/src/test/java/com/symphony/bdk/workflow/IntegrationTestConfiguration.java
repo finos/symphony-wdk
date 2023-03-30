@@ -26,6 +26,7 @@ public class IntegrationTestConfiguration {
   public WorkflowBotConfiguration workflowBotConfiguration() {
     WorkflowBotConfiguration workflowBotConfiguration = mock(WorkflowBotConfiguration.class);
     when(workflowBotConfiguration.getMonitoringToken()).thenReturn("MONITORING_TOKEN_VALUE");
+    when(workflowBotConfiguration.getManagementToken()).thenReturn("MANAGEMENT_TOKEN_VALUE");
     when(workflowBotConfiguration.getWorkflowsFolderPath()).thenReturn("./");
     return workflowBotConfiguration;
   }
