@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'workflow-bot.java-conventions'
-    id 'org.springframework.boot' version '2.7.8'
+    id 'org.springframework.boot' version '2.7.10'
 }
 
 javadoc {
@@ -12,7 +12,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.12.0') {
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.13.0') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
 
@@ -21,6 +21,7 @@ dependencies {
     }
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.finos.symphony.bdk.ext:symphony-group-extension'
+    implementation 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

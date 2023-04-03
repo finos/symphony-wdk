@@ -4,7 +4,8 @@ variables:
 activities:
   - send-message:
       id: sendMessageTemplateWithParams
-      content: "Hello ${variables.val}!\n"
+      content:
+        template: "Hello ${variables.val}!\n"
       to:
         stream-id: "123"
       on:

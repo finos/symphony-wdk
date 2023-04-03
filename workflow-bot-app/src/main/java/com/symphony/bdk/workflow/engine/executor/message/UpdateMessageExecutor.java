@@ -5,16 +5,13 @@ import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecu
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,19 +36,8 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
   }
 
   private static String extractContent(ActivityExecutorContext<UpdateMessage> execution) throws IOException {
-    if (execution.getActivity().getContent() != null) {
-      return execution.getActivity().getContent();
-    } else {
-      String template = execution.getActivity().getTemplate();
-      File file = execution.getResourceFile(Path.of(template));
-      Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
-      // also bind our utility functions, so they can be used inside templates
-      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(execution.bdk().session()));
-      return execution.bdk()
-          .messages()
-          .templates()
-          .newTemplateFromFile(file.getPath())
-          .process(templateVariables);
-    }
+    UpdateMessage activity = execution.getActivity();
+    return TemplateContentExtractor.extractContent(execution, activity.getContent(), activity.getTemplatePath(),
+        activity.getTemplate());
   }
 }
