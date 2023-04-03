@@ -2,6 +2,7 @@
 package com.symphony.bdk.workflow.exception;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
+import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -64,6 +65,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorResponse> handle(OptimisticLockException exception) {
     log.error("Optimistic locking exception: [{}]", exception.getMessage());
     return handle("Workflow being updated is outdated, please refresh then update again.", HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(InvalidActivityException.class)
+  public ResponseEntity<ErrorResponse> handle(InvalidActivityException exception) {
+    log.error("Invalid activity exception: [{}]", exception.getMessage());
+    return handle(exception.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
   private ResponseEntity<ErrorResponse> handle(String errorMessage, HttpStatus status) {
