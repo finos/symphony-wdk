@@ -849,22 +849,30 @@ activity one.**
 Content can be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
-Content can either be set directly in the SWADL file as plain text (String) or it can be referenced from an external
-file (Object). When using an external file the content has to be defined as follows:
+Content can either be set directly in the SWADL file as plain text (String) or it can be a [Freemarker](https://freemarker.apache.org/) template. 
+
+Both inline template and external template file are supported.
+
+When using an inline template, the template content has to be defined as string to the `template` field:
 
 Key | Type | Required |
 ------------ | -------| --- |
 template | String | Yes |
 
-[Freemarker](https://freemarker.apache.org/) template is accepted as external file (.ftl), and also in the content string as an in-line
-template. By default, the referenced external files are being searched in the `./workflows` root folder.
+When using an external file (.ftl), the content has to be defined as follows:
 
-When [Freemarker](https://freemarker.apache.org/) is used, any workflow variable can be referenced in the external file,
-same format as it is for the any other activity in the SWADL file.
+Key | Type | Required |
+------------ | -------| --- |
+template-path | String | Yes 
 
+
+By default, it will search for the file in the `./workflows` root folder.
+
+When a template is used, any workflow variable can be referenced in it, same format as it is for the any other activity in the SWADL file.
 [Utility functions](#utility-functions) can also be used inside templates.
 
-Example using Freemarker:
+Example using Freemarker template:
+
 
 ```yaml
 id: pingPong
@@ -877,7 +885,23 @@ activities:
         message-received:
           content: /ping {message}
       content:
-        template: message-with-params.ftl
+        template: "<messageML>${variables.reply}: ${text(event.source.message.message)}</messageML>"
+```
+
+or
+
+```yaml
+id: pingPong
+variables:
+  reply: pong
+activities:
+  - send-message:
+      id: pingPong
+      on:
+        message-received:
+          content: /ping {message}
+      content:
+        template-path: message-with-params.ftl
 ```
 
 message-with-params.ftl

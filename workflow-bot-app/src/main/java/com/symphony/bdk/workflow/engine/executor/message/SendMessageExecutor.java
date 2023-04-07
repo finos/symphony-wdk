@@ -14,7 +14,6 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.http.api.ApiRuntimeException;
-import com.symphony.bdk.workflow.engine.camunda.UtilityFunctionsMapper;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.obo.OboExecutor;
@@ -25,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -43,7 +41,6 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
   // required for message correlation and forms (correlation happens on variables than cannot be nested)
   public static final String OUTPUT_MESSAGE_ID_KEY = "msgId";
   public static final String OUTPUT_MESSAGE_KEY = "message";
-
   public static final String OUTPUT_MESSAGE_IDS_KEY = "msgIds";
   public static final String OUTPUT_MESSAGES_KEY = "messages";
   public static final String OUTPUT_FAILED_MESSAGES_KEY = "failedStreamIds";
@@ -188,16 +185,8 @@ public class SendMessageExecutor extends OboExecutor<SendMessage, V4Message> imp
 
   private static String extractContent(ActivityExecutorContext<SendMessage> execution) throws IOException {
     SendMessage activity = execution.getActivity();
-    if (activity.getContent() != null) {
-      return activity.getContent();
-    } else {
-      Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
-      // also bind our utility functions, so they can be used inside templates
-      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(execution.bdk().session()));
-      String templateFile = activity.getTemplate();
-      File file = execution.getResourceFile(Path.of(templateFile));
-      return execution.bdk().messages().templates().newTemplateFromFile(file.getPath()).process(templateVariables);
-    }
+    return TemplateContentExtractor.extractContent(execution, activity.getContent(), activity.getTemplatePath(),
+        activity.getTemplate());
   }
 
   private void handleFileAttachment(Message.MessageBuilder messageBuilder, SendMessage.Attachment attachment,

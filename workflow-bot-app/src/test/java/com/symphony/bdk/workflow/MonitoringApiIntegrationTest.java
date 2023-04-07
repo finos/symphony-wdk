@@ -154,6 +154,7 @@ class MonitoringApiIntegrationTest extends IntegrationTest {
 
     engine.undeployByWorkflowId(workflow1.getId());
     engine.undeployByWorkflowId(workflow1.getId());
+    versionedWorkflowRepository.deleteAll();
   }
 
   @Test

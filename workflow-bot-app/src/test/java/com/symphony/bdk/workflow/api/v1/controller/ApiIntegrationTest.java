@@ -6,6 +6,7 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
@@ -178,6 +179,7 @@ public class ApiIntegrationTest extends IntegrationTest {
   void removeAllWorkflows() {}
 
   @BeforeAll
+  @AfterAll
   void cleanVersionedWorkflows() throws InterruptedException {
     List<WorkflowView> workflowViews = listAllWorkflows().getBody();
     if (workflowViews != null) {
