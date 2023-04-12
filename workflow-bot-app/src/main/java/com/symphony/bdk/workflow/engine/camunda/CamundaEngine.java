@@ -2,6 +2,7 @@ package com.symphony.bdk.workflow.engine.camunda;
 
 import static com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService.ACTIVE_WORKFLOW_DIRECTED_GRAPH;
 
+import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
@@ -145,7 +146,12 @@ public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowCo
   @SuppressWarnings("unchecked")
   public <T> void onEvent(RealTimeEvent<T> event) {
     try {
-      ((RealTimeEventProcessor<T>) processorRegistry.get(event.getSource().getClass().getSimpleName())).process(event);
+      // Event coming from BDK DF is a sub type of V4Event since fix of https://github.com/finos/symphony-bdk-java/issues/741.
+      // this change requires to read the super class to get the right processor mapping instead of the raw event type.
+      // However many tests are still injecting the raw event type, so we do the check as below
+      Class<?> clazz = EventPayload.class.isAssignableFrom(event.getSource().getClass()) ?
+          event.getSource().getClass().getSuperclass() : event.getSource().getClass();
+      ((RealTimeEventProcessor<T>) processorRegistry.get(clazz.getSimpleName())).process(event);
     } catch (Exception e) {
       log.error("This error happens when the incoming event has an invalid PresentationML message", e);
     }
