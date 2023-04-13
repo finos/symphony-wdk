@@ -2578,3 +2578,47 @@ activities:
         println wdk.session().id
         println wdk.session().displayName
 ```
+
+### Object readShared(String namespace, String key)
+Along side the global variables, WDK provides shared data, which is accessible (read and write via utility functions) among the
+a workflow process instances, and also among different workflows.
+
+The shared data is organized by its namespace and and its key.
+
+This method will read the value from the given namespace and the key.
+
+Example:
+
+in [send-message](#send-message)
+
+```yaml
+activities:
+  - send-message:
+      id: sendBotDisplayName
+      content: ${readShared("namespace", "key")}
+```
+
+in [execute-script](#execute-script)
+
+```yaml
+activities:
+  - execute-script:
+      id: printBotInfo
+      script: |
+        println wdk.readShared("namespace", "key")
+```
+
+### void writeShared(String namespace, String key, Object value)
+This method will write the shared data to the given namespace and under the given key.
+
+Example:
+
+in [execute-script](#execute-script)
+
+```yaml
+activities:
+  - execute-script:
+      id: printBotInfo
+      script: |
+        wdk.writeShared("namespace", "key", value);
+```

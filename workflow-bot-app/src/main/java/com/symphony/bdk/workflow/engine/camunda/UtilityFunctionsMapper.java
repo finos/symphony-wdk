@@ -8,6 +8,7 @@ import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
@@ -28,13 +29,20 @@ import java.util.Map;
 public class UtilityFunctionsMapper extends FunctionMapper {
   private static SessionService staticSessionService;
 
+  private static SharedDataStore sharedDataStore;
+
   public static void setStaticSessionService(SessionService sessionService) {
     UtilityFunctionsMapper.staticSessionService = sessionService;
   }
 
+  public static void setSharedStateService(SharedDataStore sharedDataStore) {
+    UtilityFunctionsMapper.sharedDataStore = sharedDataStore;
+  }
+
   @Autowired
-  public UtilityFunctionsMapper(SessionService sessionService) {
+  public UtilityFunctionsMapper(SessionService sessionService, SharedDataStore sharedDataStore) {
     setStaticSessionService(sessionService);
+    setSharedStateService(sharedDataStore);
   }
 
   /**
@@ -48,8 +56,10 @@ public class UtilityFunctionsMapper extends FunctionMapper {
   public static final String MENTIONS = "mentions";
   public static final String HASHTAGS = "hashTags";
   public static final String CASHTAGS = "cashTags";
-  public static final String EMOJIS =  "emojis";
-  public static final String SESSION =  "session";
+  public static final String EMOJIS = "emojis";
+  public static final String SESSION = "session";
+  public static final String READSHARED = "readShared";
+  public static final String WRITESHARED = "writeShared";
 
   private static final Map<String, Method> FUNCTION_MAP;
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -64,6 +74,10 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put(CASHTAGS, ReflectUtil.getMethod(UtilityFunctionsMapper.class, CASHTAGS, Object.class));
     FUNCTION_MAP.put(EMOJIS, ReflectUtil.getMethod(UtilityFunctionsMapper.class, ESCAPE, Object.class));
     FUNCTION_MAP.put(SESSION, ReflectUtil.getMethod(UtilityFunctionsMapper.class, SESSION));
+    FUNCTION_MAP.put(READSHARED,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, READSHARED, String.class, String.class));
+    FUNCTION_MAP.put(WRITESHARED,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, WRITESHARED, String.class, String.class, Object.class));
   }
 
   @Override
@@ -81,6 +95,14 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     } catch (JsonProcessingException jsonProcessingException) {
       return string;
     }
+  }
+
+  public static Object readShared(String namespace, String key) {
+    return sharedDataStore.getNamespaceData(namespace).get(key);
+  }
+
+  public static void writeShared(String namespace, String key, Object data) {
+    sharedDataStore.putNamespaceData(namespace, key, data);
   }
 
   public static String text(String presentationMl) throws PresentationMLParserException {

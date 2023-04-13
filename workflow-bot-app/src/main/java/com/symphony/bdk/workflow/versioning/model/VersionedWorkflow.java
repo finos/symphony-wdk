@@ -24,7 +24,7 @@ import javax.persistence.Version;
 public class VersionedWorkflow {
   @Id
   @GeneratedValue(generator = "system-uuid")
-  @GenericGenerator(name = "system-uuid", strategy = "uuid")
+  @GenericGenerator(name = "system-uuid", strategy = "uuid2")
   @Column(name = "ID")
   private String id;
   @Column(name = "WORKFLOW_ID", nullable = false, length = 100)

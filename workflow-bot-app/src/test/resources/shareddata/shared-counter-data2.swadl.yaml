@@ -1,0 +1,19 @@
+id: shared-data2
+
+activities:
+  - send-message:
+      id: counter
+      on:
+        message-received:
+          content: /count2
+      content: "increase counter from workflow 2"
+  - execute-script:
+      id: vars
+      script: |
+        counter = wdk.readShared('test', 'counter')
+        if(counter == null) counter = 0
+        counter++
+        wdk.writeShared('test', 'counter', counter)
+  - send-message:
+      id: send_counter
+      content: counter is ${readShared('test', 'counter')}

@@ -7,6 +7,7 @@ import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 import com.symphony.bdk.workflow.engine.handler.audit.AuditTrailLogAction;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
@@ -72,13 +73,15 @@ public class CamundaExecutor implements JavaDelegate {
   }
 
   private final BdkGateway bdk;
+  private final SharedDataStore sharedDataStore;
   private final AuditTrailLogAction auditTrailLogger;
   private final ResourceProvider resourceLoader;
   private final ApplicationContext applicationContext;
 
-  public CamundaExecutor(BdkGateway bdk, AuditTrailLogAction auditTrailLogger,
+  public CamundaExecutor(BdkGateway bdk, SharedDataStore sharedDataStore, AuditTrailLogAction auditTrailLogger,
       @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader, ApplicationContext applicationContext) {
     this.bdk = bdk;
+    this.sharedDataStore = sharedDataStore;
     this.auditTrailLogger = auditTrailLogger;
     this.resourceLoader = resourceLoader;
     this.applicationContext = applicationContext;
@@ -115,7 +118,7 @@ public class CamundaExecutor implements JavaDelegate {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(
-          new CamundaActivityExecutorContext(execution, activity, event, resourceLoader, bdk));
+          new CamundaActivityExecutorContext(execution, activity, event, resourceLoader, bdk, sharedDataStore));
     } catch (Exception e) {
       log.error(String.format("Activity from workflow %s failed", execution.getProcessDefinitionId()), e);
       logErrorVariables(execution, activity, e);
@@ -154,14 +157,16 @@ public class CamundaExecutor implements JavaDelegate {
     private final EventHolder<Object> event;
     private final ResourceProvider resourceLoader;
     private final BdkGateway bdk;
+    private final SharedDataStore sharedDataStore;
 
     public CamundaActivityExecutorContext(DelegateExecution execution, T activity, EventHolder<Object> event,
-        ResourceProvider resourceLoader, BdkGateway bdk) {
+        ResourceProvider resourceLoader, BdkGateway bdk, SharedDataStore sharedDataStore) {
       this.execution = execution;
       this.activity = activity;
       this.event = event;
       this.resourceLoader = resourceLoader;
       this.bdk = bdk;
+      this.sharedDataStore = sharedDataStore;
     }
 
     @Override
@@ -209,6 +214,11 @@ public class CamundaExecutor implements JavaDelegate {
     @Override
     public BdkGateway bdk() {
       return bdk;
+    }
+
+    @Override
+    public SharedDataStore sharedDataStore() {
+      return sharedDataStore;
     }
 
     @Override

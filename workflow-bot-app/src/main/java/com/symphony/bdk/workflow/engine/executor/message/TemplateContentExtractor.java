@@ -19,7 +19,8 @@ public class TemplateContentExtractor {
     } else {
       Map<String, Object> templateVariables = new HashMap<>(execution.getVariables());
       // also bind our utility functions so they can be used inside templates
-      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(execution.bdk().session()));
+      templateVariables.put(UtilityFunctionsMapper.WDK_PREFIX,
+          new UtilityFunctionsMapper(execution.bdk().session(), execution.sharedDataStore()));
 
       if (templatePath != null) {
         File file = execution.getResourceFile(Path.of(templatePath));

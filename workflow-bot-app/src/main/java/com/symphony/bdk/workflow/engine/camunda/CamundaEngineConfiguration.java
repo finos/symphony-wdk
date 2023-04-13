@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
 import com.symphony.bdk.workflow.engine.executor.BdkGateway;
+import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   private final BdkGateway bdkGateway;
 
+  private final SharedDataStore sharedDataStore;
+
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
     ExpressionManager expressionManager = processEngineConfiguration.getExpressionManager();
@@ -47,12 +50,18 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
         ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.EMOJIS, Object.class));
     expressionManager.addFunction(UtilityFunctionsMapper.SESSION,
         ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.SESSION));
+    expressionManager.addFunction(UtilityFunctionsMapper.READSHARED,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.READSHARED, String.class,
+            String.class));
+    expressionManager.addFunction(UtilityFunctionsMapper.WRITESHARED,
+        ReflectUtil.getMethod(UtilityFunctionsMapper.class, UtilityFunctionsMapper.WRITESHARED, String.class,
+            String.class, Object.class));
   }
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
     processEngineConfiguration.getBeans().put(
-        UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(this.bdkGateway.session()));
+        UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(this.bdkGateway.session(), this.sharedDataStore));
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 
