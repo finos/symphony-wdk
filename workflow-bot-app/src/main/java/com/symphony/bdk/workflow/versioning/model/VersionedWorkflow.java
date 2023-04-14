@@ -1,11 +1,14 @@
 package com.symphony.bdk.workflow.versioning.model;
 
+import com.symphony.bdk.workflow.versioning.BigStringCompressor;
+
 import lombok.Data;
 import lombok.Generated;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Optional;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -38,6 +41,7 @@ public class VersionedWorkflow {
   private Long etag;
   @Lob
   @Column(name = "SWADL", length = Integer.MAX_VALUE, nullable = false)
+  @Convert(converter = BigStringCompressor.class)
   private String swadl;
   @Column(name = "DEPLOY_ID", length = 64)
   private String deploymentId;
