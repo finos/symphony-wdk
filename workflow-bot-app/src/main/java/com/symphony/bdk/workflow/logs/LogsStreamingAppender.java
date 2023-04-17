@@ -20,19 +20,19 @@ public class LogsStreamingAppender extends UnsynchronizedAppenderBase<ILoggingEv
 
   @Override
   protected void append(ILoggingEvent eventObject) {
-    StringBuilder formattedMessage = new StringBuilder();
-    formattedMessage.append(eventObject.getFormattedMessage());
+    StringBuilder messageBuilder = new StringBuilder();
+    messageBuilder.append(eventObject.getFormattedMessage());
 
     if (eventObject.getThrowableProxy() != null) {
-      formattedMessage.append("\n")
+      messageBuilder.append("\n")
               .append(Arrays.stream(eventObject.getThrowableProxy().getStackTraceElementProxyArray())
                       .map(StackTraceElementProxy::getSTEAsString)
                       .collect(Collectors.joining("\n")));
     }
 
-
+    String formattedMessage = messageBuilder.toString().replaceAll("(\\r|\\n|\\r\\n)+", "\t");
     service.broadcast(eventObject.getTimeStamp(), eventObject.getLevel().toString(), eventObject.getLoggerName(),
-            formattedMessage.toString());
+        formattedMessage);
   }
 
   @Override

@@ -1,5 +1,14 @@
 package com.symphony.bdk.workflow.logs;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
@@ -10,15 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LogsStreamingAppenderTest {
@@ -33,7 +33,7 @@ class LogsStreamingAppenderTest {
     when(event.getTimeStamp()).thenReturn(Instant.now().toEpochMilli());
     when(event.getLoggerName()).thenReturn("www");
     when(event.getLevel()).thenReturn(Level.DEBUG);
-    when(event.getFormattedMessage()).thenReturn("log message");
+    when(event.getFormattedMessage()).thenReturn("log message\n");
 
     StackTraceElement stackTraceElement = new StackTraceElement("class", "method", "filename", 1);
     Throwable throwable = new Throwable();
@@ -43,7 +43,7 @@ class LogsStreamingAppenderTest {
 
     doNothing().when(service).broadcast(anyLong(), anyString(), anyString(), anyString());
     appender.append(event);
-    verify(service).broadcast(anyLong(), anyString(), eq("www"), eq("log message\nat class.method(filename:1)"));
+    verify(service).broadcast(anyLong(), anyString(), eq("www"), eq("log message\tat class.method(filename:1)"));
   }
 
   @Test
