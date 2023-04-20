@@ -51,7 +51,8 @@ spring:
       driver-class-name: org.h2.Driver
       jdbc-url: jdbc:h2:mem:process_engine;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
   jpa:
-    show-sql: true
+    open-in-view: false
+    show-sql: false
     hibernate:
       ddl-auto: update
 

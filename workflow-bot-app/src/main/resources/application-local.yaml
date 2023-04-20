@@ -13,6 +13,10 @@ bdk:
     privateKey:
       path: xxx
 
+spring:
+  jpa:
+    show-sql: true
+
 logging:
   level:
     org.camunda.bpm.engine.bpmn.parser: DEBUG
@@ -23,3 +27,5 @@ logging:
     org.camunda.bpm.engine.script: DEBUG
     org.camunda.bpm: OFF
     com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE

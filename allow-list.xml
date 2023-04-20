@@ -48,11 +48,17 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-        Testing false positives by suppressing a CVE
-        https://github.com/spring-projects/spring-framework/issues/24434 (Do not expose HttpInvoker)
-        ]]></notes>
+          No fix available
+          ]]></notes>
         <gav>org.springframework:spring-web:5.3.26</gav>
         <cve>CVE-2016-1000027</cve>
+    </suppress>
+    <suppress>
+      <notes><![CDATA[
+          No fix available
+          ]]></notes>
+      <gav>org.springframework:spring-expression:5.3.26</gav>
+      <cve>CVE-2023-20863</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[

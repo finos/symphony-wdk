@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 @Configuration
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "com.symphony.bdk.workflow.versioning",
+@EnableJpaRepositories(basePackages = {"com.symphony.bdk.workflow.versioning", "com.symphony.bdk.workflow.shared"},
     transactionManagerRef = "transactionManager")
 @Profile("!test")
 @Slf4j

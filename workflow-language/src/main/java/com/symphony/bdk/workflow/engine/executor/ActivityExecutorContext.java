@@ -49,6 +49,8 @@ public interface ActivityExecutorContext<T> {
    */
   BdkGateway bdk();
 
+  SharedDataStore sharedDataStore();
+
   /**
    * @return The activity definition from the workflow.
    */
