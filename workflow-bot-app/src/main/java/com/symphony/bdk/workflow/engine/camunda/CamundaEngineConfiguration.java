@@ -60,8 +60,9 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    processEngineConfiguration.getBeans().put(
-        UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(this.bdkGateway.session(), this.sharedDataStore));
+    processEngineConfiguration.getBeans()
+        .put(UtilityFunctionsMapper.WDK_PREFIX,
+            new UtilityFunctionsMapper(this.bdkGateway.session(), this.sharedDataStore));
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 

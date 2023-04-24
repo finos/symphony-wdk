@@ -1,7 +1,10 @@
 package com.symphony.bdk.workflow.configuration;
 
+import com.symphony.bdk.workflow.management.WorkflowManagementService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +19,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-@ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"com.symphony.bdk.workflow.versioning", "com.symphony.bdk.workflow.shared"},
     transactionManagerRef = "transactionManager")
@@ -40,7 +42,7 @@ public class WorkflowDataSourceConfiguration {
   }
 
   @Bean
-  @ConditionalOnPropertyNotEmpty("wdk.workflows.path")
+  @ConditionalOnBean(WorkflowManagementService.class)
   public Object configStateCheck() {
     throw new IllegalStateException(
         "Workflow folder watcher must be disabled while using workflow management API. "

@@ -1,10 +1,9 @@
 # WDK configuration
 wdk:
   workflows:
-    path:
+    path: ./workflows
   properties:
     monitoring-token: ${wdk.monitoring.token:} # The default value is an empty String
-    management-token: ${wdk.management.token:} # The default value is an empty String
     schedule:
       pool-size: ${wdk.pool.size:20}
 

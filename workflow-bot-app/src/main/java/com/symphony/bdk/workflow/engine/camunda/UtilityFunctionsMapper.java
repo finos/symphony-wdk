@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -39,7 +38,6 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     UtilityFunctionsMapper.sharedDataStore = sharedDataStore;
   }
 
-  @Autowired
   public UtilityFunctionsMapper(SessionService sessionService, SharedDataStore sharedDataStore) {
     setStaticSessionService(sessionService);
     setSharedStateService(sharedDataStore);

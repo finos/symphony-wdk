@@ -6,7 +6,8 @@ The [Getting started](./getting-started.md) guide explains how the Symphony Gene
 project with configuration files.
 
 By default, the WDK does not persist state except in memory, so restarting the bot means all running
-workflow's state is lost. In order to have a persistent database, you need to change Camunda specific configuration (see [Persistent database part](./deployment.md#camunda-specific-configuration)).
+workflow's state is lost. In order to have a persistent database, you need to change Camunda specific configuration (
+see [Persistent database part](./deployment.md#camunda-specific-configuration)).
 
 _Running multiple instances of the bot for high availability is not yet supported._
 
@@ -18,18 +19,22 @@ from the framework applies here.
 
 ### Workflow bot specific configuration
 
-`wdk.workflows.path`: The path to the folder containing SWADL files to load on startup and to watch for changes. Defaults
+`wdk.workflows.path`: The path to the folder containing SWADL files to load on startup and to watch for changes.
+Defaults
 to _./workflows_, relative to the working directory when starting the bot.
 
-`wdk.properties.monitoring-token`: The token to authenticate requests to the [monitoring api](#monitoring). Defaults to an empty
+`wdk.properties.monitoring-token`: The token to authenticate requests to the [monitoring api](#monitoring). Defaults to
+an empty
 String. It can be set as an environment variable in the run configuration. Not setting the monitoring-token and keeping
 its default value disables the monitoring api.
 
-`wdk.properties.management-token`: The token to authenticate requests to the [management api](#management). Defaults to an empty
+`wdk.properties.management-token`: The token to authenticate requests to the [management api](#management). Defaults to
+an empty
 String. It can be set as an environment variable in the run configuration. Not setting the management-token and keeping
 its default value disables the management api.
 
-`wdk.properties.schedule.pool-size`: The size of threads to keep in the pool for scheduled jobs. Default to 20. It can be set
+`wdk.properties.schedule.pool-size`: The size of threads to keep in the pool for scheduled jobs. Default to 20. It can
+be set
 as an environment variable in the run configuration.
 
 ### BDK specific configuration
@@ -45,24 +50,32 @@ The BDK configuration is under the `bdk` key.
 
 As Camunda is used internally to run workflows, properties for the Camunda Engine can be configured too. The available
 properties are listed
-in [Camunda's documentation](https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/configuration/#camunda-engine-properties).
+in [Camunda's documentation](https://docs.camunda.org/manual/latest/user-guide/spring-boot-integration/configuration/#camunda-engine-properties)
+.
 
 #### Job execution
+
 We are mainly interested in the `camunda.bpm.job-execution` properties to configure the background process running
 workflows, for instance the wait time to detect new events to process. It is configured with a low value by default to
 ensure the bot is reactive.
 
 #### Retry on activity/task errors
+
 Camunda is configured to retry on activity/task errors. Part of the error handling is done via the BDK that already
 support retrying on failed API calls and then error handling can also be done when writing workflows with
 the [activity-failed event](./reference.md#activity-failed).
 
 #### Persistent database
-In order to use a persistent database, you need to change `spring.datasource.url` to `jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`.
 
-In this case, a local disk file will be used to store data. It can also be changed to any database supported by Camunda (see [Camunda Database Configuration documentation](https://docs.camunda.org/manual/7.15/user-guide/process-engine/database/database-configuration/)).
+In order to use a persistent database, you need to change `spring.datasource.camunda.jdbc-url`
+to `jdbc:h2:file:./data/wdk_database;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`.
 
-In case JDBC driver is missing, you might need to add it to the bot classpath in folder _/lib_ . 
+In this case, a local disk file will be used to store data. It can also be changed to any database supported by
+Camunda (
+see [Camunda Database Configuration documentation](https://docs.camunda.org/manual/7.15/user-guide/process-engine/database/database-configuration/))
+.
+
+In case JDBC driver is missing, you might need to add it to the bot classpath in folder _/lib_ .
 
 ### Spring Boot specific configuration
 
@@ -102,13 +115,14 @@ including:
 - workflow.process.completed
 - workflow.process.running
 
-More metrics are exposed by the WDK public api under /wdk. See [http://localhost:8080/wdk/swagger-ui/](http://localhost:8080/wdk/swagger-ui/#)
+More metrics are exposed by the WDK public api under /wdk.
+See [http://localhost:8080/wdk/swagger-ui/](http://localhost:8080/wdk/swagger-ui/#)
 
 ## Management
 
-Users can deploy, update and delete a workflow through WDK management API under `/manangement/workflows` path.
+Users can deploy, update and delete a workflow through WDK management API under `/workflows` path.
 
-Note: 
+Note:
 
 - the API requests require the management token in the header [X-Management-Token](#workflow-bot-specific-configuration)
 - remember to use [publish property](./reference.md#properties) in order to create a workflow without deploying.
