@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -39,7 +38,6 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     UtilityFunctionsMapper.sharedDataStore = sharedDataStore;
   }
 
-  @Autowired
   public UtilityFunctionsMapper(SessionService sessionService, SharedDataStore sharedDataStore) {
     setStaticSessionService(sessionService);
     setSharedStateService(sharedDataStore);
@@ -74,10 +72,12 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     FUNCTION_MAP.put(CASHTAGS, ReflectUtil.getMethod(UtilityFunctionsMapper.class, CASHTAGS, Object.class));
     FUNCTION_MAP.put(EMOJIS, ReflectUtil.getMethod(UtilityFunctionsMapper.class, ESCAPE, Object.class));
     FUNCTION_MAP.put(SESSION, ReflectUtil.getMethod(UtilityFunctionsMapper.class, SESSION));
-    FUNCTION_MAP.put(READSHARED,
-        ReflectUtil.getMethod(UtilityFunctionsMapper.class, READSHARED, String.class, String.class));
-    FUNCTION_MAP.put(WRITESHARED,
-        ReflectUtil.getMethod(UtilityFunctionsMapper.class, WRITESHARED, String.class, String.class, Object.class));
+    if (sharedDataStore != null) {
+      FUNCTION_MAP.put(READSHARED,
+          ReflectUtil.getMethod(UtilityFunctionsMapper.class, READSHARED, String.class, String.class));
+      FUNCTION_MAP.put(WRITESHARED,
+          ReflectUtil.getMethod(UtilityFunctionsMapper.class, WRITESHARED, String.class, String.class, Object.class));
+    }
   }
 
   @Override

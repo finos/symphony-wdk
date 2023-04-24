@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.shared;
 
+import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnPropertyNotEmpty("wdk.properties.management-token")
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class DefaultSharedDataStore implements SharedDataStore {
   private final SharedDataRepository repository;

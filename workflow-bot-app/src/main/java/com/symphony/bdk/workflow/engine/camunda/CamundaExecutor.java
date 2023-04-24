@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -73,12 +74,12 @@ public class CamundaExecutor implements JavaDelegate {
   }
 
   private final BdkGateway bdk;
-  private final SharedDataStore sharedDataStore;
+  private final Optional<SharedDataStore> sharedDataStore;
   private final AuditTrailLogAction auditTrailLogger;
   private final ResourceProvider resourceLoader;
   private final ApplicationContext applicationContext;
 
-  public CamundaExecutor(BdkGateway bdk, SharedDataStore sharedDataStore, AuditTrailLogAction auditTrailLogger,
+  public CamundaExecutor(BdkGateway bdk, Optional<SharedDataStore> sharedDataStore, AuditTrailLogAction auditTrailLogger,
       @Qualifier("workflowResourcesProvider") ResourceProvider resourceLoader, ApplicationContext applicationContext) {
     this.bdk = bdk;
     this.sharedDataStore = sharedDataStore;
@@ -118,7 +119,7 @@ public class CamundaExecutor implements JavaDelegate {
       setMdc(execution);
       auditTrailLogger.execute(execution, activity.getClass().getSimpleName());
       executor.execute(
-          new CamundaActivityExecutorContext(execution, activity, event, resourceLoader, bdk, sharedDataStore));
+          new CamundaActivityExecutorContext(execution, activity, event, resourceLoader, bdk, sharedDataStore.orElse(null)));
     } catch (Exception e) {
       log.error(String.format("Activity from workflow %s failed", execution.getProcessDefinitionId()), e);
       logErrorVariables(execution, activity, e);

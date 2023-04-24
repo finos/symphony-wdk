@@ -1,7 +1,5 @@
 # WDK configuration
 wdk:
-  workflows:
-    path: ./workflows
   properties:
     monitoring-token: token # The default value is an empty String
 

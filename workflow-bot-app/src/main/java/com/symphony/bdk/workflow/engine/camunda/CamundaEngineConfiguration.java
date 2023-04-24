@@ -18,6 +18,7 @@ import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
+import java.util.Optional;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
@@ -29,7 +30,7 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   private final BdkGateway bdkGateway;
 
-  private final SharedDataStore sharedDataStore;
+  private final Optional<SharedDataStore> sharedDataStore;
 
   @Override
   public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
@@ -60,8 +61,9 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   @Override
   public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    processEngineConfiguration.getBeans().put(
-        UtilityFunctionsMapper.WDK_PREFIX, new UtilityFunctionsMapper(this.bdkGateway.session(), this.sharedDataStore));
+    processEngineConfiguration.getBeans()
+        .put(UtilityFunctionsMapper.WDK_PREFIX,
+            new UtilityFunctionsMapper(this.bdkGateway.session(), this.sharedDataStore.orElse(null)));
     handleScriptExceptionsAsBpmnErrors(processEngineConfiguration);
   }
 
