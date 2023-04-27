@@ -2,8 +2,8 @@ package com.symphony.bdk.workflow.management.converter;
 
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.converter.BiConverter;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
 
 import lombok.RequiredArgsConstructor;
 

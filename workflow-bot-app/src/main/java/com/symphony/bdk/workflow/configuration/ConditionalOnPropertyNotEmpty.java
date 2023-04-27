@@ -27,7 +27,8 @@ public @interface ConditionalOnPropertyNotEmpty {
         return false;
       }
       String propertyName = (String) attrs.get("value");
-      return StringUtils.isNoneBlank(context.getEnvironment().getProperty(propertyName));
+      String property = context.getEnvironment().getProperty(propertyName);
+      return property != null && StringUtils.isNoneBlank(property) && !"false".equals(property);
     }
   }
 }

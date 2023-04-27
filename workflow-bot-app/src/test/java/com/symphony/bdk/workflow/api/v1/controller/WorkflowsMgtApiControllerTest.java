@@ -12,16 +12,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import java.time.Instant;
@@ -32,6 +36,8 @@ import java.util.Optional;
 class WorkflowsMgtApiControllerTest extends ApiTest {
 
   private static final String URL = "/v1/workflows";
+
+  private static final String SECRET = "/v1/workflows/secrets";
 
 
   @Nested
@@ -248,6 +254,34 @@ class WorkflowsMgtApiControllerTest extends ApiTest {
           .andExpect(status().isNoContent());
 
       verify(workflowExpirationService).scheduleWorkflowExpiration(eq(workflowId), eq(now));
+    }
+  }
+
+  @Nested
+  @DisplayName("Secret management test")
+  class SecretManagement {
+    @Test
+    void uploadSecret() throws Exception {
+      doNothing().when(secretKeeper).save(anyString(), any());
+
+      mockMvc.perform(request(HttpMethod.POST, SECRET).contentType("application/json")
+              .content("{\"key\": \"myKey\", \"secret\": \"my secret\"}"))
+          .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void removeSecret() throws Exception {
+      doNothing().when(secretKeeper).remove(anyString());
+      mockMvc.perform(request(HttpMethod.DELETE, SECRET + "/myKey")).andExpect(status().isNoContent());
+    }
+
+    @Test
+    void getSecretMetadata() throws Exception {
+      when(secretKeeper.getSecretsMetadata()).thenReturn(
+          List.of(new SecretKeeper.SecretMetadata("ref", Instant.now())));
+      mockMvc.perform(request(HttpMethod.GET, SECRET).accept(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("[0].secretKey").value("ref"));
     }
   }
 

@@ -1,8 +1,10 @@
 package com.symphony.bdk.workflow.api.v1;
 
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
+import com.symphony.bdk.workflow.api.v1.dto.SecretView;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -111,4 +114,18 @@ public interface WorkflowsMgtApi {
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token);
 
+  @ApiOperation("Upload a secret")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "")})
+  @PostMapping("/secrets")
+  ResponseEntity<Void> uploadSecret(@RequestBody SecretView secrete);
+
+  @ApiOperation("Delete a secret")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "")})
+  @DeleteMapping("/secrets/{key}")
+  ResponseEntity<Void> deleteSecret(@PathVariable("key") String secretKey);
+
+  @ApiOperation("Get secrets")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "")})
+  @GetMapping(value = "/secrets", produces = "application/json")
+  ResponseEntity<List<SecretKeeper.SecretMetadata>> getSecretMetadata();
 }

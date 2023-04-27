@@ -1,8 +1,8 @@
-package com.symphony.bdk.workflow.versioning.repository;
+package com.symphony.bdk.workflow.management.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -51,6 +51,8 @@ public interface ActivityExecutorContext<T> {
 
   SharedDataStore sharedDataStore();
 
+  SecretKeeper secretKeeper();
+
   /**
    * @return The activity definition from the workflow.
    */

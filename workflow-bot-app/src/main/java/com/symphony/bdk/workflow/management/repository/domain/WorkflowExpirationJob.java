@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.versioning.model;
+package com.symphony.bdk.workflow.management.repository.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

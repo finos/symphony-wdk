@@ -1,7 +1,7 @@
-package com.symphony.bdk.workflow.versioning.repository;
+package com.symphony.bdk.workflow.management.repository;
 
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

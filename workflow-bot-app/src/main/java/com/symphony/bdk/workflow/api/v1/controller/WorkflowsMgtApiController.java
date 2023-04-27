@@ -1,9 +1,13 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
+import static com.symphony.bdk.workflow.api.v1.WorkflowsApi.X_MONITORING_TOKEN_KEY;
+
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
+import com.symphony.bdk.workflow.api.v1.dto.SecretView;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +35,7 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   private final WorkflowManagementService workflowManagementService;
   private final WorkflowExpirationService workflowExpirationService;
   private final LogsStreamingService logsStreamingService;
+  private final SecretKeeper secretKeeper;
 
   @Override
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
@@ -63,8 +69,8 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
   @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
   public ResponseEntity<Void> deleteWorkflowByIdAndVersion(String token, String workflowId, Long version) {
     Optional.ofNullable(version)
-            .ifPresentOrElse(v -> workflowManagementService.delete(workflowId, version),
-                () -> workflowManagementService.delete(workflowId));
+        .ifPresentOrElse(v -> workflowManagementService.delete(workflowId, version),
+            () -> workflowManagementService.delete(workflowId));
     return ResponseEntity.noContent().build();
   }
 
@@ -88,5 +94,25 @@ public class WorkflowsMgtApiController implements WorkflowsMgtApi {
     SseEmitter emitter = new SseEmitter();
     logsStreamingService.subscribe(emitter);
     return emitter;
+  }
+
+  @Override
+  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
+  public ResponseEntity<Void> uploadSecret(SecretView secret) {
+    secretKeeper.save(secret.getKey(), new String(secret.getSecret()).getBytes(StandardCharsets.UTF_8));
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  @Authorized(headerTokenKey = X_MANAGEMENT_TOKEN_KEY)
+  public ResponseEntity<Void> deleteSecret(String secretKey) {
+    secretKeeper.remove(secretKey);
+    return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  @Authorized(headerTokenKey = X_MONITORING_TOKEN_KEY)
+  public ResponseEntity<List<SecretKeeper.SecretMetadata>> getSecretMetadata() {
+    return ResponseEntity.ok(secretKeeper.getSecretsMetadata());
   }
 }

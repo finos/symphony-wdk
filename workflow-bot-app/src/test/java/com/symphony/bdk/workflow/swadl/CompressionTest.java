@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.swadl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.symphony.bdk.workflow.versioning.BigStringCompressor;
+import com.symphony.bdk.workflow.management.BigStringCompressor;
 
 import org.junit.jupiter.api.Test;
 

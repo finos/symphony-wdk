@@ -2,9 +2,9 @@ package com.symphony.bdk.workflow.expiration;
 
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.versioning.model.WorkflowExpirationJob;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
-import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
+import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpirationJob;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

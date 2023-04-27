@@ -451,4 +451,5 @@ class WorkflowsApiControllerTest extends ApiTest {
         .outputs(variables.getOutputs())
         .build();
   }
+
 }

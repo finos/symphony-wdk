@@ -24,6 +24,7 @@ import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
@@ -33,7 +34,6 @@ import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 import com.symphony.bdk.workflow.swadl.v1.activity.message.SendMessage;
 import com.symphony.bdk.workflow.swadl.v1.event.MessageReceivedEvent;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;

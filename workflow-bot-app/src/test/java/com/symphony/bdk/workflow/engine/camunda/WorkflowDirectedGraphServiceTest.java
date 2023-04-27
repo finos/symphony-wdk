@@ -4,8 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.symphony.bdk.workflow.IntegrationTest;
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

@@ -18,3 +18,19 @@ workflow-bot-app/src/main/java/com/symphony/bdk/workflow/engine/camunda/CamundaE
 #         ⋮┆----------------------------------------
 #        69┆ return (Class<? extends BaseActivity>) Class.forName(activityType.getTypeName());
 workflow-bot-app/src/main/java/com/symphony/bdk/workflow/swadl/ActivityRegistry.java
+
+#
+#         74┆ Cipher cipher = Cipher.getInstance(DEFAULT_CIPHER);
+#          ⋮┆----------------------------------------
+#         75┆ cipher.init(Cipher.ENCRYPT_MODE, cryptVersion.key, new
+#   GCMParameterSpec(ALGORITHM_TAG_SIZE, nonce));
+#          ⋮┆----------------------------------------
+#        102┆ Cipher cipher = Cipher.getInstance(DEFAULT_CIPHER);
+#          ⋮┆----------------------------------------
+#        103┆ cipher.init(Cipher.DECRYPT_MODE, cryptVersion.key, new
+#   GCMParameterSpec(ALGORITHM_TAG_SIZE, nonce));
+#
+# please check that IV/nonce is not reused, an Initialization Vector (IV) is a
+# nonce used to randomize the encryption, so that even if multiple messages with identical
+# plaintext are encrypted, the generated corresponding ciphertexts are different
+workflow-bot-app/src/main/java/com/symphony/bdk/workflow/engine/secret/SecretCryptVault.java

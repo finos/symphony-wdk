@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.management.converter;
 
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.converter.Converter;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 
 import org.springframework.stereotype.Component;
 

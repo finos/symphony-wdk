@@ -2,7 +2,7 @@ package com.symphony.bdk.workflow.bootstrap;
 
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationPlanner;
-import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
+import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2622,3 +2622,33 @@ activities:
       script: |
         wdk.writeShared("namespace", "key", value);
 ```
+
+### String secret(String keyRef)
+Once a secret is upload to WDK through REST API ("/v1/workflows/secrets"), the secret is readable within SWADL via utility function.
+
+Example:
+
+in [execute-script](#execute-script)
+
+```yaml
+activities:
+  - execute-script:
+      id: printBotInfo
+      script: |
+        wdk.secret("keyRef")
+```
+
+
+in [execute-request](#execute-request)
+
+```yaml
+activities:
+  - execute-request:
+      id: request
+      headers:
+        Content-Type: application/json
+        Accept: application/json
+        Authorization: ${secret("token")}
+      method: GET
+      url: https://some-url  
+```

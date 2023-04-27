@@ -33,6 +33,7 @@ public class ApiIntegrationTest extends IntegrationTest {
   protected static final String MONITORING_TOKEN_KEY = "X-Monitoring-Token";
   protected static final String MONITORING_TOKEN_VALUE = "MONITORING_TOKEN_VALUE";
   protected static final String CONTENT_TYPE_KEY = "Content-Type";
+  protected static final String ACCEPT = "Accept";
   protected static final String VALIDATE_AND_DEPLOY_URL = "http://localhost:%s/wdk/v1/workflows";
   protected static final String VALIDATE_AND_UPDATE_URL = "http://localhost:%s/wdk/v1/workflows";
   protected static final String GET_SWADL_BY_ID_URL = "http://localhost:%s/wdk/v1/workflows/%s?all_versions=%s";
@@ -44,6 +45,8 @@ public class ApiIntegrationTest extends IntegrationTest {
   protected static final String LIST_INSTANCES_URL = "http://localhost:%s/wdk/v1/workflows/%s/instances";
   protected static final String LIST_INSTANCES_STATUS_URL =
       "http://localhost:%s/wdk/v1/workflows/%s/instances?status=%s";
+
+  protected static final String SECRET_URL = "http://localhost:%s/wdk/v1/workflows/secrets";
 
   @Autowired
   protected TestRestTemplate restTemplate;
@@ -176,7 +179,8 @@ public class ApiIntegrationTest extends IntegrationTest {
 
   // overrides the parent class method that undeploy workflows after each test in order to keep them deployed
   @AfterEach
-  void removeAllWorkflows() {}
+  void removeAllWorkflows() {
+  }
 
   @BeforeAll
   @AfterAll
