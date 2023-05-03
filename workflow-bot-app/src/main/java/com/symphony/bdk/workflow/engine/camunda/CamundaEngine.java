@@ -149,8 +149,8 @@ public class CamundaEngine implements WorkflowEngine<CamundaTranslatedWorkflowCo
       // Event coming from BDK DF is a sub type of V4Event since fix of https://github.com/finos/symphony-bdk-java/issues/741.
       // this change requires to read the super class to get the right processor mapping instead of the raw event type.
       // However many tests are still injecting the raw event type, so we do the check as below
-      Class<?> clazz = EventPayload.class.isAssignableFrom(event.getSource().getClass()) ?
-          event.getSource().getClass().getSuperclass() : event.getSource().getClass();
+      Class<?> clazz = EventPayload.class.isAssignableFrom(event.getSource().getClass())
+          ? event.getSource().getClass().getSuperclass() : event.getSource().getClass();
       ((RealTimeEventProcessor<T>) processorRegistry.get(clazz.getSimpleName())).process(event);
     } catch (Exception e) {
       log.error("This error happens when the incoming event has an invalid PresentationML message", e);

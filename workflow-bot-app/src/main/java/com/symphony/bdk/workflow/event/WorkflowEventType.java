@@ -242,7 +242,9 @@ public enum WorkflowEventType implements EventVisitor {
     public Triple<String, String, Class<?>> getEventTripleInfo(Event event, String workflowId, String botName) {
       String name = this.getEventName();
       if (StringUtils.isNotEmpty(event.getTimerFired().getRepeat())) {
-        name = "timerFired_cycle";
+        name = "timerFired_cycle_" + event.getTimerFired().getRepeat();
+      } else {
+        name += "_" + event.getTimerFired().getAt();
       }
       return Triple.of(event.getTimerFired().getId(), name, TimerFiredEvent.class);
     }

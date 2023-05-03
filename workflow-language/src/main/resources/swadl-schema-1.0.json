@@ -1082,6 +1082,9 @@
                             },
                             {
                                 "$ref": "#/definitions/connection-accepted-event"
+                            },
+                            {
+                                "$ref": "#/definitions/timer-fired-event"
                             }
                         ]
                     }

@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow;
 
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,10 +15,13 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // Tests can be fragile if as they are time based
 class TimerEventsIntegrationTest extends IntegrationTest {
@@ -73,4 +77,17 @@ class TimerEventsIntegrationTest extends IntegrationTest {
     verify(messageService, timeout(5000).times(3)).send(eq("abc"), content("Ok"));
   }
 
+  @Test
+  void multiTimerAt() throws IOException, ProcessingException {
+    final Workflow workflow = SwadlParser.fromYaml(getClass().getResourceAsStream(
+        "/event/timer/timer-multiple-at.swadl.yaml"));
+
+    engine.deploy(workflow);
+
+    ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+    // wait for execution
+    verify(messageService, timeout(5000).times(2)).send(eq("abc"), messageCaptor.capture());
+    List<String> keys = messageCaptor.getAllValues().stream().map(Message::getContent).collect(Collectors.toList());
+    assertThat(keys).contains("<messageML>start</messageML>", "<messageML>end</messageML>");
+  }
 }

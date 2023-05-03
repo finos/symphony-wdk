@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class WorkflowNodeBpmnBuilderFactory {
+public class WorkflowNodeBpmnBuilderRegistry {
   private final Map<WorkflowNodeType, WorkflowNodeBpmnBuilder> factory;
 
-  public WorkflowNodeBpmnBuilderFactory(@Autowired List<WorkflowNodeBpmnBuilder> builders) {
+  public WorkflowNodeBpmnBuilderRegistry(@Autowired List<WorkflowNodeBpmnBuilder> builders) {
     factory = new EnumMap<>(WorkflowNodeType.class);
     builders.forEach(builder -> factory.put(builder.type(), builder));
   }

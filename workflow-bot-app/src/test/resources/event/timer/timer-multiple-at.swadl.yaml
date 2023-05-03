@@ -1,0 +1,18 @@
+id: timer-repeat-intermediate
+activities:
+  - send-message:
+      id: start
+      on:
+        timer-fired:
+          at: 2020-05-02T09:10:32
+      to:
+        stream-id: abc
+      content: start
+  - send-message:
+      id: next
+      on:
+        timer-fired:
+          at: 2023-05-02T15:32:32
+      to:
+        stream-id: abc
+      content: end

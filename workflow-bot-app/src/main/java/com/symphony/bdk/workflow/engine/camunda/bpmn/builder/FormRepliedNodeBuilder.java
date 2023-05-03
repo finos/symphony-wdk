@@ -43,26 +43,31 @@ public class FormRepliedNodeBuilder extends AbstractNodeBpmnBuilder {
           .name(element.getEventId())
           .message(element.getId());
     } else {
-      // cache the sub process builder, the form reply might have a brother event,
-      // which is going to use this cached builder
-      SubProcessBuilder subProcess = builder.subProcess();
-      context.cacheSubProcess(subProcess);
-
-      timeoutFlow(element, subProcess);
-      // we add the form reply event sub process inside the subprocess
-      EventSubProcessBuilder subProcessBuilder = subProcess.camundaAsyncBefore().embeddedSubProcess().eventSubProcess();
-      // cache the sub process builder, so to terminate it later
-      context.cacheEventSubProcessToDone(subProcessBuilder);
-
-      return subProcessBuilder.startEvent()
-          .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
-          .camundaAsyncBefore()
-          // run multiple instances of the sub process (i.e. multiple replies) if it's true,
-          // otherwise execute only once, as exclusive
-          .interrupting(false)
-          .message(element.getId())
-          .name(element.getEventId());
+      return getSubProcessBuilder(element, builder, context);
     }
+  }
+
+  private StartEventBuilder getSubProcessBuilder(WorkflowNode element, AbstractFlowNodeBuilder<?, ?> builder,
+      BuildProcessContext context) {
+    // cache the sub process builder, the form reply might have a brother event,
+    // which is going to use this cached builder
+    SubProcessBuilder subProcess = builder.subProcess();
+    context.cacheSubProcess(subProcess);
+
+    timeoutFlow(element, subProcess);
+    // we add the form reply event sub process inside the subprocess
+    EventSubProcessBuilder subProcessBuilder = subProcess.camundaAsyncBefore().embeddedSubProcess().eventSubProcess();
+    // cache the sub process builder, so to terminate it later
+    context.cacheEventSubProcessToDone(subProcessBuilder);
+
+    return subProcessBuilder.startEvent()
+        .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, FormVariableListener.class)
+        .camundaAsyncBefore()
+        // run multiple instances of the sub process (i.e. multiple replies) if it's true,
+        // otherwise execute only once, as exclusive
+        .interrupting(false)
+        .message(element.getId())
+        .name(element.getEventId());
   }
 
   private void timeoutFlow(WorkflowNode element, SubProcessBuilder subProcess) {
