@@ -13,7 +13,7 @@ import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
-import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderFactory;
+import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderRegistry;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -48,7 +48,7 @@ public class CamundaBpmnBuilder {
   public static final String FORK_GATEWAY = "_fork_gateway";
 
   private final RepositoryService repositoryService;
-  private final WorkflowNodeBpmnBuilderFactory builderFactory;
+  private final WorkflowNodeBpmnBuilderRegistry builderFactory;
   private final SessionService sessionService;
   private final WorkflowDirectedGraphService directedGraphService;
 
