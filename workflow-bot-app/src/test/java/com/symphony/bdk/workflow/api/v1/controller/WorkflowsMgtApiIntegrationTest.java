@@ -2,7 +2,9 @@ package com.symphony.bdk.workflow.api.v1.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.symphony.bdk.workflow.api.v1.dto.SecretView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -158,4 +162,46 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(getSwadlResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(getSwadlResponse.getBody()).isEmpty();
   }
+
+  @Test
+  void uploadAndGetSecretTest() {
+    restTemplate.getRestTemplate().setInterceptors(
+        Collections.singletonList((request, body, execution) -> {
+          request.getHeaders().add(MANAGEMENT_TOKEN_KEY, MANAGEMENT_TOKEN_VALUE);
+          request.getHeaders().add(MONITORING_TOKEN_KEY, MONITORING_TOKEN_VALUE);
+          request.getHeaders().add(CONTENT_TYPE_KEY, "application/json");
+          request.getHeaders().add(ACCEPT, "application/json");
+          return execution.execute(request, body);
+        }));
+
+    restTemplate.postForEntity(String.format(SECRET_URL, port), new SecretView("key", "secret".toCharArray()),
+        Void.class);
+
+    ResponseEntity<SecretKeeper.SecretMetadata[]> response =
+        restTemplate.getForEntity(String.format(SECRET_URL, port), SecretKeeper.SecretMetadata[].class);
+    SecretKeeper.SecretMetadata[] metadata = response.getBody();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(metadata).hasSize(1);
+    assertThat(metadata[0].getSecretKey()).isEqualTo("key");
+    assertThat(metadata[0].getCreatedAt()).isNotNull();
+  }
+
+  @Test
+  void uploadAndGetSecretWithoutTokenTest() {
+    restTemplate.getRestTemplate().setInterceptors(
+        Collections.singletonList((request, body, execution) -> {
+          request.getHeaders().add(CONTENT_TYPE_KEY, "application/json");
+          return execution.execute(request, body);
+        }));
+
+    ResponseEntity<Void> postResponse =
+        restTemplate.postForEntity(String.format(SECRET_URL, port), new SecretView("key", "secret".toCharArray()),
+            Void.class);
+    assertThat(postResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+    ResponseEntity<Object> getResponse =
+        restTemplate.getForEntity(URI.create(String.format(SECRET_URL, port)), Object.class);
+    assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+  }
+
 }

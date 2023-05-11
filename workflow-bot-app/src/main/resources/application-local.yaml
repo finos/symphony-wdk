@@ -1,7 +1,12 @@
 # WDK configuration
 wdk:
+#  workflows:
+#    path: false
+  encrypt:
+    passphrase: this is my secret
   properties:
     monitoring-token: token # The default value is an empty String
+#    management-token: token
 
 # BDK configuration for local development
 bdk:

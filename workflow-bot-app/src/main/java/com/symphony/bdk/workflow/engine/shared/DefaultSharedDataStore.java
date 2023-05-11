@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.shared;
+package com.symphony.bdk.workflow.engine.shared;
 
 import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 

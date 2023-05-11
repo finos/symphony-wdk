@@ -18,11 +18,11 @@ import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Properties;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;

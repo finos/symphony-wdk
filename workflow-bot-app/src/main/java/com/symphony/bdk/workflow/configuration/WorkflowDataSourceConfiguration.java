@@ -5,6 +5,7 @@ import com.symphony.bdk.workflow.management.WorkflowManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,9 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = {"com.symphony.bdk.workflow.versioning", "com.symphony.bdk.workflow.shared"},
+@EnableJpaRepositories(
+    basePackages = {"com.symphony.bdk.workflow.management.repository", "com.symphony.bdk.workflow.engine.shared",
+        "com.symphony.bdk.workflow.engine.secret"},
     transactionManagerRef = "transactionManager")
 @Profile("!test")
 @Slf4j
@@ -42,6 +45,7 @@ public class WorkflowDataSourceConfiguration {
   }
 
   @Bean
+  @ConditionalOnPropertyNotEmpty("wdk.workflows.path")
   @ConditionalOnBean(WorkflowManagementService.class)
   public Object configStateCheck() {
     throw new IllegalStateException(

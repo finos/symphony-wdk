@@ -23,6 +23,11 @@ from the framework applies here.
 Defaults
 to _./workflows_, relative to the working directory when starting the bot.
 
+`wdk.encrypt.passphrase` : A passphrase string, which is going to be used for `secret` encryption. Its must have
+at least 16 characters, and its first 8 characters will be used as `salt` value in the encryption algorithm. A `secret`
+is created by an Admin user, and can be referenced from within a SWADL
+through [Utility function](./reference.md#string-secret(String-keyRef)).
+
 `wdk.properties.monitoring-token`: The token to authenticate requests to the [monitoring api](#monitoring). Defaults to
 an empty
 String. It can be set as an environment variable in the run configuration. Not setting the monitoring-token and keeping

@@ -80,7 +80,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"wdk.properties.management-token=myToken", "wdk.workflows.path=./"})
+    properties = {"wdk.properties.management-token=myToken", "wdk.workflows.path=./",
+        "wdk.encrypt.passphrase=password for my secret"})
 @ActiveProfiles("test")
 @ContextConfiguration
 @Import(IntegrationTestConfiguration.class)

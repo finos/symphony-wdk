@@ -8,6 +8,7 @@ import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.workflow.engine.executor.EventHolder;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +31,8 @@ public class UtilityFunctionsMapper extends FunctionMapper {
 
   private static SharedDataStore sharedDataStore;
 
+  private static SecretKeeper secretKeeper;
+
   public static void setStaticSessionService(SessionService sessionService) {
     UtilityFunctionsMapper.staticSessionService = sessionService;
   }
@@ -38,9 +41,15 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     UtilityFunctionsMapper.sharedDataStore = sharedDataStore;
   }
 
-  public UtilityFunctionsMapper(SessionService sessionService, SharedDataStore sharedDataStore) {
+  public static void setSecretKeeper(SecretKeeper secretKeeper) {
+    UtilityFunctionsMapper.secretKeeper = secretKeeper;
+  }
+
+  public UtilityFunctionsMapper(SessionService sessionService, SharedDataStore sharedDataStore,
+      SecretKeeper secretKeeper) {
     setStaticSessionService(sessionService);
     setSharedStateService(sharedDataStore);
+    setSecretKeeper(secretKeeper);
   }
 
   /**
@@ -58,6 +67,7 @@ public class UtilityFunctionsMapper extends FunctionMapper {
   public static final String SESSION = "session";
   public static final String READSHARED = "readShared";
   public static final String WRITESHARED = "writeShared";
+  public static final String SECRET = "secret";
 
   private static final Map<String, Method> FUNCTION_MAP;
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -76,6 +86,7 @@ public class UtilityFunctionsMapper extends FunctionMapper {
         ReflectUtil.getMethod(UtilityFunctionsMapper.class, READSHARED, String.class, String.class));
     FUNCTION_MAP.put(WRITESHARED,
         ReflectUtil.getMethod(UtilityFunctionsMapper.class, WRITESHARED, String.class, String.class, Object.class));
+    FUNCTION_MAP.put(SECRET, ReflectUtil.getMethod(UtilityFunctionsMapper.class, SECRET, String.class));
   }
 
   @Override
@@ -93,6 +104,10 @@ public class UtilityFunctionsMapper extends FunctionMapper {
     } catch (JsonProcessingException jsonProcessingException) {
       return string;
     }
+  }
+
+  public static String secret(String key) {
+    return secretKeeper.get(key);
   }
 
   public static Object readShared(String namespace, String key) {

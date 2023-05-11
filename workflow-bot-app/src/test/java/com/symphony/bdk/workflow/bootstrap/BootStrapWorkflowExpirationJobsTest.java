@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationPlanner;
-import com.symphony.bdk.workflow.versioning.model.WorkflowExpirationJob;
-import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
+import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
+import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpirationJob;
 
 import org.junit.jupiter.api.Test;
 

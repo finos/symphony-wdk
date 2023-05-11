@@ -19,6 +19,8 @@ import com.symphony.bdk.workflow.engine.WorkflowNodeTypeHelper;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 import com.symphony.bdk.workflow.monitoring.repository.ActivityQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.VariableQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.WorkflowInstQueryRepository;
@@ -26,8 +28,6 @@ import com.symphony.bdk.workflow.monitoring.repository.WorkflowQueryRepository;
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

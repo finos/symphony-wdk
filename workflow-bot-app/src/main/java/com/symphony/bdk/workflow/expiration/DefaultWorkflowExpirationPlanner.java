@@ -3,11 +3,11 @@ package com.symphony.bdk.workflow.expiration;
 import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
+import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpirationJob;
 import com.symphony.bdk.workflow.scheduled.RunnableScheduledJob;
 import com.symphony.bdk.workflow.scheduled.ScheduledJobsRegistry;
-import com.symphony.bdk.workflow.versioning.model.WorkflowExpirationJob;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
-import com.symphony.bdk.workflow.versioning.repository.WorkflowExpirationJobRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

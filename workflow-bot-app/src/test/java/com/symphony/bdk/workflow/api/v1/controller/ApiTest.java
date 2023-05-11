@@ -4,6 +4,7 @@ import static org.mockito.Mockito.clearInvocations;
 
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationService;
 import com.symphony.bdk.workflow.logs.LogsStreamingService;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
@@ -34,6 +35,8 @@ public class ApiTest {
 
   @MockBean
   WorkflowExpirationService workflowExpirationService;
+
+  @MockBean SecretKeeper secretKeeper;
 
   @BeforeEach
   void cleanup() {

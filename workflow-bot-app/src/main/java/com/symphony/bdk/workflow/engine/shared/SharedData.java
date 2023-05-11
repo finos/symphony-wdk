@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.shared;
+package com.symphony.bdk.workflow.engine.shared;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import lombok.Data;
@@ -7,7 +7,6 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.Column;

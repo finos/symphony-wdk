@@ -1,4 +1,4 @@
-package com.symphony.bdk.workflow.versioning;
+package com.symphony.bdk.workflow.management;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

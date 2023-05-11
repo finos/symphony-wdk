@@ -1,6 +1,6 @@
-package com.symphony.bdk.workflow.versioning.model;
+package com.symphony.bdk.workflow.management.repository.domain;
 
-import com.symphony.bdk.workflow.versioning.BigStringCompressor;
+import com.symphony.bdk.workflow.management.BigStringCompressor;
 
 import lombok.Data;
 import lombok.Generated;

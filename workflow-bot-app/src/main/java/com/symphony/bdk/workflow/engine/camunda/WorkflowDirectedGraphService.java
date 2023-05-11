@@ -4,9 +4,9 @@ import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.engine.WorkflowDirectGraphBuilder;
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
+import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
+import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
-import com.symphony.bdk.workflow.versioning.model.VersionedWorkflow;
-import com.symphony.bdk.workflow.versioning.repository.VersionedWorkflowRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

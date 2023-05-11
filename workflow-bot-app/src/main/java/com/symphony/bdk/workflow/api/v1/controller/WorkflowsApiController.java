@@ -1,6 +1,7 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
 import com.symphony.bdk.workflow.api.v1.WorkflowsApi;
+import com.symphony.bdk.workflow.api.v1.dto.SecretView;
 import com.symphony.bdk.workflow.api.v1.dto.VariableView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowExecutionRequest;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstLifeCycleFilter;
@@ -11,6 +12,7 @@ import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
+import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
 import com.symphony.bdk.workflow.monitoring.service.MonitoringService;
 import com.symphony.bdk.workflow.security.Authorized;
 
@@ -20,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 

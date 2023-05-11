@@ -3,9 +3,9 @@ package com.symphony.bdk.workflow.expiration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpirationJob;
 import com.symphony.bdk.workflow.scheduled.RunnableScheduledJob;
 import com.symphony.bdk.workflow.scheduled.ScheduledJobsRegistry;
-import com.symphony.bdk.workflow.versioning.model.WorkflowExpirationJob;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
