@@ -59,6 +59,7 @@ public class V4MessageSentEventProcessor extends AbstractRealTimeEventProcessor<
             args.put(EVENT_NAME_KEY, signal.getEventName());
             ((EventHolder) variables.get(ActivityExecutorContext.EVENT)).setArgs(args);
 
+            log.debug("Send a signal named {} upon the received message", signal.getEventName());
             runtimeService.createSignalEvent(signal.getEventName())
                 .setVariables(variables)
                 .send();
