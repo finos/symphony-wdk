@@ -270,6 +270,24 @@ class WorkflowsMgtApiControllerTest extends ApiTest {
     }
 
     @Test
+    void secretKeyIsTooLong() throws Exception {
+      doNothing().when(secretKeeper).save(anyString(), any());
+
+      mockMvc.perform(request(HttpMethod.POST, SECRET).contentType("application/json")
+              .content("{\"key\": \"myKeymyKeymyKeymyKeymyKeyistoolong\", \"secret\": \"my secret\"}"))
+          .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void secretKeyHasSpaces() throws Exception {
+      doNothing().when(secretKeeper).save(anyString(), any());
+
+      mockMvc.perform(request(HttpMethod.POST, SECRET).contentType("application/json")
+              .content("{\"key\": \"myKey myKey\", \"secret\": \"my secret\"}"))
+          .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void removeSecret() throws Exception {
       doNothing().when(secretKeeper).remove(anyString());
       mockMvc.perform(request(HttpMethod.DELETE, SECRET + "/myKey")).andExpect(status().isNoContent());

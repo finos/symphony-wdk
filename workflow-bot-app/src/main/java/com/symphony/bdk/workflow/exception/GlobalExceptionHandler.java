@@ -5,13 +5,19 @@ import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.persistence.OptimisticLockException;
 
 @Component
@@ -24,6 +30,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Internal server error: [{}]", exception.getMessage());
     log.debug("", exception);
     return handle("Internal server error, something went wrong.", HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    Map<String, String> errors =
+        ex.getBindingResult().getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField,
+            FieldError::getDefaultMessage, (x, y) -> String.format("%s%n%s", x, y)));
+    return handleExceptionInternal(ex, errors, headers, status, request);
   }
 
   @ExceptionHandler(UnauthorizedException.class)
