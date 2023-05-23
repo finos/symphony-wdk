@@ -75,8 +75,7 @@ server:
 
 logging:
   pattern:
-    file: "%d{yyyy-MM-dd'T'HH:mm:ss,SSS}Z %-5level [%t] %C{-15}: %m proc.id=%mdc{X-PROCESS-ID} act.id=%mdc{X-ACTIVITY-ID} %n%xEx"
-    console: "%d{yyyy-MM-dd'T'HH:mm:ss,SSS}Z %-5level [%t] %C{-15}: %m proc.id=%mdc{X-PROCESS-ID} act.id=%mdc{X-ACTIVITY-ID} %n%xEx"
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss,SSS}Z %-5level [%t] %C{-15}: %m %n%xEx"
   level:
     com.symphony: DEBUG
     # Troubleshoot Camunda by setting lower log level

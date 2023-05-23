@@ -37,13 +37,14 @@ class LogsStreamingAppenderTest {
 
     StackTraceElement stackTraceElement = new StackTraceElement("class", "method", "filename", 1);
     Throwable throwable = new Throwable();
-    throwable.setStackTrace(new StackTraceElement[]{stackTraceElement});
+    throwable.setStackTrace(new StackTraceElement[] {stackTraceElement});
     ThrowableProxy throwableProxy = new ThrowableProxy(throwable);
     when(event.getThrowableProxy()).thenReturn(throwableProxy);
 
     doNothing().when(service).broadcast(anyLong(), anyString(), anyString(), anyString());
     appender.append(event);
-    verify(service).broadcast(anyLong(), anyString(), eq("www"), eq("log message\tat class.method(filename:1)"));
+    verify(service).broadcast(anyLong(), anyString(), eq("www"),
+        eq("log message\tjava.lang.Throwable: null\t\tat class.method(filename:1)\t"));
   }
 
   @Test
