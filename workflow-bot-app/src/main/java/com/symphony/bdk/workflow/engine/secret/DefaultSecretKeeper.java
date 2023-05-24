@@ -5,6 +5,7 @@ import com.symphony.bdk.workflow.exception.DuplicateException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @Slf4j
 public class DefaultSecretKeeper implements SecretKeeper {
   private final SecretRepository repository;
@@ -51,7 +53,7 @@ public class DefaultSecretKeeper implements SecretKeeper {
   public List<SecretMetadata> getSecretsMetadata() {
     return repository.findAll()
         .stream()
-        .map(domain -> new SecretMetadata(domain.getRef(), Instant.ofEpochSecond(domain.getCreatedAt())))
+        .map(domain -> new SecretMetadata(domain.getRef(), Instant.ofEpochMilli(domain.getCreatedAt())))
         .collect(
             Collectors.toList());
   }

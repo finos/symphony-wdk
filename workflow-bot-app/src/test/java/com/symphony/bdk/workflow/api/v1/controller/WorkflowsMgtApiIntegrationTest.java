@@ -164,7 +164,7 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
   }
 
   @Test
-  void uploadAndGetSecretTest() {
+  void uploadAndGetSecretAndDeleteTest() {
     restTemplate.getRestTemplate().setInterceptors(
         Collections.singletonList((request, body, execution) -> {
           request.getHeaders().add(MANAGEMENT_TOKEN_KEY, MANAGEMENT_TOKEN_VALUE);
@@ -184,6 +184,12 @@ class WorkflowsMgtApiIntegrationTest extends ApiIntegrationTest {
     assertThat(metadata).hasSize(1);
     assertThat(metadata[0].getSecretKey()).isEqualTo("key");
     assertThat(metadata[0].getCreatedAt()).isNotNull();
+
+    restTemplate.delete(String.format(SECRET_URL, port) + "/key");
+    response = restTemplate.getForEntity(String.format(SECRET_URL, port), SecretKeeper.SecretMetadata[].class);
+    metadata = response.getBody();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(metadata).hasSize(0);
   }
 
   @Test

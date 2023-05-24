@@ -29,6 +29,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Instant;
 import java.util.List;
+import javax.validation.Valid;
 
 @Api("Api to manage workflow swadl lifecycle")
 public interface WorkflowsMgtApi {
@@ -43,7 +44,7 @@ public interface WorkflowsMgtApi {
   ResponseEntity<Void> saveAndDeploySwadl(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow SWADL form to create") @ModelAttribute SwadlView swadlView);
+      @ApiParam(value = "Workflow SWADL form to create") @Valid @ModelAttribute SwadlView swadlView);
 
   @ApiOperation("Validate and update the latest workflow SWADL content.")
   @ApiResponses(value = {@ApiResponse(code = 204, message = ""),
@@ -55,7 +56,7 @@ public interface WorkflowsMgtApi {
   ResponseEntity<Void> updateSwadl(
       @ApiParam(value = "Workflow's token to authenticate the request", required = true)
       @RequestHeader(name = X_MANAGEMENT_TOKEN_KEY) String token,
-      @ApiParam(value = "Workflow SWADL form to update") @ModelAttribute SwadlView swadlView);
+      @ApiParam(value = "Workflow SWADL form to update") @Valid @ModelAttribute SwadlView swadlView);
 
   @ApiOperation(
       "Get the active version of the workflow by the given ID, which is default behavior; if the version parameter"
@@ -117,7 +118,7 @@ public interface WorkflowsMgtApi {
   @ApiOperation("Upload a secret")
   @ApiResponses(value = {@ApiResponse(code = 204, message = "")})
   @PostMapping("/secrets")
-  ResponseEntity<Void> uploadSecret(@RequestBody SecretView secrete);
+  ResponseEntity<Void> uploadSecret(@Valid @RequestBody SecretView secrete);
 
   @ApiOperation("Delete a secret")
   @ApiResponses(value = {@ApiResponse(code = 204, message = "")})

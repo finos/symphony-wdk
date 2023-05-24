@@ -50,7 +50,7 @@
         <notes><![CDATA[
           No fix available
           ]]></notes>
-        <gav>org.springframework:spring-web:5.3.26</gav>
+        <gav>org.springframework:spring-web:5.3.27</gav>
         <cve>CVE-2016-1000027</cve>
     </suppress>
     <suppress>
