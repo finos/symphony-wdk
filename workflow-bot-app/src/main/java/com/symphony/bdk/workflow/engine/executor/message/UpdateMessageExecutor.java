@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
+import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGES_KEY;
+import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_IDS_KEY;
 import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_ID_KEY;
 import static com.symphony.bdk.workflow.engine.executor.message.SendMessageExecutor.OUTPUT_MESSAGE_KEY;
 
@@ -12,7 +14,9 @@ import com.symphony.bdk.workflow.swadl.v1.activity.message.UpdateMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -31,7 +35,11 @@ public class UpdateMessageExecutor implements ActivityExecutor<UpdateMessage> {
 
     Map<String, Object> outputs = new HashMap<>();
     outputs.put(OUTPUT_MESSAGE_KEY, updatedMessage);
+    outputs.put(OUTPUT_MESSAGES_KEY, updatedMessage);
     outputs.put(OUTPUT_MESSAGE_ID_KEY, updatedMessage.getMessageId());
+    List<String> msgIds = new ArrayList<>();
+    msgIds.add(updatedMessage.getMessageId());
+    outputs.put(OUTPUT_MESSAGE_IDS_KEY, msgIds);
     execution.setOutputVariables(outputs);
   }
 

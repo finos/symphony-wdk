@@ -42,6 +42,7 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
     return builder.scriptTask()
         .id(scriptActivity.getId())
         .name(scriptActivity.getId())
+        .camundaAsyncAfter()
         .scriptText(scriptActivity.getScript())
         .scriptFormat(ExecuteScript.SCRIPT_ENGINE)
         .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ScriptTaskAuditListener.class);
@@ -52,10 +53,10 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
     return builder.serviceTask()
         .id(activity.getId())
         .name(activity.getId())
+        .camundaAsyncAfter()
         .camundaClass(CamundaExecutor.class)
         .camundaInputParameter(CamundaExecutor.EXECUTOR,
             ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())
-        .camundaInputParameter(CamundaExecutor.ACTIVITY,
-            CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
+        .camundaInputParameter(CamundaExecutor.ACTIVITY, CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
   }
 }

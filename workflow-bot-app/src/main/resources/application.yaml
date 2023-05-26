@@ -85,7 +85,7 @@ logging:
     org.camunda.bpm.engine.pvm: WARN
     org.camunda.bpm.dmn.feel: WARN
     org.camunda.bpm.engine.script: WARN
-    org.camunda.bpm: OFF
+    org.camunda.bpm: INFO
     # Audit trail can be disabled with WARN level
     #audit-trail: WARN
     # Disable BPMN image generation

@@ -67,9 +67,13 @@ public class V4ElementActionEventProcessor extends AbstractRealTimeEventProcesso
    * @return process instance id to be resumed.
    */
   private Optional<String> getProcessToExecute(String formId, String messageId) {
-    return runtimeService.createVariableInstanceQuery().list().stream()
-        .filter(a -> a.getName().equals(String.format("%s.%s.%s", formId, ActivityExecutorContext.OUTPUTS,
-            SendMessageExecutor.OUTPUT_MESSAGE_IDS_KEY)) && ((List) a.getValue()).contains(messageId))
+    return runtimeService.createVariableInstanceQuery()
+        .variableName(String.format("%s.%s.%s", formId, ActivityExecutorContext.OUTPUTS,
+            SendMessageExecutor.OUTPUT_MESSAGE_IDS_KEY))
+        .list()
+        .stream()
+        .filter(a -> ((List) a.getValue())
+            .contains(messageId)) // if the workflow has many process instances, this filter could impact the performance
         .map(VariableInstance::getProcessInstanceId)
         .findFirst();
   }
