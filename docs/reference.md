@@ -227,7 +227,7 @@ Example:
 ```yaml
 activities:
   - send-message:
-      id: myActivity 
+      id: myActivity
       on:
         message-received:
           id: msgReceivedEvent #optional
@@ -252,7 +252,7 @@ activities:
       on:
         message-received:
           id: msgReceivedEvent #optional
-          
+
           # dash for the hashtag is escaped otherwise it is a comment in YAML
           # $ for the cash tag is escaped otherwise it is a variable handled as an expression by Camunda
           content: /go {arg1} @{user} \#{hash} \${cash}
@@ -732,6 +732,7 @@ Unique id should start with a letter and should not contain empty spaces. It is 
 event in subsequent activities.
 
 ## Access event payload
+
 If an event is defined with an id, you can access its payload by referencing its id in SWADL.
 
 The key _"event"_ allows to reference the latest happening event.
@@ -742,7 +743,7 @@ Example:
 activities:
   - send-message:
       id: myFirstActivity
-      on: 
+      on:
         message-received:
           id: messageReceivedEvent
           content: /hello
@@ -846,10 +847,12 @@ in [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/me
 Must contain at least one space. **In case the content is a form, the latter's id should be the same as the send-message
 activity one.**
 
-Content can be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
+Content can
+be [MessageML](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml) with
 the `<messageML>` tags or can be simple text too (<messageML> are automatically added if needed).
 
-Content can either be set directly in the SWADL file as plain text (String) or it can be a [Freemarker](https://freemarker.apache.org/) template. 
+Content can either be set directly in the SWADL file as plain text (String) or it can be
+a [Freemarker](https://freemarker.apache.org/) template.
 
 Both inline template and external template file are supported.
 
@@ -865,14 +868,13 @@ Key | Type | Required |
 ------------ | -------| --- |
 template-path | String | Yes 
 
-
 By default, it will search for the file in the `./workflows` root folder.
 
-When a template is used, any workflow variable can be referenced in it, same format as it is for the any other activity in the SWADL file.
+When a template is used, any workflow variable can be referenced in it, same format as it is for the any other activity
+in the SWADL file.
 [Utility functions](#utility-functions) can also be used inside templates.
 
 Example using Freemarker template:
-
 
 ```yaml
 id: pingPong
@@ -885,10 +887,35 @@ activities:
         message-received:
           content: /ping {message}
       content:
-        template: "<messageML>${variables.reply}: ${text(event.source.message.message)}</messageML>"
+        template: \${variables.reply} - \${wdk.text(event.source.message.message)}
 ```
 
-or
+Since the workflow variables and freemarker variables are both referenced with `$` sign, so the freemarker template
+variables must be escaped by a back slash in front, another example
+
+```yaml
+id: simples
+variables:
+  data:
+    - roomName: "room1"
+      index: 1
+    - roomName: "room2"
+      index: 2
+
+activities:
+  - send-message:
+      id: report
+      on:
+        message-received:
+          content: /list
+      content:
+        template: <ul> <#list variables.data as room > <li> \${room.index} - \${room.roomName} </li>  </#list> </ul>
+```
+
+In this example, `variables.data` is a workflow variable, which is going to be injected as template data to the template
+engine by WDK, `${room.index}` and `${room.roomName}` are template variables, they must be escaped with a back slash.
+
+Example using Freemarker template path
 
 ```yaml
 id: pingPong
@@ -896,7 +923,7 @@ variables:
   reply: pong
 activities:
   - send-message:
-      id: pingPong
+      id: pingMsg
       on:
         message-received:
           content: /ping {message}
@@ -963,7 +990,6 @@ Path to the file to be attached to the message. The path is relative to the work
 A [structured object](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/entities/structured-objects)
 can be sent as part of a message in this field. It must be a json string.
 
-
 Example:
 
 ```yaml
@@ -1007,27 +1033,27 @@ Example
 ```yaml
 variables:
   data: {
-          "object001":
+    "object001":
+      {
+        "type": "org.symphonyoss.fin.security",
+        "version": "1.0",
+        "id":
+          [
             {
-              "type":     "org.symphonyoss.fin.security",
-              "version":  "1.0",
-              "id":
-                [
-                  {
-                    "type":     "org.symphonyoss.fin.security.id.ticker",
-                    "value":    "IBM"
-                  },
-                  {
-                    "type":     "org.symphonyoss.fin.security.id.isin",
-                    "value":    "US0378331005"
-                  },
-                  {
-                    "type":     "org.symphonyoss.fin.security.id.cusip",
-                    "value":    "037833100"
-                  }
-                ]
+              "type": "org.symphonyoss.fin.security.id.ticker",
+              "value": "IBM"
+            },
+            {
+              "type": "org.symphonyoss.fin.security.id.isin",
+              "value": "US0378331005"
+            },
+            {
+              "type": "org.symphonyoss.fin.security.id.cusip",
+              "value": "037833100"
             }
-        }
+          ]
+      }
+  }
 activities:
   - send-message:
       id: echo
@@ -2555,6 +2581,7 @@ activities:
 ````
 
 ### Object session()
+
 This method will return session's bot information.
 
 Example:
@@ -2580,7 +2607,9 @@ activities:
 ```
 
 ### Object readShared(String namespace, String key)
-Along side the global variables, WDK provides shared data, which is accessible (read and write via utility functions) among the
+
+Along side the global variables, WDK provides shared data, which is accessible (read and write via utility functions)
+among the
 a workflow process instances, and also among different workflows.
 
 The shared data is organized by its namespace and and its key.
@@ -2595,7 +2624,7 @@ in [send-message](#send-message)
 activities:
   - send-message:
       id: sendBotDisplayName
-      content: ${readShared("namespace", "key")}
+      content: ${readShared('namespace', 'key')}
 ```
 
 in [execute-script](#execute-script)
@@ -2605,10 +2634,11 @@ activities:
   - execute-script:
       id: printBotInfo
       script: |
-        println wdk.readShared("namespace", "key")
+        println wdk.readShared('namespace', 'key')
 ```
 
 ### void writeShared(String namespace, String key, Object value)
+
 This method will write the shared data to the given namespace and under the given key.
 
 Example:
@@ -2620,11 +2650,13 @@ activities:
   - execute-script:
       id: printBotInfo
       script: |
-        wdk.writeShared("namespace", "key", value);
+        wdk.writeShared('namespace', 'key', value);
 ```
 
 ### String secret(String keyRef)
-Once a secret is upload to WDK through REST API ("/v1/workflows/secrets"), the secret is readable within SWADL via utility function.
+
+Once a secret is upload to WDK through REST API ("/v1/workflows/secrets"), the secret is readable within SWADL via
+utility function.
 
 Example:
 
@@ -2635,9 +2667,8 @@ activities:
   - execute-script:
       id: printBotInfo
       script: |
-        wdk.secret("keyRef")
+        wdk.secret('keyRef')
 ```
-
 
 in [execute-request](#execute-request)
 
@@ -2648,7 +2679,7 @@ activities:
       headers:
         Content-Type: application/json
         Accept: application/json
-        Authorization: ${secret("token")}
+        Authorization: ${secret('token')}
       method: GET
       url: https://some-url  
 ```

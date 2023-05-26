@@ -1,5 +1,7 @@
 package com.symphony.bdk.workflow.engine.executor.request;
 
+import static com.symphony.bdk.workflow.engine.camunda.CamundaExecutor.OBJECT_MAPPER;
+
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
 import com.symphony.bdk.workflow.engine.executor.request.client.HttpClient;
@@ -43,10 +45,12 @@ public class ExecuteRequestExecutor implements ActivityExecutor<ExecuteRequest> 
             headersToString(activity.getHeaders()));
 
     log.info("Received response {}", response.getCode());
+    String valueAsString = OBJECT_MAPPER.writeValueAsString(response.getContent());
 
     Map<String, Object> outputs = new HashMap<>();
     outputs.put(OUTPUT_STATUS_KEY, response.getCode());
-    outputs.put(OUTPUT_BODY_KEY, response.getContent());
+    outputs.put(OUTPUT_BODY_KEY,
+        valueAsString.length() > 1000 ? valueAsString.substring(0, 1000) : response.getContent());
     execution.setOutputVariables(outputs);
   }
 
