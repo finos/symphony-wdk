@@ -50,7 +50,7 @@ public class CamundaExecutor implements JavaDelegate {
 
   public static final String EXECUTOR = "executor";
   public static final String ACTIVITY = "activity";
-
+  public static final String SERIALISED_ACTIVITY = "serialisedActivity";
   public static final ObjectMapper OBJECT_MAPPER;
 
   // set MDC entries so that executors can produce log that we can contextualize
@@ -61,12 +61,9 @@ public class CamundaExecutor implements JavaDelegate {
     SimpleModule module = new SimpleModule();
     module.addDeserializer(List.class, new EscapedJsonVariableDeserializer<>(List.class));
     module.addDeserializer(Map.class, new EscapedJsonVariableDeserializer<>(Map.class));
-    OBJECT_MAPPER = JsonMapper.builder()
-        .addModule(module)
-        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+    OBJECT_MAPPER = JsonMapper.builder().addModule(module).configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         // to escape # or $ in message received content and still serialize it to JSON
-        .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
-        .build();
+        .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true).build();
     OBJECT_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
     // serialized properties must be annotated explicitly with @JsonProperty
     OBJECT_MAPPER.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
@@ -106,13 +103,14 @@ public class CamundaExecutor implements JavaDelegate {
     } catch (NoSuchBeanDefinitionException noSuchBeanDefinitionException) {
       executor = (ActivityExecutor<?>) implClass.getDeclaredConstructor().newInstance();
     }
-
-
-    Type type =
-        ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
+    Type type = ((ParameterizedType) (implClass.getGenericInterfaces()[0])).getActualTypeArguments()[0];
 
     // escape break line and new line characters
-    String activityAsJsonString = ((String) execution.getVariable(ACTIVITY)).replaceAll("(\\r|\\n|\\r\\n)+", "\\\\n");
+    String activityAsJsonString =
+        ((Map) execution.getVariable(SERIALISED_ACTIVITY)).get(execution.getVariable(ACTIVITY))
+            .toString()
+            .replaceAll("(\\r|\\n|\\r\\n)+", "\\\\n");
+
     BaseActivity activity =
         (BaseActivity) OBJECT_MAPPER.readValue(activityAsJsonString, Class.forName(type.getTypeName()));
 
@@ -138,9 +136,8 @@ public class CamundaExecutor implements JavaDelegate {
     innerMap.put("message", e.getCause() == null ? e.getMessage() : e.getCause().getMessage());
     innerMap.put("activityInstId", execution.getActivityInstanceId());
     innerMap.put("activityId", activity.getId());
-    ObjectValue objectValue = Variables.objectValue(innerMap)
-        .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-        .create();
+    ObjectValue objectValue =
+        Variables.objectValue(innerMap).serializationDataFormat(Variables.SerializationDataFormats.JSON).create();
     execution.getProcessEngineServices()
         .getRuntimeService()
         .setVariable(execution.getId(), ActivityExecutorContext.ERROR, objectValue);
@@ -183,9 +180,8 @@ public class CamundaExecutor implements JavaDelegate {
 
       Map<String, Object> outer = new HashMap<>();
       outer.put(ActivityExecutorContext.OUTPUTS, innerMap);
-      ObjectValue objectValue = Variables.objectValue(outer)
-          .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-          .create();
+      ObjectValue objectValue =
+          Variables.objectValue(outer).serializationDataFormat(Variables.SerializationDataFormats.JSON).create();
 
       // flatten outputs for message correlation
       Map<String, Object> flattenOutputs = new HashMap<>();
@@ -267,6 +263,5 @@ public class CamundaExecutor implements JavaDelegate {
     public Path saveResource(Path resourcePath, byte[] content) throws IOException {
       return resourceLoader.saveResource(resourcePath, content);
     }
-
   }
 }

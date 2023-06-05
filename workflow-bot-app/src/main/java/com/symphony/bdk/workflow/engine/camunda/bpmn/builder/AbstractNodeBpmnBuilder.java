@@ -6,7 +6,6 @@ import static com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder.E
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
@@ -15,7 +14,7 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
 
   @Override
   public AbstractFlowNodeBuilder<?, ?> connect(WorkflowNode element, String parentId,
-      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
     String nodeId = element.getId();
     if (context.isAlreadyBuilt(nodeId)) {
       if (element.isConditional()) {
@@ -63,5 +62,5 @@ public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder
   }
 
   protected abstract AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
-      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException;
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context);
 }
