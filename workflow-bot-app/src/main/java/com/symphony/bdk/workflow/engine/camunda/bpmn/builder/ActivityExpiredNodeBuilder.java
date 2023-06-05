@@ -5,7 +5,6 @@ import com.symphony.bdk.workflow.engine.WorkflowNodeType;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 import com.symphony.bdk.workflow.swadl.v1.EventWithTimeout;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.camunda.bpm.model.bpmn.builder.AbstractCatchEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
@@ -17,7 +16,7 @@ public class ActivityExpiredNodeBuilder extends ActivityNodeBuilder {
 
   @Override
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
-      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
     if (hasNoExclusiveFormReplyParent(element, context)) {
       if (context.hasTimeoutSubProcess()) {
         builder = context.removeLastSubProcessTimeoutBuilder();

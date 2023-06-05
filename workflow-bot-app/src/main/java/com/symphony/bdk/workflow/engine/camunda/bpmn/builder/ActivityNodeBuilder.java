@@ -9,7 +9,6 @@ import com.symphony.bdk.workflow.swadl.ActivityRegistry;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 import com.symphony.bdk.workflow.swadl.v1.activity.ExecuteScript;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
 
   @Override
   public AbstractFlowNodeBuilder<?, ?> build(WorkflowNode element, String parentId,
-      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) throws JsonProcessingException {
+      AbstractFlowNodeBuilder<?, ?> builder, BuildProcessContext context) {
     return addTask(builder, element.getActivity());
   }
 
@@ -28,8 +27,7 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
     return WorkflowNodeType.ACTIVITY;
   }
 
-  protected AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity)
-      throws JsonProcessingException {
+  protected AbstractFlowNodeBuilder<?, ?> addTask(AbstractFlowNodeBuilder<?, ?> eventBuilder, BaseActivity activity) {
     // hardcoded so we can rely on Camunda's script task instead of a service task
     if (activity instanceof ExecuteScript) {
       return addScriptTask(eventBuilder, (ExecuteScript) activity);
@@ -48,8 +46,7 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
         .camundaExecutionListenerClass(ExecutionListener.EVENTNAME_START, ScriptTaskAuditListener.class);
   }
 
-  private AbstractFlowNodeBuilder<?, ?> addServiceTask(AbstractFlowNodeBuilder<?, ?> builder, BaseActivity activity)
-      throws JsonProcessingException {
+  private AbstractFlowNodeBuilder<?, ?> addServiceTask(AbstractFlowNodeBuilder<?, ?> builder, BaseActivity activity) {
     return builder.serviceTask()
         .id(activity.getId())
         .name(activity.getId())
@@ -57,6 +54,6 @@ public class ActivityNodeBuilder extends AbstractNodeBpmnBuilder {
         .camundaClass(CamundaExecutor.class)
         .camundaInputParameter(CamundaExecutor.EXECUTOR,
             ActivityRegistry.getActivityExecutors().get(activity.getClass()).getName())
-        .camundaInputParameter(CamundaExecutor.ACTIVITY, CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activity));
+        .camundaInputParameter(CamundaExecutor.ACTIVITY, activity.getId());
   }
 }

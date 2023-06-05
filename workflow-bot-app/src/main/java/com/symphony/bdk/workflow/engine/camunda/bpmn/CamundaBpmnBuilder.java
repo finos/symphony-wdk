@@ -11,11 +11,14 @@ import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.NodeChildren;
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.WorkflowNodeType;
+import com.symphony.bdk.workflow.engine.camunda.CamundaExecutor;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilderRegistry;
 import com.symphony.bdk.workflow.engine.camunda.variable.VariablesListener;
+import com.symphony.bdk.workflow.swadl.v1.Activity;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
+import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +32,18 @@ import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaEntry;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaInputOutput;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaInputParameter;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaMap;
 import org.camunda.bpm.model.xml.ModelValidationException;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Events are created with async before to make sure they are not blocking the dispatch of events (starting or
@@ -79,7 +90,8 @@ public class CamundaBpmnBuilder {
 
   private DeploymentBuilder setWorkflowTokenIfExists(DeploymentBuilder deploymentBuilder, Workflow workflow) {
     workflow.getActivities().forEach(activity -> {
-      Optional<String> token = activity.getEvents().getEvents()
+      Optional<String> token = activity.getEvents()
+          .getEvents()
           .stream()
           .filter(event -> event.getRequestReceived() != null && event.getRequestReceived().getToken() != null)
           .map(event -> event.getRequestReceived().getToken())
@@ -101,9 +113,59 @@ public class CamundaBpmnBuilder {
     BuildProcessContext context = new BuildProcessContext(workflowDirectedGraph, process);
     buildWorkflowInDfs(new NodeChildren(context.getStartEvents()), "", context);
     AbstractFlowNodeBuilder<?, ?> builder = closeUpSubProcessesIfAny(context, context.getLastNodeBuilder());
+
     BpmnModelInstance instance = builder.done();
     process.addExtensionElement(VariablesListener.create(instance, workflow.getVariables()));
+    injectActivityDefAsInput(instance, workflow.getActivities());
     return new CamundaTranslatedWorkflowContext(workflow, workflowDirectedGraph, instance);
+  }
+
+  /**
+   * Fix bug where the activity definition contains a variable, which could be resolved, during the workflow process,
+   * with a big size exceeding the Camunda DB text size limit. The fix is to make the activity definition an map object
+   * as the input parameter, instead of a simple string previously. An object parameter variable is stored in bytearray table
+   * as BLOB type, while a string has a limit of 4000 characters.
+   *
+   * @param instance   the bpmn model instance being built
+   * @param activities the swadl activity list
+   * @throws JsonProcessingException json serialisation exception
+   */
+  private void injectActivityDefAsInput(BpmnModelInstance instance, List<Activity> activities)
+      throws JsonProcessingException {
+    Map<String, BaseActivity> activityMap =
+        activities.stream().collect(Collectors.toMap(a -> a.getActivity().getId(), Activity::getActivity));
+
+    Collection<CamundaInputOutput> activityInputOutputElements =
+        instance.getModelElementsByType(CamundaInputOutput.class);
+    for (CamundaInputOutput inputOutput : activityInputOutputElements) {
+      CamundaInputParameter activityNameInputParam = extractActivityNameInputParam(inputOutput);
+      addSerialisedActivityInputParam(instance, inputOutput, activityNameInputParam, activityMap);
+    }
+  }
+
+  private void addSerialisedActivityInputParam(BpmnModelInstance instance, CamundaInputOutput inputOutput,
+      CamundaInputParameter activityNameInputParam, Map<String, BaseActivity> activityMap)
+      throws JsonProcessingException {
+    CamundaMap map = instance.newInstance(CamundaMap.class);
+    CamundaEntry entry = instance.newInstance(CamundaEntry.class);
+    CamundaInputParameter inputParameter = instance.newInstance(CamundaInputParameter.class);
+
+    String activityName = activityNameInputParam.getTextContent();
+    entry.setCamundaKey(activityName);
+    entry.setTextContent(CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activityMap.get(activityName)));
+    map.getCamundaEntries().add(entry);
+
+    inputParameter.setCamundaName(CamundaExecutor.SERIALISED_ACTIVITY);
+    inputParameter.setValue(map);
+    inputOutput.addChildElement(inputParameter);
+  }
+
+  private static CamundaInputParameter extractActivityNameInputParam(CamundaInputOutput inputOutput) {
+    return inputOutput.getChildElementsByType(CamundaInputParameter.class)
+        .stream()
+        .filter(input -> CamundaExecutor.ACTIVITY.equals(input.getCamundaName()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Activity missing its name"));
   }
 
   private AbstractFlowNodeBuilder<?, ?> closeUpSubProcessesIfAny(BuildProcessContext context,
