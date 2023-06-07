@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WDK Studio</title>
+    <link rel="stylesheet" href="https://cdn.symphony.com/resources/ui-toolkit/v3.6.3/css/uitoolkit.css" integrity="sha256-6d5bdbefce57cea9f0c85a6a6f1c3b9df3b161b7" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if (window.location !== window.parent.location) {
+        document.write('<script type="text/javascript" src="https://cdn.symphony.com/resources/api/v1.0/symphony-api.js" charset="utf-8" integrity="sha256-f3e322f891b079455064857ac6b3fc86d22cd6ba"></sc'+'ript>');
+      }
+    </script>
+    <script type="module" src="src/index.jsx"></script>
+  </body>
+</html>

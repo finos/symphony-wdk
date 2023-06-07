@@ -1,0 +1,65 @@
+bdk:
+  host: develop2.symphony.com
+  bot:
+    username: wdk-studio-bot
+    privateKey.path: rsa/bot-privatekey.pem
+  app:
+    appId: wdk-studio
+    privateKey.path: rsa/app-privatekey.pem
+
+bdk-app:
+  auth.enabled: true
+  cors:
+    "[/**]":
+      allowed-origins: "*"
+      allowed-methods: [ "POST", "GET", "PUT", "DELETE" ]
+      allowed-headers: "*"
+      allowed-credentials: false
+
+wdk:
+  workflows.path: ""
+  encrypt.passphrase: ${ENCRYPT_PASSPHRASE}
+  properties:
+    monitoring-token: ${MONITORING_TOKEN}
+    management-token: ${MANAGEMENT_TOKEN}
+  studio:
+    github-token: ${GITHUB_TOKEN}
+
+spring:
+  main.banner-mode: off
+  jpa.show-sql: false
+  datasource:
+    wdk.jdbc-url: jdbc:h2:file:./data/wdk;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    camunda.jdbc-url: jdbc:h2:file:./data/camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+management:
+  server.port: 8080
+  endpoints.web.base-path: /
+
+server:
+  error.include-message: always
+  servlet.contextPath: /
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,application/javascript,text/css,image/jpeg
+
+logging.level:
+  org:
+    apache: error
+    glassfish: error
+    reflections: error
+    springframework: error
+    hibernate: error
+    camunda.commons: error
+    camunda.feel: error
+  com:
+    zaxxer: error
+    symphony: info
+    symphony.bdk:
+      workflow:
+        swadl: error
+        engine.executor.DebugExecutor: debug
+      spring.config: error
+  springfox: error
+
+springfox.documentation.auto-startup: false

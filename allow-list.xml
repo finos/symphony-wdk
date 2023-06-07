@@ -13,6 +13,7 @@
         ]]></notes>
         <gav>com.google.guava:guava:31.1-jre</gav>
         <cve>CVE-2020-8908</cve>
+        <cve>CVE-2023-2976</cve>
     </suppress>
     <suppress>
       <notes><![CDATA[
@@ -20,6 +21,7 @@
           ]]></notes>
       <gav>com.google.guava:guava:29.0-jre</gav>
       <cve>CVE-2020-8908</cve>
+      <cve>CVE-2023-2976</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
