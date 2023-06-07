@@ -1,0 +1,17 @@
+bdk.app:
+  appId: localhost-10443
+  privateKey.path: rsa/privatekey.pem
+
+server:
+  port: 10443
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: pkcs12
+    key-alias: tomcat
+
+management:
+  server.port: 8081
+
+spring.web.resources.static-locations: file:web/public
+springfox.documentation.auto-startup: true

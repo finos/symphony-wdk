@@ -1,0 +1,10 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex: 1 1 1px;
+}
+.tk-dark div { color: var(--tk-main-text-color, #525760); }
+button.tk-button[disabled] { cursor: not-allowed; }
+.tk-dialog__footer { gap: .5rem; }

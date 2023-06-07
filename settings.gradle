@@ -3,3 +3,4 @@ rootProject.name = 'workflow-bot'
 include(':workflow-language')
 include(':workflow-bot-app')
 include(':custom-activity-example')
+include(':studio')

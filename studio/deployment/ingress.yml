@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wdk-studio-ingress
+spec:
+  rules:
+  - host: wdk-studio.symphonymarket.solutions
+    http:
+      paths:
+        - backend:
+            service:
+              name: wdk-studio
+              port:
+                number: 8080
+          pathType: ImplementationSpecific
