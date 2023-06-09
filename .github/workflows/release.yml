@@ -64,37 +64,41 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  build-and-push-image:
-    name: "Push Docker Image"
+  build-federation:
+    name: "Build Federation JAR"
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: symphonyplatformsolutions/wdk-federation-client
+
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: federation
+          path: lib/*.jar
+          if-no-files-found: error
+          retention-days: 1
+
+  build-and-push-image:
+    name: "Push Docker Image"
+    needs: build-federation
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download fatJar artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
           path: .
 
-      - name: Download studio artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: lib
-          path: studio/
-
-      - uses: actions/checkout@v3
-        with:
-          repository: symphonyplatformsolutions/wdk-federation-client
-          path: federation
-
-      - uses: gradle/gradle-build-action@v2
-        with:
-          build-root-directory: federation
-          arguments: build
+      - run: mkdir studio/lib && cp federation/*.jar studio/lib/ && cp lib/*.jar studio/lib/
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
