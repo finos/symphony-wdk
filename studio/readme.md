@@ -40,9 +40,9 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
     docker run --rm \
         --name wdk-studio \
         -p 8080:8080 \
-        --mount type=bind,source="$(pwd)"/application-prod.yaml,target=/data/symphony/application-prod.yaml,readonly \
-        --mount type=bind,source="$(pwd)"/privatekey.pem,target=/data/symphony/privatekey.pem,readonly \
-        -v $(pwd)/data:/data/symphony/data \
+        --mount type=bind,source="$(pwd)"/application-prod.yaml,target=/symphony/application-prod.yaml,readonly \
+        --mount type=bind,source="$(pwd)"/privatekey.pem,target=/symphony/privatekey.pem,readonly \
+        -v $(pwd)/data:/symphony/data \
         finos/symphony-wdk-studio:latest
     ```
 4. This command exposes the deployment on the current host on port `8080`,
