@@ -5,7 +5,7 @@ plugins {
 
 group = 'org.finos.symphony.wdk'
 
-ext.projectVersion = '1.7.0-SNAPSHOT'
+ext.projectVersion = '1.6.2'
 
 ext.mavenRepoUrl = ext.projectVersion.endsWith('SNAPSHOT') ?  'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
