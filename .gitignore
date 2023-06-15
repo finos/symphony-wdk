@@ -90,6 +90,12 @@ nb-configuration.xml
 
 
 ##############################
+## Web
+##############################
+node_modules
+studio/src/main/resources/static
+
+##############################
 ## WDK
 ##############################
 workflow-bot-app/rsa/

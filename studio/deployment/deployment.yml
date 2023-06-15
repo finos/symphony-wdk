@@ -24,7 +24,7 @@ spec:
         - envFrom:
             - secretRef:
                 name: wdk-studio-keys
-          image: ghcr.io/symphonyplatformsolutions/wdk-studio:2.1.11
+          image: finos/symphony-wdk-studio:latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -61,15 +61,17 @@ spec:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
           volumeMounts:
-            - mountPath: /data/symphony/rsa
+            - mountPath: /symphony/rsa
               name: keys
-            - mountPath: /data/symphony/data
+            - mountPath: /symphony/data
               name: data
-            - mountPath: /data/symphony/lib
-              name: lib
-            - mountPath: /data/symphony/application-prod.yaml
+            - mountPath: /symphony/application-prod.yaml
               name: config
               subPath: application-prod.yaml
+      securityContext:
+        fsGroup: 101
+        runAsGroup: 101
+        runAsUser: 100
       volumes:
         - configMap:
             name: wdk-studio-config
@@ -77,9 +79,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: wdk-studio-data-pvc
-        - name: lib
-          persistentVolumeClaim:
-            claimName: wdk-studio-lib-pvc
         - name: keys
           secret:
             secretName: wdk-studio-keys
