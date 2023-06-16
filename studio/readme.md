@@ -10,12 +10,12 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
 
 ### Docker-based Deployment
 1. Create a deployment configuration file `application-yaml`
-    - The service account username and app id need to match the entries created above
-    - The `monitoring-token` and `management-token` values should be random strings
-    - The `encrypt.passphrase` value should be a random string at least 16 characters long
-    - The `github-token` can be created on [GitHub](https://github.com/settings/tokens) using `Tokens (classic)` and the `public_repo` scope
-    - The `admins` field is a comma-separated list of Symphony User IDs who will be granted rights within WDK Studio to reassign workflow ownership
-    - Include the `bdk.federation` section only if Federation APIs should be enabled (an activated federation key pair is required)
+   - The service account username and app id need to match the entries created above
+   - The `monitoring-token` and `management-token` values should be random strings
+   - The `encrypt.passphrase` value should be a random string at least 16 characters long
+   - The `github-token` can be created on [GitHub](https://github.com/settings/tokens) using `Tokens (classic)` and the `public_repo` scope
+   - The `admins` field is a comma-separated list of Symphony User IDs who will be granted rights within WDK Studio to reassign workflow ownership
+   - Include the `bdk.federation` section only if Federation APIs should be enabled (an activated federation key pair is required)
    ```yaml
    bdk:
      host: develop2.symphony.com
@@ -40,26 +40,25 @@ of Symphony's Workflow Developer Kit right into the Symphony interface.
    ```
 2. Create the following file structure:
    ```shell
-    .
-   ├──  application-prod.yaml
-   ├──  data
-   └──  rsa
-   ├──  app-privatekey.pem
-   ├──  bot-privatekey.pem
-   └──  connect-privatekey.pem
+   📁 .
+   ├── 📄 application-prod.yaml
+   ├── 📁 data
+   └── 📁 rsa
+       ├── 📄 app-privatekey.pem
+       ├── 📄 bot-privatekey.pem
+       └── 📄 connect-privatekey.pem
    ```
-2. Save the private keys in the same directory and an empty `data` directory
-3. Launch docker and mount the files as appropriate
+2. Save the private keys in the `rsa` directory
+3. `data` should be an empty directory
+4. Launch docker and mount the files as appropriate
    ```shell
-    docker run --rm \
-        --name wdk-studio \
-        -p 8080:8080 \
-        --mount type=bind,source="$(pwd)"/application-prod.yaml,target=/symphony/application-prod.yaml,readonly \
-        -v ./rsa:/symphony/rsa \
-        -v ./data:/symphony/data \
-        finos/symphony-wdk-studio:latest
+    docker run --rm --name wdk-studio -p 8080:8080 \
+      -v ./application-prod.yaml:/symphony/application-prod.yaml \
+      -v ./rsa:/symphony/rsa \
+      -v ./data:/symphony/data \
+      finos/symphony-wdk-studio:latest
    ```
-4. This command exposes the deployment on the current host on port `8080`,
-which then needs to be fronted with an ingress controller or load balancer
-with a trusted TLS certificate. The resulting URL then needs to be defined in
-the extension app entry in the Admin portal.
+5. This command exposes the deployment on the current host on port `8080`,
+   which then needs to be fronted with an ingress controller or load balancer
+   with a trusted TLS certificate. The resulting URL then needs to be defined in
+   the extension app entry in the Admin portal.
