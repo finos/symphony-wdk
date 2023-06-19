@@ -68,14 +68,20 @@ jobs:
     name: "Build Federation JAR"
     needs: build
     runs-on: ubuntu-latest
+    env:
+      VERSION: 1.0.5
     steps:
       - uses: actions/checkout@v3
         with:
           repository: symphonyplatformsolutions/wdk-federation-client
+          ref: ${{ env.VERSION }}
 
       - uses: gradle/gradle-build-action@v2
         with:
           arguments: build
+
+      - name: Rename Federation JAR
+        run: mv lib/symphony-wdk.jar lib/wdk-federation-client-${VERSION}.jar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.2
