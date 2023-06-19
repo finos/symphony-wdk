@@ -7,9 +7,9 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 COPY --from=0 /jre /jre
 COPY artifact/*.jar /wdk.jar
 
-WORKDIR /symphony
-RUN addgroup -S symphony && adduser -S symphony -G symphony && chown -R symphony:symphony /symphony
+RUN addgroup -S symphony && adduser -S symphony -G symphony
 USER symphony
+WORKDIR /symphony
 
 EXPOSE 8080
 ENTRYPOINT [ "/jre/bin/java", "-jar", "/wdk.jar", "--spring.profiles.active=${PROFILE:default}" ]
