@@ -1,5 +1,6 @@
 package com.symphony.bdk.workflow.configuration;
 
+import jakarta.annotation.PreDestroy;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import javax.annotation.PreDestroy;
 
 /**
  * Watch a specific folder for workflows.

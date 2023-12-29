@@ -14,8 +14,8 @@ import com.symphony.bdk.workflow.engine.executor.SharedDataStore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.camunda.bpm.engine.impl.javax.el.FunctionMapper;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
+import org.camunda.bpm.impl.juel.jakarta.el.FunctionMapper;
 
 import java.lang.reflect.Method;
 import java.util.Collections;

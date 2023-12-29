@@ -123,8 +123,8 @@ public class CamundaBpmnBuilder {
   /**
    * Fix bug where the activity definition contains a variable, which could be resolved, during the workflow process,
    * with a big size exceeding the Camunda DB text size limit. The fix is to make the activity definition an map object
-   * as the input parameter, instead of a simple string previously. An object parameter variable is stored in bytearray table
-   * as BLOB type, while a string has a limit of 4000 characters.
+   * as the input parameter, instead of a simple string previously. An object parameter variable is stored in bytearray
+   * table as BLOB type, while a string has a limit of 4000 characters.
    *
    * @param instance   the bpmn model instance being built
    * @param activities the swadl activity list
@@ -148,13 +148,13 @@ public class CamundaBpmnBuilder {
       throws JsonProcessingException {
     CamundaMap map = instance.newInstance(CamundaMap.class);
     CamundaEntry entry = instance.newInstance(CamundaEntry.class);
-    CamundaInputParameter inputParameter = instance.newInstance(CamundaInputParameter.class);
 
     String activityName = activityNameInputParam.getTextContent();
     entry.setCamundaKey(activityName);
     entry.setTextContent(CamundaExecutor.OBJECT_MAPPER.writeValueAsString(activityMap.get(activityName)));
     map.getCamundaEntries().add(entry);
 
+    CamundaInputParameter inputParameter = instance.newInstance(CamundaInputParameter.class);
     inputParameter.setCamundaName(CamundaExecutor.SERIALISED_ACTIVITY);
     inputParameter.setValue(map);
     inputOutput.addChildElement(inputParameter);

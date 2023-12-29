@@ -73,7 +73,7 @@ public class V4ElementActionEventProcessor extends AbstractRealTimeEventProcesso
         .list()
         .stream()
         .filter(a -> ((List) a.getValue())
-            .contains(messageId)) // if the workflow has many process instances, this filter could impact the performance
+            .contains(messageId)) // if the workflow has many process instances, this filter could impact performance
         .map(VariableInstance::getProcessInstanceId)
         .findFirst();
   }
