@@ -21,6 +21,7 @@ public class SendMessage extends OboActivity {
 
   public void setContent(Object content) {
     if (content instanceof Map) {
+      @SuppressWarnings("unchecked")
       Map<String, String> map = (Map<String, String>) content;
       setTemplate(map.get("template"));
       setTemplatePath(map.get("template-path"));

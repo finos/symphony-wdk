@@ -1,12 +1,12 @@
 package com.symphony.bdk.workflow.exception;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.api.v1.dto.ErrorResponse;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class GlobalExceptionHandlerTest {
 

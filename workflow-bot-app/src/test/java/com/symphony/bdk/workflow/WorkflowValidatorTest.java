@@ -1,9 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
@@ -23,6 +19,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class WorkflowValidatorTest {
 

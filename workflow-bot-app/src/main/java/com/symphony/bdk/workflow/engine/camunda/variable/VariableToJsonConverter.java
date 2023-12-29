@@ -3,15 +3,15 @@ package com.symphony.bdk.workflow.engine.camunda.variable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.camunda.bpm.engine.impl.javax.el.ELException;
-import org.camunda.bpm.engine.impl.juel.TypeConverterImpl;
+import org.camunda.bpm.impl.juel.TypeConverterImpl;
+
 
 /**
  * When variables are resolved in expressions, serialize the complex objects (lists, maps) as escaped JSON
  * so they can be rebuilt to complex object when the model is deserialized and used in the executors.
  *
  * <p>This is used by the src/main/resources/el.properties file, loaded by
- * {@link org.camunda.bpm.engine.impl.juel.ExpressionFactoryImpl}.
+ * {@link org.camunda.bpm.impl.juel.ExpressionFactoryImpl}.
  */
 public class VariableToJsonConverter extends TypeConverterImpl {
 
@@ -34,7 +34,7 @@ public class VariableToJsonConverter extends TypeConverterImpl {
       char[] escapedJson = JsonStringEncoder.getInstance().quoteAsString(json);
       return new String(escapedJson);
     } catch (JsonProcessingException e) {
-      throw new ELException(e);
+      throw new RuntimeException(e);
     }
   }
 }

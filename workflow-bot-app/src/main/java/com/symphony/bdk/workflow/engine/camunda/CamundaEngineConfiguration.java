@@ -16,6 +16,10 @@ import org.camunda.bpm.engine.impl.scripting.ExecutableScript;
 import org.camunda.bpm.engine.impl.scripting.env.ScriptingEnvironment;
 import org.camunda.bpm.engine.impl.util.ReflectUtil;
 import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
+import org.springframework.boot.actuate.health.AbstractHealthIndicator;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
@@ -104,4 +108,13 @@ public class CamundaEngineConfiguration implements ProcessEnginePlugin {
 
   }
 
+  @Bean(name = "processEngineHealthIndicator")
+  public HealthIndicator processEngineHealthIndicator(ProcessEngine processEngine) {
+    return new AbstractHealthIndicator() {
+      @Override
+      protected void doHealthCheck(Health.Builder builder) throws Exception {
+        builder.up().withDetail("name", processEngine.getName());
+      }
+    };
+  }
 }

@@ -1,8 +1,8 @@
 package com.symphony.bdk.workflow.monitoring.repository;
 
-import static org.assertj.core.api.BDDAssertions.then;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.BDDAssertions.then;
 
 class QueryRepositoryTest {
 

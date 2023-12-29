@@ -16,9 +16,15 @@ repositories {
     mavenCentral()
 }
 
+compileJava {
+    options.compilerArgs << '-parameters'
+    options.compilerArgs << '-Xlint:deprecation'
+    options.compilerArgs << '-Xlint:unchecked'
+}
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 
     withJavadocJar()

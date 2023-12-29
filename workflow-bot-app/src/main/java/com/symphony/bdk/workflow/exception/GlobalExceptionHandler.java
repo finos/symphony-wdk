@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import jakarta.persistence.OptimisticLockException;
+
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.OptimisticLockException;
 
 @Component
 @ControllerAdvice
@@ -30,15 +31,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Internal server error: [{}]", exception.getMessage());
     log.debug("", exception);
     return handle("Internal server error, something went wrong.", HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    Map<String, String> errors =
-        ex.getBindingResult().getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField,
-            FieldError::getDefaultMessage, (x, y) -> String.format("%s%n%s", x, y)));
-    return handleExceptionInternal(ex, errors, headers, status, request);
   }
 
   @ExceptionHandler(UnauthorizedException.class)
@@ -91,5 +83,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   private ResponseEntity<ErrorResponse> handle(String errorMessage, HttpStatus status) {
     return ResponseEntity.status(status).body(new ErrorResponse(errorMessage));
   }
-}
 
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    Map<String, String> errors =
+        ex.getBindingResult().getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField,
+            FieldError::getDefaultMessage, (x, y) -> String.format("%s%n%s", x, y)));
+    return handleExceptionInternal(ex, errors, headers, status, request);
+  }
+}

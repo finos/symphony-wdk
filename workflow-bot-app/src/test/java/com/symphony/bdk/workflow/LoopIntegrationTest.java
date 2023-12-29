@@ -1,12 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.refEq;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -21,6 +14,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.when;
 
 class LoopIntegrationTest extends IntegrationTest {
 

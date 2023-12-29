@@ -1,10 +1,5 @@
 package com.symphony.bdk.workflow.custom.assertion;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.assertj.core.api.Assertions.fail;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.argThat;
-
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.IntegrationTest;
@@ -28,6 +23,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.fail;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.argThat;
 
 public class WorkflowAssert extends AbstractAssert<WorkflowAssert, Workflow> {
 

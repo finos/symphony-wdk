@@ -1,12 +1,12 @@
 package com.symphony.bdk.workflow.swadl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.management.BigStringCompressor;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CompressionTest {
 

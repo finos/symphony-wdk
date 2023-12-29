@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.converter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowDomain;
 
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkflowDomainConverterTest {
   @Test

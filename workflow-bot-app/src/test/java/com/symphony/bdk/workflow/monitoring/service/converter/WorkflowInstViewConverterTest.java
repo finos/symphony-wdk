@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.monitoring.service.converter;
 
-import static org.assertj.core.api.BDDAssertions.then;
-
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
@@ -12,6 +10,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+
+import static org.assertj.core.api.BDDAssertions.then;
 
 class WorkflowInstViewConverterTest {
 

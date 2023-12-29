@@ -1,5 +1,23 @@
 package com.symphony.bdk.workflow;
 
+import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
+import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.workflow.exception.NotFoundException;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
+import org.apache.commons.text.StringEscapeUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.contains;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,24 +33,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
-import com.symphony.bdk.gen.api.model.V4Stream;
-import com.symphony.bdk.workflow.exception.NotFoundException;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+@SuppressWarnings("unchecked")
 class FormReplyIntegrationTest extends IntegrationTest {
 
   @Test

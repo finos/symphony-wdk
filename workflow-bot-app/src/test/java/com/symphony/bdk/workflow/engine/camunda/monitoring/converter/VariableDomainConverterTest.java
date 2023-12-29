@@ -1,9 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.converter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
 import org.assertj.core.util.Maps;
@@ -11,6 +7,10 @@ import org.camunda.bpm.engine.history.HistoricVariableUpdate;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class VariableDomainConverterTest {
 

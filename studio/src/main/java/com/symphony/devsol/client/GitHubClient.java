@@ -1,7 +1,5 @@
 package com.symphony.devsol.client;
 
-import static java.util.stream.Collectors.toList;
-
 import com.symphony.devsol.model.github.GitHubContent;
 import com.symphony.devsol.model.github.GitHubTree;
 import com.symphony.devsol.model.github.GitHubTreeNode;
@@ -18,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 public class GitHubClient {

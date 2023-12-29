@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Generated // not interesting to test
+@SuppressWarnings("unchecked")
 public class DatafeedEventToWorkflowEvent {
 
   private final WorkflowEngine workflowEngine;

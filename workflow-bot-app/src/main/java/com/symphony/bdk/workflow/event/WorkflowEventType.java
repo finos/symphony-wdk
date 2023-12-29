@@ -20,7 +20,7 @@ import com.symphony.bdk.workflow.swadl.v1.event.UserJoinedRoomEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.UserLeftRoomEvent;
 import com.symphony.bdk.workflow.swadl.v1.event.UserRequestedToJoinRoomEvent;
 
-import io.micrometer.core.instrument.util.StringUtils;
+import io.micrometer.common.util.StringUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Triple;

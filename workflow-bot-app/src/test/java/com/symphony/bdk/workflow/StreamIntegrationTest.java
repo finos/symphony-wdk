@@ -1,16 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.POST;
-import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.ROOM;
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.refEq;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.StreamType;
@@ -29,6 +18,17 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Collections;
 import java.util.List;
+
+import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.POST;
+import static com.symphony.bdk.gen.api.model.StreamType.TypeEnum.ROOM;
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("ConstantConditions") // for null pagination attribute with refEq
 class StreamIntegrationTest extends IntegrationTest {

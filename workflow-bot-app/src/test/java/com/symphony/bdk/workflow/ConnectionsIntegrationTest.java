@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -20,6 +14,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ConnectionsIntegrationTest extends IntegrationTest {
 
@@ -69,11 +69,12 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource(
-      {"/connection/obo/get-connections-obo-valid-username.swadl.yaml, /get-connections-obo-valid-username, "
-          + "getConnectionsOboValidUsername",
-          "/connection/obo/get-connections-obo-valid-userid.swadl.yaml, /get-connections-obo-valid-userid, "
-              + "getConnectionsOboValidUserid"})
+  @CsvSource({
+    "/connection/obo/get-connections-obo-valid-username.swadl.yaml, /get-connections-obo-valid-username, "
+      + "getConnectionsOboValidUsername",
+    "/connection/obo/get-connections-obo-valid-userid.swadl.yaml, /get-connections-obo-valid-userid, "
+      + "getConnectionsOboValidUserid"
+  })
   void listConnectionsStatusObo(String workflowFile, String command, String output) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -129,11 +130,12 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource(
-      {"/connection/obo/get-connection-obo-valid-username.swadl.yaml, /get-connection-obo-valid-username, "
-          + "getConnectionOboValidUsername",
-          "/connection/obo/get-connection-obo-valid-userid.swadl.yaml, /get-connection-obo-valid-userid, "
-              + "getConnectionOboValidUserid"})
+  @CsvSource({
+    "/connection/obo/get-connection-obo-valid-username.swadl.yaml, /get-connection-obo-valid-username, "
+      + "getConnectionOboValidUsername",
+    "/connection/obo/get-connection-obo-valid-userid.swadl.yaml, /get-connection-obo-valid-userid, "
+      + "getConnectionOboValidUserid"
+  })
   void getConnectionStatusObo(String workflowFile, String command, String output) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -189,11 +191,12 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource(
-      {"/connection/obo/create-connection-obo-valid-username.swadl.yaml, /create-connection-obo-valid-username, "
-          + "createConnectionOboValidUsername",
-          "/connection/obo/create-connection-obo-valid-userid.swadl.yaml, /create-connection-obo-valid-userid, "
-              + "createConnectionOboValidUserid"})
+  @CsvSource({
+    "/connection/obo/create-connection-obo-valid-username.swadl.yaml, /create-connection-obo-valid-username, "
+      + "createConnectionOboValidUsername",
+    "/connection/obo/create-connection-obo-valid-userid.swadl.yaml, /create-connection-obo-valid-userid, "
+      + "createConnectionOboValidUserid"
+  })
   void createConnectionObo(String workflowFile, String command, String outputName) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -250,11 +253,12 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource(
-      {"/connection/obo/accept-connection-obo-valid-username.swadl.yaml, /accept-connection-obo-valid-username, "
-          + "acceptConnectionOboValidUsername",
-          "/connection/obo/accept-connection-obo-valid-userid.swadl.yaml, /accept-connection-obo-valid-userid, "
-              + "acceptConnectionOboValidUserid"})
+  @CsvSource({
+    "/connection/obo/accept-connection-obo-valid-username.swadl.yaml, /accept-connection-obo-valid-username, "
+      + "acceptConnectionOboValidUsername",
+    "/connection/obo/accept-connection-obo-valid-userid.swadl.yaml, /accept-connection-obo-valid-userid, "
+      + "acceptConnectionOboValidUserid"
+  })
   void acceptConnectionStatusObo(String workflowFile, String command, String output) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -311,11 +315,12 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource(
-      {"/connection/obo/reject-connection-obo-valid-username.swadl.yaml, /reject-connection-obo-valid-username, "
-          + "rejectConnectionOboValidUsername",
-          "/connection/obo/reject-connection-obo-valid-userid.swadl.yaml, /reject-connection-obo-valid-userid, "
-              + "rejectConnectionOboValidUserid"})
+  @CsvSource({
+    "/connection/obo/reject-connection-obo-valid-username.swadl.yaml, /reject-connection-obo-valid-username, "
+      + "rejectConnectionOboValidUsername",
+    "/connection/obo/reject-connection-obo-valid-userid.swadl.yaml, /reject-connection-obo-valid-userid, "
+      + "rejectConnectionOboValidUserid"
+  })
   void rejectConnectionStatusObo(String workflowFile, String command, String output) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));
@@ -366,8 +371,10 @@ class ConnectionsIntegrationTest extends IntegrationTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"/connection/obo/remove-connection-obo-valid-username.swadl.yaml, /remove-connection-obo-valid-username",
-      "/connection/obo/remove-connection-obo-valid-userid.swadl.yaml, /remove-connection-obo-valid-userid"})
+  @CsvSource({
+    "/connection/obo/remove-connection-obo-valid-username.swadl.yaml, /remove-connection-obo-valid-username",
+    "/connection/obo/remove-connection-obo-valid-userid.swadl.yaml, /remove-connection-obo-valid-userid"
+  })
   void removeConnectionStatusObo(String workflowFile, String command) throws Exception {
     final Workflow workflow =
         SwadlParser.fromYaml(getClass().getResourceAsStream(workflowFile));

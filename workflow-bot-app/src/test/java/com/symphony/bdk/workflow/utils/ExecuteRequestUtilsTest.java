@@ -1,10 +1,10 @@
 package com.symphony.bdk.workflow.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.engine.executor.request.ExecuteRequestUtils;
 
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ExecuteRequestUtilsTest {
 

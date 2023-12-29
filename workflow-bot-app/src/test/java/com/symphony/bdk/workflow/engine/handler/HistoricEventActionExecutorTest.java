@@ -1,16 +1,16 @@
 package com.symphony.bdk.workflow.engine.handler;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import com.symphony.bdk.workflow.engine.handler.audit.AuditTrailLogAction;
 import com.symphony.bdk.workflow.engine.handler.variable.WorkflowEventVariableAction;
 
 import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
 import org.junit.jupiter.api.Test;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class HistoricEventActionExecutorTest {
 

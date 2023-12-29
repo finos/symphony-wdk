@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn;
 
-import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.ERROR_CODE;
-
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 
 import lombok.experimental.Delegate;
@@ -15,6 +13,8 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.ERROR_CODE;
 
 /**
  * A context holder class, having the cached builders and graph relationships in one place.

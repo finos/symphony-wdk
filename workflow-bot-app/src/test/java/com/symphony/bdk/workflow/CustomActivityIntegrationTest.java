@@ -1,10 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
@@ -14,6 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 class CustomActivityIntegrationTest extends IntegrationTest {
 

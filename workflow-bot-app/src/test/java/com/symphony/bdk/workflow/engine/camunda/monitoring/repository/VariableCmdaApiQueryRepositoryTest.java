@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.converter.ObjectConverter;
 import com.symphony.bdk.workflow.monitoring.repository.domain.VariablesDomain;
 
@@ -23,6 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VariableCmdaApiQueryRepositoryTest {

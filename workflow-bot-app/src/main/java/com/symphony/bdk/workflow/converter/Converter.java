@@ -19,6 +19,7 @@ public interface Converter<S, T> extends Function<S, T> {
    *
    * @return the source class type
    */
+  @SuppressWarnings("unchecked")
   default Class<S> getSourceClass() {
     return (Class<S>) ((ParameterizedType) getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
   }
@@ -28,6 +29,7 @@ public interface Converter<S, T> extends Function<S, T> {
    *
    * @return the target class type
    */
+  @SuppressWarnings("unchecked")
   default Class<T> getTargetClass() {
     return (Class<T>) ((ParameterizedType) getClass().getGenericInterfaces()[0]).getActualTypeArguments()[1];
   }

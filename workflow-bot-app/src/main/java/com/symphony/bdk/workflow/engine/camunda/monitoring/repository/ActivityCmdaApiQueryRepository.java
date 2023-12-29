@@ -34,6 +34,7 @@ public class ActivityCmdaApiQueryRepository extends CamundaAbstractQueryReposito
    * and eventually the one activity being executed (with status ONGOING).
    */
   @Override
+  @SuppressWarnings("unchecked")
   public List<ActivityInstanceDomain> findAllByWorkflowInstanceId(String workflowId, String instanceId,
       WorkflowInstLifeCycleFilter lifeCycleFilter) {
     HistoricActivityInstanceQuery historicActivityInstanceQuery = historyService.createHistoricActivityInstanceQuery()

@@ -1,9 +1,5 @@
 package com.symphony.bdk.workflow.swadl.validator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.SwadlNotValidException;
 
@@ -14,6 +10,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class SwadlValidatorTest {
 

@@ -1,8 +1,5 @@
 package com.symphony.bdk.workflow.expiration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-
 import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpirationJob;
 import com.symphony.bdk.workflow.scheduled.RunnableScheduledJob;
 import com.symphony.bdk.workflow.scheduled.ScheduledJobsRegistry;
@@ -15,6 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultWorkflowExpirationPlannerTest {
