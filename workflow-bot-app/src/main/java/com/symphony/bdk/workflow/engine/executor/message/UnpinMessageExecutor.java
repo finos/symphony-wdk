@@ -1,8 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.message;
 
-import static com.symphony.bdk.workflow.engine.executor.message.PinMessageExecutor.IM;
-import static com.symphony.bdk.workflow.engine.executor.message.PinMessageExecutor.ROOM;
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.gen.api.model.V1IMAttributes;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
@@ -15,6 +12,9 @@ import com.symphony.bdk.workflow.swadl.v1.activity.message.UnpinMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+
+import static com.symphony.bdk.workflow.engine.executor.message.PinMessageExecutor.IM;
+import static com.symphony.bdk.workflow.engine.executor.message.PinMessageExecutor.ROOM;
 
 @Slf4j
 public class UnpinMessageExecutor extends OboExecutor<UnpinMessage, Void>

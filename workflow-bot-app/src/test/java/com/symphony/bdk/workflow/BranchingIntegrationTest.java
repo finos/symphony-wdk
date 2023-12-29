@@ -1,10 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.exception.InvalidActivityException;
@@ -18,6 +13,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class BranchingIntegrationTest extends IntegrationTest {
 

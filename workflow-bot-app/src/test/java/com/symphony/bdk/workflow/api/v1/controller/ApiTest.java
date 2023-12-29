@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static org.mockito.Mockito.clearInvocations;
-
 import com.symphony.bdk.workflow.engine.WorkflowEngine;
 import com.symphony.bdk.workflow.engine.camunda.CamundaTranslatedWorkflowContext;
 import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
@@ -15,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.Mockito.clearInvocations;
 
 @WebMvcTest(properties = {"wdk.properties.management-token=myToken", "logging.level.web=TRACE"})
 public class ApiTest {

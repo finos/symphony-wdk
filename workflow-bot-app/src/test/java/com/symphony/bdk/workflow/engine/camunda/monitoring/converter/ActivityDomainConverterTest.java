@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.converter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.monitoring.repository.domain.ActivityInstanceDomain;
 
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricActivityInstanceEntity;
@@ -9,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ActivityDomainConverterTest {
 

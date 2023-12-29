@@ -1,16 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.custom.assertion.Assertions;
@@ -24,6 +13,17 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class EngineIntegrationTest extends IntegrationTest {
 

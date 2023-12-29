@@ -1,5 +1,14 @@
 package com.symphony.bdk.workflow;
 
+import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.workflow.swadl.SwadlParser;
+import com.symphony.bdk.workflow.swadl.v1.Workflow;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
 import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
 import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,15 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.workflow.swadl.SwadlParser;
-import com.symphony.bdk.workflow.swadl.v1.Workflow;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 class ErrorIntegrationTest extends IntegrationTest {
 

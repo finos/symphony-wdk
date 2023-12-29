@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PreDestroy;
+
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
@@ -15,7 +17,6 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import javax.annotation.PreDestroy;
 
 /**
  * Watch a specific folder for workflows.
@@ -70,6 +71,7 @@ public class WorkflowFolderWatcher {
 
   private void handleFileEventOrLogError(Path path, WatchEvent<?> event) {
     try {
+      @SuppressWarnings("unchecked")
       WatchEvent<Path> ev = (WatchEvent<Path>) event;
       Path changedFile = path.resolve(ev.context());
       this.workflowDeployer.handleFileEvent(changedFile, ev);

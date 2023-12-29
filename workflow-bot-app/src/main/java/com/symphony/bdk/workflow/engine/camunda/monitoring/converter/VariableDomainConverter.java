@@ -13,6 +13,7 @@ import java.util.Map;
 public class VariableDomainConverter implements Converter<HistoricDetail, VariablesDomain> {
 
   @Override
+  @SuppressWarnings("unchecked")
   public VariablesDomain apply(HistoricDetail historicVariableUpdate) {
     HistoricVariableUpdate variableUpdate = (HistoricVariableUpdate) historicVariableUpdate;
     VariablesDomain domain = new VariablesDomain();

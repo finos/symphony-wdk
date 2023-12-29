@@ -12,6 +12,7 @@ public interface BiConverter<S, K, T> extends BiFunction<S, K, T> {
    *
    * @return the source class type
    */
+  @SuppressWarnings("unchecked")
   default Class<S> getSourceClass() {
     return (Class<S>) ((ParameterizedType) getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
   }
@@ -21,6 +22,7 @@ public interface BiConverter<S, K, T> extends BiFunction<S, K, T> {
    *
    * @return the target class type
    */
+  @SuppressWarnings("unchecked")
   default Class<T> getTargetClass() {
     return (Class<T>) ((ParameterizedType) getClass().getGenericInterfaces()[0]).getActualTypeArguments()[2];
   }

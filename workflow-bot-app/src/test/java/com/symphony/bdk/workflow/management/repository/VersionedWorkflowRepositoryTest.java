@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.management.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.management.repository.domain.VersionedWorkflow;
 
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = {"wdk.properties.management-token=token"})
 public class VersionedWorkflowRepositoryTest {

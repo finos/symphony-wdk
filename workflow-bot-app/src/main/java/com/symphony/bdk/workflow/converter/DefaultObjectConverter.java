@@ -60,21 +60,18 @@ public class DefaultObjectConverter implements ObjectConverter {
   @Override
   @SuppressWarnings("unchecked")
   public <T> T convert(Object source, Class<T> targetClass) {
-    Converter converter =
-        getConverter(source, Optional.ofNullable(source).map(Object::getClass).orElse(null), targetClass,
+    var converter = getConverter(source, Optional.ofNullable(source).map(Object::getClass).orElse(null), targetClass,
             converterMap::get);
     return (T) converter.apply(source);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T convert(Object source, Object object, Class<T> targetClass) {
-    BiConverter converter =
-        getConverter(source, Optional.ofNullable(source).map(Object::getClass).orElse(null), targetClass,
+    var converter = getConverter(source, Optional.ofNullable(source).map(Object::getClass).orElse(null), targetClass,
             biConverterMap::get);
     return (T) converter.apply(source, object);
   }
-
-
 
   /**
    * {@inheritDoc}
@@ -82,13 +79,14 @@ public class DefaultObjectConverter implements ObjectConverter {
   @Override
   @SuppressWarnings("unchecked")
   public <T> T convert(Object source, Class<?> sourceClass, Class<T> targetClass) {
-    Converter converter = getConverter(source, sourceClass, targetClass, converterMap::get);
+    var converter = getConverter(source, sourceClass, targetClass, converterMap::get);
     return (T) converter.apply(source);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T convert(Object source, Object object, Class<?> sourceClass, Class<T> targetClass) {
-    BiConverter converter = getConverter(source, sourceClass, targetClass, biConverterMap::get);
+    var converter = getConverter(source, sourceClass, targetClass, biConverterMap::get);
     return (T) converter.apply(source, object);
   }
 
@@ -102,7 +100,7 @@ public class DefaultObjectConverter implements ObjectConverter {
       return Collections.emptyList();
     }
 
-    Converter converter = converterMap.get(new ConverterKey(source.get(0).getClass(), targetClass));
+    var converter = converterMap.get(new ConverterKey(source.get(0).getClass(), targetClass));
     if (Objects.isNull(converter)) {
       throw new IllegalArgumentException("Cannot find converter for " + targetClass);
     }
@@ -111,12 +109,13 @@ public class DefaultObjectConverter implements ObjectConverter {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> List<T> convertCollection(List<?> source, Object object, Class<T> targetClass) {
     if (Objects.isNull(source) || source.isEmpty()) {
       return Collections.emptyList();
     }
 
-    BiConverter converter = biConverterMap.get(new ConverterKey(source.get(0).getClass(), targetClass));
+    var converter = biConverterMap.get(new ConverterKey(source.get(0).getClass(), targetClass));
     if (Objects.isNull(converter)) {
       throw new IllegalArgumentException("Cannot find converter for " + targetClass);
     }
@@ -138,7 +137,7 @@ public class DefaultObjectConverter implements ObjectConverter {
       throw new IllegalArgumentException("Cannot find converter for the given source type " + sourceClass);
     }
 
-    Converter converter = converterMap.get(new ConverterKey(sourceClass, targetClass));
+    var converter = converterMap.get(new ConverterKey(sourceClass, targetClass));
     if (Objects.isNull(converter)) {
       throw new IllegalArgumentException("Cannot find converter for " + targetClass);
     }
@@ -147,6 +146,7 @@ public class DefaultObjectConverter implements ObjectConverter {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> List<T> convertCollection(List<?> source, Object object, Class<?> sourceClass, Class<T> targetClass) {
     if (Objects.isNull(source) || source.isEmpty()) {
       return Collections.emptyList();
@@ -156,7 +156,7 @@ public class DefaultObjectConverter implements ObjectConverter {
       throw new IllegalArgumentException("Cannot find converter for the given source type " + sourceClass);
     }
 
-    BiConverter converter = biConverterMap.get(new ConverterKey(sourceClass, targetClass));
+    var converter = biConverterMap.get(new ConverterKey(sourceClass, targetClass));
     if (Objects.isNull(converter)) {
       throw new IllegalArgumentException("Cannot find converter for " + targetClass);
     }

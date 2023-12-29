@@ -1,15 +1,8 @@
 package com.symphony.bdk.workflow.security;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.configuration.WorkflowBotConfiguration;
 import com.symphony.bdk.workflow.exception.UnauthorizedException;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -19,6 +12,12 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.annotation.Annotation;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class AuthorizationAspectTest {

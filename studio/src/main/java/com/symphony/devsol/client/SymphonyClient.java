@@ -1,8 +1,5 @@
 package com.symphony.devsol.client;
 
-import static java.util.stream.Collectors.toList;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -27,6 +24,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor

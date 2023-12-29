@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda.monitoring.converter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowInstanceDomain;
 
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
@@ -11,6 +9,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkflowInstDomainVersionConverterTest {
 

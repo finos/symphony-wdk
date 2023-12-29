@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.swadl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.engine.camunda.variable.BpmnToAndFromBaseActivityMixin;
 import com.symphony.bdk.workflow.engine.camunda.variable.EscapedJsonVariableDeserializer;
 import com.symphony.bdk.workflow.swadl.v1.Activity;
@@ -20,6 +18,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * This test mimics the conversion between:

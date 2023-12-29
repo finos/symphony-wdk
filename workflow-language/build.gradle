@@ -4,11 +4,13 @@ plugins {
 }
 
 javadoc {
-    options.group 'WDK Language', 'com.symphony.bdk.workflow*'
+    options {
+        group = 'WDK Language' -> 'com.symphony.bdk.workflow*'
+    }
 }
 
 dependencies {
-    api platform('org.finos.symphony.bdk:symphony-bdk-bom:2.14.0')
+    api platform('org.finos.symphony.bdk:symphony-bdk-bom:3.0.0.RC6')
 
     api 'org.finos.symphony.bdk:symphony-bdk-core'
     api 'org.finos.symphony.bdk.ext:symphony-group-extension'

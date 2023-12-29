@@ -3,7 +3,6 @@ package com.symphony.bdk.workflow;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
-import com.symphony.bdk.workflow.engine.shared.SharedDataRepository;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 

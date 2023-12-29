@@ -1,7 +1,5 @@
 package com.symphony.devsol.client;
 
-import static java.util.stream.Collectors.toMap;
-
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
@@ -32,6 +30,8 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @RestController

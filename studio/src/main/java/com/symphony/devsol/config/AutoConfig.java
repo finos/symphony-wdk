@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Slf4j
 @EnableCaching

@@ -1,12 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -15,6 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
+
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @Slf4j

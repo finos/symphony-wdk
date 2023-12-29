@@ -3,21 +3,23 @@ package com.symphony.bdk.workflow.engine.shared;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.type.SqlTypes;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "SHARED_STATE_DATA")
-@TypeDef(name = "json", typeClass = JsonType.class)
+@Convert(attributeName = "entityAttrName", converter = JsonType.class)
 @Data
 public class SharedData {
   @Id
@@ -30,7 +32,7 @@ public class SharedData {
   @Column(length = 15)
   private String namespace;
 
-  @Type(type = "json")
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "json")
   private Map<String, Object> properties = new HashMap<>();
 
@@ -41,5 +43,4 @@ public class SharedData {
     this.setNamespace(namespace);
     return this;
   }
-
 }

@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.event;
 
-import static java.util.Collections.singletonMap;
-
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.workflow.engine.camunda.variable.FormVariableListener;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutorContext;
@@ -18,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static java.util.Collections.singletonMap;
 
 @Service
 @Slf4j
@@ -73,7 +73,7 @@ public class V4ElementActionEventProcessor extends AbstractRealTimeEventProcesso
         .list()
         .stream()
         .filter(a -> ((List) a.getValue())
-            .contains(messageId)) // if the workflow has many process instances, this filter could impact the performance
+            .contains(messageId)) // if the workflow has many process instances, this filter could impact performance
         .map(VariableInstance::getProcessInstanceId)
         .findFirst();
   }

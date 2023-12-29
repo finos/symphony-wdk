@@ -3,10 +3,11 @@ package com.symphony.bdk.workflow.swadl;
 import com.symphony.bdk.workflow.engine.executor.ActivityExecutor;
 import com.symphony.bdk.workflow.swadl.v1.activity.BaseActivity;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
@@ -26,19 +27,20 @@ import java.util.stream.Collectors;
 public final class ActivityRegistry {
 
   private static final Set<Class<? extends BaseActivity>> activityTypes;
+  @Getter
   private static final Map<Class<? extends BaseActivity>, Class<? extends ActivityExecutor<? extends BaseActivity>>>
       activityExecutors;
 
   static {
     Reflections reflections = new Reflections(new ConfigurationBuilder()
-        .setScanners(new SubTypesScanner(false))
-        // this is a bit ugly but it works faster than scanning the entire classpath and for all contexts (JAR, tests)
+        .setScanners(Scanners.SubTypes)
+        // this is a bit ugly, but it works faster than scanning the entire classpath and for all contexts (JAR, tests)
         .addUrls(ClasspathHelper.forClassLoader().stream()
-            // avoid bot's dependencies / pick only lib/ folder
+            // avoid bot dependencies / pick only lib/ folder
             .filter(a -> a.toString().contains("lib/") && !a.toString().contains("BOOT-INF"))
             .collect(Collectors.toList()))
         .addUrls(ClasspathHelper.forPackage("com.symphony.bdk.workflow"))
-        .filterInputsBy(new FilterBuilder().include(".*class")));
+        .filterInputsBy(new FilterBuilder().includePattern(".*class")));
     activityTypes = reflections.getSubTypesOf(BaseActivity.class);
 
     activityExecutors = reflections.getSubTypesOf(ActivityExecutor.class).stream()
@@ -78,10 +80,5 @@ public final class ActivityRegistry {
 
   public static Set<Class<? extends BaseActivity>> getActivityTypes() {
     return new HashSet<>(activityTypes);
-  }
-
-  public static Map<Class<? extends BaseActivity>,
-      Class<? extends ActivityExecutor<? extends BaseActivity>>> getActivityExecutors() {
-    return activityExecutors;
   }
 }

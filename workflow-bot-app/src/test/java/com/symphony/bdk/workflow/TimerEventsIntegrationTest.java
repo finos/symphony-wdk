@@ -1,14 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
@@ -22,6 +13,15 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.symphony.bdk.workflow.custom.assertion.WorkflowAssert.content;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 // Tests can be fragile if as they are time based
 class TimerEventsIntegrationTest extends IntegrationTest {

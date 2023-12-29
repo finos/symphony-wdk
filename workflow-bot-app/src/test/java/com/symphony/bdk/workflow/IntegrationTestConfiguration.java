@@ -1,8 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.configuration.WorkflowBotConfiguration;
 import com.symphony.bdk.workflow.engine.ResourceProvider;
 import com.symphony.bdk.workflow.engine.secret.SecretCryptVault;
@@ -21,6 +18,9 @@ import java.security.spec.KeySpec;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @TestConfiguration
 @Slf4j

@@ -1,21 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.api.v1.dto.NodeView.ChildView;
-import static com.symphony.bdk.workflow.api.v1.dto.NodeView.builder;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
@@ -44,10 +28,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.symphony.bdk.workflow.api.v1.dto.NodeView.ChildView;
+import static com.symphony.bdk.workflow.api.v1.dto.NodeView.builder;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 class MonitoringApiIntegrationTest extends IntegrationTest {
 
-  private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows/";
+  private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "wdk/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "wdk/v1/workflows/%s/instances/%s/states";

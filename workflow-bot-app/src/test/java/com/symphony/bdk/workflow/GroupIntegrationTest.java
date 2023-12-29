@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.ext.group.gen.api.model.GroupList;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -13,6 +7,12 @@ import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 class GroupIntegrationTest extends IntegrationTest {
 

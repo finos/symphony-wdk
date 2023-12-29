@@ -1,10 +1,5 @@
 package com.symphony.bdk.workflow.engine.handler;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-
 import com.symphony.bdk.workflow.engine.handler.audit.AuditTrailLogAction;
 import com.symphony.bdk.workflow.engine.handler.variable.WorkflowEventVariableAction;
 
@@ -16,6 +11,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class HistoricEventActionTest {

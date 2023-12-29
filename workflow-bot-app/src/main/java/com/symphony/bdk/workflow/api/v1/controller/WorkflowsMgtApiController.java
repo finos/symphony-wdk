@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static com.symphony.bdk.workflow.api.v1.WorkflowsApi.X_MONITORING_TOKEN_KEY;
-
 import com.symphony.bdk.workflow.api.v1.WorkflowsMgtApi;
 import com.symphony.bdk.workflow.api.v1.dto.SecretView;
 import com.symphony.bdk.workflow.api.v1.dto.SwadlView;
@@ -25,6 +23,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.symphony.bdk.workflow.api.v1.WorkflowsApi.X_MONITORING_TOKEN_KEY;
 
 @RestController
 @ConditionalOnPropertyNotEmpty("wdk.properties.management-token")

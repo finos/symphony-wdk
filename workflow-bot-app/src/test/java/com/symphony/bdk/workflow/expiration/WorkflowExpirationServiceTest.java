@@ -1,13 +1,5 @@
 package com.symphony.bdk.workflow.expiration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.exception.NotFoundException;
 import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
 import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
@@ -24,6 +16,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkflowExpirationServiceTest {
