@@ -1,17 +1,18 @@
 package com.symphony.bdk.workflow.engine.shared;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.type.SqlTypes;
 
 import java.util.HashMap;
 import java.util.Map;

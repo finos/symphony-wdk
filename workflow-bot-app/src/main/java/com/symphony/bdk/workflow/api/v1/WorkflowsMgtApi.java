@@ -27,7 +27,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.Instant;
 import java.util.List;
-import javax.validation.Valid;
+
+import jakarta.validation.Valid;
 
 @Tag(name = "Api to manage workflow swadl lifecycle")
 public interface WorkflowsMgtApi {

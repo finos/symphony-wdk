@@ -41,7 +41,7 @@ public class ApiIntegrationTest extends IntegrationTest {
   protected static final String DELETE_SWADL_BY_ID_AND_VERSION_URL =
       "http://localhost:%s/wdk/v1/workflows/%s?version=%s";
   protected static final String DELETE_SWADL_BY_ID_URL = "http://localhost:%s/wdk/v1/workflows/%s";
-  protected static final String LIST_ALL_DEPLOYED_WORKFLOWS_URL = "http://localhost:%s/wdk/v1/workflows/";
+  protected static final String LIST_ALL_DEPLOYED_WORKFLOWS_URL = "http://localhost:%s/wdk/v1/workflows";
   protected static final String LIST_INSTANCES_URL = "http://localhost:%s/wdk/v1/workflows/%s/instances";
   protected static final String LIST_INSTANCES_STATUS_URL =
       "http://localhost:%s/wdk/v1/workflows/%s/instances?status=%s";

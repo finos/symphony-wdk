@@ -47,7 +47,7 @@ import java.util.Optional;
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 class MonitoringApiIntegrationTest extends IntegrationTest {
 
-  private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows/";
+  private static final String LIST_WORKFLOWS_PATH = "wdk/v1/workflows";
   private static final String LIST_WORKFLOW_INSTANCES_PATH = "wdk/v1/workflows/%s/instances";
   private static final String LIST_WORKFLOW_INSTANCE_ACTIVITIES_PATH =
       "wdk/v1/workflows/%s/instances/%s/states";
