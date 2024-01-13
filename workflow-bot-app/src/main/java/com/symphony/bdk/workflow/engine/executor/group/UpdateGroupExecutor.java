@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow.engine.executor.group;
 
-import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toImplicitConnection;
-import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toInteractionTransfer;
-import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toMembers;
-import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toProfile;
-import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toVisibilityRestriction;
-
 import com.symphony.bdk.ext.group.gen.api.model.Owner;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
@@ -20,6 +14,12 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+
+import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toImplicitConnection;
+import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toInteractionTransfer;
+import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toMembers;
+import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toProfile;
+import static com.symphony.bdk.workflow.engine.executor.group.CreateGroupExecutor.toVisibilityRestriction;
 
 @Slf4j
 public class UpdateGroupExecutor implements ActivityExecutor<UpdateGroup> {

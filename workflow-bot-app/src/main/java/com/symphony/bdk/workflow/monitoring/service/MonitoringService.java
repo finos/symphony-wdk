@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.monitoring.service;
 
-import static com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.NodeChildren;
-
 import com.symphony.bdk.workflow.api.v1.dto.NodeStateView;
 import com.symphony.bdk.workflow.api.v1.dto.NodeView;
 import com.symphony.bdk.workflow.api.v1.dto.StatusEnum;
@@ -38,7 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
+
+import static com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.NodeChildren;
 
 @RequiredArgsConstructor
 @Component

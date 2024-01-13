@@ -1,11 +1,5 @@
 package com.symphony.bdk.workflow;
 
-import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.workflow.swadl.SwadlParser;
@@ -20,6 +14,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.symphony.bdk.workflow.custom.assertion.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ConnectionsIntegrationTest extends IntegrationTest {
 

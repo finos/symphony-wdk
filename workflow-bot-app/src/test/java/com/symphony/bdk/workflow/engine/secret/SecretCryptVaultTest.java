@@ -1,14 +1,15 @@
 package com.symphony.bdk.workflow.engine.secret;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.security.spec.KeySpec;
+
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SecretCryptVaultTest {
 

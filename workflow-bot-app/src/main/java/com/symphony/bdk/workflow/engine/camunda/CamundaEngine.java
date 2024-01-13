@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
-import static com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService.ACTIVE_WORKFLOW_DIRECTED_GRAPH;
-
 import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.workflow.engine.ExecutionParameters;
@@ -30,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.symphony.bdk.workflow.engine.camunda.WorkflowDirectedGraphService.ACTIVE_WORKFLOW_DIRECTED_GRAPH;
 
 @Slf4j
 @Component

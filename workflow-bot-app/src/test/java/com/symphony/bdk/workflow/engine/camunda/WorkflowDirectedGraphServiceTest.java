@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.engine.camunda;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 import com.symphony.bdk.workflow.IntegrationTest;
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph;
 import com.symphony.bdk.workflow.management.repository.VersionedWorkflowRepository;
@@ -15,6 +13,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.SimpleKey;
 
 import java.time.Instant;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class WorkflowDirectedGraphServiceTest extends IntegrationTest {
 

@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.api.v1.dto.SecretView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.engine.executor.SecretKeeper;
@@ -18,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressFBWarnings(value = {"NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"},

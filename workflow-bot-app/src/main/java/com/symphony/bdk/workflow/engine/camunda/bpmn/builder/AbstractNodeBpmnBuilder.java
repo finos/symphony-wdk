@@ -1,14 +1,14 @@
 package com.symphony.bdk.workflow.engine.camunda.bpmn.builder;
 
-import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.endEventSubProcess;
-import static com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder.EXCLUSIVE_GATEWAY_SUFFIX;
-
 import com.symphony.bdk.workflow.engine.WorkflowNode;
 import com.symphony.bdk.workflow.engine.camunda.bpmn.BuildProcessContext;
 
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
+
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.BpmnBuilderHelper.endEventSubProcess;
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.CamundaBpmnBuilder.EXCLUSIVE_GATEWAY_SUFFIX;
 
 public abstract class AbstractNodeBpmnBuilder implements WorkflowNodeBpmnBuilder {
 

@@ -1,8 +1,5 @@
 package com.symphony.devsol.config;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.workflow.api.v1.dto.VersionedWorkflowView;
 import com.symphony.bdk.workflow.management.WorkflowManagementService;
@@ -23,6 +20,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 @Component

@@ -1,7 +1,5 @@
 package com.symphony.bdk.workflow.api.v1.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowInstView;
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 
@@ -16,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "A NP should make the test fail")
 public class WorkflowsMonitoringApiIntegrationTest extends ApiIntegrationTest {
@@ -29,8 +29,7 @@ public class WorkflowsMonitoringApiIntegrationTest extends ApiIntegrationTest {
       + "      content: Started\n"
       + "      to: \n"
       + "        stream-id: \"123\"\n"
-      +
-      "  - execute-script:\n"
+      + "  - execute-script:\n"
       + "      id: script1\n"
       + "      on:\n"
       + "        message-received:\n"
@@ -87,8 +86,9 @@ public class WorkflowsMonitoringApiIntegrationTest extends ApiIntegrationTest {
 
   @Test
   @Order(3)
-  void listInstancesByStatusTest() {
+  void listInstancesByStatusTest() throws InterruptedException {
     // list pending instances
+    Thread.sleep(200);
     ResponseEntity<List<WorkflowInstView>> listResponseEntity =
         listInstances("valid-dummy-workflow-1", "pending");
     assertThat(listResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);

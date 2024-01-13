@@ -4,11 +4,12 @@ import com.symphony.bdk.workflow.configuration.ConditionalOnPropertyNotEmpty;
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationPlanner;
 import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
 
 @Component
 @RequiredArgsConstructor

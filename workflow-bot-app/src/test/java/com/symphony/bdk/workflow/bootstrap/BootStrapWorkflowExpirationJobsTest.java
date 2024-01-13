@@ -1,12 +1,5 @@
 package com.symphony.bdk.workflow.bootstrap;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.workflow.expiration.WorkflowExpirationPlanner;
 import com.symphony.bdk.workflow.management.repository.WorkflowExpirationJobRepository;
 import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpirationJob;
@@ -14,6 +7,13 @@ import com.symphony.bdk.workflow.management.repository.domain.WorkflowExpiration
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class BootStrapWorkflowExpirationJobsTest {
 

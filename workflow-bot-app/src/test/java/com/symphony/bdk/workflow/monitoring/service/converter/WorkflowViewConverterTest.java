@@ -1,11 +1,11 @@
 package com.symphony.bdk.workflow.monitoring.service.converter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.symphony.bdk.workflow.api.v1.dto.WorkflowView;
 import com.symphony.bdk.workflow.monitoring.repository.domain.WorkflowDomain;
 
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class WorkflowViewConverterTest {
 

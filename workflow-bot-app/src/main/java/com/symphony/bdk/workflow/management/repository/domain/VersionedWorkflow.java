@@ -2,6 +2,10 @@ package com.symphony.bdk.workflow.management.repository.domain;
 
 import com.symphony.bdk.workflow.management.BigStringCompressor;
 
+import lombok.Data;
+import lombok.Generated;
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -12,9 +16,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
-import lombok.Data;
-import lombok.Generated;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.util.Optional;
 

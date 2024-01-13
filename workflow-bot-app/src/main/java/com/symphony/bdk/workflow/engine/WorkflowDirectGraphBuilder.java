@@ -1,10 +1,5 @@
 package com.symphony.bdk.workflow.engine;
 
-import static com.symphony.bdk.workflow.WorkflowValidator.validateActivityCompletedNodeId;
-import static com.symphony.bdk.workflow.WorkflowValidator.validateExistingNodeId;
-import static com.symphony.bdk.workflow.WorkflowValidator.validateFirstActivity;
-import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
-
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.workflow.engine.WorkflowDirectedGraph.Gateway;
 import com.symphony.bdk.workflow.event.WorkflowEventType;
@@ -24,6 +19,11 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.symphony.bdk.workflow.WorkflowValidator.validateActivityCompletedNodeId;
+import static com.symphony.bdk.workflow.WorkflowValidator.validateExistingNodeId;
+import static com.symphony.bdk.workflow.WorkflowValidator.validateFirstActivity;
+import static com.symphony.bdk.workflow.engine.camunda.bpmn.builder.WorkflowNodeBpmnBuilder.DEFAULT_FORM_REPLIED_EVENT_TIMEOUT;
 
 /**
  * Builder constructs the given workflow into a direct graph structure
