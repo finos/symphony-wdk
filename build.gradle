@@ -7,7 +7,7 @@ group = 'org.finos.symphony.wdk'
 
 ext.projectVersion = '2.0.0-pre'
 
-ext.mavenRepoUrl = ext.projectVersion.endsWith('SNAPSHOT') ?  'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.mavenRepoUrl = ext.projectVersion.endsWith('SNAPSHOT') ?  'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/'
 ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
 ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
 
