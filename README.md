@@ -1,12 +1,14 @@
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# Symphony Workflow Developer Kit (WDK)
+# Symphony Workflow Developer Kit (WDK) - Beta
 
 📺 [Video introduction of the WDK](https://goto.symphony.com/WorkflowDevKit-Recording.html)
 
 The Symphony Workflow Developer Kit (WDK) is a way to build bots on the Symphony platform with minimal coding efforts. A
 standard execution engine, provided as a bot is running workflows written in a declarative manner.
+
+*The WDK is provided as an experimental beta-test*
 
 Workflow executions are triggered by events (such [Real-Time Events](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)) and run activities. Activities are small building
 blocks often calling REST API endpoints of the Symphony platform or can even be custom-made to tailor your needs.
