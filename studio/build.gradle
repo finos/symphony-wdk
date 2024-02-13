@@ -6,7 +6,7 @@ dependencies {
     compileOnly project(':workflow-language')
     compileOnly project(':workflow-bot-app')
     compileOnly 'org.springframework:spring-tx'
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:3.0.0.RC6')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:3.0.0')
     implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter'
 }
 

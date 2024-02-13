@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'workflow-bot.java-conventions'
-    id 'org.springframework.boot' version '3.2.1'
+    id 'org.springframework.boot' version '3.2.2'
 }
 
 javadoc {
@@ -14,7 +14,7 @@ javadoc {
 dependencies {
     implementation project(':workflow-language')
 
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:3.0.0.RC6') {
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:3.0.0') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
 
