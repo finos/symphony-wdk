@@ -12,6 +12,7 @@ import com.symphony.bdk.workflow.swadl.v1.Properties;
 import com.symphony.bdk.workflow.swadl.v1.Workflow;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -59,10 +60,11 @@ public class WorkflowManagementServiceTest {
       + "          content: msg\n"
       + "      content: content";
 
-  Workflow workflow;
-  SwadlView swadlView;
+  static Workflow workflow;
+  static SwadlView swadlView;
 
-  public WorkflowManagementServiceTest() throws IOException, ProcessingException {
+  @BeforeAll
+  static void setup() throws IOException, ProcessingException {
     workflow = SwadlParser.fromYaml(swadl);
     swadlView = SwadlView.builder().swadl(swadl).description("desc").createdBy(1234L).build();
   }
